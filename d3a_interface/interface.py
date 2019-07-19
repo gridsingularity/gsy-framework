@@ -1,3 +1,8 @@
 
 def test_interface():
-    print("d3a-interface was successfully installed and imported")
+    """
+    TODO please remove me once there is proper code
+    """
+    output = "d3a-interface was successfully installed and imported"
+    print(output)
+    return output
