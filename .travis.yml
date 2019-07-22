@@ -23,3 +23,8 @@ jobs:
          curl -LO --retry 3 https://raw.github.com/mernst/plume-lib/master/bin/trigger-travis.sh
          sh trigger-travis.sh --pro --branch $TRAVIS_BRANCH gridsingularity d3a-web $TRAVIS_ACCESS_TOKEN
        fi
+
+notifications:
+  email:
+    recipients:
+    - dev@gridsingularity.com
