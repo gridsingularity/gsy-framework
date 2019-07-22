@@ -5,6 +5,7 @@ python: 3.6
 env: TOXENV=travis
 install: pip install tox
 script: tox -e $TOXENV
+after_script: rm -rf ./.tox
 branches:
   only:
   - master
