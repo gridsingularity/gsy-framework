@@ -1,6 +1,10 @@
 sudo: false
 dist: trusty
 language: python
+python: 3.6
+env: TOXENV=travis
+install: pip install tox
+script: tox -e $TOXENV
 branches:
   only:
   - master
