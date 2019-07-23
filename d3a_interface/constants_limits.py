@@ -41,7 +41,7 @@ class Constants:
         CAPACITY_RANGE = [0.0001, 2000000]
         # Maximum battery power for supply/demand, in Watts.
         MAX_ABS_POWER = 5
-        MAX_ABS_POWER_RANGE = [1, 2000000]
+        MAX_ABS_POWER_RANGE = [0.0001, 2000000]
         # Initial ESS rate calculation for every market slot, before rate reduction per tick
         # Option 1, use the historical market average
         # Default value 2 stands for market maker rate
