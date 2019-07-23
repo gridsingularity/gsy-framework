@@ -17,7 +17,7 @@ VERSION = '1.0.0a0'
 setup(
     name="d3a-interface",
     description="D3A interface",
-    # long_description=README,
+    long_description=README,
     author='GridSingularity',
     author_email='d3a@gridsingularity.com',
     url='https://github.com/gridsingularity/d3a-interface',
