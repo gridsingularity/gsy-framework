@@ -8,12 +8,15 @@ click==7.0                # via pip-tools
 filelock==3.0.12          # via tox
 importlib-metadata==0.18  # via pluggy, tox
 packaging==19.0           # via tox
+pendulum==2.0.5
 pip-tools==3.9.0
 pluggy==0.12.0            # via tox
 py==1.8.0                 # via tox
 pyparsing==2.4.0          # via packaging
+python-dateutil==2.8.0    # via pendulum
+pytzdata==2019.2          # via pendulum
 redis==3.2.1
-six==1.12.0               # via packaging, pip-tools, tox
+six==1.12.0               # via packaging, pip-tools, python-dateutil, tox
 toml==0.10.0              # via tox
 tox==3.13.2
 virtualenv==16.6.2        # via tox
