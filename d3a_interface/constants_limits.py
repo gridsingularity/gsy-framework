@@ -175,6 +175,7 @@ class GlobalConfig:
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = str(ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
 
+
     # Default simulation settings d3a side:
     start_date = datetime.combine(START_DATE, datetime.min.time())
     sim_duration = duration(days=DURATION_D)
