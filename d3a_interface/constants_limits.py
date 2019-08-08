@@ -3,16 +3,7 @@ from datetime import date, datetime
 from pendulum import duration
 
 
-class TimeConstants:
-    TIME_FORMAT = "HH:mm"
-    DATE_FORMAT = "YYYY-MM-DD"
-    DATE_TIME_FORMAT = f"{DATE_FORMAT}T{TIME_FORMAT}"
-    DATE_TIME_UI_FORMAT = "MMMM DD YYYY, HH:mm [h]"
-
-    TIME_ZONE = "UTC"
-
-
-class Constants:
+class ConstSettings:
     class GeneralSettings:
         # Risk value for all risk based strategies. Unit is percentage.
         MIN_RISK = 0
@@ -171,18 +162,18 @@ class Constants:
         FLEXIBLE_LOADS_SUPPORT = True
 
 
-class GlobalConfigSetting:
+class GlobalConfig:
     # Default simulation settings d3a-web side
     START_DATE = date.today()
     SLOT_LENGTH_M = 15
     TICK_LENGTH_S = 15
     DURATION_D = 1
     SLOWDOWN = 0
-    IAA_FEE = Constants.IAASettings.FEE_PERCENTAGE
+    IAA_FEE = ConstSettings.IAASettings.FEE_PERCENTAGE
     MARKET_COUNT = 1
-    CLOUD_COVERAGE = Constants.PVSettings.DEFAULT_POWER_PROFILE
+    CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
-    MARKET_MAKER_RATE = str(Constants.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
+    MARKET_MAKER_RATE = str(ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
 
     # Default simulation settings d3a side:
     start_date = datetime.combine(START_DATE, datetime.min.time())
@@ -192,7 +183,7 @@ class GlobalConfigSetting:
     tick_length = duration(seconds=TICK_LENGTH_S)
     ticks_per_slot = int(slot_length / tick_length)
     total_ticks = int(sim_duration / tick_length)
-    cloud_coverage = Constants.PVSettings.DEFAULT_POWER_PROFILE
-    iaa_fee = Constants.IAASettings.FEE_PERCENTAGE
-    iaa_fee_const = Constants.IAASettings.FEE_CONSTANT
-    market_maker_rate = Constants.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
+    cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
+    iaa_fee = ConstSettings.IAASettings.FEE_PERCENTAGE
+    iaa_fee_const = ConstSettings.IAASettings.FEE_CONSTANT
+    market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
