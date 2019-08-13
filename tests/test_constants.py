@@ -1,7 +1,7 @@
 
-from d3a_interface.constants_limits import Constants, GlobalConfigSetting
+from d3a_interface.constants_limits import ConstSettings, GlobalConfig
 
 
 def test_constanst():
-    assert Constants.GeneralSettings.MIN_RISK == 0
-    assert GlobalConfigSetting.DURATION_D == 1
+    assert ConstSettings.GeneralSettings.MIN_RISK == 0
+    assert GlobalConfig.DURATION_D == 1
