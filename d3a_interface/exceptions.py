@@ -16,9 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from d3a_interface.constants_limits import ConstSettings, GlobalConfig
+
+class D3AException(Exception):
+    pass
 
 
-def test_constanst():
-    assert ConstSettings.GeneralSettings.MIN_RISK == 0
-    assert GlobalConfig.DURATION_D == 1
+class SettingsException(D3AException):
+    pass

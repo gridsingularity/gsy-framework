@@ -1,3 +1,21 @@
+"""
+Copyright 2018 Grid Singularity
+This file is part of D3A.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import sys
 from datetime import date, datetime
 from pendulum import duration
@@ -28,7 +46,10 @@ class ConstSettings:
         RATE_DECREASE_OPTIONS = [1, 2]
         RATE_DECREASE_PER_UPDATE_RANGE = [0, 100]
         INITIAL_RATE_OPTIONS = [1, 2, 3]
+
         NUM_CLONES_RANGE = [0, 100]
+        MIN_NUM_TICKS = 10
+        MAX_SLOT_LENGTH_M = 60
 
     class CommercialProducerSettings:
         ENERGY_RATE_RANGE = [0, 10000]
@@ -97,6 +118,7 @@ class ConstSettings:
         # Applies to the predefined PV strategy, where a PV profile is selected out of 3 predefined
         # ones. Available values 0: sunny, 1: partial cloudy, 2: cloudy
         DEFAULT_POWER_PROFILE = 0
+        CLOUD_COVERAGE_RANGE = [0, 2]
         # Applies to gaussian PVStrategy, controls the max panel output in Watts.
         MAX_PANEL_OUTPUT_W = 160
 
@@ -115,12 +137,15 @@ class ConstSettings:
     class IAASettings:
         # Percentage value that controls the fee the IAA adds to the offers and bids.
         FEE_PERCENTAGE = 0
+        FEE_PERCENTAGE_RANGE = [0, 100]
         FEE_CONSTANT = 0
+        FEE_CONSTANT_RANGE = [0, sys.maxsize]
         # Market type option
         # Default value 1 stands for single sided market
         # Option 2 stands for double sided pay as bid market
         # Option 3 stands for double sided pay as clear market
         MARKET_TYPE = 1
+        MARKET_TYPE_RANGE = [1, 3]
 
         # Pay as clear offer and bid rate/energy aggregation algorithm
         # Default value 1 stands for line sweep algorithm
@@ -174,7 +199,6 @@ class GlobalConfig:
     CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = str(ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
-
 
     # Default simulation settings d3a side:
     start_date = datetime.combine(START_DATE, datetime.min.time())
