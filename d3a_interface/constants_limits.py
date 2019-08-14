@@ -50,6 +50,7 @@ class ConstSettings:
         NUM_CLONES_RANGE = [0, 100]
         MIN_NUM_TICKS = 10
         MAX_SLOT_LENGTH_M = 60
+        MIN_TICK_LENGTH_S = 1
 
     class CommercialProducerSettings:
         ENERGY_RATE_RANGE = [0, 10000]

@@ -13,10 +13,6 @@ jobs:
      install: pip install tox
      script: tox -e $TOXENV
      after_script: rm -rf ./.tox
-     branches:
-       only:
-         - master
-         - production
 # this is to trigger a new build of d3a-web for every push to master or production
    - python: 3.6
      stage: trigger downstream
@@ -28,10 +24,6 @@ jobs:
          curl -LO --retry 3 https://raw.github.com/mernst/plume-lib/master/bin/trigger-travis.sh
          sh trigger-travis.sh --pro --branch $TRAVIS_BRANCH gridsingularity d3a-web $TRAVIS_ACCESS_TOKEN
        fi
-     branches:
-       only:
-         - master
-         - production
 
 notifications:
   email:

@@ -39,17 +39,19 @@ def validate_global_settings(settings_dict):
                                 f'for spot market type.')
     if "tick_length" in settings_dict:
         min_tick_length, max_tick_length = calc_min_max_tick_length(slot_length)
-        if not min_tick_length <= settings_dict["slot_length"] <= max_tick_length:
-            raise SettingsException(f'Invalid tick_length ({settings_dict["slot_length"].minutes} '
-                                    f'min, limits: [{min_tick_length.seconds} sec, '
-                                    f'{max_tick_length.seonds} sec])')
+        if not min_tick_length <= settings_dict["tick_length"] <= max_tick_length:
+            raise SettingsException(f'Invalid tick_length '
+                                    f'({settings_dict["tick_length"].in_seconds()} sec, limits: '
+                                    f'[{min_tick_length.in_seconds()} sec, '
+                                    f'{max_tick_length.in_seconds()} sec])')
     if "slot_length" in settings_dict:
         min_slot_length, max_slot_length = calc_min_max_slot_length(tick_length)
         if not min_slot_length <= settings_dict["slot_length"] <= max_slot_length:
-            raise SettingsException(f'Invalid slot_length ({settings_dict["slot_length"].minutes} '
-                                    f'sec, limits: [{min_slot_length.minutes} min, '
-                                    f'{max_slot_length.minutes} min])')
-    if "duration" in settings_dict and not slot_length <= settings_dict["duration"]:
+            raise SettingsException(f'Invalid slot_length '
+                                    f'({settings_dict["slot_length"].in_minutes()} min, limits: '
+                                    f'[{min_slot_length.in_minutes()} min, '
+                                    f'{max_slot_length.in_minutes()} min])')
+    if "sim_duration" in settings_dict and not slot_length <= settings_dict["sim_duration"]:
         raise SettingsException(f"Invalid simulation duration "
                                 f"(lower than slot length of {slot_length.minutes} min")
     if "iaa_fee" in settings_dict and not \
@@ -67,7 +69,8 @@ def validate_global_settings(settings_dict):
 
 
 def calc_min_max_tick_length(slot_length):
-    return slot_length / ConstSettings.GeneralSettings.MIN_NUM_TICKS, slot_length
+    return duration(seconds=ConstSettings.GeneralSettings.MIN_TICK_LENGTH_S), \
+           slot_length / ConstSettings.GeneralSettings.MIN_NUM_TICKS
 
 
 def calc_min_max_slot_length(tick_length):

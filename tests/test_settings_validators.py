@@ -46,7 +46,7 @@ class TestValidateGlobalSettings(unittest.TestCase):
     def test_wrong_sim_duration(self):
         self.assertRaises(SettingsException, validate_global_settings,
                           {"slot_length": duration(minutes=15),
-                           "duration": duration(minutes=14)})
+                           "sim_duration": duration(minutes=14)})
 
     def test_wrong_spot_market_type(self):
         self.assertRaises(SettingsException, validate_global_settings,
