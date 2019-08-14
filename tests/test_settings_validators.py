@@ -37,7 +37,7 @@ class TestValidateGlobalSettings(unittest.TestCase):
                               minutes=ConstSettings.GeneralSettings.MAX_SLOT_LENGTH_M + 1)})
         self.assertRaises(SettingsException, validate_global_settings,
                           {"tick_length": duration(minutes=15) /
-                                          (ConstSettings.GeneralSettings.MIN_NUM_TICKS - 1),
+                           (ConstSettings.GeneralSettings.MIN_NUM_TICKS - 1),
                            "slot_length": duration(minutes=15)})
         self.assertRaises(SettingsException, validate_global_settings,
                           {"tick_length": duration(minutes=16),
