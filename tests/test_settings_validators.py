@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
 from pendulum import duration
+from datetime import timedelta
 from d3a_interface.settings_validators import validate_global_settings
 from d3a_interface.exceptions import SettingsException
 from d3a_interface.constants_limits import ConstSettings
@@ -42,6 +43,13 @@ class TestValidateGlobalSettings(unittest.TestCase):
         self.assertRaises(SettingsException, validate_global_settings,
                           {"tick_length": duration(minutes=16),
                            "slot_length": duration(minutes=15)})
+        # test for integer input
+        self.assertRaises(SettingsException, validate_global_settings,
+                          {"tick_length": 16 * 60, "slot_length": 15})
+        # test for timedelta
+        self.assertRaises(SettingsException, validate_global_settings,
+                          {"tick_length": timedelta(minutes=16),
+                           "slot_length": timedelta(minutes=15)})
 
     def test_wrong_sim_duration(self):
         self.assertRaises(SettingsException, validate_global_settings,
