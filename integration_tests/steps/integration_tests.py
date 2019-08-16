@@ -15,3 +15,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
+# TODO: Integration tests are probably not necessary in the whole repository, we might get rid of
+# TODO: behave and this folder here.
