@@ -15,3 +15,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
+from jsonschema.validators import validate
+from d3a_interface.schemas import ScenarioSchemas
+
+
+def scenario_validator(scenario_repr):
+    validate(instance=scenario_repr, schema=ScenarioSchemas.scenario_schema)
