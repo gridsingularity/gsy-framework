@@ -24,7 +24,7 @@ from d3a_interface.scenario_validators import scenario_validator
 
 class TestValidateGlobalSettings(unittest.TestCase):
 
-    def test_first_test(self):
+    def test_global_settings(self):
 
         scenario =  '{"name": "Area", "type": "Area", "uuid": "a4b42c3c-edc4-4eb3-992b-b6c1c6aae118", ' \
                     '"children": [ {"name": "PV", "risk": 50, "type": "PV", "uuid": "2c53cf13-a209-4b08-b320-28fad72c8930", "panel_count": 1, "min_selling_rate": 0.0, "number_of_clones": 1, "initial_pv_rate_option": 2, "energy_rate_decrease_option": 1, "power_profile": null}, ' \

@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class ScenarioSchemas:
+    # TODO: Add parameters, once D3ASIM-1378 and D3ASIM-1419 are pushed
     scenario_schema = {
         "definitions": {
             "area": {
@@ -114,3 +115,33 @@ class ScenarioSchemas:
 
         "$ref": "#/definitions/area"
     }
+
+
+class ResultsSchemas:
+    results_schema = {"type": "object",
+                      "properties": {
+                            "job_id":  {"type": "string"},
+                            "random_seed": {"type": "number"},
+                            "unmatched_loads": {"type": "object"},
+                            "cumulative_loads": {"type": "object"},
+                            "price_energy_day": {"type": "object"},
+                            "cumulative_grid_trades": {"type": "object"},
+                            "bills": {"type": "object"},
+                            "tree_summary": {"type": "object"},
+                            "status": {"type": "string"},
+                            "device_statistics": {"type": "object"},
+                            "energy_trade_profile": {"type": "object"}
+                          },
+                      "additionalProperties": False,
+                      "required": ["job_id",
+                                   "random_seed",
+                                   "unmatched_loads",
+                                   "cumulative_loads",
+                                   "price_energy_day",
+                                   "cumulative_grid_trades",
+                                   "bills",
+                                   "tree_summary",
+                                   "status",
+                                   "device_statistics",
+                                   "energy_trade_profile"]
+                      }

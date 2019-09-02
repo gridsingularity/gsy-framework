@@ -37,7 +37,6 @@ def validate_global_settings(settings_dict):
 
     if "tick_length" in settings_dict:
         min_tick_length, max_tick_length = calc_min_max_tick_length(slot_length)
-        # print(type(min_tick_length), type(tick_length), type(max_tick_length))
         if not min_tick_length <= tick_length <= max_tick_length:
             raise SettingsException(f'Invalid tick_length '
                                     f'({tick_length.in_seconds()} sec, limits: '
