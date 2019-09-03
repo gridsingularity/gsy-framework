@@ -28,18 +28,19 @@ class ScenarioSchemas:
                     "name": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
-                    "libraryUUID": {"type": "string"},
-                    "children": {
-                        "type": "array",
-                        "items": [
-                            {"$ref": "#/definitions/area"},
-                            {"$ref": "#/definitions/pv"},
-                            {"$ref": "#/definitions/load"},
-                            {"$ref": "#/definitions/infinite_power_plant"},
-                            {"$ref": "#/definitions/finite_power_plant"},
-                            {"$ref": "#/definitions/storage"}
-                        ],
-                        "default": []}
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "children": {"anyOf": [{
+                                    "type": "array",
+                                    "items": [
+                                        {"$ref": "#/definitions/area"},
+                                        {"$ref": "#/definitions/pv"},
+                                        {"$ref": "#/definitions/load"},
+                                        {"$ref": "#/definitions/infinite_power_plant"},
+                                        {"$ref": "#/definitions/finite_power_plant"},
+                                        {"$ref": "#/definitions/storage"}
+                                    ],
+                                    "default": []},
+                                    {"type": "null"}]}
                 },
                 "required": ["name"]
             },
@@ -50,11 +51,14 @@ class ScenarioSchemas:
                     "type": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
-                    "libraryUUID": {"type": "string"},
-                    "panel_count": {"type": "number"},
-                    "initial_pv_rate_option": {"type": "number"},
-                    "energy_rate_decrease_option": {"type": "number"},
-                    "power_profile": {"type": "number"},
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "panel_count": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "initial_pv_rate_option": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_rate_decrease_option": {"anyOf": [{"type": "number"},
+                                                              {"type": "null"}]},
+                    "power_profile": {"anyOf": [{"type": "number"},
+                                                {"type": "null"},
+                                                {"type": "string"}]},
                 }
             },
             "storage": {
@@ -64,14 +68,15 @@ class ScenarioSchemas:
                     "type": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
-                    "libraryUUID": {"type": "string"},
-                    "battery_capacity": {"type": "number"},
-                    "break_even_lower": {"type": "number"},
-                    "break_even_upper": {"type": "number"},
-                    "initial_capacity": {"type": "number"},
-                    "initial_rate_option": {"type": "number"},
-                    "max_abs_battery_power": {"type": "number"},
-                    "energy_rate_decrease_option": {"type": "number"}
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "battery_capacity":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "break_even_lower":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "break_even_upper":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "initial_capacity":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "initial_rate_option":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "max_abs_battery_power": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_rate_decrease_option": {"anyOf": [{"type": "number"},
+                                                              {"type": "null"}]}
                 }
             },
             "load": {
@@ -81,12 +86,12 @@ class ScenarioSchemas:
                     "type": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
-                    "libraryUUID": {"type": "string"},
-                    "hrs_of_day": {"type": "array"},
-                    "avg_power_W": {"type": "number"},
-                    "hrs_per_day": {"type": "number"},
-                    "acceptable_energy_rate": {"type": "number"},
-                    "daily_load_profile": {"type": "array"}
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "hrs_of_day": {"anyOf": [{"type": "array"}, {"type": "null"}]},
+                    "avg_power_W":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "hrs_per_day":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "acceptable_energy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "daily_load_profile": {"anyOf": [{"type": "array"}, {"type": "null"}]}
                 }
             },
             "infinite_power_plant": {
@@ -96,7 +101,7 @@ class ScenarioSchemas:
                     "type": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
-                    "libraryUUID": {"type": "string"},
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                 }
             },
             "finite_power_plant": {
@@ -106,9 +111,9 @@ class ScenarioSchemas:
                     "type": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
-                    "libraryUUID": {"type": "string"},
-                    "energy_rate": {"type": "number"},
-                    "max_available_power_kW": {"type": "number"}
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "energy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "max_available_power_kW":  {"anyOf": [{"type": "number"}, {"type": "null"}]}
                 }
             },
         },
