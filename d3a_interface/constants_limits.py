@@ -23,7 +23,7 @@ from pendulum import duration
 
 class ConstSettings:
     class GeneralSettings:
-        # Risk value for all risk based strategies. Unit is percentage.
+        # Max risk value for all risk based strategies. Unit is percentage.
         MIN_RISK = 0
         MAX_RISK = 100
         # Default risk value for all risk based strategies. Unit is percentage.
@@ -31,7 +31,9 @@ class ConstSettings:
         # Max energy price (market maker rate) in ct / kWh
         DEFAULT_MARKET_MAKER_RATE = 30  # 0.3 Eur
         # Number of ticks, an offer needs to be able to travel to reach each part of the setup
-        MAX_OFFER_TRAVERSAL_LENGTH = 6
+        MAX_OFFER_TRAVERSAL_LENGTH = 2
+        # number of time OFFER/BID needs to be updated
+        UPDATE_RATE = 5  # in mins
         # Number of times Market clearing rate has to be calculated per slot
         MARKET_CLEARING_FREQUENCY_PER_SLOT = 3
         # Flag to enable supply/demand backend plots
@@ -77,16 +79,16 @@ class ConstSettings:
         RATE_DECREASE_OPTION = 1
         # Energy sell break-even point, storage never sells for less than this value.
         # Unit is ct/kWh.
-        BREAK_EVEN_SELL = 25
+        BREAK_EVEN_SELL = 25.1
         # Energy buy break-even point, storage never buys for more than this value.
         # Unit is ct/kWh.
         BREAK_EVEN_BUY = 24.9
         # Minimum acceptable buy rate for the battery, in ct/kWh.
-        MIN_BUYING_RATE = 24.9
+        MIN_BUYING_RATE = 0
         # Maximum acceptable sell rate for the battery, in ct/kWh.
         MAX_SELLING_RATE = 30
-        # Min allowed battery SOC, range is [0, 1].
-        MIN_ALLOWED_SOC = 0.1
+        # Min allowed battery SOC, range is [0, 100] %.
+        MIN_ALLOWED_SOC = 10
         # Controls whether energy is sold only on the most expensive market, default is
         # to sell to all markets
         SELL_ON_MOST_EXPENSIVE_MARKET = False
