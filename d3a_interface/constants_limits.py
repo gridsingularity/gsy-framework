@@ -31,7 +31,9 @@ class ConstSettings:
         # Max energy price (market maker rate) in ct / kWh
         DEFAULT_MARKET_MAKER_RATE = 30  # 0.3 Eur
         # Number of ticks, an offer needs to be able to travel to reach each part of the setup
-        MAX_OFFER_TRAVERSAL_LENGTH = 6
+        MAX_OFFER_TRAVERSAL_LENGTH = 2
+        # number of time OFFER/BID needs to be updated
+        UPDATE_RATE = 5  # in mins
         # Number of times Market clearing rate has to be calculated per slot
         MARKET_CLEARING_FREQUENCY_PER_SLOT = 3
         # Flag to enable supply/demand backend plots
