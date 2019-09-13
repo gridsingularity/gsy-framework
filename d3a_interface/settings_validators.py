@@ -76,6 +76,12 @@ def validate_global_settings(settings_dict):
         raise SettingsException(f'Invalid constant iaa_fee ({settings_dict["iaa_fee_const"]}).')
     if "market_count" in settings_dict and not 1 <= settings_dict["market_count"]:
         raise SettingsException("Market count must be greater than 0.")
+    if "max_panel_power_W" in settings_dict and not \
+            ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_RANGE[0] \
+            <= settings_dict["max_panel_power_W"] \
+            <= ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_RANGE[1]:
+        raise SettingsException(f'Invalid value for max_panel_power_W '
+                                f'({settings_dict["max_panel_power_W"]}).')
 
 
 def calc_min_max_tick_length(slot_length):
