@@ -60,7 +60,8 @@ class ConstSettings:
 
     class StorageSettings:
         INITIAL_CAPACITY_RANGE = [0, sys.maxsize]
-        INITIAL_CHARGE_RANGE = [0, 100]
+        MIN_SOC_RANGE = [10, 100]
+        INITIAL_CHARGE_RANGE = [10, 100]
         BREAK_EVEN_RANGE = [0, 10000]
         # Max battery capacity in kWh.
         CAPACITY = 1.2
@@ -77,21 +78,22 @@ class ConstSettings:
         # Default value 1 stands for percentage/RISK based energy rate decrease
         # Option 2, use the constant energy rate decrease
         RATE_DECREASE_OPTION = 1
-        # Energy sell break-even point, storage never sells for less than this value.
+        # Energy buy-range, storage never buys outside this limit.
         # Unit is ct/kWh.
-        BREAK_EVEN_SELL = 25.1
-        # Energy buy break-even point, storage never buys for more than this value.
+        BUYING_RANGE = [0, 24.9]
+        INITIAL_BUYING_RANGE = [0, 1000]
+        FINAL_BUYING_RANGE = [0, 1000]
+        # Energy sell-range, storage never sell outside this limit.
         # Unit is ct/kWh.
-        BREAK_EVEN_BUY = 24.9
-        # Minimum acceptable buy rate for the battery, in ct/kWh.
-        MIN_BUYING_RATE = 0
-        # Maximum acceptable sell rate for the battery, in ct/kWh.
-        MAX_SELLING_RATE = 30
+        SELLING_RANGE = [30, 25]
+        INITIAL_SELLING_RANGE = [0, 1000]
+        FINAL_SELLING_RANGE = [0, 1000]
         # Min allowed battery SOC, range is [0, 100] %.
         MIN_ALLOWED_SOC = 10
         # Controls whether energy is sold only on the most expensive market, default is
         # to sell to all markets
         SELL_ON_MOST_EXPENSIVE_MARKET = False
+        RATE_CHANGE_PER_UPDATE = [0, 100]
 
     class LoadSettings:
         AVG_POWER_RANGE = [0, sys.maxsize]
@@ -107,6 +109,7 @@ class ConstSettings:
         PANEL_COUNT_RANGE = [1, 10000]
         MIN_SELL_RATE_RANGE = [0, 10000]
         INITIAL_RATE_RANGE = [0, 10000]
+        RATE_CHANGE_PER_UPDATE = [0, 100]
         MAX_PANEL_OUTPUT_W_RANGE = [0, sys.maxsize]
         # This price should be just above the marginal costs for a PV system - unit is cents
         FINAL_SELLING_RATE = 0
