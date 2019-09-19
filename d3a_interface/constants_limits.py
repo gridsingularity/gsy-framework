@@ -104,6 +104,7 @@ class ConstSettings:
         # Max load energy rate, in ct/kWh
         FINAL_BUYING_RATE = 35
         FINAL_BUYING_RATE_RANGE = [0, 10000]
+        RATE_CHANGE_PER_UPDATE = [0, 100]
 
     class PVSettings:
         PANEL_COUNT_RANGE = [1, 10000]
