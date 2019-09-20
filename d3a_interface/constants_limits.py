@@ -23,11 +23,6 @@ from pendulum import duration
 
 class ConstSettings:
     class GeneralSettings:
-        # Max risk value for all risk based strategies. Unit is percentage.
-        MIN_RISK = 0
-        MAX_RISK = 100
-        # Default risk value for all risk based strategies. Unit is percentage.
-        DEFAULT_RISK = 50
         # Max energy price (market maker rate) in ct / kWh
         DEFAULT_MARKET_MAKER_RATE = 30  # 0.3 Eur
         # Number of ticks, an offer needs to be able to travel to reach each part of the setup
@@ -44,9 +39,10 @@ class ConstSettings:
         # Boolean flag which forces d3a to run in real-time
         RUN_REAL_TIME = False
         KEEP_PAST_MARKETS = False
-        # Rate options
-        RATE_DECREASE_OPTIONS = [1, 2]
+
         RATE_DECREASE_PER_UPDATE_RANGE = [0, 100]
+        RATE_CHANGE_PER_UPDATE = [0, 10]
+
         INITIAL_RATE_OPTIONS = [1, 2, 3]
 
         NUM_CLONES_RANGE = [0, 100]
@@ -59,9 +55,13 @@ class ConstSettings:
         MAX_POWER_KW_RANGE = [0, 10000000]
 
     class StorageSettings:
+        # capacity of ESS in kWh
         INITIAL_CAPACITY_RANGE = [0, sys.maxsize]
+        # least possible state of charge
         MIN_SOC_RANGE = [10, 100]
+        # possible range of state of charge
         INITIAL_CHARGE_RANGE = [10, 100]
+
         BREAK_EVEN_RANGE = [0, 10000]
         # Max battery capacity in kWh.
         CAPACITY = 1.2
@@ -69,15 +69,6 @@ class ConstSettings:
         # Maximum battery power for supply/demand, in Watts.
         MAX_ABS_POWER = 5
         MAX_ABS_POWER_RANGE = [0.0001, 2000000]
-        # Initial ESS rate calculation for every market slot, before rate reduction per tick
-        # Option 1, use the historical market average
-        # Default value 2 stands for market maker rate
-        # Option 3, use the initial_selling_rate
-        INITIAL_RATE_OPTION = 2
-        # Energy rate decrease option for unsold ESS offers
-        # Default value 1 stands for percentage/RISK based energy rate decrease
-        # Option 2, use the constant energy rate decrease
-        RATE_DECREASE_OPTION = 1
         # Energy buy-range, storage never buys outside this limit.
         # Unit is ct/kWh.
         BUYING_RANGE = [0, 24.9]
@@ -93,7 +84,6 @@ class ConstSettings:
         # Controls whether energy is sold only on the most expensive market, default is
         # to sell to all markets
         SELL_ON_MOST_EXPENSIVE_MARKET = False
-        RATE_CHANGE_PER_UPDATE = [0, 100]
 
     class LoadSettings:
         AVG_POWER_RANGE = [0, sys.maxsize]
@@ -104,24 +94,14 @@ class ConstSettings:
         # Max load energy rate, in ct/kWh
         FINAL_BUYING_RATE = 35
         FINAL_BUYING_RATE_RANGE = [0, 10000]
-        RATE_CHANGE_PER_UPDATE = [0, 100]
 
     class PVSettings:
         PANEL_COUNT_RANGE = [1, 10000]
         MIN_SELL_RATE_RANGE = [0, 10000]
         INITIAL_RATE_RANGE = [0, 10000]
-        RATE_CHANGE_PER_UPDATE = [0, 100]
         MAX_PANEL_OUTPUT_W_RANGE = [0, sys.maxsize]
         # This price should be just above the marginal costs for a PV system - unit is cents
         FINAL_SELLING_RATE = 0
-        # Option 1, use the historical market average
-        # Default value 2 stands for market maker rate
-        # Option 3, use the initial_selling_rate
-        INITIAL_RATE_OPTION = 2
-        # Energy rate decrease option for unsold PV offers
-        # Default value 1 stands for percentage/RISK based energy rate decrease
-        # Option 2, use the constant energy rate decrease
-        RATE_DECREASE_OPTION = 1
         # Applies to the predefined PV strategy, where a PV profile is selected out of 3 predefined
         # ones. Available values 0: sunny, 1: partial cloudy, 2: cloudy
         DEFAULT_POWER_PROFILE = 0
@@ -132,13 +112,6 @@ class ConstSettings:
     class WindSettings:
         # This price should be just above the marginal costs for a Wind Power Plant - unit is cent
         FINAL_SELLING_RATE = 0
-        # Option 1, use the historical market average
-        # Default value 2 stands for market maker rate
-        INITIAL_RATE_OPTION = 2
-        # Energy rate decrease option for unsold WindPower offers
-        # Default value 1 stands for percentage/RISK based energy rate decrease
-        # Option 2, use the constant energy rate decrease
-        RATE_DECREASE_OPTION = 1
         MAX_WIND_TURBINE_OUTPUT_W = 160
 
     class IAASettings:
