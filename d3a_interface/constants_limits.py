@@ -103,9 +103,9 @@ class ConstSettings:
         # This price should be just above the marginal costs for a PV system - unit is cents
         FINAL_SELLING_RATE = 0
         # Applies to the predefined PV strategy, where a PV profile is selected out of 3 predefined
-        # ones. Available values 0: sunny, 1: partial cloudy, 2: cloudy
+        # ones. Available values 0: sunny, 1: partial cloudy, 2: cloudy, 3: Gaussian
         DEFAULT_POWER_PROFILE = 0
-        CLOUD_COVERAGE_RANGE = [0, 2]
+        CLOUD_COVERAGE_RANGE = [0, 3]
         # Applies to gaussian PVStrategy, controls the max panel output in Watts.
         MAX_PANEL_OUTPUT_W = 160
 
