@@ -73,12 +73,12 @@ class ConstSettings:
         # Unit is ct/kWh.
         BUYING_RANGE = [0, 24.9]
         INITIAL_BUYING_RANGE = [0, 10000]
-        FINAL_BUYING_RANGE = [0, 1000]
+        FINAL_BUYING_RANGE = [0, 10000]
         # Energy sell-range, storage never sell outside this limit.
         # Unit is ct/kWh.
         SELLING_RANGE = [30, 25]
-        INITIAL_SELLING_RANGE = [0, 1000]
-        FINAL_SELLING_RANGE = [0, 1000]
+        INITIAL_SELLING_RANGE = [0, 10000]
+        FINAL_SELLING_RANGE = [0, 10000]
         # Min allowed battery SOC, range is [0, 100] %.
         MIN_ALLOWED_SOC = 10
         # Controls whether energy is sold only on the most expensive market, default is
