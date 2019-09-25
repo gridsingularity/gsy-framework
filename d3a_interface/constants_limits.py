@@ -40,8 +40,8 @@ class ConstSettings:
         RUN_REAL_TIME = False
         KEEP_PAST_MARKETS = False
 
-        RATE_DECREASE_PER_UPDATE_RANGE = [0, 100]
-        RATE_CHANGE_PER_UPDATE = [0, 10]
+        RATE_DECREASE_PER_UPDATE_RANGE = [0, 1000]
+        RATE_CHANGE_PER_UPDATE = [0, 1000]
 
         INITIAL_RATE_OPTIONS = [1, 2, 3]
 
@@ -72,13 +72,13 @@ class ConstSettings:
         # Energy buy-range, storage never buys outside this limit.
         # Unit is ct/kWh.
         BUYING_RANGE = [0, 24.9]
-        INITIAL_BUYING_RANGE = [0, 1000]
-        FINAL_BUYING_RANGE = [0, 1000]
+        INITIAL_BUYING_RANGE = [0, 10000]
+        FINAL_BUYING_RANGE = [0, 10000]
         # Energy sell-range, storage never sell outside this limit.
         # Unit is ct/kWh.
         SELLING_RANGE = [30, 25]
-        INITIAL_SELLING_RANGE = [0, 1000]
-        FINAL_SELLING_RANGE = [0, 1000]
+        INITIAL_SELLING_RANGE = [0, 10000]
+        FINAL_SELLING_RANGE = [0, 10000]
         # Min allowed battery SOC, range is [0, 100] %.
         MIN_ALLOWED_SOC = 10
         # Controls whether energy is sold only on the most expensive market, default is
