@@ -40,8 +40,8 @@ class ConstSettings:
         RUN_REAL_TIME = False
         KEEP_PAST_MARKETS = False
 
-        RATE_DECREASE_PER_UPDATE_RANGE = [0, 100]
-        RATE_CHANGE_PER_UPDATE = [0, 10]
+        RATE_DECREASE_PER_UPDATE_RANGE = [0, 1000]
+        RATE_CHANGE_PER_UPDATE = [0, 1000]
 
         INITIAL_RATE_OPTIONS = [1, 2, 3]
 
