@@ -72,7 +72,7 @@ class ConstSettings:
         # Energy buy-range, storage never buys outside this limit.
         # Unit is ct/kWh.
         BUYING_RANGE = [0, 24.9]
-        INITIAL_BUYING_RANGE = [0, 1000]
+        INITIAL_BUYING_RANGE = [0, 10000]
         FINAL_BUYING_RANGE = [0, 1000]
         # Energy sell-range, storage never sell outside this limit.
         # Unit is ct/kWh.
