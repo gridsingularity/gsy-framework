@@ -79,3 +79,11 @@ class TestValidateGlobalSettings(unittest.TestCase):
                           {"iaa_fee_const": ConstSettings.IAASettings.FEE_CONSTANT_RANGE[0] - 1})
         self.assertRaises(SettingsException, validate_global_settings,
                           {"iaa_fee_const": ConstSettings.IAASettings.FEE_CONSTANT_RANGE[1] + 1})
+
+    def test_wrong_max_panel_power_W(self):
+        self.assertRaises(SettingsException, validate_global_settings,
+                          {"max_panel_power_W":
+                           ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_RANGE[0] - 1})
+        self.assertRaises(SettingsException, validate_global_settings,
+                          {"max_panel_power_W":
+                           ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_RANGE[1] + 1})
