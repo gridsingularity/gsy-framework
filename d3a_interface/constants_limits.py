@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 from datetime import date, datetime
-from pendulum import duration
+from pendulum import duration, instance
 
 
 class ConstSettings:
@@ -39,6 +39,8 @@ class ConstSettings:
         # Boolean flag which forces d3a to run in real-time
         RUN_REAL_TIME = False
         KEEP_PAST_MARKETS = False
+        # Boolean flag which forces d3a to dispatch events via redis channels
+        EVENT_DISPATCHING_VIA_REDIS = False
 
         RATE_DECREASE_PER_UPDATE_RANGE = [0, 1000]
         RATE_CHANGE_PER_UPDATE = [0, 1000]
@@ -183,7 +185,7 @@ class GlobalConfig:
     MARKET_MAKER_RATE = str(ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
 
     # Default simulation settings d3a side:
-    start_date = datetime.combine(START_DATE, datetime.min.time())
+    start_date = instance((datetime.combine(START_DATE, datetime.min.time())))
     sim_duration = duration(days=DURATION_D)
     market_count = MARKET_COUNT
     slot_length = duration(minutes=SLOT_LENGTH_M)
