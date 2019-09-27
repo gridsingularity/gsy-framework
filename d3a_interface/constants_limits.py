@@ -58,10 +58,8 @@ class ConstSettings:
         MAX_POWER_KW_RANGE = Ranges(0, 10000000)
 
     class StorageSettings:
-        # capacity of ESS in kWh
-        INITIAL_CAPACITY_RANGE = Ranges(0, sys.maxsize)
         # least possible state of charge
-        MIN_SOC_RANGE = Ranges(10, 100)
+        MIN_SOC_RANGE = Ranges(10, 99)
         # possible range of state of charge
         INITIAL_CHARGE_RANGE = Ranges(10, 100)
 
