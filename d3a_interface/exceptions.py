@@ -25,5 +25,5 @@ class SettingsException(D3AException):
     pass
 
 
-class DeviceException(D3AException):
+class D3ADeviceException(D3AException):
     pass
