@@ -23,3 +23,7 @@ class D3AException(Exception):
 
 class SettingsException(D3AException):
     pass
+
+
+class DeviceException(D3AException):
+    pass
