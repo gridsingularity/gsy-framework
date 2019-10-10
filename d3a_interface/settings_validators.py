@@ -90,5 +90,5 @@ def calc_min_max_tick_length(slot_length):
 
 
 def calc_min_max_slot_length(tick_length):
-    return tick_length * ConstSettings.GeneralSettings.MIN_NUM_TICKS, \
+    return max(tick_length * ConstSettings.GeneralSettings.MIN_NUM_TICKS, duration(minutes=2)), \
            duration(minutes=ConstSettings.GeneralSettings.MAX_SLOT_LENGTH_M)
