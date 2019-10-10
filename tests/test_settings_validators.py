@@ -50,6 +50,12 @@ class TestValidateGlobalSettings(unittest.TestCase):
         self.assertRaises(SettingsException, validate_global_settings,
                           {"tick_length": timedelta(minutes=16),
                            "slot_length": timedelta(minutes=15)})
+        self.assertRaises(SettingsException, validate_global_settings,
+                          {"slot_length": duration(minutes=1)})
+
+        validate_global_settings({"tick_length": duration(seconds=10),
+                                  "slot_length": duration(
+                                    minutes=ConstSettings.GeneralSettings.MIN_SLOT_LENGTH_M)})
 
     def test_wrong_sim_duration(self):
         self.assertRaises(SettingsException, validate_global_settings,
