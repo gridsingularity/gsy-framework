@@ -111,6 +111,8 @@ class TestValidateDeviceSettings(unittest.TestCase):
         self.assertIsNone(validate_pv_device(cloud_coverage=4, power_profile=""))
         with self.assertRaises(D3ADeviceException):
             validate_pv_device(cloud_coverage=3, power_profile="")
+        with self.assertRaises(D3ADeviceException):
+            validate_pv_device(cloud_coverage=2, power_profile="")
 
     def test_storage_device_setting(self):
         self.assertIsNone(validate_storage_device(initial_soc=10))
