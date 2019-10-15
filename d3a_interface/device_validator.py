@@ -147,10 +147,12 @@ def validate_pv_device(**kwargs):
             {"mis_configuration": [f"max_panel_power_W should be in between "
                                    f"{PvSettings.MAX_PANEL_OUTPUT_W_RANGE.min} & "
                                    f"{PvSettings.MAX_PANEL_OUTPUT_W_RANGE.max}"]})
-    if ("cloud_coverage" in kwargs and kwargs["cloud_coverage"] is not None) and \
-            ("power_profile" in kwargs and kwargs["power_profile"] is not None):
-        raise D3ADeviceException(
-            {"mis_configuration": [f"cloud_coverage & power_profile can't be set together."]})
+    if "cloud_coverage" in kwargs and kwargs["cloud_coverage"] is not None:
+        if (kwargs["cloud_coverage"] != 4) and \
+           ("power_profile" in kwargs and kwargs["power_profile"] is not None):
+            raise D3ADeviceException(
+                {"mis_configuration": [f"cloud_coverage (if values 0-3) & "
+                                       f"power_profile can't be set together."]})
 
 
 def validate_storage_device(**kwargs):
