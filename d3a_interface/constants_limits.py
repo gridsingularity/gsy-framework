@@ -101,6 +101,7 @@ class ConstSettings:
         FINAL_BUYING_RATE_RANGE = RangeLimit(0, 10000)
 
     class PVSettings:
+        DEFAULT_PANEL_COUNT = 1
         PANEL_COUNT_RANGE = RangeLimit(1, 10000)
         MIN_SELL_RATE_RANGE = RangeLimit(0, 10000)
         INITIAL_RATE_RANGE = RangeLimit(0, 10000)
