@@ -101,12 +101,14 @@ class ConstSettings:
         FINAL_BUYING_RATE_RANGE = RangeLimit(0, 10000)
 
     class PVSettings:
+        DEFAULT_PANEL_COUNT = 1
         PANEL_COUNT_RANGE = RangeLimit(1, 10000)
         MIN_SELL_RATE_RANGE = RangeLimit(0, 10000)
         INITIAL_RATE_RANGE = RangeLimit(0, 10000)
         MAX_PANEL_OUTPUT_W_RANGE = RangeLimit(0, sys.maxsize)
         # This price should be just above the marginal costs for a PV system - unit is cents
         FINAL_SELLING_RATE = 0
+        INITIAL_SELLING_RATE = 35
         # Applies to the predefined PV strategy, where a PV profile is selected out of 3 predefined
         # ones. Available values 0: sunny, 1: partial cloudy, 2: cloudy, 3: Gaussian
         DEFAULT_POWER_PROFILE = 0
