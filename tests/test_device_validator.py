@@ -16,9 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
+from uuid import uuid4
 
 from d3a_interface.device_validator import validate_load_device, validate_pv_device, \
-    validate_storage_device
+    validate_storage_device, validate_commercial_producer, validate_market_maker, \
+    validate_finite_diesel_generator
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 
@@ -188,3 +190,33 @@ class TestValidateDeviceSettings(unittest.TestCase):
         with self.assertRaises(D3ADeviceException):
             validate_storage_device(fit_to_limit=True,
                                     energy_rate_decrease_per_update=3)
+
+    def test_commercial_producer_setting(self):
+        self.assertIsNone(validate_commercial_producer(energy_rate=10))
+        with self.assertRaises(D3ADeviceException):
+            validate_commercial_producer(energy_rate=-5)
+
+    def test_market_maker_setting(self):
+        self.assertIsNone(
+            validate_market_maker(energy_rate_profile=str({"0": "30", "2": "33"}),
+                                  energy_rate_profile_uuid=uuid4()))
+        self.assertIsNone(
+            validate_market_maker(energy_rate=str({"0": 30, "2": 33})))
+        self.assertIsNone(validate_market_maker(energy_rate=35))
+        with self.assertRaises(D3ADeviceException):
+            validate_market_maker(energy_rate_profile=30)
+        with self.assertRaises(D3ADeviceException):
+            validate_market_maker(energy_rate=-5)
+        with self.assertRaises(D3ADeviceException):
+            validate_market_maker(energy_rate_profile=str({"0": 30, "2": 33}))
+        with self.assertRaises(D3ADeviceException):
+            validate_market_maker(energy_rate=str({"0": -30, "2": 33}))
+
+    def test_finite_diesel_generator(self):
+        self.assertIsNone(validate_finite_diesel_generator(max_available_power_kW=1))
+        with self.assertRaises(D3ADeviceException):
+            validate_finite_diesel_generator(max_available_power_kW=-1)
+        self.assertIsNone(validate_finite_diesel_generator(energy_rate=1))
+        self.assertIsNone(validate_finite_diesel_generator(energy_rate=100))
+        with self.assertRaises(D3ADeviceException):
+            validate_finite_diesel_generator(energy_rate=-1)

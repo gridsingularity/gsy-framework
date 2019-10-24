@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import ast
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
@@ -24,6 +25,7 @@ GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
 PvSettings = ConstSettings.PVSettings
 StorageSettings = ConstSettings.StorageSettings
+CepSettings = ConstSettings.CommercialProducerSettings
 
 
 def validate_load_device(**kwargs):
@@ -265,3 +267,85 @@ def validate_storage_device(**kwargs):
         raise D3ADeviceException(
             {"mis_configuration": [f"fit_to_limit & energy_rate_change_per_update "
                                    f"can't be set together."]})
+
+
+def _validate_rate(energy_rate):
+    if not CepSettings.ENERGY_RATE_RANGE.min <= energy_rate <= \
+           CepSettings.ENERGY_RATE_RANGE.max:
+        raise D3ADeviceException(
+            {
+                "misconfiguration": [f"energy_rate should be in between "
+                                     f"{CepSettings.ENERGY_RATE_RANGE.min} & "
+                                     f"{CepSettings.ENERGY_RATE_RANGE.max}."]})
+
+
+def _validate_rate_profile(energy_rate_profile):
+    for date, value in energy_rate_profile.items():
+        print(f"date: {date}")
+        if date == "filename":
+            continue
+        value = float(value) if type(value) == str else value
+        if not CepSettings.ENERGY_RATE_RANGE.min <= value <= CepSettings.ENERGY_RATE_RANGE.max:
+            raise D3ADeviceException(
+                {"misconfiguration": [f"energy_rate should at time: {date} be in between "
+                                      f"{CepSettings.ENERGY_RATE_RANGE.min} & "
+                                      f"{CepSettings.ENERGY_RATE_RANGE.max}."]})
+
+
+def validate_commercial_producer(**kwargs):
+    if "energy_rate" in kwargs and kwargs["energy_rate"] is not None:
+        if type(kwargs["energy_rate"]) is float or type(kwargs["energy_rate"]) is int:
+            _validate_rate(kwargs["energy_rate"])
+        elif type(kwargs["energy_rate"]) is str:
+            _validate_rate_profile(ast.literal_eval(kwargs["energy_rate"]))
+        elif type(kwargs["energy_rate"]) is dict:
+            _validate_rate_profile(kwargs["energy_rate"])
+        else:
+            raise D3ADeviceException({"misconfiguration": [f"energy_rate has an invalid type."]})
+
+
+def validate_market_maker(**kwargs):
+    if "energy_rate" in kwargs and kwargs["energy_rate"] is not None:
+        if type(kwargs["energy_rate"]) is float or type(kwargs["energy_rate"]) is int:
+            _validate_rate(kwargs["energy_rate"])
+        elif type(kwargs["energy_rate"]) is str:
+            _validate_rate_profile(ast.literal_eval(kwargs["energy_rate"]))
+        elif type(ast.literal_eval(kwargs["energy_rate"])) is dict:
+            _validate_rate_profile(kwargs["energy_rate"])
+        else:
+            raise D3ADeviceException({"misconfiguration": [f"energy_rate has an invalid type."]})
+    if "energy_rate_profile" in kwargs and kwargs["energy_rate_profile"] is not None and \
+            ("energy_rate_profile_uuid" not in kwargs or
+             kwargs["energy_rate_profile_uuid"] is None):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"energy_rate_profile must have a uuid."]})
+    if "grid_connected" in kwargs and kwargs["grid_connected"] is not None and \
+            type(kwargs["grid_connected"]) is not bool:
+        raise D3ADeviceException(
+            {"misconfiguration": [f"grid_connected must be a boolean value."]})
+
+
+def validate_finite_diesel_generator(**kwargs):
+    if "max_available_power_kW" in kwargs and kwargs["max_available_power_kW"] is not None:
+        if type(kwargs["max_available_power_kW"]) is float or \
+                type(kwargs["max_available_power_kW"]) is int:
+            if not (CepSettings.MAX_POWER_KW_RANGE.min <= kwargs["max_available_power_kW"] <=
+                    CepSettings.MAX_POWER_KW_RANGE.max):
+                raise D3ADeviceException(
+                    {"misconfiguration": [f"max_available_power_kW should be in between "
+                                          f"{CepSettings.MAX_POWER_KW_RANGE.min} & "
+                                          f"{CepSettings.MAX_POWER_KW_RANGE.max}."]})
+        elif type(kwargs["max_available_power_kW"]) is dict:
+            for date, value in kwargs["max_available_power_kW"].items():
+                if not (CepSettings.MAX_POWER_KW_RANGE.min <= value <=
+                        CepSettings.MAX_POWER_KW_RANGE.max):
+                    raise D3ADeviceException(
+                        {
+                            "misconfiguration": [f"max_available_power_kW should be in between "
+                                                 f"{CepSettings.MAX_POWER_KW_RANGE.min} & "
+                                                 f"{CepSettings.MAX_POWER_KW_RANGE.max}."]})
+        else:
+            raise D3ADeviceException({"misconfiguration": [f"max_available_power_kW has an "
+                                                           f"invalid type. "]})
+
+    validate_commercial_producer(**kwargs)
