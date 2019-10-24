@@ -66,7 +66,8 @@ def validate_load_device(**kwargs):
             ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and \
             (kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
         raise D3ADeviceException({"mis_configuration": [f"initial_buying_rate should be "
-                                                        f"less than final_buying_rate."]})
+                                                        f"less than final_buying_rate/"
+                                                        f"market_maker_rate."]})
     if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
             any([not LoadSettings.HOURS_RANGE.min <= h <= LoadSettings.HOURS_RANGE.max
                  for h in kwargs["hrs_of_day"]]):
@@ -123,7 +124,7 @@ def validate_pv_device(**kwargs):
             ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None) and \
             (kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
         raise D3ADeviceException(
-            {"mis_configuration": [f"initial_selling_rate should be greater"
+            {"mis_configuration": [f"initial_selling_rate/market_maker_rate should be greater"
                                    f"than or equal to final_selling_rate."]})
     if ("fit_to_limit" in kwargs and kwargs["fit_to_limit"] is True) and \
             ("energy_rate_decrease_per_update" in kwargs and
