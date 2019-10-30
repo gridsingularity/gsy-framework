@@ -307,11 +307,11 @@ def _validate_rate_profile(energy_rate_profile):
 
 def validate_commercial_producer(**kwargs):
     if "energy_rate" in kwargs and kwargs["energy_rate"] is not None:
-        if type(kwargs["energy_rate"]) is float or type(kwargs["energy_rate"]) is int:
+        if isinstance(kwargs["energy_rate"], (float, int)):
             _validate_rate(kwargs["energy_rate"])
-        elif type(kwargs["energy_rate"]) is str:
+        elif isinstance(kwargs["energy_rate"], str):
             _validate_rate_profile(ast.literal_eval(kwargs["energy_rate"]))
-        elif type(kwargs["energy_rate"]) is dict:
+        elif isinstance(kwargs["energy_rate"], dict):
             _validate_rate_profile(kwargs["energy_rate"])
         else:
             raise D3ADeviceException({"misconfiguration": [f"energy_rate has an invalid type."]})
@@ -319,11 +319,11 @@ def validate_commercial_producer(**kwargs):
 
 def validate_market_maker(**kwargs):
     if "energy_rate" in kwargs and kwargs["energy_rate"] is not None:
-        if type(kwargs["energy_rate"]) is float or type(kwargs["energy_rate"]) is int:
+        if isinstance(kwargs["energy_rate"], (float, int)):
             _validate_rate(kwargs["energy_rate"])
-        elif type(kwargs["energy_rate"]) is str:
+        elif isinstance(kwargs["energy_rate"], str):
             _validate_rate_profile(ast.literal_eval(kwargs["energy_rate"]))
-        elif type(ast.literal_eval(kwargs["energy_rate"])) is dict:
+        elif isinstance(ast.literal_eval(kwargs["energy_rate"]), dict):
             _validate_rate_profile(kwargs["energy_rate"])
         else:
             raise D3ADeviceException({"misconfiguration": [f"energy_rate has an invalid type."]})
@@ -333,15 +333,14 @@ def validate_market_maker(**kwargs):
         raise D3ADeviceException(
             {"misconfiguration": [f"energy_rate_profile must have a uuid."]})
     if "grid_connected" in kwargs and kwargs["grid_connected"] is not None and \
-            type(kwargs["grid_connected"]) is not bool:
+            not isinstance(kwargs["grid_connected"], bool):
         raise D3ADeviceException(
             {"misconfiguration": [f"grid_connected must be a boolean value."]})
 
 
 def validate_finite_diesel_generator(**kwargs):
     if "max_available_power_kW" in kwargs and kwargs["max_available_power_kW"] is not None:
-        if type(kwargs["max_available_power_kW"]) is float or \
-                type(kwargs["max_available_power_kW"]) is int:
+        if isinstance(kwargs["max_available_power_kW"], (int, float)):
             if not _validate_range_limit(CepSettings.MAX_POWER_KW_RANGE.initial,
                                          kwargs["max_available_power_kW"],
                                          CepSettings.MAX_POWER_KW_RANGE.final):
@@ -349,7 +348,7 @@ def validate_finite_diesel_generator(**kwargs):
                     {"misconfiguration": [f"max_available_power_kW should be in between "
                                           f"{CepSettings.MAX_POWER_KW_RANGE.initial} & "
                                           f"{CepSettings.MAX_POWER_KW_RANGE.final}."]})
-        elif type(kwargs["max_available_power_kW"]) is dict:
+        elif isinstance(kwargs["max_available_power_kW"], dict):
             for date, value in kwargs["max_available_power_kW"].items():
                 if not _validate_range_limit(CepSettings.MAX_POWER_KW_RANGE.initial, value,
                                              CepSettings.MAX_POWER_KW_RANGE.final):

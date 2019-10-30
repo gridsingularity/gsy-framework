@@ -211,6 +211,8 @@ class TestValidateDeviceSettings(unittest.TestCase):
             validate_market_maker(energy_rate_profile=str({"0": 30, "2": 33}))
         with self.assertRaises(D3ADeviceException):
             validate_market_maker(energy_rate=str({"0": -30, "2": 33}))
+        with self.assertRaises(D3ADeviceException):
+            validate_market_maker(grid_connected=30)
 
     def test_finite_diesel_generator(self):
         self.assertIsNone(validate_finite_diesel_generator(max_available_power_kW=1))
