@@ -34,73 +34,76 @@ def validate_load_device(**kwargs):
                                       kwargs["avg_power_W"],
                                       LoadSettings.AVG_POWER_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"avg_power_W should be in between "
-                                   f"{LoadSettings.AVG_POWER_RANGE.initial} & "
-                                   f"{LoadSettings.AVG_POWER_RANGE.final}."]})
+            {"misconfiguration": [f"avg_power_W should be in between "
+                                  f"{LoadSettings.AVG_POWER_RANGE.initial} & "
+                                  f"{LoadSettings.AVG_POWER_RANGE.final}."]})
     if (("avg_power_W" in kwargs and kwargs["avg_power_W"] is not None) or
         ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) or
         ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None)) \
             and ("daily_load_profile" in kwargs and kwargs["daily_load_profile"] is not None):
         raise D3ADeviceException(
-            {"mis_configuration": [f"daily_load_profile shouldn't be set with"
-                                   f"avg_power_W, hrs_per_day & hrs_of_day."]})
+            {"misconfiguration": [f"daily_load_profile shouldn't be set with "
+                                  f"avg_power_W, hrs_per_day & hrs_of_day."]})
     if ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) and \
             not _validate_range_limit(LoadSettings.HOURS_RANGE.initial,
                                       kwargs["hrs_per_day"],
                                       LoadSettings.HOURS_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"hrs_per_day should be in between "
-                                   f"{LoadSettings.HOURS_RANGE.initial} & "
-                                   f"{LoadSettings.HOURS_RANGE.final}."]})
+            {"misconfiguration": [f"hrs_per_day should be in between "
+                                  f"{LoadSettings.HOURS_RANGE.initial} & "
+                                  f"{LoadSettings.HOURS_RANGE.final}."]})
     if ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and not \
             _validate_range_limit(LoadSettings.FINAL_BUYING_RATE_RANGE.initial,
                                   kwargs["final_buying_rate"],
                                   LoadSettings.FINAL_BUYING_RATE_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"final_buying_rate should be in between "
-                                   f"{LoadSettings.FINAL_BUYING_RATE_RANGE.initial} & "
-                                   f"{LoadSettings.FINAL_BUYING_RATE_RANGE.final}."]})
+            {"misconfiguration": [f"final_buying_rate should be in between "
+                                  f"{LoadSettings.FINAL_BUYING_RATE_RANGE.initial} & "
+                                  f"{LoadSettings.FINAL_BUYING_RATE_RANGE.final}."]})
     if ("initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None) and \
             not _validate_range_limit(LoadSettings.INITIAL_BUYING_RATE_RANGE.initial,
                                       kwargs["initial_buying_rate"],
                                       LoadSettings.INITIAL_BUYING_RATE_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"initial_buying_rate should be in between "
-                                   f"{LoadSettings.INITIAL_BUYING_RATE_RANGE.initial} & "
-                                   f"{LoadSettings.INITIAL_BUYING_RATE_RANGE.final}"]})
+            {"misconfiguration": [f"initial_buying_rate should be in between "
+                                  f"{LoadSettings.INITIAL_BUYING_RATE_RANGE.initial} & "
+                                  f"{LoadSettings.INITIAL_BUYING_RATE_RANGE.final}"]})
     if ("initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None) and \
             ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and \
             (kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
-        raise D3ADeviceException({"mis_configuration": [f"initial_buying_rate should be "
-                                                        f"less than final_buying_rate."]})
+        raise D3ADeviceException({"misconfiguration": [f"initial_buying_rate should be "
+                                                       f"less than final_buying_rate/"
+                                                       f"market_maker_rate. Please adapt the "
+                                                       f"market_maker_rate of the configuration "
+                                                       f"or the initial_buying_rate"]})
     if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
             any([not LoadSettings.HOURS_RANGE.initial <= h <= LoadSettings.HOURS_RANGE.final
                  for h in kwargs["hrs_of_day"]]):
         raise D3ADeviceException(
-            {"mis_configuration": [f"hrs_of_day should be less between "
-                                   f"{LoadSettings.HOURS_RANGE.initial} & "
-                                   f"{LoadSettings.HOURS_RANGE.final}."]})
+            {"misconfiguration": [f"hrs_of_day should be less between "
+                                  f"{LoadSettings.HOURS_RANGE.initial} & "
+                                  f"{LoadSettings.HOURS_RANGE.final}."]})
     if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
             ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) and \
             (len(kwargs["hrs_of_day"]) < kwargs["hrs_per_day"]):
         raise D3ADeviceException(
-            {"mis_configuration": [f"length of hrs_of_day list should be "
-                                   f"greater than hrs_per_day."]})
+            {"misconfiguration": [f"length of hrs_of_day list should be "
+                                  f"greater than hrs_per_day."]})
     if ("energy_rate_increase_per_update" in kwargs and
         kwargs["energy_rate_increase_per_update"] is not None) and not \
             _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE.initial,
                                   kwargs["energy_rate_increase_per_update"],
                                   GeneralSettings.RATE_CHANGE_PER_UPDATE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"energy_rate_increase_per_update should be in between "
-                                   f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
-                                   f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}."]})
+            {"misconfiguration": [f"energy_rate_increase_per_update should be in between "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}."]})
     if ("fit_to_limit" in kwargs and kwargs["fit_to_limit"] is True) and \
             ("energy_rate_increase_per_update" in kwargs and
              kwargs["energy_rate_increase_per_update"] is not None):
         raise D3ADeviceException(
-            {"mis_configuration": [f"fit_to_limit & energy_rate_increase_per_update"
-                                   f"can't be set together."]})
+            {"misconfiguration": [f"fit_to_limit & energy_rate_increase_per_update "
+                                  f"can't be set together."]})
 
 
 def validate_pv_device(**kwargs):
@@ -109,60 +112,62 @@ def validate_pv_device(**kwargs):
                                   kwargs["panel_count"],
                                   PvSettings.PANEL_COUNT_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"PV panel count should be in between "
-                                   f"{PvSettings.PANEL_COUNT_RANGE.initial} & "
-                                   f"{PvSettings.PANEL_COUNT_RANGE.final}"]})
+            {"misconfiguration": [f"PV panel count should be in between "
+                                  f"{PvSettings.PANEL_COUNT_RANGE.initial} & "
+                                  f"{PvSettings.PANEL_COUNT_RANGE.final}"]})
     if ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None) and not \
             _validate_range_limit(PvSettings.MIN_SELL_RATE_RANGE.initial,
                                   kwargs["final_selling_rate"],
                                   PvSettings.MIN_SELL_RATE_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"final_selling_rate should be in between "
-                                   f"{PvSettings.MIN_SELL_RATE_RANGE.initial} & "
-                                   f"{PvSettings.MIN_SELL_RATE_RANGE.final}"]})
+            {"misconfiguration": [f"final_selling_rate should be in between "
+                                  f"{PvSettings.MIN_SELL_RATE_RANGE.initial} & "
+                                  f"{PvSettings.MIN_SELL_RATE_RANGE.final}"]})
     if ("initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None) and not \
             _validate_range_limit(PvSettings.INITIAL_RATE_RANGE.initial,
                                   kwargs["initial_selling_rate"],
                                   PvSettings.INITIAL_RATE_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"initial_selling_rate should be in between "
-                                   f"{PvSettings.INITIAL_RATE_RANGE.initial} & "
-                                   f"{PvSettings.INITIAL_RATE_RANGE.final}"]})
+            {"misconfiguration": [f"initial_selling_rate should be in between "
+                                  f"{PvSettings.INITIAL_RATE_RANGE.initial} & "
+                                  f"{PvSettings.INITIAL_RATE_RANGE.final}"]})
     if ("initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None) and \
             ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None) and \
             (kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
         raise D3ADeviceException(
-            {"mis_configuration": [f"initial_selling_rate should be greater"
-                                   f"than or equal to final_selling_rate."]})
+            {"misconfiguration": [f"initial_selling_rate/market_maker_rate should be greater "
+                                  f"than or equal to final_selling_rate. Please adapt the "
+                                  f"market_maker_rate of the configuration or the "
+                                  f"initial_selling_rate"]})
     if ("fit_to_limit" in kwargs and kwargs["fit_to_limit"] is True) and \
             ("energy_rate_decrease_per_update" in kwargs and
              kwargs["energy_rate_decrease_per_update"] is not None):
         raise D3ADeviceException(
-            {"mis_configuration": [f"fit_to_limit & energy_rate_decrease_per_update"
-                                   f"can't be set together."]})
+            {"misconfiguration": [f"fit_to_limit & energy_rate_decrease_per_update "
+                                  f"can't be set together."]})
     if ("energy_rate_decrease_per_update" in kwargs and
         kwargs["energy_rate_decrease_per_update"] is not None) and not \
             _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE.initial,
                                   kwargs["energy_rate_decrease_per_update"],
                                   GeneralSettings.RATE_CHANGE_PER_UPDATE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"energy_rate_decrease_per_update should be in between "
-                                   f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
-                                   f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}"]})
+            {"misconfiguration": [f"energy_rate_decrease_per_update should be in between "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}"]})
     if ("max_panel_power_W" in kwargs and kwargs["max_panel_power_W"] is not None) and \
             not _validate_range_limit(PvSettings.MAX_PANEL_OUTPUT_W_RANGE.initial,
                                       kwargs["max_panel_power_W"],
                                       PvSettings.MAX_PANEL_OUTPUT_W_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"max_panel_power_W should be in between "
-                                   f"{PvSettings.MAX_PANEL_OUTPUT_W_RANGE.initial} & "
-                                   f"{PvSettings.MAX_PANEL_OUTPUT_W_RANGE.final}"]})
+            {"misconfiguration": [f"max_panel_power_W should be in between "
+                                  f"{PvSettings.MAX_PANEL_OUTPUT_W_RANGE.initial} & "
+                                  f"{PvSettings.MAX_PANEL_OUTPUT_W_RANGE.final}"]})
     if "cloud_coverage" in kwargs and kwargs["cloud_coverage"] is not None:
         if (kwargs["cloud_coverage"] != 4) and \
            ("power_profile" in kwargs and kwargs["power_profile"] is not None):
             raise D3ADeviceException(
-                {"mis_configuration": [f"cloud_coverage (if values 0-3) & "
-                                       f"power_profile can't be set together."]})
+                {"misconfiguration": [f"cloud_coverage (if values 0-3) & "
+                                      f"power_profile can't be set together."]})
 
 
 def validate_storage_device(**kwargs):
@@ -171,117 +176,117 @@ def validate_storage_device(**kwargs):
                                   kwargs["initial_soc"],
                                   StorageSettings.INITIAL_CHARGE_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"initial_soc should be in between "
-                                   f"{StorageSettings.INITIAL_CHARGE_RANGE.initial} & "
-                                   f"{StorageSettings.INITIAL_CHARGE_RANGE.final}."]})
+            {"misconfiguration": [f"initial_soc should be in between "
+                                  f"{StorageSettings.INITIAL_CHARGE_RANGE.initial} & "
+                                  f"{StorageSettings.INITIAL_CHARGE_RANGE.final}."]})
     if ("min_allowed_soc" in kwargs and kwargs["min_allowed_soc"] is not None) and not \
             _validate_range_limit(StorageSettings.MIN_SOC_RANGE.initial,
                                   kwargs["min_allowed_soc"],
                                   StorageSettings.MIN_SOC_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"min_allowed_soc should be in between "
-                                   f"{StorageSettings.MIN_SOC_RANGE.initial} & "
-                                   f"{StorageSettings.MIN_SOC_RANGE.final}."]})
+            {"misconfiguration": [f"min_allowed_soc should be in between "
+                                  f"{StorageSettings.MIN_SOC_RANGE.initial} & "
+                                  f"{StorageSettings.MIN_SOC_RANGE.final}."]})
     if ("initial_soc" in kwargs and kwargs["initial_soc"] is not None) and \
             ("min_allowed_soc" in kwargs and kwargs["min_allowed_soc"] is not None) and \
             (kwargs["initial_soc"] < kwargs["min_allowed_soc"]):
         raise D3ADeviceException(
-            {"mis_configuration": [f"initial_soc should be greater"
-                                   f"than or equal to min_allowed_soc."]})
+            {"misconfiguration": [f"initial_soc should be greater "
+                                  f"than or equal to min_allowed_soc."]})
 
     if ("battery_capacity_kWh" in kwargs and kwargs["battery_capacity_kWh"] is not None) and not \
             _validate_range_limit(StorageSettings.CAPACITY_RANGE.initial,
                                   kwargs["battery_capacity_kWh"],
                                   StorageSettings.CAPACITY_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"battery_capacity_kWh should be in between "
-                                   f"{StorageSettings.CAPACITY_RANGE.initial} & "
-                                   f"{StorageSettings.CAPACITY_RANGE.final}."]})
+            {"misconfiguration": [f"battery_capacity_kWh should be in between "
+                                  f"{StorageSettings.CAPACITY_RANGE.initial} & "
+                                  f"{StorageSettings.CAPACITY_RANGE.final}."]})
     if ("max_abs_battery_power_kW" in kwargs and
         kwargs["max_abs_battery_power_kW"] is not None) and not \
             _validate_range_limit(StorageSettings.MAX_ABS_POWER_RANGE.initial,
                                   kwargs["max_abs_battery_power_kW"],
                                   StorageSettings.MAX_ABS_POWER_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"max_abs_battery_power_kW should be in between "
-                                   f"{StorageSettings.MAX_ABS_POWER_RANGE.initial} & "
-                                   f"{StorageSettings.MAX_ABS_POWER_RANGE.final}."]})
+            {"misconfiguration": [f"max_abs_battery_power_kW should be in between "
+                                  f"{StorageSettings.MAX_ABS_POWER_RANGE.initial} & "
+                                  f"{StorageSettings.MAX_ABS_POWER_RANGE.final}."]})
     if ("initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None) and not \
             _validate_range_limit(StorageSettings.INITIAL_SELLING_RANGE.initial,
                                   kwargs["initial_selling_rate"],
                                   StorageSettings.INITIAL_SELLING_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"initial_selling_rate should be in between "
-                                   f"{StorageSettings.INITIAL_SELLING_RANGE.initial} & "
-                                   f"{StorageSettings.INITIAL_SELLING_RANGE.final}."]})
+            {"misconfiguration": [f"initial_selling_rate should be in between "
+                                  f"{StorageSettings.INITIAL_SELLING_RANGE.initial} & "
+                                  f"{StorageSettings.INITIAL_SELLING_RANGE.final}."]})
     if ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None) and not \
             _validate_range_limit(StorageSettings.FINAL_SELLING_RANGE.initial,
                                   kwargs["final_selling_rate"],
                                   StorageSettings.FINAL_SELLING_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"final_selling_rate should be in between "
-                                   f"{StorageSettings.FINAL_SELLING_RANGE.initial} & "
-                                   f"{StorageSettings.FINAL_SELLING_RANGE.final}."]})
+            {"misconfiguration": [f"final_selling_rate should be in between "
+                                  f"{StorageSettings.FINAL_SELLING_RANGE.initial} & "
+                                  f"{StorageSettings.FINAL_SELLING_RANGE.final}."]})
     if ("initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None) and \
             ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None) and \
             (kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
-        raise D3ADeviceException({"mis_configuration": [f"initial_selling_rate should be greater"
-                                                        f"than or equal to final_selling_rate."]})
+        raise D3ADeviceException({"misconfiguration": [f"initial_selling_rate should be greater "
+                                                       f"than or equal to final_selling_rate."]})
 
     if ("initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None) and not \
             _validate_range_limit(StorageSettings.INITIAL_BUYING_RANGE.initial,
                                   kwargs["initial_buying_rate"],
                                   StorageSettings.INITIAL_BUYING_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"initial_buying_rate should be in between "
-                                   f"{StorageSettings.INITIAL_BUYING_RANGE.initial} & "
-                                   f"{StorageSettings.INITIAL_BUYING_RANGE.final}."]})
+            {"misconfiguration": [f"initial_buying_rate should be in between "
+                                  f"{StorageSettings.INITIAL_BUYING_RANGE.initial} & "
+                                  f"{StorageSettings.INITIAL_BUYING_RANGE.final}."]})
 
     if ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and not \
             (StorageSettings.FINAL_BUYING_RANGE.initial <= kwargs["final_buying_rate"] <=
              StorageSettings.FINAL_BUYING_RANGE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"final_buying_rate should be in between "
-                                   f"{StorageSettings.FINAL_BUYING_RANGE.initial} & "
-                                   f"{StorageSettings.FINAL_BUYING_RANGE.final}."]})
+            {"misconfiguration": [f"final_buying_rate should be in between "
+                                  f"{StorageSettings.FINAL_BUYING_RANGE.initial} & "
+                                  f"{StorageSettings.FINAL_BUYING_RANGE.final}."]})
     if ("initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None) and \
             ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and \
             (kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
         raise D3ADeviceException(
-            {"mis_configuration": [f"initial_buying_rate should be less "
-                                   f"than or equal to final_buying_rate."]})
+            {"misconfiguration": [f"initial_buying_rate should be less "
+                                  f"than or equal to final_buying_rate."]})
     if ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None) and \
             ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and \
             (kwargs["final_buying_rate"] > kwargs["final_selling_rate"]):
         raise D3ADeviceException(
-            {"mis_configuration": [f"final_buying_rate should be less "
-                                   f"than or equal to final_selling_rate."]})
+            {"misconfiguration": [f"final_buying_rate should be less "
+                                  f"than or equal to final_selling_rate."]})
     if ("energy_rate_increase_per_update" in kwargs and
         kwargs["energy_rate_increase_per_update"] is not None) and not \
             _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE.initial,
                                   kwargs["energy_rate_increase_per_update"],
                                   GeneralSettings.RATE_CHANGE_PER_UPDATE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"energy_rate_increase_per_update should be in between "
-                                   f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
-                                   f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}."]})
+            {"misconfiguration": [f"energy_rate_increase_per_update should be in between "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}."]})
     if ("energy_rate_decrease_per_update" in kwargs and
         kwargs["energy_rate_decrease_per_update"] is not None) and not \
             _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE.initial,
                                   kwargs["energy_rate_decrease_per_update"],
                                   GeneralSettings.RATE_CHANGE_PER_UPDATE.final):
         raise D3ADeviceException(
-            {"mis_configuration": [f"energy_rate_decrease_per_update should be in between "
-                                   f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
-                                   f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}."]})
+            {"misconfiguration": [f"energy_rate_decrease_per_update should be in between "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}."]})
     if ("fit_to_limit" in kwargs and kwargs["fit_to_limit"] is True) and \
             (("energy_rate_increase_per_update" in kwargs and
               kwargs["energy_rate_increase_per_update"] is not None) or
              ("energy_rate_decrease_per_update" in kwargs and
               kwargs["energy_rate_decrease_per_update"] is not None)):
         raise D3ADeviceException(
-            {"mis_configuration": [f"fit_to_limit & energy_rate_change_per_update "
-                                   f"can't be set together."]})
+            {"misconfiguration": [f"fit_to_limit & energy_rate_change_per_update "
+                                  f"can't be set together."]})
 
 
 def _validate_rate(energy_rate):
