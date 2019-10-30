@@ -21,7 +21,7 @@ from datetime import date, datetime
 from pendulum import duration, instance
 from collections import namedtuple
 
-RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
+RangeLimit = namedtuple('RangeLimit', ('initial', 'final'))
 
 
 class ConstSettings:
