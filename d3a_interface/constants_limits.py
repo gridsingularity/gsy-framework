@@ -21,7 +21,8 @@ from datetime import date, datetime
 from pendulum import duration, instance
 from collections import namedtuple
 
-RangeLimit = namedtuple('RangeLimit', ('initial', 'final'))
+RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
+RateRange = namedtuple('RateRange', ('initial', 'final'))
 
 
 class ConstSettings:
@@ -46,8 +47,8 @@ class ConstSettings:
         # Boolean flag which forces d3a to dispatch events via redis channels
         EVENT_DISPATCHING_VIA_REDIS = False
 
-        RATE_DECREASE_PER_UPDATE_RANGE = RangeLimit(0, 1000)
-        RATE_CHANGE_PER_UPDATE = RangeLimit(0, 1000)
+        RATE_DECREASE_PER_UPDATE_RANGE = RateRange(0, 1000)
+        RATE_CHANGE_PER_UPDATE = RateRange(0, 1000)
 
         INITIAL_RATE_OPTIONS = [1, 2, 3]
 
@@ -58,7 +59,7 @@ class ConstSettings:
         MIN_TICK_LENGTH_S = 1
 
     class CommercialProducerSettings:
-        ENERGY_RATE_RANGE = RangeLimit(0, 10000)
+        ENERGY_RATE_RANGE = RateRange(0, 10000)
         MAX_POWER_KW_RANGE = RangeLimit(0, 10000000)
 
     class StorageSettings:
@@ -67,7 +68,7 @@ class ConstSettings:
         # possible range of state of charge
         INITIAL_CHARGE_RANGE = RangeLimit(10, 100)
 
-        BREAK_EVEN_RANGE = RangeLimit(0, 10000)
+        BREAK_EVEN_RANGE = RateRange(0, 10000)
         # Max battery capacity in kWh.
         CAPACITY = 1.2
         CAPACITY_RANGE = RangeLimit(0.0001, 2000000)
@@ -76,14 +77,16 @@ class ConstSettings:
         MAX_ABS_POWER_RANGE = RangeLimit(0.0001, 2000000)
         # Energy buy-range, storage never buys outside this limit.
         # Unit is ct/kWh.
-        BUYING_RANGE = RangeLimit(0, 24.9)
-        INITIAL_BUYING_RANGE = RangeLimit(0, 10000)
-        FINAL_BUYING_RANGE = RangeLimit(0, 10000)
+        INITIAL_BUYING_RATE = 0
+        FINAL_BUYING_RATE = 24.9
+        INITIAL_BUYING_RANGE = RateRange(0, 10000)
+        FINAL_BUYING_RANGE = RateRange(0, 10000)
         # Energy sell-range, storage never sell outside this limit.
         # Unit is ct/kWh.
-        SELLING_RANGE = RangeLimit(30, 25)
-        INITIAL_SELLING_RANGE = RangeLimit(0, 10000)
-        FINAL_SELLING_RANGE = RangeLimit(0, 10000)
+        INITIAL_SELLING_RATE = 30
+        FINAL_SELLING_RATE = 25
+        INITIAL_SELLING_RANGE = RateRange(0, 10000)
+        FINAL_SELLING_RANGE = RateRange(0, 10000)
         # Min allowed battery SOC, range is [0, 100] %.
         MIN_ALLOWED_SOC = 10
         # Controls whether energy is sold only on the most expensive market, default is
@@ -95,16 +98,16 @@ class ConstSettings:
         HOURS_RANGE = RangeLimit(0, 24)
         # Min load energy rate, in ct/kWh
         INITIAL_BUYING_RATE = 0
-        INITIAL_BUYING_RATE_RANGE = RangeLimit(0, 10000)
+        INITIAL_BUYING_RATE_RANGE = RateRange(0, 10000)
         # Max load energy rate, in ct/kWh
         FINAL_BUYING_RATE = 35
-        FINAL_BUYING_RATE_RANGE = RangeLimit(0, 10000)
+        FINAL_BUYING_RATE_RANGE = RateRange(0, 10000)
 
     class PVSettings:
         DEFAULT_PANEL_COUNT = 1
         PANEL_COUNT_RANGE = RangeLimit(1, 10000)
-        MIN_SELL_RATE_RANGE = RangeLimit(0, 10000)
-        INITIAL_RATE_RANGE = RangeLimit(0, 10000)
+        MIN_SELL_RATE_RANGE = RateRange(0, 10000)
+        INITIAL_RATE_RANGE = RateRange(0, 10000)
         MAX_PANEL_OUTPUT_W_RANGE = RangeLimit(0, sys.maxsize)
         # This price should be just above the marginal costs for a PV system - unit is cents
         FINAL_SELLING_RATE = 0
