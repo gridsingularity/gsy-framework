@@ -47,42 +47,40 @@ class ConstSettings:
         # Boolean flag which forces d3a to dispatch events via redis channels
         EVENT_DISPATCHING_VIA_REDIS = False
 
-        RATE_CHANGE_PER_UPDATE_RANGE = RateRange(0, 1000)
+        RATE_CHANGE_PER_UPDATE_LIMIT = RangeLimit(0, 1000)
 
-        INITIAL_RATE_OPTIONS = [1, 2, 3]
-
-        NUM_CLONES_RANGE = RangeLimit(0, 100)
+        NUM_CLONES_LIMIT = RangeLimit(0, 100)
         MIN_NUM_TICKS = 10
         MIN_SLOT_LENGTH_M = 2
         MAX_SLOT_LENGTH_M = 60
         MIN_TICK_LENGTH_S = 1
 
     class CommercialProducerSettings:
-        ENERGY_RATE_RANGE = RateRange(0, 10000)
-        MAX_POWER_KW_RANGE = RangeLimit(0, 10000000)
+        ENERGY_RATE_LIMIT = RangeLimit(0, 10000)
+        MAX_POWER_KW_LIMIT = RangeLimit(0, 10000000)
 
     class StorageSettings:
         # least possible state of charge
-        MIN_SOC_RANGE = RangeLimit(10, 99)
+        MIN_SOC_LIMIT = RangeLimit(10, 99)
         # possible range of state of charge
-        INITIAL_CHARGE_RANGE = RangeLimit(10, 100)
+        INITIAL_CHARGE_LIMIT = RangeLimit(10, 100)
 
         # Max battery capacity in kWh.
         CAPACITY = 1.2
-        CAPACITY_RANGE = RangeLimit(0.0001, 2000000)
+        CAPACITY_LIMIT = RangeLimit(0.0001, 2000000)
         # Maximum battery power for supply/demand, in Watts.
         MAX_ABS_POWER = 5
-        MAX_ABS_POWER_RANGE = RangeLimit(0.0001, 2000000)
-        # Energy buy-range, storage never buys outside this limit.
+        MAX_ABS_POWER_LIMIT = RangeLimit(0.0001, 2000000)
+        # Energy buy-limit, storage never buys outside this limit.
         # Unit is ct/kWh.
         BUYING_RATE_RANGE = RateRange(0, 24.9)
-        INITIAL_BUYING_RANGE = RateRange(0, 10000)
-        FINAL_BUYING_RANGE = RateRange(0, 10000)
-        # Energy sell-range, storage never sell outside this limit.
+        INITIAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
+        FINAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
+        # Energy sell-limit, storage never sell outside this limit.
         # Unit is ct/kWh.
         SELLING_RATE_RANGE = RateRange(30, 25)
-        INITIAL_SELLING_RANGE = RateRange(0, 10000)
-        FINAL_SELLING_RANGE = RateRange(0, 10000)
+        INITIAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
+        FINAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
         # Min allowed battery SOC, range is [0, 100] %.
         MIN_ALLOWED_SOC = 10
         # Controls whether energy is sold only on the most expensive market, default is
@@ -90,27 +88,25 @@ class ConstSettings:
         SELL_ON_MOST_EXPENSIVE_MARKET = False
 
     class LoadSettings:
-        AVG_POWER_RANGE = RangeLimit(0, sys.maxsize)
-        HOURS_RANGE = RangeLimit(0, 24)
+        AVG_POWER_LIMIT = RangeLimit(0, sys.maxsize)
+        HOURS_LIMIT = RangeLimit(0, 24)
         # Min load energy rate, in ct/kWh
-        INITIAL_BUYING_RATE = 0
-        INITIAL_BUYING_RATE_RANGE = RateRange(0, 10000)
+        BUYING_RATE_RANGE = RateRange(0, 35)
+        INITIAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
         # Max load energy rate, in ct/kWh
-        FINAL_BUYING_RATE = 35
-        FINAL_BUYING_RATE_RANGE = RateRange(0, 10000)
+        FINAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
 
     class PVSettings:
         DEFAULT_PANEL_COUNT = 1
-        PANEL_COUNT_RANGE = RangeLimit(1, 10000)
-        MIN_SELL_RATE_RANGE = RateRange(0, 10000)
-        INITIAL_RATE_RANGE = RateRange(0, 10000)
-        MAX_PANEL_OUTPUT_W_RANGE = RangeLimit(0, sys.maxsize)
-        # This price should be just above the marginal costs for a PV system - unit is cents
-        FINAL_SELLING_RATE = 0
+        PANEL_COUNT_LIMIT = RangeLimit(1, 10000)
+        FINAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
+        INITIAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
+        MAX_PANEL_OUTPUT_W_LIMIT = RangeLimit(0, sys.maxsize)
+        SELLING_RATE_RANGE = RateRange(30, 0)
         # Applies to the predefined PV strategy, where a PV profile is selected out of 3 predefined
         # ones. Available values 0: sunny, 1: partial cloudy, 2: cloudy, 3: Gaussian
         DEFAULT_POWER_PROFILE = 0
-        CLOUD_COVERAGE_RANGE = RangeLimit(0, 4)
+        CLOUD_COVERAGE_LIMIT = RangeLimit(0, 4)
         # Applies to gaussian PVStrategy, controls the max panel output in Watts.
         MAX_PANEL_OUTPUT_W = 160
 
@@ -122,15 +118,15 @@ class ConstSettings:
     class IAASettings:
         # Percentage value that controls the fee the IAA adds to the offers and bids.
         FEE_PERCENTAGE = 0
-        FEE_PERCENTAGE_RANGE = RangeLimit(0, 100)
+        FEE_PERCENTAGE_LIMIT = RangeLimit(0, 100)
         FEE_CONSTANT = 0
-        FEE_CONSTANT_RANGE = RangeLimit(0, sys.maxsize)
+        FEE_CONSTANT_LIMIT = RangeLimit(0, sys.maxsize)
         # Market type option
         # Default value 1 stands for single sided market
         # Option 2 stands for double sided pay as bid market
         # Option 3 stands for double sided pay as clear market
         MARKET_TYPE = 1
-        MARKET_TYPE_RANGE = RangeLimit(1, 3)
+        MARKET_TYPE_LIMIT = RangeLimit(1, 3)
 
         # Pay as clear offer and bid rate/energy aggregation algorithm
         # Default value 1 stands for line sweep algorithm

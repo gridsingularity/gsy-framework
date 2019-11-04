@@ -50,36 +50,36 @@ def validate_global_settings(settings_dict):
                                     f'[{min_slot_length.in_minutes()} min, '
                                     f'{max_slot_length.in_minutes()} min])')
     if "cloud_coverage" in settings_dict and \
-        not (ConstSettings.PVSettings.CLOUD_COVERAGE_RANGE[0]
+        not (ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[0]
              <= settings_dict["cloud_coverage"] <=
-             ConstSettings.PVSettings.CLOUD_COVERAGE_RANGE[1]):
+             ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[1]):
         raise SettingsException(f'Invalid cloud coverage value '
                                 f'({settings_dict["cloud_coverage"]}).')
     if "spot_market_type" in settings_dict and \
-            not ConstSettings.IAASettings.MARKET_TYPE_RANGE[0] \
+            not ConstSettings.IAASettings.MARKET_TYPE_LIMIT[0] \
             <= settings_dict["spot_market_type"] <= \
-            ConstSettings.IAASettings.MARKET_TYPE_RANGE[1]:
+            ConstSettings.IAASettings.MARKET_TYPE_LIMIT[1]:
         raise SettingsException(f'Invalid value ({settings_dict["spot_market_type"]}) '
                                 f'for spot market type.')
     if "sim_duration" in settings_dict and not slot_length <= settings_dict["sim_duration"]:
         raise SettingsException(f"Invalid simulation duration "
                                 f"(lower than slot length of {slot_length.minutes} min")
     if "iaa_fee" in settings_dict and not \
-            ConstSettings.IAASettings.FEE_PERCENTAGE_RANGE[0] \
+            ConstSettings.IAASettings.FEE_PERCENTAGE_LIMIT[0] \
             <= settings_dict["iaa_fee"] <= \
-            ConstSettings.IAASettings.FEE_PERCENTAGE_RANGE[1]:
+            ConstSettings.IAASettings.FEE_PERCENTAGE_LIMIT[1]:
         raise SettingsException(f'Invalid iaa_fee percentage ({settings_dict["iaa_fee"]}).')
     if "iaa_fee_const" in settings_dict and not \
-            ConstSettings.IAASettings.FEE_CONSTANT_RANGE[0] \
+            ConstSettings.IAASettings.FEE_CONSTANT_LIMIT[0] \
             <= settings_dict["iaa_fee_const"] <= \
-            ConstSettings.IAASettings.FEE_CONSTANT_RANGE[1]:
+            ConstSettings.IAASettings.FEE_CONSTANT_LIMIT[1]:
         raise SettingsException(f'Invalid constant iaa_fee ({settings_dict["iaa_fee_const"]}).')
     if "market_count" in settings_dict and not 1 <= settings_dict["market_count"]:
         raise SettingsException("Market count must be greater than 0.")
     if "max_panel_power_W" in settings_dict and not \
-            ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_RANGE[0] \
+            ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[0] \
             <= settings_dict["max_panel_power_W"] \
-            <= ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_RANGE[1]:
+            <= ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[1]:
         raise SettingsException(f'Invalid value for max_panel_power_W '
                                 f'({settings_dict["max_panel_power_W"]}).')
 

@@ -64,32 +64,32 @@ class TestValidateGlobalSettings(unittest.TestCase):
 
     def test_wrong_spot_market_type(self):
         self.assertRaises(SettingsException, validate_global_settings,
-                          {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_RANGE[0] - 1})
+                          {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT[0] - 1})
         self.assertRaises(SettingsException, validate_global_settings,
-                          {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_RANGE[1] + 1})
+                          {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT[1] + 1})
 
     def test_wrong_cloud_coverage(self):
         self.assertRaises(SettingsException, validate_global_settings,
-                          {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_RANGE[0] - 1})
+                          {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[0] - 1})
         self.assertRaises(SettingsException, validate_global_settings,
-                          {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_RANGE[1] + 1})
+                          {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[1] + 1})
 
     def test_wrong_iaa_fee(self):
         self.assertRaises(SettingsException, validate_global_settings,
-                          {"iaa_fee": ConstSettings.IAASettings.FEE_PERCENTAGE_RANGE[0] - 1})
+                          {"iaa_fee": ConstSettings.IAASettings.FEE_PERCENTAGE_LIMIT[0] - 1})
         self.assertRaises(SettingsException, validate_global_settings,
-                          {"iaa_fee": ConstSettings.IAASettings.FEE_PERCENTAGE_RANGE[1] + 1})
+                          {"iaa_fee": ConstSettings.IAASettings.FEE_PERCENTAGE_LIMIT[1] + 1})
 
     def test_wrong_iaa_fee_const(self):
         self.assertRaises(SettingsException, validate_global_settings,
-                          {"iaa_fee_const": ConstSettings.IAASettings.FEE_CONSTANT_RANGE[0] - 1})
+                          {"iaa_fee_const": ConstSettings.IAASettings.FEE_CONSTANT_LIMIT[0] - 1})
         self.assertRaises(SettingsException, validate_global_settings,
-                          {"iaa_fee_const": ConstSettings.IAASettings.FEE_CONSTANT_RANGE[1] + 1})
+                          {"iaa_fee_const": ConstSettings.IAASettings.FEE_CONSTANT_LIMIT[1] + 1})
 
     def test_wrong_max_panel_power_W(self):
         self.assertRaises(SettingsException, validate_global_settings,
                           {"max_panel_power_W":
-                           ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_RANGE[0] - 1})
+                           ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[0] - 1})
         self.assertRaises(SettingsException, validate_global_settings,
                           {"max_panel_power_W":
-                           ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_RANGE[1] + 1})
+                           ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[1] + 1})

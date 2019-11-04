@@ -31,11 +31,11 @@ CepSettings = ConstSettings.CommercialProducerSettings
 def validate_load_device(**kwargs):
     if ("avg_power_W" in kwargs and kwargs["avg_power_W"] is not None):
         error_message = {"misconfiguration": [f"avg_power_W should be in between "
-                                              f"{LoadSettings.AVG_POWER_RANGE.min} & "
-                                              f"{LoadSettings.AVG_POWER_RANGE.max}."]}
-        _validate_range_limit(LoadSettings.AVG_POWER_RANGE.min,
+                                              f"{LoadSettings.AVG_POWER_LIMIT.min} & "
+                                              f"{LoadSettings.AVG_POWER_LIMIT.max}."]}
+        _validate_range_limit(LoadSettings.AVG_POWER_LIMIT.min,
                               kwargs["avg_power_W"],
-                              LoadSettings.AVG_POWER_RANGE.max, error_message)
+                              LoadSettings.AVG_POWER_LIMIT.max, error_message)
 
     if (("avg_power_W" in kwargs and kwargs["avg_power_W"] is not None) or
         ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) or
@@ -46,26 +46,26 @@ def validate_load_device(**kwargs):
                                   f"avg_power_W, hrs_per_day & hrs_of_day."]})
     if "hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None:
         error_message = {"misconfiguration": [f"hrs_per_day should be in between "
-                                              f"{LoadSettings.HOURS_RANGE.min} & "
-                                              f"{LoadSettings.HOURS_RANGE.max}."]}
-        _validate_range_limit(LoadSettings.HOURS_RANGE.min,
+                                              f"{LoadSettings.HOURS_LIMIT.min} & "
+                                              f"{LoadSettings.HOURS_LIMIT.max}."]}
+        _validate_range_limit(LoadSettings.HOURS_LIMIT.min,
                               kwargs["hrs_per_day"],
-                              LoadSettings.HOURS_RANGE.max, error_message)
+                              LoadSettings.HOURS_LIMIT.max, error_message)
     if "final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None:
         error_message = {"misconfiguration": [f"final_buying_rate should be in between "
-                                              f"{LoadSettings.FINAL_BUYING_RATE_RANGE.initial} & "
-                                              f"{LoadSettings.FINAL_BUYING_RATE_RANGE.final}."]}
-        _validate_range_limit(LoadSettings.FINAL_BUYING_RATE_RANGE.initial,
+                                              f"{LoadSettings.FINAL_BUYING_RATE_LIMIT.min} & "
+                                              f"{LoadSettings.FINAL_BUYING_RATE_LIMIT.max}."]}
+        _validate_range_limit(LoadSettings.FINAL_BUYING_RATE_LIMIT.min,
                               kwargs["final_buying_rate"],
-                              LoadSettings.FINAL_BUYING_RATE_RANGE.final, error_message)
+                              LoadSettings.FINAL_BUYING_RATE_LIMIT.max, error_message)
     if "initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None:
         error_message = \
             {"misconfiguration": [f"initial_buying_rate should be in between "
-                                  f"{LoadSettings.INITIAL_BUYING_RATE_RANGE.initial} & "
-                                  f"{LoadSettings.INITIAL_BUYING_RATE_RANGE.final}"]}
-        _validate_range_limit(LoadSettings.INITIAL_BUYING_RATE_RANGE.initial,
+                                  f"{LoadSettings.INITIAL_BUYING_RATE_LIMIT.min} & "
+                                  f"{LoadSettings.INITIAL_BUYING_RATE_LIMIT.max}"]}
+        _validate_range_limit(LoadSettings.INITIAL_BUYING_RATE_LIMIT.min,
                               kwargs["initial_buying_rate"],
-                              LoadSettings.INITIAL_BUYING_RATE_RANGE.final, error_message)
+                              LoadSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
 
     if ("initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None) and \
             ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and \
@@ -76,12 +76,12 @@ def validate_load_device(**kwargs):
                                                        f"market_maker_rate of the configuration "
                                                        f"or the initial_buying_rate"]})
     if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
-            any([not LoadSettings.HOURS_RANGE.min <= h <= LoadSettings.HOURS_RANGE.max
+            any([not LoadSettings.HOURS_LIMIT.min <= h <= LoadSettings.HOURS_LIMIT.max
                  for h in kwargs["hrs_of_day"]]):
         raise D3ADeviceException(
             {"misconfiguration": [f"hrs_of_day should be less between "
-                                  f"{LoadSettings.HOURS_RANGE.min} & "
-                                  f"{LoadSettings.HOURS_RANGE.max}."]})
+                                  f"{LoadSettings.HOURS_LIMIT.min} & "
+                                  f"{LoadSettings.HOURS_LIMIT.max}."]})
     if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
             ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) and \
             (len(kwargs["hrs_of_day"]) < kwargs["hrs_per_day"]):
@@ -92,11 +92,11 @@ def validate_load_device(**kwargs):
             kwargs["energy_rate_increase_per_update"] is not None:
         error_message = \
             {"misconfiguration": [f"energy_rate_increase_per_update should be in between "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial} & "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final}."]}
-        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial,
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}."]}
+        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                               kwargs["energy_rate_increase_per_update"],
-                              GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final, error_message)
+                              GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
 
     if ("fit_to_limit" in kwargs and kwargs["fit_to_limit"] is True) and \
             ("energy_rate_increase_per_update" in kwargs and
@@ -110,26 +110,27 @@ def validate_pv_device(**kwargs):
     if ("panel_count" in kwargs and kwargs["panel_count"] is not None):
         error_message = \
             {"misconfiguration": [f"PV panel count should be in between "
-                                  f"{PvSettings.PANEL_COUNT_RANGE.min} & "
-                                  f"{PvSettings.PANEL_COUNT_RANGE.max}"]}
-        _validate_range_limit(PvSettings.PANEL_COUNT_RANGE.min,
+                                  f"{PvSettings.PANEL_COUNT_LIMIT.min} & "
+                                  f"{PvSettings.PANEL_COUNT_LIMIT.max}"]}
+        _validate_range_limit(PvSettings.PANEL_COUNT_LIMIT.min,
                               kwargs["panel_count"],
-                              PvSettings.PANEL_COUNT_RANGE.max, error_message)
+                              PvSettings.PANEL_COUNT_LIMIT.max, error_message)
 
     if ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None):
         error_message = {"misconfiguration": [f"final_selling_rate should be in between "
-                                              f"{PvSettings.MIN_SELL_RATE_RANGE.initial} & "
-                                              f"{PvSettings.MIN_SELL_RATE_RANGE.final}"]}
-        _validate_range_limit(PvSettings.MIN_SELL_RATE_RANGE.initial, kwargs["final_selling_rate"],
-                              PvSettings.MIN_SELL_RATE_RANGE.final, error_message)
+                                              f"{PvSettings.FINAL_SELLING_RATE_LIMIT.min} & "
+                                              f"{PvSettings.FINAL_SELLING_RATE_LIMIT.max}"]}
+        _validate_range_limit(PvSettings.FINAL_SELLING_RATE_LIMIT.min,
+                              kwargs["final_selling_rate"],
+                              PvSettings.FINAL_SELLING_RATE_LIMIT.max, error_message)
 
     if ("initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None):
         error_message = {"misconfiguration": [f"initial_selling_rate should be in between "
-                                              f"{PvSettings.INITIAL_RATE_RANGE.initial} & "
-                                              f"{PvSettings.INITIAL_RATE_RANGE.final}"]}
-        _validate_range_limit(PvSettings.INITIAL_RATE_RANGE.initial,
+                                              f"{PvSettings.INITIAL_SELLING_RATE_LIMIT.min} & "
+                                              f"{PvSettings.INITIAL_SELLING_RATE_LIMIT.max}"]}
+        _validate_range_limit(PvSettings.INITIAL_SELLING_RATE_LIMIT.min,
                               kwargs["initial_selling_rate"],
-                              PvSettings.INITIAL_RATE_RANGE.final, error_message)
+                              PvSettings.INITIAL_SELLING_RATE_LIMIT.max, error_message)
 
     if ("initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None) and \
             ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None) and \
@@ -149,19 +150,19 @@ def validate_pv_device(**kwargs):
             kwargs["energy_rate_decrease_per_update"] is not None:
         error_message = \
             {"misconfiguration": [f"energy_rate_decrease_per_update should be in between "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial} & "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final}"]}
-        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial,
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}"]}
+        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                               kwargs["energy_rate_decrease_per_update"],
-                              GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final, error_message)
+                              GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
     if "max_panel_power_W" in kwargs and kwargs["max_panel_power_W"] is not None:
         error_message = \
             {"misconfiguration": [f"max_panel_power_W should be in between "
-                                  f"{PvSettings.MAX_PANEL_OUTPUT_W_RANGE.min} & "
-                                  f"{PvSettings.MAX_PANEL_OUTPUT_W_RANGE.max}"]}
-        _validate_range_limit(PvSettings.MAX_PANEL_OUTPUT_W_RANGE.min,
+                                  f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min} & "
+                                  f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max}"]}
+        _validate_range_limit(PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min,
                               kwargs["max_panel_power_W"],
-                              PvSettings.MAX_PANEL_OUTPUT_W_RANGE.max, error_message)
+                              PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max, error_message)
     if "cloud_coverage" in kwargs and kwargs["cloud_coverage"] is not None:
         if (kwargs["cloud_coverage"] != 4) and \
            ("power_profile" in kwargs and kwargs["power_profile"] is not None):
@@ -174,20 +175,20 @@ def validate_storage_device(**kwargs):
     if "initial_soc" in kwargs and kwargs["initial_soc"] is not None:
         error_message = \
             {"misconfiguration": [f"initial_soc should be in between "
-                                  f"{StorageSettings.INITIAL_CHARGE_RANGE.min} & "
-                                  f"{StorageSettings.INITIAL_CHARGE_RANGE.max}."]}
-        _validate_range_limit(StorageSettings.INITIAL_CHARGE_RANGE.min,
+                                  f"{StorageSettings.INITIAL_CHARGE_LIMIT.min} & "
+                                  f"{StorageSettings.INITIAL_CHARGE_LIMIT.max}."]}
+        _validate_range_limit(StorageSettings.INITIAL_CHARGE_LIMIT.min,
                               kwargs["initial_soc"],
-                              StorageSettings.INITIAL_CHARGE_RANGE.max, error_message)
+                              StorageSettings.INITIAL_CHARGE_LIMIT.max, error_message)
 
     if ("min_allowed_soc" in kwargs and kwargs["min_allowed_soc"] is not None):
         error_message = \
             {"misconfiguration": [f"min_allowed_soc should be in between "
-                                  f"{StorageSettings.MIN_SOC_RANGE.min} & "
-                                  f"{StorageSettings.MIN_SOC_RANGE.max}."]}
-        _validate_range_limit(StorageSettings.MIN_SOC_RANGE.min,
+                                  f"{StorageSettings.MIN_SOC_LIMIT.min} & "
+                                  f"{StorageSettings.MIN_SOC_LIMIT.max}."]}
+        _validate_range_limit(StorageSettings.MIN_SOC_LIMIT.min,
                               kwargs["min_allowed_soc"],
-                              StorageSettings.MIN_SOC_RANGE.max, error_message)
+                              StorageSettings.MIN_SOC_LIMIT.max, error_message)
 
     if ("initial_soc" in kwargs and kwargs["initial_soc"] is not None) and \
             ("min_allowed_soc" in kwargs and kwargs["min_allowed_soc"] is not None) and \
@@ -199,37 +200,37 @@ def validate_storage_device(**kwargs):
     if "battery_capacity_kWh" in kwargs and kwargs["battery_capacity_kWh"] is not None:
         error_message = \
             {"misconfiguration": [f"battery_capacity_kWh should be in between "
-                                  f"{StorageSettings.CAPACITY_RANGE.min} & "
-                                  f"{StorageSettings.CAPACITY_RANGE.max}."]}
-        _validate_range_limit(StorageSettings.CAPACITY_RANGE.min,
+                                  f"{StorageSettings.CAPACITY_LIMIT.min} & "
+                                  f"{StorageSettings.CAPACITY_LIMIT.max}."]}
+        _validate_range_limit(StorageSettings.CAPACITY_LIMIT.min,
                               kwargs["battery_capacity_kWh"],
-                              StorageSettings.CAPACITY_RANGE.max, error_message)
+                              StorageSettings.CAPACITY_LIMIT.max, error_message)
     if "max_abs_battery_power_kW" in kwargs and kwargs["max_abs_battery_power_kW"] is not None:
         error_message = \
             {"misconfiguration": [f"max_abs_battery_power_kW should be in between "
-                                  f"{StorageSettings.MAX_ABS_POWER_RANGE.min} & "
-                                  f"{StorageSettings.MAX_ABS_POWER_RANGE.max}."]}
-        _validate_range_limit(StorageSettings.MAX_ABS_POWER_RANGE.min,
+                                  f"{StorageSettings.MAX_ABS_POWER_LIMIT.min} & "
+                                  f"{StorageSettings.MAX_ABS_POWER_LIMIT.max}."]}
+        _validate_range_limit(StorageSettings.MAX_ABS_POWER_LIMIT.min,
                               kwargs["max_abs_battery_power_kW"],
-                              StorageSettings.MAX_ABS_POWER_RANGE.max, error_message)
+                              StorageSettings.MAX_ABS_POWER_LIMIT.max, error_message)
 
     if "initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None:
         error_message = \
             {"misconfiguration": [f"initial_selling_rate should be in between "
-                                  f"{StorageSettings.INITIAL_SELLING_RANGE.initial} & "
-                                  f"{StorageSettings.INITIAL_SELLING_RANGE.final}."]}
-        _validate_range_limit(StorageSettings.INITIAL_SELLING_RANGE.initial,
+                                  f"{StorageSettings.INITIAL_SELLING_RATE_LIMIT.min} & "
+                                  f"{StorageSettings.INITIAL_SELLING_RATE_LIMIT.max}."]}
+        _validate_range_limit(StorageSettings.INITIAL_SELLING_RATE_LIMIT.min,
                               kwargs["initial_selling_rate"],
-                              StorageSettings.INITIAL_SELLING_RANGE.final, error_message)
+                              StorageSettings.INITIAL_SELLING_RATE_LIMIT.max, error_message)
 
     if "final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None:
         error_message = \
             {"misconfiguration": [f"final_selling_rate should be in between "
-                                  f"{StorageSettings.FINAL_SELLING_RANGE.initial} & "
-                                  f"{StorageSettings.FINAL_SELLING_RANGE.final}."]}
-        _validate_range_limit(StorageSettings.FINAL_SELLING_RANGE.initial,
+                                  f"{StorageSettings.FINAL_SELLING_RATE_LIMIT.min} & "
+                                  f"{StorageSettings.FINAL_SELLING_RATE_LIMIT.max}."]}
+        _validate_range_limit(StorageSettings.FINAL_SELLING_RATE_LIMIT.min,
                               kwargs["final_selling_rate"],
-                              StorageSettings.FINAL_SELLING_RANGE.final, error_message)
+                              StorageSettings.FINAL_SELLING_RATE_LIMIT.max, error_message)
 
     if ("initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None) and \
             ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None) and \
@@ -240,19 +241,19 @@ def validate_storage_device(**kwargs):
     if "initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None:
         error_message = \
             {"misconfiguration": [f"initial_buying_rate should be in between "
-                                  f"{StorageSettings.INITIAL_BUYING_RANGE.initial} & "
-                                  f"{StorageSettings.INITIAL_BUYING_RANGE.final}."]}
-        _validate_range_limit(StorageSettings.INITIAL_BUYING_RANGE.initial,
+                                  f"{StorageSettings.INITIAL_BUYING_RATE_LIMIT.min} & "
+                                  f"{StorageSettings.INITIAL_BUYING_RATE_LIMIT.max}."]}
+        _validate_range_limit(StorageSettings.INITIAL_BUYING_RATE_LIMIT.min,
                               kwargs["initial_buying_rate"],
-                              StorageSettings.INITIAL_BUYING_RANGE.final, error_message)
+                              StorageSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
 
     if ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None):
         error_message = {"misconfiguration": [f"final_buying_rate should be in between "
-                                              f"{StorageSettings.FINAL_BUYING_RANGE.initial} & "
-                                              f"{StorageSettings.FINAL_BUYING_RANGE.final}."]}
-        _validate_range_limit(StorageSettings.FINAL_BUYING_RANGE.initial,
+                                              f"{StorageSettings.FINAL_BUYING_RATE_LIMIT.min} & "
+                                              f"{StorageSettings.FINAL_BUYING_RATE_LIMIT.max}."]}
+        _validate_range_limit(StorageSettings.FINAL_BUYING_RATE_LIMIT.min,
                               kwargs["final_buying_rate"],
-                              StorageSettings.FINAL_BUYING_RANGE.final, error_message)
+                              StorageSettings.FINAL_BUYING_RATE_LIMIT.max, error_message)
     if ("initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None) and \
             ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and \
             (kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
@@ -270,21 +271,21 @@ def validate_storage_device(**kwargs):
             kwargs["energy_rate_increase_per_update"] is not None:
         error_message = \
             {"misconfiguration": [f"energy_rate_increase_per_update should be in between "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial} & "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final}."]}
-        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial,
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}."]}
+        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                               kwargs["energy_rate_increase_per_update"],
-                              GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final, error_message)
+                              GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
 
     if "energy_rate_decrease_per_update" in kwargs and \
             kwargs["energy_rate_decrease_per_update"] is not None:
         error_message = \
             {"misconfiguration": [f"energy_rate_decrease_per_update should be in between "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial} & "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final}."]}
-        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial,
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}."]}
+        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                               kwargs["energy_rate_decrease_per_update"],
-                              GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final, error_message)
+                              GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
     if ("fit_to_limit" in kwargs and kwargs["fit_to_limit"] is True) and \
             (("energy_rate_increase_per_update" in kwargs and
               kwargs["energy_rate_increase_per_update"] is not None) or
@@ -298,10 +299,10 @@ def validate_storage_device(**kwargs):
 def _validate_rate(energy_rate):
     error_message = \
         {"misconfiguration": [f"energy_rate should be in between "
-                              f"{CepSettings.ENERGY_RATE_RANGE.initial} & "
-                              f"{CepSettings.ENERGY_RATE_RANGE.final}."]}
-    _validate_range_limit(CepSettings.ENERGY_RATE_RANGE.initial, energy_rate,
-                          CepSettings.ENERGY_RATE_RANGE.final, error_message)
+                              f"{CepSettings.ENERGY_RATE_LIMIT.min} & "
+                              f"{CepSettings.ENERGY_RATE_LIMIT.max}."]}
+    _validate_range_limit(CepSettings.ENERGY_RATE_LIMIT.min, energy_rate,
+                          CepSettings.ENERGY_RATE_LIMIT.max, error_message)
 
 
 def _validate_rate_profile(energy_rate_profile):
@@ -309,10 +310,10 @@ def _validate_rate_profile(energy_rate_profile):
         value = float(value) if type(value) == str else value
         error_message = \
             {"misconfiguration": [f"energy_rate should at time: {date} be in between "
-                                  f"{CepSettings.ENERGY_RATE_RANGE.initial} & "
-                                  f"{CepSettings.ENERGY_RATE_RANGE.final}."]}
-        _validate_range_limit(CepSettings.ENERGY_RATE_RANGE.initial, value,
-                              CepSettings.ENERGY_RATE_RANGE.final, error_message)
+                                  f"{CepSettings.ENERGY_RATE_LIMIT.min} & "
+                                  f"{CepSettings.ENERGY_RATE_LIMIT.max}."]}
+        _validate_range_limit(CepSettings.ENERGY_RATE_LIMIT.min, value,
+                              CepSettings.ENERGY_RATE_LIMIT.max, error_message)
 
 
 def validate_commercial_producer(**kwargs):
@@ -353,20 +354,20 @@ def validate_finite_diesel_generator(**kwargs):
         if isinstance(kwargs["max_available_power_kW"], (int, float)):
             error_message = \
                 {"misconfiguration": [f"max_available_power_kW should be in between "
-                                      f"{CepSettings.MAX_POWER_KW_RANGE.min} & "
-                                      f"{CepSettings.MAX_POWER_KW_RANGE.max}."]}
-            _validate_range_limit(CepSettings.MAX_POWER_KW_RANGE.min,
+                                      f"{CepSettings.MAX_POWER_KW_LIMIT.min} & "
+                                      f"{CepSettings.MAX_POWER_KW_LIMIT.max}."]}
+            _validate_range_limit(CepSettings.MAX_POWER_KW_LIMIT.min,
                                   kwargs["max_available_power_kW"],
-                                  CepSettings.MAX_POWER_KW_RANGE.max,
+                                  CepSettings.MAX_POWER_KW_LIMIT.max,
                                   error_message)
         elif isinstance(kwargs["max_available_power_kW"], dict):
             error_message = \
                 {"misconfiguration": [f"max_available_power_kW should be in between "
-                                      f"{CepSettings.MAX_POWER_KW_RANGE.min} & "
-                                      f"{CepSettings.MAX_POWER_KW_RANGE.max}."]}
+                                      f"{CepSettings.MAX_POWER_KW_LIMIT.min} & "
+                                      f"{CepSettings.MAX_POWER_KW_LIMIT.max}."]}
             for date, value in kwargs["max_available_power_kW"].items():
-                _validate_range_limit(CepSettings.MAX_POWER_KW_RANGE.min, value,
-                                      CepSettings.MAX_POWER_KW_RANGE.max, error_message)
+                _validate_range_limit(CepSettings.MAX_POWER_KW_LIMIT.min, value,
+                                      CepSettings.MAX_POWER_KW_LIMIT.max, error_message)
         else:
             raise D3ADeviceException({"misconfiguration": [f"max_available_power_kW has an "
                                                            f"invalid type. "]})
