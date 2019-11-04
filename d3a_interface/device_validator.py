@@ -208,11 +208,11 @@ def validate_storage_device(**kwargs):
     if "max_abs_battery_power_kW" in kwargs and kwargs["max_abs_battery_power_kW"] is not None:
         error_message = \
             {"misconfiguration": [f"max_abs_battery_power_kW should be in between "
-                                  f"{StorageSettings.MAX_ABS_POWER_LIMIT.min} & "
-                                  f"{StorageSettings.MAX_ABS_POWER_LIMIT.max}."]}
-        _validate_range_limit(StorageSettings.MAX_ABS_POWER_LIMIT.min,
+                                  f"{StorageSettings.MAX_ABS_POWER_RANGE.initial} & "
+                                  f"{StorageSettings.MAX_ABS_POWER_RANGE.final}."]}
+        _validate_range_limit(StorageSettings.MAX_ABS_POWER_RANGE.initial,
                               kwargs["max_abs_battery_power_kW"],
-                              StorageSettings.MAX_ABS_POWER_LIMIT.max, error_message)
+                              StorageSettings.MAX_ABS_POWER_RANGE.final, error_message)
 
     if "initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None:
         error_message = \

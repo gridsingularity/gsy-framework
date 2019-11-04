@@ -70,7 +70,7 @@ class ConstSettings:
         CAPACITY_LIMIT = RangeLimit(0.0001, 2000000)
         # Maximum battery power for supply/demand, in Watts.
         MAX_ABS_POWER = 5
-        MAX_ABS_POWER_LIMIT = RangeLimit(0.0001, 2000000)
+        MAX_ABS_POWER_RANGE = RateRange(0.0001, 2000000)
         # Energy buy-limit, storage never buys outside this limit.
         # Unit is ct/kWh.
         BUYING_RATE_RANGE = RateRange(0, 24.9)
