@@ -92,11 +92,11 @@ def validate_load_device(**kwargs):
             kwargs["energy_rate_increase_per_update"] is not None:
         error_message = \
             {"misconfiguration": [f"energy_rate_increase_per_update should be in between "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}."]}
-        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE.initial,
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final}."]}
+        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial,
                               kwargs["energy_rate_increase_per_update"],
-                              GeneralSettings.RATE_CHANGE_PER_UPDATE.final, error_message)
+                              GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final, error_message)
 
     if ("fit_to_limit" in kwargs and kwargs["fit_to_limit"] is True) and \
             ("energy_rate_increase_per_update" in kwargs and
@@ -149,11 +149,11 @@ def validate_pv_device(**kwargs):
             kwargs["energy_rate_decrease_per_update"] is not None:
         error_message = \
             {"misconfiguration": [f"energy_rate_decrease_per_update should be in between "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}"]}
-        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE.initial,
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final}"]}
+        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial,
                               kwargs["energy_rate_decrease_per_update"],
-                              GeneralSettings.RATE_CHANGE_PER_UPDATE.final, error_message)
+                              GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final, error_message)
     if "max_panel_power_W" in kwargs and kwargs["max_panel_power_W"] is not None:
         error_message = \
             {"misconfiguration": [f"max_panel_power_W should be in between "
@@ -270,21 +270,21 @@ def validate_storage_device(**kwargs):
             kwargs["energy_rate_increase_per_update"] is not None:
         error_message = \
             {"misconfiguration": [f"energy_rate_increase_per_update should be in between "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}."]}
-        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE.initial,
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final}."]}
+        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial,
                               kwargs["energy_rate_increase_per_update"],
-                              GeneralSettings.RATE_CHANGE_PER_UPDATE.final, error_message)
+                              GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final, error_message)
 
     if "energy_rate_decrease_per_update" in kwargs and \
             kwargs["energy_rate_decrease_per_update"] is not None:
         error_message = \
             {"misconfiguration": [f"energy_rate_decrease_per_update should be in between "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.initial} & "
-                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE.final}."]}
-        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE.initial,
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial} & "
+                                  f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final}."]}
+        _validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.initial,
                               kwargs["energy_rate_decrease_per_update"],
-                              GeneralSettings.RATE_CHANGE_PER_UPDATE.final, error_message)
+                              GeneralSettings.RATE_CHANGE_PER_UPDATE_RANGE.final, error_message)
     if ("fit_to_limit" in kwargs and kwargs["fit_to_limit"] is True) and \
             (("energy_rate_increase_per_update" in kwargs and
               kwargs["energy_rate_increase_per_update"] is not None) or

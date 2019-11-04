@@ -47,8 +47,7 @@ class ConstSettings:
         # Boolean flag which forces d3a to dispatch events via redis channels
         EVENT_DISPATCHING_VIA_REDIS = False
 
-        RATE_DECREASE_PER_UPDATE_RANGE = RateRange(0, 1000)
-        RATE_CHANGE_PER_UPDATE = RateRange(0, 1000)
+        RATE_CHANGE_PER_UPDATE_RANGE = RateRange(0, 1000)
 
         INITIAL_RATE_OPTIONS = [1, 2, 3]
 
@@ -68,7 +67,6 @@ class ConstSettings:
         # possible range of state of charge
         INITIAL_CHARGE_RANGE = RangeLimit(10, 100)
 
-        BREAK_EVEN_RANGE = RateRange(0, 10000)
         # Max battery capacity in kWh.
         CAPACITY = 1.2
         CAPACITY_RANGE = RangeLimit(0.0001, 2000000)
@@ -77,14 +75,12 @@ class ConstSettings:
         MAX_ABS_POWER_RANGE = RangeLimit(0.0001, 2000000)
         # Energy buy-range, storage never buys outside this limit.
         # Unit is ct/kWh.
-        INITIAL_BUYING_RATE = 0
-        FINAL_BUYING_RATE = 24.9
+        BUYING_RATE_RANGE = RateRange(0, 24.9)
         INITIAL_BUYING_RANGE = RateRange(0, 10000)
         FINAL_BUYING_RANGE = RateRange(0, 10000)
         # Energy sell-range, storage never sell outside this limit.
         # Unit is ct/kWh.
-        INITIAL_SELLING_RATE = 30
-        FINAL_SELLING_RATE = 25
+        SELLING_RATE_RANGE = RateRange(30, 25)
         INITIAL_SELLING_RANGE = RateRange(0, 10000)
         FINAL_SELLING_RANGE = RateRange(0, 10000)
         # Min allowed battery SOC, range is [0, 100] %.
