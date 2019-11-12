@@ -105,6 +105,14 @@ def validate_load_device(**kwargs):
             {"misconfiguration": [f"fit_to_limit & energy_rate_increase_per_update "
                                   f"can't be set together."]})
 
+    if (("avg_power_W" in kwargs and kwargs["avg_power_W"] is not None) or
+            ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) or
+            ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None)) and \
+            ("daily_load_profile" in kwargs and kwargs["daily_load_profile"] is not None):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"daily_load_profile and all or one [hrs_per_day, hrs_of_day, "
+                                  f"avg_power_W] can't be set together."]})
+
 
 def validate_pv_device(**kwargs):
     if ("panel_count" in kwargs and kwargs["panel_count"] is not None):
