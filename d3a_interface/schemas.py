@@ -134,6 +134,7 @@ class ResultsSchemas:
                             "bills": {"type": "object"},
                             "tree_summary": {"type": "object"},
                             "status": {"type": "string"},
+                            "eta_seconds": {"type": "number"},
                             "device_statistics": {"type": "object"},
                             "energy_trade_profile": {"type": "object"}
                           },
