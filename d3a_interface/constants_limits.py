@@ -48,6 +48,7 @@ class ConstSettings:
         EVENT_DISPATCHING_VIA_REDIS = False
 
         RATE_CHANGE_PER_UPDATE_LIMIT = RangeLimit(0, 1000)
+        ENERGY_PROFILE_LIMIT = RangeLimit(0, sys.maxsize)
 
         NUM_CLONES_LIMIT = RangeLimit(0, 100)
         MIN_NUM_TICKS = 10

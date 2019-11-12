@@ -113,6 +113,16 @@ def validate_load_device(**kwargs):
             {"misconfiguration": [f"daily_load_profile and all or one [hrs_per_day, hrs_of_day, "
                                   f"avg_power_W] can't be set together."]})
 
+    if "daily_load_profile" in kwargs and kwargs["daily_load_profile"] is not None:
+        print()
+        if isinstance(kwargs["daily_load_profile"], str):
+            _validate_energy_profile(ast.literal_eval(kwargs["daily_load_profile"]))
+        elif isinstance(kwargs["daily_load_profile"], dict):
+            _validate_energy_profile(kwargs["daily_load_profile"])
+        else:
+            raise D3ADeviceException({"misconfiguration": [f"daily_load_profile has an "
+                                                           f"invalid type."]})
+
 
 def validate_pv_device(**kwargs):
     if ("panel_count" in kwargs and kwargs["panel_count"] is not None):
@@ -313,6 +323,17 @@ def _validate_rate(energy_rate):
                           CepSettings.ENERGY_RATE_LIMIT.max, error_message)
 
 
+def _validate_energy_profile(energy_profile):
+    for date, value in energy_profile.items():
+        value = float(value) if type(value) == str else value
+        error_message = \
+            {"misconfiguration": [f"energy should at time: {date} be in between "
+                                  f"{GeneralSettings.ENERGY_PROFILE_LIMIT.min} & "
+                                  f"{GeneralSettings.ENERGY_PROFILE_LIMIT.max}."]}
+        _validate_range_limit(GeneralSettings.ENERGY_PROFILE_LIMIT.min, value,
+                              GeneralSettings.ENERGY_PROFILE_LIMIT.max, error_message)
+
+
 def _validate_rate_profile(energy_rate_profile):
     for date, value in energy_rate_profile.items():
         value = float(value) if type(value) == str else value
@@ -324,7 +345,7 @@ def _validate_rate_profile(energy_rate_profile):
                               CepSettings.ENERGY_RATE_LIMIT.max, error_message)
 
 
-def validate_commercial_producer(**kwargs):
+def validate_energy_rate(**kwargs):
     if "energy_rate" in kwargs and kwargs["energy_rate"] is not None:
         if isinstance(kwargs["energy_rate"], (float, int)):
             _validate_rate(kwargs["energy_rate"])
@@ -336,16 +357,12 @@ def validate_commercial_producer(**kwargs):
             raise D3ADeviceException({"misconfiguration": [f"energy_rate has an invalid type."]})
 
 
+def validate_commercial_producer(**kwargs):
+    validate_energy_rate(**kwargs)
+
+
 def validate_market_maker(**kwargs):
-    if "energy_rate" in kwargs and kwargs["energy_rate"] is not None:
-        if isinstance(kwargs["energy_rate"], (float, int)):
-            _validate_rate(kwargs["energy_rate"])
-        elif isinstance(kwargs["energy_rate"], str):
-            _validate_rate_profile(ast.literal_eval(kwargs["energy_rate"]))
-        elif isinstance(ast.literal_eval(kwargs["energy_rate"]), dict):
-            _validate_rate_profile(kwargs["energy_rate"])
-        else:
-            raise D3ADeviceException({"misconfiguration": [f"energy_rate has an invalid type."]})
+    validate_energy_rate(**kwargs)
     if "energy_rate_profile" in kwargs and kwargs["energy_rate_profile"] is not None and \
             ("energy_rate_profile_uuid" not in kwargs or
              kwargs["energy_rate_profile_uuid"] is None):
