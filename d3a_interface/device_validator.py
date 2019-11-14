@@ -113,15 +113,6 @@ def validate_load_device(**kwargs):
             {"misconfiguration": [f"daily_load_profile and all or one [hrs_per_day, hrs_of_day, "
                                   f"avg_power_W] can't be set together."]})
 
-    if "daily_load_profile" in kwargs and kwargs["daily_load_profile"] is not None:
-        if isinstance(kwargs["daily_load_profile"], str):
-            _validate_energy_profile(ast.literal_eval(kwargs["daily_load_profile"]))
-        elif isinstance(kwargs["daily_load_profile"], dict):
-            _validate_energy_profile(kwargs["daily_load_profile"])
-        else:
-            raise D3ADeviceException({"misconfiguration": [f"daily_load_profile has an "
-                                                           f"invalid type."]})
-
 
 def validate_pv_device(**kwargs):
     if ("panel_count" in kwargs and kwargs["panel_count"] is not None):
@@ -320,17 +311,6 @@ def _validate_rate(energy_rate):
                               f"{CepSettings.ENERGY_RATE_LIMIT.max}."]}
     _validate_range_limit(CepSettings.ENERGY_RATE_LIMIT.min, energy_rate,
                           CepSettings.ENERGY_RATE_LIMIT.max, error_message)
-
-
-def _validate_energy_profile(energy_profile):
-    for date, value in energy_profile.items():
-        value = float(value) if type(value) == str else value
-        error_message = \
-            {"misconfiguration": [f"energy should at time: {date} be in between "
-                                  f"{GeneralSettings.ENERGY_PROFILE_LIMIT.min} & "
-                                  f"{GeneralSettings.ENERGY_PROFILE_LIMIT.max}."]}
-        _validate_range_limit(GeneralSettings.ENERGY_PROFILE_LIMIT.min, value,
-                              GeneralSettings.ENERGY_PROFILE_LIMIT.max, error_message)
 
 
 def _validate_rate_profile(energy_rate_profile):
