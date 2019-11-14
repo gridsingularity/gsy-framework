@@ -114,7 +114,6 @@ def validate_load_device(**kwargs):
                                   f"avg_power_W] can't be set together."]})
 
     if "daily_load_profile" in kwargs and kwargs["daily_load_profile"] is not None:
-        print()
         if isinstance(kwargs["daily_load_profile"], str):
             _validate_energy_profile(ast.literal_eval(kwargs["daily_load_profile"]))
         elif isinstance(kwargs["daily_load_profile"], dict):
