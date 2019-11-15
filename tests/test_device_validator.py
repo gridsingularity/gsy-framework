@@ -92,12 +92,6 @@ class TestValidateDeviceSettings(unittest.TestCase):
 
         validate_load_device(daily_load_profile=valid_load_profile)
 
-        with self.assertRaises(D3ADeviceException):
-            validate_load_device(daily_load_profile={"1": -1, "10": 4.2, "22:00": 0.1})
-
-        with self.assertRaises(D3ADeviceException):
-            validate_load_device(daily_load_profile=[1, 2, 3, 4, 5, 6])
-
     def test_pv_device_setting(self):
         self.assertIsNone(validate_pv_device(panel_count=1))
         with self.assertRaises(D3ADeviceException):
