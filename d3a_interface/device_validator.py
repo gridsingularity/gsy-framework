@@ -71,7 +71,7 @@ def validate_load_device(**kwargs):
             ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and \
             (kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
         raise D3ADeviceException({"misconfiguration": [f"initial_buying_rate should be "
-                                                       f"less than final_buying_rate/"
+                                                       f"less than or equal to final_buying_rate/"
                                                        f"market_maker_rate. Please adapt the "
                                                        f"market_maker_rate of the configuration "
                                                        f"or the initial_buying_rate"]})
@@ -87,7 +87,7 @@ def validate_load_device(**kwargs):
             (len(kwargs["hrs_of_day"]) < kwargs["hrs_per_day"]):
         raise D3ADeviceException(
             {"misconfiguration": [f"length of hrs_of_day list should be "
-                                  f"greater than hrs_per_day."]})
+                                  f"greater than or equal hrs_per_day."]})
     if "energy_rate_increase_per_update" in kwargs and \
             kwargs["energy_rate_increase_per_update"] is not None:
         error_message = \
