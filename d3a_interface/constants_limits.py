@@ -197,3 +197,9 @@ class GlobalConfig:
     iaa_fee = ConstSettings.IAASettings.FEE_PERCENTAGE
     iaa_fee_const = ConstSettings.IAASettings.FEE_CONSTANT
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
+
+
+TIME_FORMAT = "HH:mm"
+DATE_FORMAT = "YYYY-MM-DD"
+DATE_TIME_FORMAT = f"{DATE_FORMAT}T{TIME_FORMAT}"
+DATE_TIME_UI_FORMAT = "MMMM DD YYYY, HH:mm [h]"
