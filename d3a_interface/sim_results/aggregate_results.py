@@ -117,24 +117,30 @@ class UnmatchedLoadsHelpers:
         return accumulated_results
 
 
-def merge_unmatched_load_results_to_global(global_ul, market_ul):
+def merge_unmatched_load_results_to_global(market_ul, global_ul):
     if not global_ul:
         global_ul = market_ul
         return global_ul
-    else:
-        return UnmatchedLoadsHelpers.accumulate_current_market_results(global_ul, market_ul)
+    return UnmatchedLoadsHelpers.accumulate_current_market_results(global_ul, market_ul)
 
 
 def merge_price_energy_day_results_to_global(market_pe, global_pe):
+    if not global_pe:
+        global_pe = market_pe
+        return global_pe
     for area_uuid in market_pe:
         if area_uuid not in global_pe:
             global_pe[area_uuid] = deepcopy(market_pe[area_uuid])
         else:
             global_pe[area_uuid]["price-energy-day"].extend(
                 market_pe[area_uuid]["price-energy-day"])
+    return global_pe
 
 
 def merge_device_statistics_results_to_global(market_device, global_device):
+    if not global_device:
+        global_device = market_device
+        return global_device
     for area_uuid in market_device:
         if area_uuid not in global_device:
             global_device[area_uuid] = market_device[area_uuid]
@@ -144,9 +150,13 @@ def merge_device_statistics_results_to_global(market_device, global_device):
                     global_device[area_uuid][stat] = market_device[area_uuid][stat]
                 else:
                     global_device[area_uuid][stat].update(**market_device[area_uuid][stat])
+    return global_device
 
 
 def merge_energy_trade_profile_to_global(market_trade, global_trade, slot_list):
+    if not global_trade:
+        global_trade = market_trade
+        return global_trade
     for area_uuid in market_trade:
         if area_uuid not in global_trade:
             global_trade[area_uuid] = {"sold_energy": {}, "bought_energy": {}}
@@ -167,20 +177,22 @@ def merge_energy_trade_profile_to_global(market_trade, global_trade, slot_list):
                     global_trade[area_uuid][sold_bought][target_area][source_area].update(
                         **market_trade[area_uuid][sold_bought][target_area][source_area]
                     )
+    return global_trade
 
 
 def merge_last_market_results_to_global(
         market_results, global_results,
         sim_duration, start_date, market_count, slot_length
 ):
-    merge_unmatched_load_results_to_global(
+    global_results["unmatched_loads"] = merge_unmatched_load_results_to_global(
         market_results["unmatched_loads"], global_results["unmatched_loads"])
-    merge_price_energy_day_results_to_global(
+    global_results["price_energy_day"] = merge_price_energy_day_results_to_global(
         market_results["price_energy_day"], global_results["price_energy_day"])
-    merge_device_statistics_results_to_global(
+    global_results["device_statistics"] = merge_device_statistics_results_to_global(
         market_results["device_statistics"], global_results["device_statistics"])
-    merge_energy_trade_profile_to_global(
+    global_results["energy_trade_profile"] = merge_energy_trade_profile_to_global(
         market_results["energy_trade_profile"],
         global_results["energy_trade_profile"],
         generate_market_slot_list_from_config(sim_duration, start_date, market_count, slot_length)
     )
+    return global_results
