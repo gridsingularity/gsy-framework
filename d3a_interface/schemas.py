@@ -136,18 +136,19 @@ class ResultsSchemas:
                             "status": {"type": "string"},
                             "eta_seconds": {"type": "number"},
                             "device_statistics": {"type": "object"},
-                            "energy_trade_profile": {"type": "object"}
+                            "energy_trade_profile": {"type": "object"},
+                            "last_unmatched_loads": {"type": "object"},
+                            "last_energy_trade_profile": {"type": "object"},
+                            "last_device_statistics": {"type": "object"},
+                            "last_price_energy_day": {"type": "object"},
+
                           },
                       "additionalProperties": False,
                       "required": ["job_id",
                                    "random_seed",
-                                   "unmatched_loads",
                                    "cumulative_loads",
-                                   "price_energy_day",
                                    "cumulative_grid_trades",
                                    "bills",
                                    "tree_summary",
-                                   "status",
-                                   "device_statistics",
-                                   "energy_trade_profile"]
+                                   "status"]
                       }
