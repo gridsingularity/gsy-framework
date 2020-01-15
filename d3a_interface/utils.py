@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from pendulum import DateTime
-from d3a.constants import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT
+from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT
 
 
 def convert_datetime_to_str_keys(indict, outdict, ui_format=False):
