@@ -47,8 +47,8 @@ class TestValidateResults(unittest.TestCase):
                     'cumulative_grid_trades': {},
                     'bills': {},
                     'tree_summary': {},
-                    'status': 'running',
                     'device_statistics': {},
+                    'energy_trade_profile': {}
                     }
         self.assertRaises(ValidationError, results_validator, results)
 
