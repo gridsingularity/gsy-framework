@@ -56,6 +56,8 @@ class ConstSettings:
         MAX_SLOT_LENGTH_M = 60
         MIN_TICK_LENGTH_S = 1
 
+        REDIS_PUBLISH_FULL_RESULTS = False
+
     class CommercialProducerSettings:
         ENERGY_RATE_LIMIT = RangeLimit(0, 10000)
         MAX_POWER_KW_LIMIT = RangeLimit(0, 10000000)
@@ -197,3 +199,9 @@ class GlobalConfig:
     iaa_fee = ConstSettings.IAASettings.FEE_PERCENTAGE
     iaa_fee_const = ConstSettings.IAASettings.FEE_CONSTANT
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
+
+
+TIME_FORMAT = "HH:mm"
+DATE_FORMAT = "YYYY-MM-DD"
+DATE_TIME_FORMAT = f"{DATE_FORMAT}T{TIME_FORMAT}"
+DATE_TIME_UI_FORMAT = "MMMM DD YYYY, HH:mm [h]"

@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 try:
@@ -22,7 +22,7 @@ setup(
     author_email='d3a@gridsingularity.com',
     url='https://github.com/gridsingularity/d3a-interface',
     version=VERSION,
-    packages=["d3a_interface"],
+    packages=find_packages(where=".", exclude=["tests"]),
     package_dir={"d3a_interface": "d3a_interface"},
     package_data={},
     install_requires=REQUIREMENTS,
