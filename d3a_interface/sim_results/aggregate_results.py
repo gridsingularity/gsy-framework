@@ -16,13 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from copy import deepcopy
+from datetime import timedelta, date  # NOQA
+from typing import Dict, List
 from d3a_interface.utils import generate_market_slot_list_from_config, convert_datetime_to_str_keys
 
 
 class UnmatchedLoadsHelpers:
 
     @classmethod
-    def _merge_base_area_unmatched_loads(cls, accumulated_results, current_results, area):
+    def _merge_base_area_unmatched_loads(cls, accumulated_results: Dict,
+                                         current_results: Dict, area: str):
         """
         Recurses over all children (target areas) of base area and calculates the unmatched
         loads for each
@@ -48,8 +51,8 @@ class UnmatchedLoadsHelpers:
                     )
 
     @classmethod
-    def _merge_target_area_unmatched_loads(cls, accumulated_results, current_results,
-                                           area, target):
+    def _merge_target_area_unmatched_loads(cls, accumulated_results: Dict,
+                                           current_results: Dict, area: str, target: str):
         """
         Merges the unmatched loads and unmatched times for a base area and a target area.
         :param accumulated_results: stores the merged unmatched load results, changes by reference
@@ -84,7 +87,8 @@ class UnmatchedLoadsHelpers:
                     target_ul[timestamp]['unmatched_count'] = unm_count
 
     @classmethod
-    def _copy_accumulated_unmatched_loads(cls, accumulated_results, current_results, area):
+    def _copy_accumulated_unmatched_loads(cls, accumulated_results: Dict,
+                                          current_results: Dict, area: str):
         """
         Copies the accumulated results from the market results to the incremental results
         :param accumulated_results: stores the merged unmatched load results, changes by reference
@@ -98,7 +102,7 @@ class UnmatchedLoadsHelpers:
                 accumulated_results[area]['unmatched_loads'][timestamp] = deepcopy(ts_value)
 
     @classmethod
-    def accumulate_current_market_results(cls, accumulated_results, current_results):
+    def accumulate_current_market_results(cls, accumulated_results: Dict, current_results: Dict):
         """
         Method which starts the merging of the current market unmatched loads with the
         existing unmatched loads (_unmatched_loads_incremental)
@@ -117,14 +121,14 @@ class UnmatchedLoadsHelpers:
         return accumulated_results
 
 
-def merge_unmatched_load_results_to_global(market_ul, global_ul):
+def merge_unmatched_load_results_to_global(market_ul: Dict, global_ul: Dict):
     if not global_ul:
         global_ul = market_ul
         return global_ul
     return UnmatchedLoadsHelpers.accumulate_current_market_results(global_ul, market_ul)
 
 
-def merge_price_energy_day_results_to_global(market_pe, global_pe):
+def merge_price_energy_day_results_to_global(market_pe: Dict, global_pe: Dict):
     if not global_pe:
         global_pe = market_pe
         return global_pe
@@ -137,7 +141,7 @@ def merge_price_energy_day_results_to_global(market_pe, global_pe):
     return global_pe
 
 
-def merge_device_statistics_results_to_global(market_device, global_device):
+def merge_device_statistics_results_to_global(market_device: Dict, global_device: Dict):
     if not global_device:
         global_device = market_device
         return global_device
@@ -153,7 +157,7 @@ def merge_device_statistics_results_to_global(market_device, global_device):
     return global_device
 
 
-def merge_energy_trade_profile_to_global(market_trade, global_trade, slot_list):
+def merge_energy_trade_profile_to_global(market_trade: Dict, global_trade: Dict, slot_list: List):
     if not global_trade:
         global_trade = market_trade
         return global_trade
@@ -181,8 +185,8 @@ def merge_energy_trade_profile_to_global(market_trade, global_trade, slot_list):
 
 
 def merge_last_market_results_to_global(
-        market_results, global_results,
-        sim_duration, start_date, market_count, slot_length
+        market_results: Dict, global_results: Dict,
+        sim_duration: timedelta, start_date: date, market_count: int, slot_length: timedelta
 ):
     global_results["unmatched_loads"] = merge_unmatched_load_results_to_global(
         market_results["unmatched_loads"], global_results["unmatched_loads"])
