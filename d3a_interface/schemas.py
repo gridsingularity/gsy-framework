@@ -141,7 +141,7 @@ class ResultsSchemas:
                             "last_energy_trade_profile": {"type": "object"},
                             "last_device_statistics": {"type": "object"},
                             "last_price_energy_day": {"type": "object"},
-
+                            "kpi": {"type": "object"}
                           },
                       "additionalProperties": False,
                       "required": ["job_id",
