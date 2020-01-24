@@ -58,6 +58,7 @@ class ScenarioSchemas:
                                                               {"type": "null"}]},
                     "power_profile": {"anyOf": [{"type": "number"},
                                                 {"type": "null"},
+                                                {"type": "array"},
                                                 {"type": "string"}]},
                 }
             },
@@ -91,7 +92,9 @@ class ScenarioSchemas:
                     "avg_power_W":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "hrs_per_day":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "acceptable_energy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "daily_load_profile": {"anyOf": [{"type": "array"}, {"type": "null"}]}
+                    "daily_load_profile": {"anyOf": [{"type": "array"},
+                                                     {"type": "null"},
+                                                     {"type": "string"}]}
                 }
             },
             "infinite_power_plant": {
