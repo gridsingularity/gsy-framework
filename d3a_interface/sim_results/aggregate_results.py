@@ -35,6 +35,9 @@ class UnmatchedLoadsHelpers:
         :param area: area of the accumulated unmatched loads
         :return: None
         """
+        if area not in current_results or current_results[area] is None:
+            accumulated_results[area] = None
+            return
         for target, target_value in current_results[area].items():
             if target not in accumulated_results[area]:
                 accumulated_results[area][target] = deepcopy(target_value)
