@@ -63,6 +63,7 @@ class ScenarioSchemas:
                     "cloud_coverage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "power_profile": {"anyOf": [{"type": "number"},
                                                 {"type": "null"},
+                                                {"type": "array"},
                                                 {"type": "string"}]},
                     "use_market_maker_rate": {"type": "boolean"}
                 }
@@ -109,9 +110,11 @@ class ScenarioSchemas:
                     "update_interval":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
                                                                   {"type": "null"}]},
-                    "daily_load_profile": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "daily_load_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "use_market_maker_rate": {"type": "boolean"}
+                    "daily_load_profile": {"anyOf": [{"type": "array"},
+                                                     {"type": "null"},
+                                                     {"type": "string"}]}
                 }
             },
             "infinite_power_plant": {
@@ -161,7 +164,7 @@ class ResultsSchemas:
                             "last_energy_trade_profile": {"type": "object"},
                             "last_device_statistics": {"type": "object"},
                             "last_price_energy_day": {"type": "object"},
-
+                            "kpi": {"type": "object"}
                           },
                       "additionalProperties": False,
                       "required": ["job_id",
