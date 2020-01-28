@@ -111,7 +111,7 @@ class ScenarioSchemas:
                     "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
                                                                   {"type": "null"}]},
                     "daily_load_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-                    "use_market_maker_rate": {"type": "boolean"}
+                    "use_market_maker_rate": {"type": "boolean"},
                     "daily_load_profile": {"anyOf": [{"type": "array"},
                                                      {"type": "null"},
                                                      {"type": "string"}]}
