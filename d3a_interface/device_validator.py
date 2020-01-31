@@ -29,7 +29,12 @@ CepSettings = ConstSettings.CommercialProducerSettings
 
 
 def validate_load_device(**kwargs):
-    if ("avg_power_W" in kwargs and kwargs["avg_power_W"] is not None):
+    validate_load_device_energy(**kwargs)
+    validate_load_device_price(**kwargs)
+
+
+def validate_load_device_energy(**kwargs):
+    if "avg_power_W" in kwargs and kwargs["avg_power_W"] is not None:
         error_message = {"misconfiguration": [f"avg_power_W should be in between "
                                               f"{LoadSettings.AVG_POWER_LIMIT.min} & "
                                               f"{LoadSettings.AVG_POWER_LIMIT.max}."]}
@@ -51,6 +56,30 @@ def validate_load_device(**kwargs):
         validate_range_limit(LoadSettings.HOURS_LIMIT.min,
                              kwargs["hrs_per_day"],
                              LoadSettings.HOURS_LIMIT.max, error_message)
+    if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
+            any([not LoadSettings.HOURS_LIMIT.min <= h <= LoadSettings.HOURS_LIMIT.max
+                 for h in kwargs["hrs_of_day"]]):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"hrs_of_day should be less between "
+                                  f"{LoadSettings.HOURS_LIMIT.min} & "
+                                  f"{LoadSettings.HOURS_LIMIT.max}."]})
+    if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
+            ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) and \
+            (len(kwargs["hrs_of_day"]) < kwargs["hrs_per_day"]):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"length of hrs_of_day list should be "
+                                  f"greater than or equal hrs_per_day."]})
+
+    if (("avg_power_W" in kwargs and kwargs["avg_power_W"] is not None) or
+            ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) or
+            ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None)) and \
+            ("daily_load_profile" in kwargs and kwargs["daily_load_profile"] is not None):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"daily_load_profile and all or one [hrs_per_day, hrs_of_day, "
+                                  f"avg_power_W] can't be set together."]})
+
+
+def validate_load_device_price(**kwargs):
     if "final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None:
         error_message = {"misconfiguration": [f"final_buying_rate should be in between "
                                               f"{LoadSettings.FINAL_BUYING_RATE_LIMIT.min} & "
@@ -75,19 +104,6 @@ def validate_load_device(**kwargs):
                                                        f"market_maker_rate. Please adapt the "
                                                        f"market_maker_rate of the configuration "
                                                        f"or the initial_buying_rate"]})
-    if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
-            any([not LoadSettings.HOURS_LIMIT.min <= h <= LoadSettings.HOURS_LIMIT.max
-                 for h in kwargs["hrs_of_day"]]):
-        raise D3ADeviceException(
-            {"misconfiguration": [f"hrs_of_day should be less between "
-                                  f"{LoadSettings.HOURS_LIMIT.min} & "
-                                  f"{LoadSettings.HOURS_LIMIT.max}."]})
-    if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
-            ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) and \
-            (len(kwargs["hrs_of_day"]) < kwargs["hrs_per_day"]):
-        raise D3ADeviceException(
-            {"misconfiguration": [f"length of hrs_of_day list should be "
-                                  f"greater than or equal hrs_per_day."]})
     if "energy_rate_increase_per_update" in kwargs and \
             kwargs["energy_rate_increase_per_update"] is not None:
         error_message = \
@@ -105,17 +121,14 @@ def validate_load_device(**kwargs):
             {"misconfiguration": [f"fit_to_limit & energy_rate_increase_per_update "
                                   f"can't be set together."]})
 
-    if (("avg_power_W" in kwargs and kwargs["avg_power_W"] is not None) or
-            ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) or
-            ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None)) and \
-            ("daily_load_profile" in kwargs and kwargs["daily_load_profile"] is not None):
-        raise D3ADeviceException(
-            {"misconfiguration": [f"daily_load_profile and all or one [hrs_per_day, hrs_of_day, "
-                                  f"avg_power_W] can't be set together."]})
-
 
 def validate_pv_device(**kwargs):
-    if ("panel_count" in kwargs and kwargs["panel_count"] is not None):
+    validate_pv_device_energy(**kwargs)
+    validate_pv_device_price(**kwargs)
+
+
+def validate_pv_device_energy(**kwargs):
+    if "panel_count" in kwargs and kwargs["panel_count"] is not None:
         error_message = \
             {"misconfiguration": [f"PV panel count should be in between "
                                   f"{PvSettings.PANEL_COUNT_LIMIT.min} & "
@@ -123,8 +136,24 @@ def validate_pv_device(**kwargs):
         validate_range_limit(PvSettings.PANEL_COUNT_LIMIT.min,
                              kwargs["panel_count"],
                              PvSettings.PANEL_COUNT_LIMIT.max, error_message)
+    if "max_panel_power_W" in kwargs and kwargs["max_panel_power_W"] is not None:
+        error_message = \
+            {"misconfiguration": [f"max_panel_power_W should be in between "
+                                  f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min} & "
+                                  f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max}"]}
+        validate_range_limit(PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min,
+                             kwargs["max_panel_power_W"],
+                             PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max, error_message)
+    if "cloud_coverage" in kwargs and kwargs["cloud_coverage"] is not None:
+        if (kwargs["cloud_coverage"] != 4) and \
+           ("power_profile" in kwargs and kwargs["power_profile"] is not None):
+            raise D3ADeviceException(
+                {"misconfiguration": [f"cloud_coverage (if values 0-3) & "
+                                      f"power_profile can't be set together."]})
 
-    if ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None):
+
+def validate_pv_device_price(**kwargs):
+    if "final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None:
         error_message = {"misconfiguration": [f"final_selling_rate should be in between "
                                               f"{PvSettings.FINAL_SELLING_RATE_LIMIT.min} & "
                                               f"{PvSettings.FINAL_SELLING_RATE_LIMIT.max}"]}
@@ -132,7 +161,7 @@ def validate_pv_device(**kwargs):
                              kwargs["final_selling_rate"],
                              PvSettings.FINAL_SELLING_RATE_LIMIT.max, error_message)
 
-    if ("initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None):
+    if "initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None:
         error_message = {"misconfiguration": [f"initial_selling_rate should be in between "
                                               f"{PvSettings.INITIAL_SELLING_RATE_LIMIT.min} & "
                                               f"{PvSettings.INITIAL_SELLING_RATE_LIMIT.max}"]}
@@ -163,20 +192,6 @@ def validate_pv_device(**kwargs):
         validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                              kwargs["energy_rate_decrease_per_update"],
                              GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
-    if "max_panel_power_W" in kwargs and kwargs["max_panel_power_W"] is not None:
-        error_message = \
-            {"misconfiguration": [f"max_panel_power_W should be in between "
-                                  f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min} & "
-                                  f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max}"]}
-        validate_range_limit(PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min,
-                             kwargs["max_panel_power_W"],
-                             PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max, error_message)
-    if "cloud_coverage" in kwargs and kwargs["cloud_coverage"] is not None:
-        if (kwargs["cloud_coverage"] != 4) and \
-           ("power_profile" in kwargs and kwargs["power_profile"] is not None):
-            raise D3ADeviceException(
-                {"misconfiguration": [f"cloud_coverage (if values 0-3) & "
-                                      f"power_profile can't be set together."]})
 
 
 def validate_storage_device(**kwargs):
@@ -189,7 +204,7 @@ def validate_storage_device(**kwargs):
                              kwargs["initial_soc"],
                              StorageSettings.INITIAL_CHARGE_LIMIT.max, error_message)
 
-    if ("min_allowed_soc" in kwargs and kwargs["min_allowed_soc"] is not None):
+    if "min_allowed_soc" in kwargs and kwargs["min_allowed_soc"] is not None:
         error_message = \
             {"misconfiguration": [f"min_allowed_soc should be in between "
                                   f"{StorageSettings.MIN_SOC_LIMIT.min} & "
@@ -255,7 +270,7 @@ def validate_storage_device(**kwargs):
                              kwargs["initial_buying_rate"],
                              StorageSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
 
-    if ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None):
+    if "final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None:
         error_message = {"misconfiguration": [f"final_buying_rate should be in between "
                                               f"{StorageSettings.FINAL_BUYING_RATE_LIMIT.min} & "
                                               f"{StorageSettings.FINAL_BUYING_RATE_LIMIT.max}."]}
