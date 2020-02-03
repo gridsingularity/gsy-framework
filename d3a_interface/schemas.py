@@ -149,6 +149,7 @@ class ResultsSchemas:
     results_schema = {"type": "object",
                       "properties": {
                             "job_id":  {"type": "string"},
+                            "current_market": {"type": "string"},
                             "random_seed": {"type": "number"},
                             "unmatched_loads": {"type": "object"},
                             "cumulative_loads": {"type": "object"},
