@@ -31,7 +31,7 @@ class TestValidateResults(unittest.TestCase):
                     'cumulative_loads': {},
                     'price_energy_day': {},
                     'cumulative_grid_trades': {},
-                    'bills': {}
+                    'bills': {},
                     'status': 'running',
                     'device_statistics': {},
                     'energy_trade_profile': {}
