@@ -58,6 +58,8 @@ class ConstSettings:
 
         REDIS_PUBLISH_FULL_RESULTS = False
 
+        PENALTY_PERCENTAGE = 20
+
     class AreaSettings:
         GRID_FEE_PERCENTAGE_LIMIT = RangeLimit(0, 100)
 
