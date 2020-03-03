@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class ScenarioSchemas:
-    # TODO: Add parameters, once D3ASIM-1378 and D3ASIM-1419 are pushed
     scenario_schema = {
         "definitions": {
             "area": {
@@ -27,6 +26,7 @@ class ScenarioSchemas:
                     "type": {"type": "string"},
                     "name": {"type": "string"},
                     "number_of_clones": {"type": "number"},
+                    "grid_fee_percentage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "children": {"anyOf": [{
@@ -52,13 +52,20 @@ class ScenarioSchemas:
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-                    "panel_count": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "initial_pv_rate_option": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "energy_rate_decrease_option": {"anyOf": [{"type": "number"},
-                                                              {"type": "null"}]},
+                    "panel_count": {"type": "number"},
+                    "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "final_selling_rate": {"type": "number"},
+                    "fit_to_limit": {"type": "boolean"},
+                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_rate_decrease_per_update": {"anyOf": [{"type": "number"},
+                                                                  {"type": "null"}]},
+                    "max_panel_power_W": {"type": "number"},
+                    "cloud_coverage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "power_profile": {"anyOf": [{"type": "number"},
                                                 {"type": "null"},
+                                                {"type": "array"},
                                                 {"type": "string"}]},
+                    "use_market_maker_rate": {"type": "boolean"}
                 }
             },
             "storage": {
@@ -69,14 +76,21 @@ class ScenarioSchemas:
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-                    "battery_capacity":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "break_even_lower":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "break_even_upper":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "initial_capacity":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "initial_rate_option":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "max_abs_battery_power": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "energy_rate_decrease_option": {"anyOf": [{"type": "number"},
-                                                              {"type": "null"}]}
+                    "initial_soc": {"type": "number"},
+                    "min_allowed_soc": {"type": "number"},
+                    "battery_capacity_kWh": {"type": "number"},
+                    "max_abs_battery_power_kW": {"type": "number"},
+                    "cap_price_strategy": {"type": "boolean"},
+                    "initial_selling_rate": {"type": "number"},
+                    "final_selling_rate": {"type": "number"},
+                    "initial_buying_rate": {"type": "number"},
+                    "final_buying_rate": {"type": "number"},
+                    "fit_to_limit": {"type": "boolean"},
+                    "energy_rate_increase_per_update":  {"anyOf": [{"type": "number"},
+                                                                   {"type": "null"}]},
+                    "energy_rate_decrease_per_update":  {"anyOf": [{"type": "number"},
+                                                                   {"type": "null"}]},
+                    "update_interval":  {"anyOf": [{"type": "number"}, {"type": "null"}]}
                 }
             },
             "load": {
@@ -87,11 +101,20 @@ class ScenarioSchemas:
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-                    "hrs_of_day": {"anyOf": [{"type": "array"}, {"type": "null"}]},
                     "avg_power_W":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "hrs_per_day":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "acceptable_energy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "daily_load_profile": {"anyOf": [{"type": "array"}, {"type": "null"}]}
+                    "hrs_of_day": {"anyOf": [{"type": "array"}, {"type": "null"}]},
+                    "initial_buying_rate": {"type": "number"},
+                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "fit_to_limit": {"type": "boolean"},
+                    "update_interval":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
+                                                                  {"type": "null"}]},
+                    "daily_load_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "use_market_maker_rate": {"type": "boolean"},
+                    "daily_load_profile": {"anyOf": [{"type": "array"},
+                                                     {"type": "null"},
+                                                     {"type": "string"}]}
                 }
             },
             "infinite_power_plant": {
@@ -126,28 +149,28 @@ class ResultsSchemas:
     results_schema = {"type": "object",
                       "properties": {
                             "job_id":  {"type": "string"},
+                            "current_market": {"type": "string"},
                             "random_seed": {"type": "number"},
                             "unmatched_loads": {"type": "object"},
                             "cumulative_loads": {"type": "object"},
                             "price_energy_day": {"type": "object"},
                             "cumulative_grid_trades": {"type": "object"},
                             "bills": {"type": "object"},
-                            "tree_summary": {"type": "object"},
                             "status": {"type": "string"},
                             "eta_seconds": {"type": "number"},
                             "device_statistics": {"type": "object"},
-                            "energy_trade_profile": {"type": "object"}
+                            "energy_trade_profile": {"type": "object"},
+                            "last_unmatched_loads": {"type": "object"},
+                            "last_energy_trade_profile": {"type": "object"},
+                            "last_device_statistics": {"type": "object"},
+                            "last_price_energy_day": {"type": "object"},
+                            "kpi": {"type": "object"}
                           },
                       "additionalProperties": False,
                       "required": ["job_id",
                                    "random_seed",
-                                   "unmatched_loads",
                                    "cumulative_loads",
-                                   "price_energy_day",
                                    "cumulative_grid_trades",
                                    "bills",
-                                   "tree_summary",
-                                   "status",
-                                   "device_statistics",
-                                   "energy_trade_profile"]
+                                   "status"]
                       }
