@@ -157,7 +157,7 @@ class ResultsSchemas:
                             "cumulative_grid_trades": {"type": "object"},
                             "bills": {"type": "object"},
                             "status": {"type": "string"},
-                            "eta_seconds": {"type": "number"},
+                            "progress_info": {"type": "object"},
                             "device_statistics": {"type": "object"},
                             "energy_trade_profile": {"type": "object"},
                             "last_unmatched_loads": {"type": "object"},
@@ -172,5 +172,6 @@ class ResultsSchemas:
                                    "cumulative_loads",
                                    "cumulative_grid_trades",
                                    "bills",
-                                   "status"]
+                                   "status",
+                                   "progress_info"]
                       }
