@@ -67,9 +67,9 @@ class ConstSettings:
 
     class StorageSettings:
         # least possible state of charge
-        MIN_SOC_LIMIT = RangeLimit(10, 99)
+        MIN_SOC_LIMIT = RangeLimit(0, 99)
         # possible range of state of charge
-        INITIAL_CHARGE_LIMIT = RangeLimit(10, 100)
+        INITIAL_CHARGE_LIMIT = RangeLimit(0, 100)
 
         # Max battery capacity in kWh.
         CAPACITY = 1.2
