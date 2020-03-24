@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.device_validator import validate_range_limit
+from d3a_interface.exceptions import D3ADeviceException
 
 
 GeneralSettings = ConstSettings.GeneralSettings
@@ -25,10 +26,14 @@ AreaSettings = ConstSettings.AreaSettings
 
 
 def validate_area(**kwargs):
-    if ("grid_fee_percentage" in kwargs and kwargs["grid_fee_percentage"] is not None):
+    if "grid_fee_percentage" in kwargs and kwargs["grid_fee_percentage"] is not None:
         error_message = {"misconfiguration": [f"grid_fee_percentage should be in between "
                                               f"{AreaSettings.GRID_FEE_PERCENTAGE_LIMIT.min} & "
                                               f"{AreaSettings.GRID_FEE_PERCENTAGE_LIMIT.max}."]}
         validate_range_limit(AreaSettings.GRID_FEE_PERCENTAGE_LIMIT.min,
                              kwargs["grid_fee_percentage"],
                              AreaSettings.GRID_FEE_PERCENTAGE_LIMIT.max, error_message)
+
+    if "grid_fee_constant" in kwargs and kwargs["grid_fee_constant"] is not None:
+        if kwargs["grid_fee_constant"] < 0:
+            raise D3ADeviceException("Grid fee constant should be a positive value.")
