@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from d3a_interface.constants_limits import ConstSettings, RangeLimit
 from d3a_interface.device_validator import validate_range_limit
+from d3a_interface.exceptions import D3AException
 
 
 GeneralSettings = ConstSettings.GeneralSettings
@@ -28,7 +29,11 @@ CONSTANT_FEE_LIMIT = RangeLimit(0, 200)
 
 
 def validate_area(**kwargs):
-    if "grid_fee_percentage" in kwargs and kwargs["grid_fee_percentage"] is not None:
+    is_percentage_fee = "grid_fee_percentage" in kwargs and kwargs["grid_fee_percentage"] is not None
+    is_constant_fee = "grid_fee_constant" in kwargs and kwargs["grid_fee_constant"] is not None
+    if is_percentage_fee and is_constant_fee:
+        raise D3AException("Cannot set both percentage and constant grid fees on the same area.")
+    if is_percentage_fee:
         error_message = {"misconfiguration": [f"grid_fee_percentage should be in between "
                                               f"{AreaSettings.GRID_FEE_PERCENTAGE_LIMIT.min} & "
                                               f"{AreaSettings.GRID_FEE_PERCENTAGE_LIMIT.max}."]}
@@ -36,7 +41,7 @@ def validate_area(**kwargs):
                              kwargs["grid_fee_percentage"],
                              AreaSettings.GRID_FEE_PERCENTAGE_LIMIT.max, error_message)
 
-    if "grid_fee_constant" in kwargs and kwargs["grid_fee_constant"] is not None:
+    elif is_constant_fee:
         error_message = {"misconfiguration": [f"grid_fee_constant should be in between "
                                               f"{CONSTANT_FEE_LIMIT.min} & "
                                               f"{CONSTANT_FEE_LIMIT.max}."]}
