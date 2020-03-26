@@ -29,7 +29,8 @@ CONSTANT_FEE_LIMIT = RangeLimit(0, 200)
 
 
 def validate_area(**kwargs):
-    is_percentage_fee = "grid_fee_percentage" in kwargs and kwargs["grid_fee_percentage"] is not None
+    is_percentage_fee = "grid_fee_percentage" in kwargs and \
+                        kwargs["grid_fee_percentage"] is not None
     is_constant_fee = "grid_fee_constant" in kwargs and kwargs["grid_fee_constant"] is not None
     if is_percentage_fee and is_constant_fee:
         raise D3AException("Cannot set both percentage and constant grid fees on the same area.")
