@@ -81,3 +81,8 @@ class TestValidateGlobalSettings(unittest.TestCase):
         self.assertRaises(SettingsException, validate_global_settings,
                           {"max_panel_power_W":
                            ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[1] + 1})
+
+    def test_wrong_grid_fee_type(self):
+        validate_global_settings({"grid_fee_type": 1})
+        self.assertRaises(SettingsException, validate_global_settings, {"grid_fee_type": 0})
+        self.assertRaises(SettingsException, validate_global_settings, {"grid_fee_type": 3})
