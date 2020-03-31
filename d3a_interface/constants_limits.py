@@ -122,6 +122,7 @@ class ConstSettings:
         MAX_WIND_TURBINE_OUTPUT_W = 160
 
     class IAASettings:
+        FEE_TYPE = 1
         # Percentage value that controls the fee the IAA adds to the offers and bids.
         FEE_PERCENTAGE = 0
         FEE_PERCENTAGE_LIMIT = RangeLimit(0, 100)
@@ -199,6 +200,7 @@ class GlobalConfig:
     total_ticks = int(sim_duration / tick_length)
     cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
+    grid_fee_type = ConstSettings.IAASettings.FEE_TYPE
 
 
 TIME_FORMAT = "HH:mm"
