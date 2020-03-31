@@ -122,6 +122,9 @@ class ConstSettings:
         MAX_WIND_TURBINE_OUTPUT_W = 160
 
     class IAASettings:
+        # Grid fee type:
+        # Option 1: constant grid fee
+        # Option 2: percentage grid fee
         GRID_FEE_TYPE = 1
         VALID_FEE_TYPES = [1, 2]
         # Percentage value that controls the fee the IAA adds to the offers and bids.
