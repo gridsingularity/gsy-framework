@@ -74,18 +74,6 @@ class TestValidateGlobalSettings(unittest.TestCase):
         self.assertRaises(SettingsException, validate_global_settings,
                           {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[1] + 1})
 
-    def test_wrong_iaa_fee(self):
-        self.assertRaises(SettingsException, validate_global_settings,
-                          {"iaa_fee": ConstSettings.IAASettings.FEE_PERCENTAGE_LIMIT[0] - 1})
-        self.assertRaises(SettingsException, validate_global_settings,
-                          {"iaa_fee": ConstSettings.IAASettings.FEE_PERCENTAGE_LIMIT[1] + 1})
-
-    def test_wrong_iaa_fee_const(self):
-        self.assertRaises(SettingsException, validate_global_settings,
-                          {"iaa_fee_const": ConstSettings.IAASettings.FEE_CONSTANT_LIMIT[0] - 1})
-        self.assertRaises(SettingsException, validate_global_settings,
-                          {"iaa_fee_const": ConstSettings.IAASettings.FEE_CONSTANT_LIMIT[1] + 1})
-
     def test_wrong_max_panel_power_W(self):
         self.assertRaises(SettingsException, validate_global_settings,
                           {"max_panel_power_W":
@@ -93,3 +81,8 @@ class TestValidateGlobalSettings(unittest.TestCase):
         self.assertRaises(SettingsException, validate_global_settings,
                           {"max_panel_power_W":
                            ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[1] + 1})
+
+    def test_wrong_grid_fee_type(self):
+        validate_global_settings({"grid_fee_type": 1})
+        self.assertRaises(SettingsException, validate_global_settings, {"grid_fee_type": 0})
+        self.assertRaises(SettingsException, validate_global_settings, {"grid_fee_type": 3})
