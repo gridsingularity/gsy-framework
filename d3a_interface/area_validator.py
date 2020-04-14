@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from d3a_interface.constants_limits import ConstSettings, RangeLimit
 from d3a_interface.device_validator import validate_range_limit
 from d3a_interface.exceptions import D3AException
+from d3a_interface.utils import key_in_dict_and_not_none, key_in_dict_and_not_none_and_negative
 
 
 GeneralSettings = ConstSettings.GeneralSettings
@@ -29,9 +30,8 @@ CONSTANT_FEE_LIMIT = RangeLimit(0, 200)
 
 
 def validate_area(**kwargs):
-    is_percentage_fee = "grid_fee_percentage" in kwargs and \
-                        kwargs["grid_fee_percentage"] is not None
-    is_constant_fee = "grid_fee_constant" in kwargs and kwargs["grid_fee_constant"] is not None
+    is_percentage_fee = key_in_dict_and_not_none(kwargs, "grid_fee_percentage")
+    is_constant_fee = key_in_dict_and_not_none(kwargs, "grid_fee_constant")
     if is_percentage_fee and is_constant_fee:
         raise D3AException("Cannot set both percentage and constant grid fees on the same area.")
     if is_percentage_fee:
@@ -49,3 +49,16 @@ def validate_area(**kwargs):
         validate_range_limit(CONSTANT_FEE_LIMIT.min,
                              kwargs["grid_fee_constant"],
                              CONSTANT_FEE_LIMIT.max, error_message)
+
+    if key_in_dict_and_not_none_and_negative(kwargs, "baseline_peak_energy_import_kWh"):
+        raise D3AException({"misconfiguration": [f"baseline_peak_energy_import_kWh must be a "
+                                                 f"positive value."]})
+    if key_in_dict_and_not_none_and_negative(kwargs, "baseline_peak_energy_export_kWh"):
+        raise D3AException({"misconfiguration": [f"baseline_peak_energy_export_kWh must be a "
+                                                 f"positive value."]})
+    if key_in_dict_and_not_none_and_negative(kwargs, "import_capacity_kVA"):
+        raise D3AException(
+            {"misconfiguration": [f"import_capacity_kVA must be a positive value."]})
+    if key_in_dict_and_not_none_and_negative(kwargs, "export_capacity_kVA"):
+        raise D3AException({"misconfiguration": [f"export_capacity_kVA must be a "
+                                                 f"positive value."]})
