@@ -57,3 +57,11 @@ def wait_until_timeout_blocking(functor, timeout=10, polling_period=0.01):
         time.sleep(polling_period)
         current_time += time.time() - start_time
     assert functor()
+
+
+def key_in_dict_and_not_none(d, key):
+    return key in d and d[key] is not None
+
+
+def key_in_dict_and_not_none_and_negative(d, key):
+    return key in d and d[key] is not None and d[key] < 0
