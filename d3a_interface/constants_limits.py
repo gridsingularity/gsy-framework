@@ -67,9 +67,9 @@ class ConstSettings:
 
     class StorageSettings:
         # least possible state of charge
-        MIN_SOC_LIMIT = RangeLimit(10, 99)
+        MIN_SOC_LIMIT = RangeLimit(0, 99)
         # possible range of state of charge
-        INITIAL_CHARGE_LIMIT = RangeLimit(10, 100)
+        INITIAL_CHARGE_LIMIT = RangeLimit(0, 100)
 
         # Max battery capacity in kWh.
         CAPACITY = 1.2
@@ -122,6 +122,11 @@ class ConstSettings:
         MAX_WIND_TURBINE_OUTPUT_W = 160
 
     class IAASettings:
+        # Grid fee type:
+        # Option 1: constant grid fee
+        # Option 2: percentage grid fee
+        GRID_FEE_TYPE = 1
+        VALID_FEE_TYPES = [1, 2]
         # Percentage value that controls the fee the IAA adds to the offers and bids.
         FEE_PERCENTAGE = 0
         FEE_PERCENTAGE_LIMIT = RangeLimit(0, 100)
@@ -183,7 +188,6 @@ class GlobalConfig:
     TICK_LENGTH_S = 15
     DURATION_D = 1
     SLOWDOWN = 0
-    IAA_FEE = ConstSettings.IAASettings.FEE_PERCENTAGE
     MARKET_COUNT = 1
     CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
@@ -199,9 +203,8 @@ class GlobalConfig:
     ticks_per_slot = int(slot_length / tick_length)
     total_ticks = int(sim_duration / tick_length)
     cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
-    iaa_fee = ConstSettings.IAASettings.FEE_PERCENTAGE
-    iaa_fee_const = ConstSettings.IAASettings.FEE_CONSTANT
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
+    grid_fee_type = ConstSettings.IAASettings.GRID_FEE_TYPE
 
 
 TIME_FORMAT = "HH:mm"
