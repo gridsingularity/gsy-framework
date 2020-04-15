@@ -145,6 +145,7 @@ class ConstSettings:
         PAY_AS_CLEAR_AGGREGATION_ALGORITHM = 1
 
         MIN_OFFER_AGE = 0
+        MIN_BID_AGE = 0
 
         class AlternativePricing:
             # Option 0: D3A_trading
