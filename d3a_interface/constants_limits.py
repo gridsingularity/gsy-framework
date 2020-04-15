@@ -32,7 +32,7 @@ class ConstSettings:
         # Number of ticks, an offer needs to be able to travel to reach each part of the setup
         MAX_OFFER_TRAVERSAL_LENGTH = 6
         # interval between offer/bid postings
-        DEFAULT_UPDATE_INTERVAL = 5  # in minutes
+        DEFAULT_UPDATE_INTERVAL = 1  # in minutes
         MIN_UPDATE_INTERVAL = 1  # in minutes
         # Number of times Market clearing rate has to be calculated per slot
         MARKET_CLEARING_FREQUENCY_PER_SLOT = 3
