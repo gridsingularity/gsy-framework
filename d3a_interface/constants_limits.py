@@ -93,6 +93,15 @@ class ConstSettings:
         # to sell to all markets
         SELL_ON_MOST_EXPENSIVE_MARKET = False
 
+        # Controls the energy loss of the storage over time#
+        # LOSS_FUNCTION = 1 ==> relative loss
+        # LOSS_FUNCTION = 2 ==> absolute loss
+        LOSS_FUNCTION = 1
+        LOSS_FUNCTION_LIMIT = RangeLimit(1, 2)
+        LOSS_PER_HOUR = 0
+        LOSS_PER_HOUR_ABSOLUTE_LIMIT = RangeLimit(0, 10000)
+        LOSS_PER_HOUR_RELATIVE_LIMIT = RangeLimit(0, 1)
+
     class LoadSettings:
         AVG_POWER_LIMIT = RangeLimit(0, sys.maxsize)
         HOURS_LIMIT = RangeLimit(0, 24)
