@@ -19,7 +19,7 @@ import ast
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
-
+from d3a_interface.utils import key_in_dict_and_not_none
 
 GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
@@ -317,6 +317,32 @@ def validate_storage_device(**kwargs):
         raise D3ADeviceException(
             {"misconfiguration": [f"fit_to_limit & energy_rate_change_per_update "
                                   f"can't be set together."]})
+
+    if key_in_dict_and_not_none(kwargs, "loss_function"):
+        error_message = {"misconfiguration": [f"loss_function should either be "
+                                              f"{StorageSettings.LOSS_FUNCTION_LIMIT.min} or "
+                                              f"{StorageSettings.LOSS_FUNCTION_LIMIT.max}."]}
+        validate_range_limit(StorageSettings.LOSS_FUNCTION_LIMIT.min, kwargs["loss_function"],
+                             StorageSettings.LOSS_FUNCTION_LIMIT.max, error_message)
+        if key_in_dict_and_not_none(kwargs, "loss_per_hour"):
+            if kwargs["loss_function"] == 1:
+                error_message = {
+                    "misconfiguration": [f"loss_per_hour should be in between "
+                                         f"{StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.min} & "
+                                         f"{StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.max}."]}
+                validate_range_limit(StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.min,
+                                     kwargs["loss_per_hour"],
+                                     StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.max,
+                                     error_message)
+            else:
+                error_message = {
+                    "misconfiguration": [f"loss_per_hour should be in between "
+                                         f"{StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.min} & "
+                                         f"{StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.max}."]}
+                validate_range_limit(StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.min,
+                                     kwargs["loss_per_hour"],
+                                     StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.max,
+                                     error_message)
 
 
 def _validate_rate(energy_rate):
