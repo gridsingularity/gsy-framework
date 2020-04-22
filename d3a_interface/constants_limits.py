@@ -41,6 +41,7 @@ class ConstSettings:
         ENERGY_RATE_DECREASE_PER_UPDATE = 1  # rate decrease in cents_per_update
         SETUP_FILE_PATH = None  # Default path of the available setup files
         EXPORT_DEVICE_PLOTS = True
+        EXPORT_ENERGY_TRADE_PROFILE_HR = False
         # Boolean flag which forces d3a to run in real-time
         RUN_REAL_TIME = False
         KEEP_PAST_MARKETS = False
