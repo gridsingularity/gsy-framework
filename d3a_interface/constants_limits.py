@@ -37,7 +37,7 @@ class ConstSettings:
         # Number of times Market clearing rate has to be calculated per slot
         MARKET_CLEARING_FREQUENCY_PER_SLOT = 3
         # Flag to enable supply/demand backend plots
-        SUPPLY_DEMAND_PLOTS = True
+        EXPORT_SUPPLY_DEMAND_PLOTS = True
         ENERGY_RATE_DECREASE_PER_UPDATE = 1  # rate decrease in cents_per_update
         SETUP_FILE_PATH = None  # Default path of the available setup files
         EXPORT_DEVICE_PLOTS = True
