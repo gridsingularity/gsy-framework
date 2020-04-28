@@ -160,6 +160,7 @@ class ResultsSchemas:
                             "price_energy_day": {"type": "object"},
                             "cumulative_grid_trades": {"type": "object"},
                             "bills": {"type": "object"},
+                            "cumulative_bills": {"type": "object"},
                             "status": {"type": "string"},
                             "progress_info": {
                                 "eta_seconds": {"type": "number"},
@@ -181,6 +182,7 @@ class ResultsSchemas:
                                    "cumulative_loads",
                                    "cumulative_grid_trades",
                                    "bills",
+                                   "cumulative_bills",
                                    "status",
                                    "progress_info"]
                       }
