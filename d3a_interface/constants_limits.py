@@ -32,7 +32,7 @@ class ConstSettings:
         # Number of ticks, an offer needs to be able to travel to reach each part of the setup
         MAX_OFFER_TRAVERSAL_LENGTH = 6
         # interval between offer/bid postings
-        DEFAULT_UPDATE_INTERVAL = 5  # in minutes
+        DEFAULT_UPDATE_INTERVAL = 1  # in minutes
         MIN_UPDATE_INTERVAL = 1  # in minutes
         # Number of times Market clearing rate has to be calculated per slot
         MARKET_CLEARING_FREQUENCY_PER_SLOT = 3
@@ -93,6 +93,15 @@ class ConstSettings:
         # to sell to all markets
         SELL_ON_MOST_EXPENSIVE_MARKET = False
 
+        # Controls the energy loss of the storage over time#
+        # LOSS_FUNCTION = 1 ==> relative loss
+        # LOSS_FUNCTION = 2 ==> absolute loss
+        LOSS_FUNCTION = 1
+        LOSS_FUNCTION_LIMIT = RangeLimit(1, 2)
+        LOSS_PER_HOUR = 0
+        LOSS_PER_HOUR_ABSOLUTE_LIMIT = RangeLimit(0, 10000)
+        LOSS_PER_HOUR_RELATIVE_LIMIT = RangeLimit(0, 1)
+
     class LoadSettings:
         AVG_POWER_LIMIT = RangeLimit(0, sys.maxsize)
         HOURS_LIMIT = RangeLimit(0, 24)
@@ -145,6 +154,7 @@ class ConstSettings:
         PAY_AS_CLEAR_AGGREGATION_ALGORITHM = 1
 
         MIN_OFFER_AGE = 0
+        MIN_BID_AGE = 0
 
         class AlternativePricing:
             # Option 0: D3A_trading
