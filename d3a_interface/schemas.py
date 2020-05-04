@@ -27,6 +27,10 @@ class ScenarioSchemas:
                     "name": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "grid_fee_percentage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "baseline_peak_energy_import_kWh":
+                        {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "baseline_peak_energy_export_kWh":
+                        {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "children": {"anyOf": [{
@@ -156,15 +160,21 @@ class ResultsSchemas:
                             "price_energy_day": {"type": "object"},
                             "cumulative_grid_trades": {"type": "object"},
                             "bills": {"type": "object"},
+                            "cumulative_bills": {"type": "object"},
                             "status": {"type": "string"},
-                            "eta_seconds": {"type": "number"},
+                            "progress_info": {
+                                "eta_seconds": {"type": "number"},
+                                "elapsed_time_seconds": {"type": "number"},
+                                "percentage_completed": {"type": "number"},
+                            },
                             "device_statistics": {"type": "object"},
                             "energy_trade_profile": {"type": "object"},
                             "last_unmatched_loads": {"type": "object"},
                             "last_energy_trade_profile": {"type": "object"},
                             "last_device_statistics": {"type": "object"},
                             "last_price_energy_day": {"type": "object"},
-                            "kpi": {"type": "object"}
+                            "kpi": {"type": "object"},
+                            "area_throughput": {"type": "object"}
                           },
                       "additionalProperties": False,
                       "required": ["job_id",
@@ -172,5 +182,7 @@ class ResultsSchemas:
                                    "cumulative_loads",
                                    "cumulative_grid_trades",
                                    "bills",
-                                   "status"]
+                                   "cumulative_bills",
+                                   "status",
+                                   "progress_info"]
                       }

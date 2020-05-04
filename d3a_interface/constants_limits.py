@@ -32,7 +32,7 @@ class ConstSettings:
         # Number of ticks, an offer needs to be able to travel to reach each part of the setup
         MAX_OFFER_TRAVERSAL_LENGTH = 6
         # interval between offer/bid postings
-        DEFAULT_UPDATE_INTERVAL = 5  # in minutes
+        DEFAULT_UPDATE_INTERVAL = 1  # in minutes
         MIN_UPDATE_INTERVAL = 1  # in minutes
         # Number of times Market clearing rate has to be calculated per slot
         MARKET_CLEARING_FREQUENCY_PER_SLOT = 3
@@ -67,9 +67,9 @@ class ConstSettings:
 
     class StorageSettings:
         # least possible state of charge
-        MIN_SOC_LIMIT = RangeLimit(10, 99)
+        MIN_SOC_LIMIT = RangeLimit(0, 99)
         # possible range of state of charge
-        INITIAL_CHARGE_LIMIT = RangeLimit(10, 100)
+        INITIAL_CHARGE_LIMIT = RangeLimit(0, 100)
 
         # Max battery capacity in kWh.
         CAPACITY = 1.2
@@ -92,6 +92,15 @@ class ConstSettings:
         # Controls whether energy is sold only on the most expensive market, default is
         # to sell to all markets
         SELL_ON_MOST_EXPENSIVE_MARKET = False
+
+        # Controls the energy loss of the storage over time#
+        # LOSS_FUNCTION = 1 ==> relative loss
+        # LOSS_FUNCTION = 2 ==> absolute loss
+        LOSS_FUNCTION = 1
+        LOSS_FUNCTION_LIMIT = RangeLimit(1, 2)
+        LOSS_PER_HOUR = 0
+        LOSS_PER_HOUR_ABSOLUTE_LIMIT = RangeLimit(0, 10000)
+        LOSS_PER_HOUR_RELATIVE_LIMIT = RangeLimit(0, 1)
 
     class LoadSettings:
         AVG_POWER_LIMIT = RangeLimit(0, sys.maxsize)
@@ -122,6 +131,11 @@ class ConstSettings:
         MAX_WIND_TURBINE_OUTPUT_W = 160
 
     class IAASettings:
+        # Grid fee type:
+        # Option 1: constant grid fee
+        # Option 2: percentage grid fee
+        GRID_FEE_TYPE = 1
+        VALID_FEE_TYPES = [1, 2]
         # Percentage value that controls the fee the IAA adds to the offers and bids.
         FEE_PERCENTAGE = 0
         FEE_PERCENTAGE_LIMIT = RangeLimit(0, 100)
@@ -140,6 +154,7 @@ class ConstSettings:
         PAY_AS_CLEAR_AGGREGATION_ALGORITHM = 1
 
         MIN_OFFER_AGE = 0
+        MIN_BID_AGE = 0
 
         class AlternativePricing:
             # Option 0: D3A_trading
@@ -183,7 +198,6 @@ class GlobalConfig:
     TICK_LENGTH_S = 15
     DURATION_D = 1
     SLOWDOWN = 0
-    IAA_FEE = ConstSettings.IAASettings.FEE_PERCENTAGE
     MARKET_COUNT = 1
     CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
@@ -199,9 +213,8 @@ class GlobalConfig:
     ticks_per_slot = int(slot_length / tick_length)
     total_ticks = int(sim_duration / tick_length)
     cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
-    iaa_fee = ConstSettings.IAASettings.FEE_PERCENTAGE
-    iaa_fee_const = ConstSettings.IAASettings.FEE_CONSTANT
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
+    grid_fee_type = ConstSettings.IAASettings.GRID_FEE_TYPE
 
 
 TIME_FORMAT = "HH:mm"

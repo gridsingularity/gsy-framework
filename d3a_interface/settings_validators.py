@@ -64,16 +64,6 @@ def validate_global_settings(settings_dict):
     if "sim_duration" in settings_dict and not slot_length <= settings_dict["sim_duration"]:
         raise SettingsException(f"Invalid simulation duration "
                                 f"(lower than slot length of {slot_length.minutes} min")
-    if "iaa_fee" in settings_dict and not \
-            ConstSettings.IAASettings.FEE_PERCENTAGE_LIMIT[0] \
-            <= settings_dict["iaa_fee"] <= \
-            ConstSettings.IAASettings.FEE_PERCENTAGE_LIMIT[1]:
-        raise SettingsException(f'Invalid iaa_fee percentage ({settings_dict["iaa_fee"]}).')
-    if "iaa_fee_const" in settings_dict and not \
-            ConstSettings.IAASettings.FEE_CONSTANT_LIMIT[0] \
-            <= settings_dict["iaa_fee_const"] <= \
-            ConstSettings.IAASettings.FEE_CONSTANT_LIMIT[1]:
-        raise SettingsException(f'Invalid constant iaa_fee ({settings_dict["iaa_fee_const"]}).')
     if "market_count" in settings_dict and not 1 <= settings_dict["market_count"]:
         raise SettingsException("Market count must be greater than 0.")
     if "max_panel_power_W" in settings_dict and not \
@@ -82,6 +72,10 @@ def validate_global_settings(settings_dict):
             <= ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[1]:
         raise SettingsException(f'Invalid value for max_panel_power_W '
                                 f'({settings_dict["max_panel_power_W"]}).')
+    if "grid_fee_type" in settings_dict and \
+            int(settings_dict["grid_fee_type"]) not in ConstSettings.IAASettings.VALID_FEE_TYPES:
+        raise SettingsException(f'Invalid value for grid_fee_type '
+                                f'({settings_dict["grid_fee_type"]}).')
 
 
 def calc_min_max_tick_length(slot_length):

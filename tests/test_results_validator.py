@@ -32,6 +32,8 @@ class TestValidateResults(unittest.TestCase):
                     'price_energy_day': {},
                     'cumulative_grid_trades': {},
                     'bills': {},
+                    'cumulative_bills': {},
+                    'progress_info': {},
                     'status': 'running',
                     'device_statistics': {},
                     'energy_trade_profile': {}
@@ -44,7 +46,9 @@ class TestValidateResults(unittest.TestCase):
                     'cumulative_loads': {},
                     'price_energy_day': {},
                     'cumulative_grid_trades': {},
+                    'progress_info': {},
                     'bills': {},
+                    'cumulative_bills': {},
                     'device_statistics': {},
                     'energy_trade_profile': {}
                     }
@@ -57,6 +61,8 @@ class TestValidateResults(unittest.TestCase):
                     'price_energy_day': {},
                     'cumulative_grid_trades': {},
                     'bills': {},
+                    'cumulative_bills': {},
+                    'progress_info': {},
                     'status': 'running',
                     'device_statistics': {},
                     'not_a_parameter': {}

@@ -134,11 +134,11 @@ class TestValidateDeviceSettings(unittest.TestCase):
     def test_storage_device_setting(self):
         self.assertIsNone(validate_storage_device(initial_soc=10))
         with self.assertRaises(D3ADeviceException):
-            validate_storage_device(initial_soc=5)
+            validate_storage_device(initial_soc=-0.001)
 
         self.assertIsNone(validate_storage_device(min_allowed_soc=10))
         with self.assertRaises(D3ADeviceException):
-            validate_storage_device(min_allowed_soc=2)
+            validate_storage_device(min_allowed_soc=-0.001)
 
         self.assertIsNone(validate_storage_device(initial_soc=25,
                                                   min_allowed_soc=20))
