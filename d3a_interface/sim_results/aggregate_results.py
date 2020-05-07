@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from copy import deepcopy
 from datetime import timedelta, date  # NOQA
 from typing import Dict, List
-from d3a_interface.utils import generate_market_slot_list_from_config, convert_datetime_to_str_keys
+from d3a_interface.utils import generate_market_slot_list_from_config
 
 
 class UnmatchedLoadsHelpers:
@@ -156,7 +156,7 @@ def merge_device_statistics_results_to_global(market_device: Dict, global_device
                 if stat not in global_device[area_uuid]:
                     global_device[area_uuid][stat] = market_device[area_uuid][stat]
                 else:
-                    global_device[area_uuid][stat].update(**market_device[area_uuid][stat])
+                    global_device[area_uuid][stat].update(market_device[area_uuid][stat])
     return global_device
 
 
@@ -175,14 +175,8 @@ def merge_energy_trade_profile_to_global(market_trade: Dict, global_trade: Dict,
                     if source_area not in global_trade[area_uuid][sold_bought][target_area]:
                         global_trade[area_uuid][sold_bought][target_area][source_area] = \
                             {i: 0 for i in slot_list}
-                        global_trade[area_uuid][sold_bought][target_area][source_area] = \
-                            convert_datetime_to_str_keys(
-                                global_trade[area_uuid][sold_bought][target_area][source_area],
-                                {},
-                                ui_format=True
-                            )
                     global_trade[area_uuid][sold_bought][target_area][source_area].update(
-                        **market_trade[area_uuid][sold_bought][target_area][source_area]
+                        market_trade[area_uuid][sold_bought][target_area][source_area]
                     )
     return global_trade
 
