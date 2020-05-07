@@ -20,9 +20,23 @@ from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT
 import time
 
 
+def convert_datetime_to_str_in_list(in_list, ui_format=False):
+    """
+    Converts all Datetime elements in a list into strings in DATE_TIME_FORMAT
+    """
+    out_list = []
+    for datetime in in_list:
+        if isinstance(datetime, DateTime):
+            if not ui_format:
+                out_list.append(datetime.format(DATE_TIME_FORMAT))
+            else:
+                out_list.append(datetime.format(DATE_TIME_UI_FORMAT))
+    return out_list
+
+
 def generate_market_slot_list_from_config(sim_duration, start_date, market_count, slot_length):
     """
-    Returns a list of all slot times
+    Returns a list of all slot times in Datetime format
     """
     return [
         start_date + (slot_length * i) for i in range(
