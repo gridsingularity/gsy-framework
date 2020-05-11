@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from copy import deepcopy
 from datetime import timedelta, date  # NOQA
 from typing import Dict, List
-from d3a_interface.utils import generate_market_slot_list_from_config, convert_datetime_to_str_in_list
+from d3a_interface.utils import generate_market_slot_list_from_config, \
+    convert_datetime_to_str_in_list
 
 
 class UnmatchedLoadsHelpers:
