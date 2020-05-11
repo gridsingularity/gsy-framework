@@ -161,7 +161,6 @@ def merge_device_statistics_results_to_global(market_device: Dict, global_device
 
 
 def merge_energy_trade_profile_to_global(market_trade: Dict, global_trade: Dict, slot_list: List):
-    print(slot_list)
     if not global_trade:
         global_trade = market_trade
         return global_trade
