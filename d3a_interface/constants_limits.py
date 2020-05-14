@@ -60,7 +60,8 @@ class ConstSettings:
         REDIS_PUBLISH_FULL_RESULTS = False
 
     class AreaSettings:
-        GRID_FEE_PERCENTAGE_LIMIT = RangeLimit(0, 100)
+        PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
+        CONSTANT_FEE_LIMIT = RangeLimit(0, 200)
 
     class CommercialProducerSettings:
         ENERGY_RATE_LIMIT = RangeLimit(0, 10000)
