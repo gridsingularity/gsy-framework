@@ -67,6 +67,8 @@ def key_in_dict_and_not_none_and_negative(d, key):
 
 
 def str_to_pendulum_datetime(input_str):
+    if input_str is None:
+        return None
     try:
         pendulum_time = from_format(input_str, TIME_FORMAT)
     except ValueError:
