@@ -393,6 +393,25 @@ def validate_market_maker(**kwargs):
         raise D3ADeviceException(
             {"misconfiguration": [f"grid_connected must be a boolean value."]})
 
+    if key_in_dict_and_not_none(kwargs, 'grid_connected') and kwargs['grid_connected'] is False \
+            and (key_in_dict_and_not_none(kwargs, 'buying_rate') or
+                 key_in_dict_and_not_none(kwargs, 'buying_rate_profile')):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"buying_rate can only be configured for InfiniteBus mode."]})
+    if key_in_dict_and_not_none(kwargs, "buying_rate_profile") and \
+            ("buying_rate_profile_uuid" not in kwargs or
+             kwargs["buying_rate_profile_uuid"] is None):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"buying_rate_profile must have a uuid."]})
+    if key_in_dict_and_not_none(kwargs, "buying_rate_profile_uuid") and not \
+            isinstance(kwargs["buying_rate_profile_uuid"], str):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"buying_rate_profile_uuid must have a string type."]})
+    if key_in_dict_and_not_none(kwargs, "energy_rate_profile_uuid") and not \
+            isinstance(kwargs["energy_rate_profile_uuid"], str):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"energy_rate_profile_uuid must have a string type."]})
+
 
 def validate_finite_diesel_generator(**kwargs):
     if "max_available_power_kW" in kwargs and kwargs["max_available_power_kW"] is not None:
