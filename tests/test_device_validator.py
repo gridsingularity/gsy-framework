@@ -216,6 +216,12 @@ class TestValidateDeviceSettings(unittest.TestCase):
             validate_market_maker(energy_rate_profile=str({"0": "30", "2": "33"}),
                                   energy_rate_profile_uuid=uuid4()))
         self.assertIsNone(
+            validate_market_maker(energy_rate_profile=str({"0": "30", "2": "33"}),
+                                  energy_rate_profile_uuid=uuid4(),
+                                  buying_rate_profile=str({"0": "29", "2": "28"}),
+                                  buying_rate_profile_uuid=uuid4(),
+                                  grid_connected=True))
+        self.assertIsNone(
             validate_market_maker(energy_rate=str({"0": 30, "2": 33})))
         self.assertIsNone(validate_market_maker(energy_rate=35))
         with self.assertRaises(D3ADeviceException):
@@ -228,6 +234,17 @@ class TestValidateDeviceSettings(unittest.TestCase):
             validate_market_maker(energy_rate=str({"0": -30, "2": 33}))
         with self.assertRaises(D3ADeviceException):
             validate_market_maker(grid_connected=30)
+        with self.assertRaises(D3ADeviceException):
+            validate_market_maker(energy_rate_profile=str({"0": "30", "2": "33"}),
+                                  energy_rate_profile_uuid=uuid4(),
+                                  buying_rate_profile=str({"0": "29", "2": "28"}),
+                                  buying_rate_profile_uuid=uuid4(),
+                                  grid_connected=False)
+        with self.assertRaises(D3ADeviceException):
+            validate_market_maker(buying_rate_profile=str({"0": "29", "2": "28"}))
+        with self.assertRaises(D3ADeviceException):
+            validate_market_maker(buying_rate_profile=str({"0": "29", "2": "28"}),
+                                  grid_connected=True)
 
     def test_finite_diesel_generator(self):
         self.assertIsNone(validate_finite_diesel_generator(max_available_power_kW=1))
