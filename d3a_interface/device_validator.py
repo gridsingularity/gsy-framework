@@ -408,6 +408,14 @@ def validate_market_maker(**kwargs):
              kwargs["buying_rate_profile_uuid"] is None):
         raise D3ADeviceException(
             {"misconfiguration": [f"buying_rate_profile must have a uuid."]})
+    if key_in_dict_and_not_none(kwargs, "buying_rate_profile_uuid") and not \
+            isinstance(kwargs["buying_rate_profile_uuid"], str):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"buying_rate_profile_uuid must have a string type."]})
+    if key_in_dict_and_not_none(kwargs, "energy_rate_profile_uuid") and not \
+            isinstance(kwargs["energy_rate_profile_uuid"], str):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"energy_rate_profile_uuid must have a string type."]})
 
 
 def validate_finite_diesel_generator(**kwargs):
