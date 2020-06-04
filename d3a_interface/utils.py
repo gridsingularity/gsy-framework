@@ -15,8 +15,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from pendulum import DateTime
-from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT
+from pendulum import DateTime, from_format
+from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT
 import time
 
 
@@ -58,5 +58,22 @@ def key_in_dict_and_not_none(d, key):
     return key in d and d[key] is not None
 
 
+def key_in_dict_and_not_none_and_greater_than_zero(d, key):
+    return key in d and d[key] is not None and d[key] > 0
+
+
 def key_in_dict_and_not_none_and_negative(d, key):
     return key in d and d[key] is not None and d[key] < 0
+
+
+def str_to_pendulum_datetime(input_str):
+    if input_str is None:
+        return None
+    try:
+        pendulum_time = from_format(input_str, TIME_FORMAT)
+    except ValueError:
+        try:
+            pendulum_time = from_format(input_str, DATE_TIME_FORMAT)
+        except ValueError:
+            raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}')")
+    return pendulum_time

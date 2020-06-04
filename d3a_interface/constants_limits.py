@@ -42,6 +42,7 @@ class ConstSettings:
         SETUP_FILE_PATH = None  # Default path of the available setup files
         EXPORT_DEVICE_PLOTS = True
         EXPORT_ENERGY_TRADE_PROFILE_HR = False
+        EXPORT_OFFER_BID_TRADE_HR = False
         # Boolean flag which forces d3a to run in real-time
         RUN_REAL_TIME = False
         KEEP_PAST_MARKETS = False
@@ -60,7 +61,8 @@ class ConstSettings:
         REDIS_PUBLISH_FULL_RESULTS = False
 
     class AreaSettings:
-        GRID_FEE_PERCENTAGE_LIMIT = RangeLimit(0, 100)
+        PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
+        CONSTANT_FEE_LIMIT = RangeLimit(0, 200)
 
     class CommercialProducerSettings:
         ENERGY_RATE_LIMIT = RangeLimit(0, 10000)
