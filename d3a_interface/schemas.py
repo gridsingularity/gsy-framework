@@ -173,7 +173,8 @@ class ResultsSchemas:
                             "last_device_statistics": {"type": "object"},
                             "last_price_energy_day": {"type": "object"},
                             "kpi": {"type": "object"},
-                            "area_throughput": {"type": "object"}
+                            "area_throughput": {"type": "object"},
+                            "last_energy_trades_high_resolution": {"type": "object"}
                           },
                       "additionalProperties": False,
                       "required": ["job_id",
