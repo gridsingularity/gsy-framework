@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from pendulum import DateTime, from_format
+from pendulum import DateTime, from_format, from_timestamp
 from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT
 import time
 
@@ -77,3 +77,7 @@ def str_to_pendulum_datetime(input_str):
         except ValueError:
             raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}')")
     return pendulum_time
+
+
+def unix_time_to_str(unix_time, out_format):
+    return from_timestamp(unix_time).format(out_format)

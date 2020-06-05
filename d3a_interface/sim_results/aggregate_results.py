@@ -182,18 +182,6 @@ def merge_energy_trade_profile_to_global(market_trade: Dict, global_trade: Dict,
     return global_trade
 
 
-def merge_high_resolution_energy_trades_to_global(market_trades: Dict, global_trade: Dict):
-    if not global_trade:
-        global_trade = market_trades
-        return global_trade
-    for area_uuid in market_trades:
-        if area_uuid not in global_trade:
-            global_trade[area_uuid] = {}
-        else:
-            global_trade[area_uuid].update(market_trades[area_uuid])
-    return global_trade
-
-
 def merge_last_market_results_to_global(
         market_results: Dict, global_results: Dict,
         sim_duration: timedelta, start_date: date, market_count: int, slot_length: timedelta
@@ -211,7 +199,4 @@ def merge_last_market_results_to_global(
         market_results["energy_trade_profile"],
         global_results["energy_trade_profile"], slot_list_ui_format
     )
-    global_results["energy_trades_high_resolution"] = merge_high_resolution_energy_trades_to_global(
-        market_results["energy_trades_high_resolution"],
-        global_results["energy_trades_high_resolution"])
     return global_results
