@@ -393,11 +393,21 @@ def validate_market_maker(**kwargs):
         raise D3ADeviceException(
             {"misconfiguration": [f"grid_connected must be a boolean value."]})
 
-    if key_in_dict_and_not_none(kwargs, 'grid_connected') and kwargs['grid_connected'] is False \
-            and (key_in_dict_and_not_none(kwargs, 'buying_rate') or
-                 key_in_dict_and_not_none(kwargs, 'buying_rate_profile')):
+
+def validate_infinite_bus(**kwargs):
+    validate_commercial_producer(**kwargs)
+    if "energy_rate_profile" in kwargs and kwargs["energy_rate_profile"] is not None and \
+            ("energy_rate_profile_uuid" not in kwargs or
+             kwargs["energy_rate_profile_uuid"] is None):
         raise D3ADeviceException(
-            {"misconfiguration": [f"buying_rate can only be configured for InfiniteBus mode."]})
+            {"misconfiguration": [f"energy_rate_profile must have a uuid."]})
+    if key_in_dict_and_not_none(kwargs, "energy_rate_profile_uuid") and not \
+            isinstance(kwargs["energy_rate_profile_uuid"], str):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"energy_rate_profile_uuid must have a string type."]})
+
+    if key_in_dict_and_not_none(kwargs, "buying_rate"):
+        _validate_rate(kwargs['buying_rate'])
     if key_in_dict_and_not_none(kwargs, "buying_rate_profile") and \
             ("buying_rate_profile_uuid" not in kwargs or
              kwargs["buying_rate_profile_uuid"] is None):
@@ -407,10 +417,6 @@ def validate_market_maker(**kwargs):
             isinstance(kwargs["buying_rate_profile_uuid"], str):
         raise D3ADeviceException(
             {"misconfiguration": [f"buying_rate_profile_uuid must have a string type."]})
-    if key_in_dict_and_not_none(kwargs, "energy_rate_profile_uuid") and not \
-            isinstance(kwargs["energy_rate_profile_uuid"], str):
-        raise D3ADeviceException(
-            {"misconfiguration": [f"energy_rate_profile_uuid must have a string type."]})
 
 
 def validate_finite_diesel_generator(**kwargs):
