@@ -16,7 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from pendulum import DateTime, from_format
-from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT
+from functools import lru_cache
+from copy import copy
+from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, \
+    DATE_TIME_FORMAT_SECONDS
 import time
 
 
@@ -81,3 +84,34 @@ def str_to_pendulum_datetime(input_str):
         except ValueError:
             raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}')")
     return pendulum_time
+
+
+@lru_cache(maxsize=100, typed=False)
+def format_datetime(datetime, ui_format=False, unix_time=False):
+    if unix_time:
+        return datetime.timestamp()
+    elif ui_format:
+        return datetime.format(DATE_TIME_UI_FORMAT)
+    else:
+        return datetime.format(DATE_TIME_FORMAT)
+
+
+def datetime_to_string_incl_seconds(datetime):
+    return datetime.format(DATE_TIME_FORMAT_SECONDS)
+
+
+def convert_pendulum_to_str_in_dict(indict, outdict, ui_format=False, unix_time=False):
+    for key, value in indict.items():
+        if isinstance(key, DateTime):
+            outdict[format_datetime(key, ui_format, unix_time)] = indict[key]
+        elif isinstance(value, DateTime):
+            outdict[key] = format_datetime(value, ui_format, unix_time)
+        elif isinstance(indict[key], list):
+            outdict[key] = [convert_pendulum_to_str_in_dict(element, {}, ui_format, unix_time)
+                            for element in indict[key]]
+        elif isinstance(indict[key], dict):
+            outdict[key] = {}
+            convert_pendulum_to_str_in_dict(indict[key], outdict[key], ui_format, unix_time)
+        else:
+            outdict[key] = copy(indict[key])
+    return outdict
