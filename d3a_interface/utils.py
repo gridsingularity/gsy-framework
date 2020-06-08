@@ -106,10 +106,10 @@ def convert_pendulum_to_str_in_dict(indict, outdict, ui_format=False, unix_time=
             outdict[format_datetime(key, ui_format, unix_time)] = indict[key]
         elif isinstance(value, DateTime):
             outdict[key] = format_datetime(value, ui_format, unix_time)
-        elif isinstance(indict[key], list):
+        elif isinstance(value, list):
             outdict[key] = [convert_pendulum_to_str_in_dict(element, {}, ui_format, unix_time)
                             for element in indict[key]]
-        elif isinstance(indict[key], dict):
+        elif isinstance(value, dict):
             outdict[key] = {}
             convert_pendulum_to_str_in_dict(indict[key], outdict[key], ui_format, unix_time)
         else:
