@@ -90,6 +90,7 @@ def str_to_pendulum_datetime(input_str):
 def unix_time_to_str(unix_time, out_format):
     return from_timestamp(unix_time).format(out_format)
 
+
 @lru_cache(maxsize=100, typed=False)
 def format_datetime(datetime, ui_format=False, unix_time=False):
     if unix_time:
@@ -119,4 +120,3 @@ def convert_pendulum_to_str_in_dict(indict, outdict, ui_format=False, unix_time=
         else:
             outdict[key] = copy(indict[key])
     return outdict
-
