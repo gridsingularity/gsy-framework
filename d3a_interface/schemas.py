@@ -174,6 +174,7 @@ class ResultsSchemas:
                             "last_price_energy_day": {"type": "object"},
                             "kpi": {"type": "object"},
                             "area_throughput": {"type": "object"},
+                            "last_energy_trades_high_resolution": {"type": "object"},
                             "bids_offers_trades": {"type": "object"}
                           },
                       "additionalProperties": False,
