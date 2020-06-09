@@ -15,8 +15,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 from pendulum import DateTime, from_format, from_timestamp
-from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT
+from functools import lru_cache
+from copy import copy
+from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, \
+    DATE_TIME_FORMAT_SECONDS
 import time
 
 
@@ -58,6 +62,10 @@ def key_in_dict_and_not_none(d, key):
     return key in d and d[key] is not None
 
 
+def key_in_dict_and_not_none_and_not_str_type(d, key):
+    return key_in_dict_and_not_none(d, key) and not isinstance(d[key], str)
+
+
 def key_in_dict_and_not_none_and_greater_than_zero(d, key):
     return key in d and d[key] is not None and d[key] > 0
 
@@ -81,3 +89,34 @@ def str_to_pendulum_datetime(input_str):
 
 def unix_time_to_str(unix_time, out_format):
     return from_timestamp(unix_time).format(out_format)
+
+@lru_cache(maxsize=100, typed=False)
+def format_datetime(datetime, ui_format=False, unix_time=False):
+    if unix_time:
+        return datetime.timestamp()
+    elif ui_format:
+        return datetime.format(DATE_TIME_UI_FORMAT)
+    else:
+        return datetime.format(DATE_TIME_FORMAT)
+
+
+def datetime_to_string_incl_seconds(datetime):
+    return datetime.format(DATE_TIME_FORMAT_SECONDS)
+
+
+def convert_pendulum_to_str_in_dict(indict, outdict, ui_format=False, unix_time=False):
+    for key, value in indict.items():
+        if isinstance(key, DateTime):
+            outdict[format_datetime(key, ui_format, unix_time)] = indict[key]
+        elif isinstance(value, DateTime):
+            outdict[key] = format_datetime(value, ui_format, unix_time)
+        elif isinstance(value, list):
+            outdict[key] = [convert_pendulum_to_str_in_dict(element, {}, ui_format, unix_time)
+                            for element in indict[key]]
+        elif isinstance(value, dict):
+            outdict[key] = {}
+            convert_pendulum_to_str_in_dict(indict[key], outdict[key], ui_format, unix_time)
+        else:
+            outdict[key] = copy(indict[key])
+    return outdict
+
