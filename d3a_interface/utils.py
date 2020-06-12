@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from pendulum import DateTime, from_format, from_timestamp
 from functools import lru_cache
 from copy import copy
+from threading import Timer
 from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, \
     DATE_TIME_FORMAT_SECONDS
 import time
@@ -120,3 +121,10 @@ def convert_pendulum_to_str_in_dict(indict, outdict, ui_format=False, unix_time=
         else:
             outdict[key] = copy(indict[key])
     return outdict
+
+
+class RepeatingTimer(Timer):
+    def run(self):
+        while not self.finished.is_set():
+            self.function(*self.args, **self.kwargs)
+            self.finished.wait(self.interval)
