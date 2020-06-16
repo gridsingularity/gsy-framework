@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-
+import pathlib
 from pendulum import DateTime, from_format, from_timestamp
 from functools import lru_cache
 from copy import copy
@@ -121,6 +121,12 @@ def convert_pendulum_to_str_in_dict(indict, outdict, ui_format=False, unix_time=
         else:
             outdict[key] = copy(indict[key])
     return outdict
+
+
+def mkdir_from_str(directory: str, exist_ok=True, parents=True):
+    out_dir = pathlib.Path(directory)
+    out_dir.mkdir(exist_ok=exist_ok, parents=parents)
+    return out_dir
 
 
 class RepeatingTimer(Timer):
