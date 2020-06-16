@@ -220,6 +220,12 @@ class GlobalConfig:
     grid_fee_type = ConstSettings.IAASettings.GRID_FEE_TYPE
 
 
+class HeartBeat:
+    CHANNEL_NAME = "d3a-heartbeat"
+    RATE = 5  # in secs
+    TOLERANCE = 1  # in secs
+
+
 TIME_FORMAT = "HH:mm"
 TIME_FORMAT_SECONDS = "HH:mm:ss"
 DATE_FORMAT = "YYYY-MM-DD"
@@ -227,6 +233,3 @@ DATE_TIME_FORMAT = f"{DATE_FORMAT}T{TIME_FORMAT}"
 DATE_TIME_FORMAT_SECONDS = f"{DATE_FORMAT}T{TIME_FORMAT_SECONDS}"
 DATE_TIME_UI_FORMAT = "MMMM DD YYYY, HH:mm [h]"
 
-HEARTBEAT_CHANNEL = "d3a-heartbeat"
-PULSE_RATE = 5  # in secs
-TOLERANCE = 1
