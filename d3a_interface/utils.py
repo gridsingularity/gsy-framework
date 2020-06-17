@@ -19,6 +19,7 @@ import pathlib
 from pendulum import DateTime, from_format, from_timestamp
 from functools import lru_cache
 from copy import copy
+from threading import Timer
 from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, \
     DATE_TIME_FORMAT_SECONDS
 import time
@@ -126,3 +127,10 @@ def mkdir_from_str(directory: str, exist_ok=True, parents=True):
     out_dir = pathlib.Path(directory)
     out_dir.mkdir(exist_ok=exist_ok, parents=parents)
     return out_dir
+
+
+class RepeatingTimer(Timer):
+    def run(self):
+        while not self.finished.is_set():
+            self.function(*self.args, **self.kwargs)
+            self.finished.wait(self.interval)
