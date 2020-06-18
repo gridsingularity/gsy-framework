@@ -166,7 +166,7 @@ def merge_energy_trade_profile_to_global(market_trade: Dict, global_trade: Dict,
         global_trade = market_trade
         return global_trade
     for area_uuid in market_trade:
-        if area_uuid not in global_trade:
+        if area_uuid not in global_trade or global_trade[area_uuid] == {}:
             global_trade[area_uuid] = {"sold_energy": {}, "bought_energy": {}}
         for sold_bought in market_trade[area_uuid]:
             for target_area in market_trade[area_uuid][sold_bought]:
