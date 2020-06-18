@@ -222,8 +222,8 @@ class GlobalConfig:
 
 class HeartBeat:
     CHANNEL_NAME = "d3a-heartbeat"
-    RATE = 5  # in secs
-    TOLERANCE = 1  # in secs
+    RATE = 10  # in secs
+    TOLERANCE = 11  # in secs
 
 
 TIME_FORMAT = "HH:mm"
