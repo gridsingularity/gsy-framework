@@ -27,6 +27,10 @@ class TestValidateAreaSettings(unittest.TestCase):
         self.assertIsNone(validate_area())
         self.assertIsNone(validate_area(grid_fee_percentage=None))
         self.assertIsNone(validate_area(grid_fee_percentage=1))
+        self.assertIsNone(validate_area(grid_fee_percentage=1,
+                                        grid_fee_constant=0))
+        self.assertIsNone(validate_area(grid_fee_percentage=0,
+                                        grid_fee_constant=1))
         with self.assertRaises(D3ADeviceException):
             validate_area(grid_fee_percentage=-1)
         with self.assertRaises(D3ADeviceException):

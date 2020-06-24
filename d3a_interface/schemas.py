@@ -156,7 +156,6 @@ class ResultsSchemas:
                             "current_market": {"type": "string"},
                             "random_seed": {"type": "number"},
                             "unmatched_loads": {"type": "object"},
-                            "cumulative_loads": {"type": "object"},
                             "price_energy_day": {"type": "object"},
                             "cumulative_grid_trades": {"type": "object"},
                             "bills": {"type": "object"},
@@ -174,12 +173,13 @@ class ResultsSchemas:
                             "last_device_statistics": {"type": "object"},
                             "last_price_energy_day": {"type": "object"},
                             "kpi": {"type": "object"},
-                            "area_throughput": {"type": "object"}
+                            "area_throughput": {"type": "object"},
+                            "last_energy_trades_high_resolution": {"type": "object"},
+                            "bids_offers_trades": {"type": "object"}
                           },
                       "additionalProperties": False,
                       "required": ["job_id",
                                    "random_seed",
-                                   "cumulative_loads",
                                    "cumulative_grid_trades",
                                    "bills",
                                    "cumulative_bills",
