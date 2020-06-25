@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from copy import deepcopy
 from datetime import timedelta, date  # NOQA
 from typing import Dict, List
-from d3a_interface.utils import generate_market_slot_list_from_config, convert_datetime_to_str_keys
+from d3a_interface.utils import generate_market_slot_list_from_config, \
+    convert_datetime_to_str_in_list
 
 
 class UnmatchedLoadsHelpers:
@@ -156,7 +157,7 @@ def merge_device_statistics_results_to_global(market_device: Dict, global_device
                 if stat not in global_device[area_uuid]:
                     global_device[area_uuid][stat] = market_device[area_uuid][stat]
                 else:
-                    global_device[area_uuid][stat].update(**market_device[area_uuid][stat])
+                    global_device[area_uuid][stat].update(market_device[area_uuid][stat])
     return global_device
 
 
@@ -165,7 +166,7 @@ def merge_energy_trade_profile_to_global(market_trade: Dict, global_trade: Dict,
         global_trade = market_trade
         return global_trade
     for area_uuid in market_trade:
-        if area_uuid not in global_trade:
+        if area_uuid not in global_trade or global_trade[area_uuid] == {}:
             global_trade[area_uuid] = {"sold_energy": {}, "bought_energy": {}}
         for sold_bought in market_trade[area_uuid]:
             for target_area in market_trade[area_uuid][sold_bought]:
@@ -175,14 +176,8 @@ def merge_energy_trade_profile_to_global(market_trade: Dict, global_trade: Dict,
                     if source_area not in global_trade[area_uuid][sold_bought][target_area]:
                         global_trade[area_uuid][sold_bought][target_area][source_area] = \
                             {i: 0 for i in slot_list}
-                        global_trade[area_uuid][sold_bought][target_area][source_area] = \
-                            convert_datetime_to_str_keys(
-                                global_trade[area_uuid][sold_bought][target_area][source_area],
-                                {},
-                                ui_format=True
-                            )
                     global_trade[area_uuid][sold_bought][target_area][source_area].update(
-                        **market_trade[area_uuid][sold_bought][target_area][source_area]
+                        market_trade[area_uuid][sold_bought][target_area][source_area]
                     )
     return global_trade
 
@@ -191,6 +186,9 @@ def merge_last_market_results_to_global(
         market_results: Dict, global_results: Dict,
         sim_duration: timedelta, start_date: date, market_count: int, slot_length: timedelta
 ):
+    slot_list_ui_format = convert_datetime_to_str_in_list(
+        generate_market_slot_list_from_config(sim_duration, start_date, market_count, slot_length),
+        ui_format=True)
     global_results["unmatched_loads"] = merge_unmatched_load_results_to_global(
         market_results["unmatched_loads"], global_results["unmatched_loads"])
     global_results["price_energy_day"] = merge_price_energy_day_results_to_global(
@@ -199,7 +197,6 @@ def merge_last_market_results_to_global(
         market_results["device_statistics"], global_results["device_statistics"])
     global_results["energy_trade_profile"] = merge_energy_trade_profile_to_global(
         market_results["energy_trade_profile"],
-        global_results["energy_trade_profile"],
-        generate_market_slot_list_from_config(sim_duration, start_date, market_count, slot_length)
+        global_results["energy_trade_profile"], slot_list_ui_format
     )
     return global_results

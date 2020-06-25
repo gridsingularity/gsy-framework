@@ -19,7 +19,7 @@ import ast
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
-from d3a_interface.utils import key_in_dict_and_not_none
+from d3a_interface.utils import key_in_dict_and_not_none, key_in_dict_and_not_none_and_not_str_type
 
 GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
@@ -392,6 +392,29 @@ def validate_market_maker(**kwargs):
             not isinstance(kwargs["grid_connected"], bool):
         raise D3ADeviceException(
             {"misconfiguration": [f"grid_connected must be a boolean value."]})
+
+
+def validate_infinite_bus(**kwargs):
+    validate_commercial_producer(**kwargs)
+    if "energy_rate_profile" in kwargs and kwargs["energy_rate_profile"] is not None and \
+            ("energy_rate_profile_uuid" not in kwargs or
+             kwargs["energy_rate_profile_uuid"] is None):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"energy_rate_profile must have a uuid."]})
+    if key_in_dict_and_not_none_and_not_str_type(kwargs, "energy_rate_profile_uuid"):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"energy_rate_profile_uuid must have a string type."]})
+
+    if key_in_dict_and_not_none(kwargs, "energy_buy_rate"):
+        _validate_rate(kwargs['energy_buy_rate'])
+    if key_in_dict_and_not_none(kwargs, "buying_rate_profile") and \
+            ("buying_rate_profile_uuid" not in kwargs or
+             kwargs["buying_rate_profile_uuid"] is None):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"buying_rate_profile must have a uuid."]})
+    if key_in_dict_and_not_none_and_not_str_type(kwargs, "buying_rate_profile_uuid"):
+        raise D3ADeviceException(
+            {"misconfiguration": [f"buying_rate_profile_uuid must have a string type."]})
 
 
 def validate_finite_diesel_generator(**kwargs):

@@ -20,7 +20,7 @@ from uuid import uuid4
 
 from d3a_interface.device_validator import validate_load_device, validate_pv_device, \
     validate_storage_device, validate_commercial_producer, validate_market_maker, \
-    validate_finite_diesel_generator
+    validate_finite_diesel_generator, validate_infinite_bus
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 
@@ -214,7 +214,11 @@ class TestValidateDeviceSettings(unittest.TestCase):
     def test_market_maker_setting(self):
         self.assertIsNone(
             validate_market_maker(energy_rate_profile=str({"0": "30", "2": "33"}),
-                                  energy_rate_profile_uuid=uuid4()))
+                                  energy_rate_profile_uuid=str(uuid4())))
+        self.assertIsNone(
+            validate_market_maker(energy_rate_profile=str({"0": "30", "2": "33"}),
+                                  energy_rate_profile_uuid=str(uuid4()),
+                                  grid_connected=True))
         self.assertIsNone(
             validate_market_maker(energy_rate=str({"0": 30, "2": 33})))
         self.assertIsNone(validate_market_maker(energy_rate=35))
@@ -228,6 +232,31 @@ class TestValidateDeviceSettings(unittest.TestCase):
             validate_market_maker(energy_rate=str({"0": -30, "2": 33}))
         with self.assertRaises(D3ADeviceException):
             validate_market_maker(grid_connected=30)
+
+    def test_infinite_bus_setting(self):
+        self.assertIsNone(
+            validate_infinite_bus(energy_rate_profile=str({"0": "30", "2": "33"}),
+                                  energy_rate_profile_uuid=str(uuid4())))
+        self.assertIsNone(
+            validate_infinite_bus(energy_rate_profile=str({"0": "30", "2": "33"}),
+                                  energy_rate_profile_uuid=str(uuid4()),
+                                  buying_rate_profile=str({"0": "29", "2": "28"}),
+                                  buying_rate_profile_uuid=str(uuid4())))
+        self.assertIsNone(
+            validate_infinite_bus(energy_rate=str({"0": 30, "2": 33})))
+        self.assertIsNone(validate_infinite_bus(energy_rate=35))
+        with self.assertRaises(D3ADeviceException):
+            validate_infinite_bus(energy_rate_profile=30)
+        with self.assertRaises(D3ADeviceException):
+            validate_infinite_bus(energy_rate=-5)
+        with self.assertRaises(D3ADeviceException):
+            validate_infinite_bus(energy_rate_profile=str({"0": 30, "2": 33}))
+        with self.assertRaises(D3ADeviceException):
+            validate_infinite_bus(energy_rate=str({"0": -30, "2": 33}))
+        with self.assertRaises(D3ADeviceException):
+            validate_infinite_bus(buying_rate_profile=str({"0": "29", "2": "28"}))
+        with self.assertRaises(D3ADeviceException):
+            validate_infinite_bus(buying_rate_profile_uuid=uuid4())
 
     def test_finite_diesel_generator(self):
         self.assertIsNone(validate_finite_diesel_generator(max_available_power_kW=1))

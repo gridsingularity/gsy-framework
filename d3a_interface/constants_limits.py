@@ -37,10 +37,12 @@ class ConstSettings:
         # Number of times Market clearing rate has to be calculated per slot
         MARKET_CLEARING_FREQUENCY_PER_SLOT = 3
         # Flag to enable supply/demand backend plots
-        SUPPLY_DEMAND_PLOTS = True
+        EXPORT_SUPPLY_DEMAND_PLOTS = True
         ENERGY_RATE_DECREASE_PER_UPDATE = 1  # rate decrease in cents_per_update
         SETUP_FILE_PATH = None  # Default path of the available setup files
         EXPORT_DEVICE_PLOTS = True
+        EXPORT_ENERGY_TRADE_PROFILE_HR = False
+        EXPORT_OFFER_BID_TRADE_HR = False
         # Boolean flag which forces d3a to run in real-time
         RUN_REAL_TIME = False
         KEEP_PAST_MARKETS = False
@@ -59,7 +61,8 @@ class ConstSettings:
         REDIS_PUBLISH_FULL_RESULTS = False
 
     class AreaSettings:
-        GRID_FEE_PERCENTAGE_LIMIT = RangeLimit(0, 100)
+        PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
+        CONSTANT_FEE_LIMIT = RangeLimit(0, 200)
 
     class CommercialProducerSettings:
         ENERGY_RATE_LIMIT = RangeLimit(0, 10000)
@@ -217,7 +220,15 @@ class GlobalConfig:
     grid_fee_type = ConstSettings.IAASettings.GRID_FEE_TYPE
 
 
+class HeartBeat:
+    CHANNEL_NAME = "d3a-heartbeat"
+    RATE = 10  # in secs
+    TOLERANCE = 11  # in secs
+
+
 TIME_FORMAT = "HH:mm"
+TIME_FORMAT_SECONDS = "HH:mm:ss"
 DATE_FORMAT = "YYYY-MM-DD"
 DATE_TIME_FORMAT = f"{DATE_FORMAT}T{TIME_FORMAT}"
+DATE_TIME_FORMAT_SECONDS = f"{DATE_FORMAT}T{TIME_FORMAT_SECONDS}"
 DATE_TIME_UI_FORMAT = "MMMM DD YYYY, HH:mm [h]"
