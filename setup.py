@@ -12,7 +12,7 @@ with open("README.md", "r") as readme:
     README = readme.read()
 
 # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-VERSION = '0.7.0'
+VERSION = '0.7.1'
 
 setup(
     name="d3a-interface",
