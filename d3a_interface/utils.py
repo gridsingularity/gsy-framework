@@ -26,6 +26,7 @@ from redis.exceptions import ConnectionError
 import time
 import logging
 
+
 def convert_datetime_to_str_in_list(in_list, ui_format=False):
     """
     Converts all Datetime elements in a list into strings in DATE_TIME_FORMAT
