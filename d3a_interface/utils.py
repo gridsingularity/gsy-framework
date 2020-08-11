@@ -129,6 +129,12 @@ def mkdir_from_str(directory: str, exist_ok=True, parents=True):
     return out_dir
 
 
+def create_or_update_subdict(indict, key, subdict):
+    if key not in indict.keys():
+        indict[key] = {}
+    indict[key].update(subdict)
+
+
 class RepeatingTimer(Timer):
     def run(self):
         while not self.finished.is_set():
