@@ -15,14 +15,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import pathlib
+import os
+import logging
+import time
+
+from redis.exceptions import ConnectionError
+from urllib.parse import urlparse
+from redis import StrictRedis
 from pendulum import DateTime, from_format, from_timestamp
 from functools import lru_cache
 from copy import copy
 from threading import Timer
 from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, \
     DATE_TIME_FORMAT_SECONDS
-import time
+
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost')
 
 
 def convert_datetime_to_str_in_list(in_list, ui_format=False):
@@ -132,5 +141,18 @@ def mkdir_from_str(directory: str, exist_ok=True, parents=True):
 class RepeatingTimer(Timer):
     def run(self):
         while not self.finished.is_set():
-            self.function(*self.args, **self.kwargs)
             self.finished.wait(self.interval)
+            self.function(*self.args, **self.kwargs)
+
+
+def check_and_wait_for_redis():
+    redis_host = urlparse(REDIS_URL).netloc
+    info = None
+    while not info:
+        try:
+            info = StrictRedis(redis_host).info()
+            logging.debug("REDIS IS ALIVE")
+        except ConnectionError:
+            logging.error("Redis not yet available - sleeping")
+            time.sleep(5)
+    return info.get('pubsub_channels', 0)
