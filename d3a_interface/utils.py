@@ -134,18 +134,18 @@ def mkdir_from_str(directory: str, exist_ok=True, parents=True):
 class RepeatingTimer(Timer):
     def run(self):
         while not self.finished.is_set():
-            self.finished.wait(self.interval)
             self.function(*self.args, **self.kwargs)
+            self.finished.wait(self.interval)
 
 
 def check_redis_health(redis_db):
-    result = False
+    is_connected = False
     reconnect_needed = False
-    while result is False:
+    while is_connected is False:
         try:
-            result = redis_db.ping()
+            is_connected = redis_db.ping()
         except ConnectionError:
-            logging.error("Redis not yet available - sleeping")
-            time.sleep(0.1)
+            logging.debug("Redis not yet available - sleeping")
+            time.sleep(0.25)
             reconnect_needed = True
     return reconnect_needed
