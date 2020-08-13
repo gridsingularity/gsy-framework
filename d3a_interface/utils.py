@@ -22,7 +22,9 @@ from copy import copy
 from threading import Timer
 from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, \
     DATE_TIME_FORMAT_SECONDS
+from redis.exceptions import ConnectionError
 import time
+import logging
 
 
 def convert_datetime_to_str_in_list(in_list, ui_format=False):
@@ -140,3 +142,16 @@ class RepeatingTimer(Timer):
         while not self.finished.is_set():
             self.function(*self.args, **self.kwargs)
             self.finished.wait(self.interval)
+
+
+def check_redis_health(redis_db):
+    is_connected = False
+    reconnect_needed = False
+    while is_connected is False:
+        try:
+            is_connected = redis_db.ping()
+        except ConnectionError:
+            logging.debug("Redis not yet available - sleeping")
+            time.sleep(0.25)
+            reconnect_needed = True
+    return reconnect_needed
