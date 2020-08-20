@@ -175,7 +175,8 @@ class ResultsSchemas:
                             "kpi": {"type": "object"},
                             "area_throughput": {"type": "object"},
                             "last_energy_trades_high_resolution": {"type": "object"},
-                            "bids_offers_trades": {"type": "object"}
+                            "bids_offers_trades": {"type": "object"},
+                            "results_area_uuids": {"type": "array"}
                           },
                       "additionalProperties": False,
                       "required": ["job_id",
