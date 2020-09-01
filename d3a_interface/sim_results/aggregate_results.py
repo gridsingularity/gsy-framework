@@ -66,29 +66,30 @@ class UnmatchedLoadsHelpers:
         :param target: target area of the accumulated unmatched loads
         :return: None
         """
-        target_ul = accumulated_results[area][target]['unmatched_loads']
-        current_ul = current_results[area][target]['unmatched_loads']
-        for timestamp, ts_value in current_ul.items():
-            if timestamp not in target_ul:
-                target_ul[timestamp] = deepcopy(ts_value)
-            else:
-                if 'unmatched_times' not in current_ul[timestamp]:
-                    continue
-                if 'unmatched_times' not in target_ul[timestamp]:
-                    target_ul[timestamp]['unmatched_times'] = {}
-                for device, time_list in current_ul[timestamp]['unmatched_times'].items():
-                    if device not in target_ul[timestamp]['unmatched_times']:
-                        target_ul[timestamp]['unmatched_times'][device] = deepcopy(time_list)
-                    else:
-                        for ts in time_list:
-                            if ts not in target_ul[timestamp]['unmatched_times'][device]:
-                                target_ul[timestamp]['unmatched_times'][device].append(ts)
+        target_ul = accumulated_results[area][target].get('unmatched_loads', "")
+        current_ul = current_results[area][target].get('unmatched_loads', "")
+        if target_ul != "" and current_ul != "":
+            for timestamp, ts_value in current_ul.items():
+                if timestamp not in target_ul:
+                    target_ul[timestamp] = deepcopy(ts_value)
+                else:
+                    if 'unmatched_times' not in current_ul[timestamp]:
+                        continue
+                    if 'unmatched_times' not in target_ul[timestamp]:
+                        target_ul[timestamp]['unmatched_times'] = {}
+                    for device, time_list in current_ul[timestamp]['unmatched_times'].items():
+                        if device not in target_ul[timestamp]['unmatched_times']:
+                            target_ul[timestamp]['unmatched_times'][device] = deepcopy(time_list)
+                        else:
+                            for ts in time_list:
+                                if ts not in target_ul[timestamp]['unmatched_times'][device]:
+                                    target_ul[timestamp]['unmatched_times'][device].append(ts)
 
-                unm_count = 0
-                for _, hours in target_ul[timestamp]['unmatched_times'].items():
-                    unm_count += len(hours)
+                    unm_count = 0
+                    for _, hours in target_ul[timestamp]['unmatched_times'].items():
+                        unm_count += len(hours)
 
-                    target_ul[timestamp]['unmatched_count'] = unm_count
+                        target_ul[timestamp]['unmatched_count'] = unm_count
 
     @classmethod
     def _copy_accumulated_unmatched_loads(cls, accumulated_results: Dict,
