@@ -155,3 +155,14 @@ def check_redis_health(redis_db):
             time.sleep(0.25)
             reconnect_needed = True
     return reconnect_needed
+
+
+def get_area_name_uuid_mapping(serialized_scenario, mapping={}):
+    if key_in_dict_and_not_none(serialized_scenario, "name") and \
+            key_in_dict_and_not_none(serialized_scenario, "uuid"):
+        mapping.update({serialized_scenario['name']: serialized_scenario['uuid']})
+    if key_in_dict_and_not_none(serialized_scenario, "children"):
+        for child in serialized_scenario["children"]:
+            new_mapping = get_area_name_uuid_mapping(child, mapping)
+            mapping.update(new_mapping)
+    return mapping
