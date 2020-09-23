@@ -23,7 +23,7 @@ class ScenarioSchemas:
             "area": {
                 "type": "object",
                 "properties": {
-                    "type": {"type": "string"},
+                    "type": {"anyOf": [{"enum": ["Area"]}, {"enum": ["null"]}]},
                     "name": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "grid_fee_percentage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
@@ -35,15 +35,14 @@ class ScenarioSchemas:
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "children": {"anyOf": [{
                                     "type": "array",
-                                    "items": [
+                                    "items": {"anyOf": [
                                         {"$ref": "#/definitions/area"},
                                         {"$ref": "#/definitions/pv"},
                                         {"$ref": "#/definitions/load"},
                                         {"$ref": "#/definitions/infinite_power_plant"},
                                         {"$ref": "#/definitions/finite_power_plant"},
                                         {"$ref": "#/definitions/storage"}
-                                    ],
-                                    "default": []},
+                                    ]}},
                                     {"type": "null"}]}
                 },
                 "required": ["name"]
@@ -52,7 +51,7 @@ class ScenarioSchemas:
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "type": {"type": "string"},
+                    "type": {"enum": ["PV", "PredefinedPV"]},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
@@ -76,7 +75,7 @@ class ScenarioSchemas:
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "type": {"type": "string"},
+                    "type": {"enum": ["Storage"]},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
@@ -85,7 +84,7 @@ class ScenarioSchemas:
                     "battery_capacity_kWh": {"type": "number"},
                     "max_abs_battery_power_kW": {"type": "number"},
                     "cap_price_strategy": {"type": "boolean"},
-                    "initial_selling_rate": {"type": "number"},
+                    "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "final_selling_rate": {"type": "number"},
                     "initial_buying_rate": {"type": "number"},
                     "final_buying_rate": {"type": "number"},
@@ -101,7 +100,7 @@ class ScenarioSchemas:
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "type": {"type": "string"},
+                    "type": {"enum": ["Load"]},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
@@ -125,7 +124,7 @@ class ScenarioSchemas:
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "type": {"type": "string"},
+                    "type": {"enum": ["CommercialProducer"]},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
@@ -135,7 +134,7 @@ class ScenarioSchemas:
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "type": {"type": "string"},
+                    "type": {"enum": ["FiniteDieselGenerator"]},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
