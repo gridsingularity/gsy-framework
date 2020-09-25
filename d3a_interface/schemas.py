@@ -42,7 +42,7 @@ class ScenarioSchemas:
                                         {"$ref": "#/definitions/infinite_power_plant"},
                                         {"$ref": "#/definitions/finite_power_plant"},
                                         {"$ref": "#/definitions/storage"}
-                                    ]}},
+                                    ]}, "default": []},
                                     {"type": "null"}]}
                 },
                 "required": ["name"]
@@ -124,7 +124,7 @@ class ScenarioSchemas:
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "type": {"enum": ["CommercialProducer"]},
+                    "type": {"enum": ["CommercialProducer", "InfiniteBus", "MarketMaker"]},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
@@ -134,7 +134,7 @@ class ScenarioSchemas:
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "type": {"enum": ["FiniteDieselGenerator"]},
+                    "type": {"enum": ["FiniteDieselGenerator", "MarketMaker"]},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
@@ -144,7 +144,14 @@ class ScenarioSchemas:
             },
         },
 
-        "$ref": "#/definitions/area"
+        "anyOf": [
+            {"$ref": "#/definitions/area"},
+            {"$ref": "#/definitions/pv"},
+            {"$ref": "#/definitions/load"},
+            {"$ref": "#/definitions/infinite_power_plant"},
+            {"$ref": "#/definitions/finite_power_plant"},
+            {"$ref": "#/definitions/storage"}
+        ]
     }
 
 
