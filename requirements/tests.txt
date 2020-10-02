@@ -4,25 +4,31 @@
 #
 #    pip-compile --no-index --output-file=requirements/tests.txt requirements/tests.ini
 #
+appdirs==1.4.4            # via -r requirements/base.txt, virtualenv
 attrs==19.3.0             # via -r requirements/base.txt, hypothesis, jsonschema, pytest
 certifi==2019.11.28       # via requests
+cfgv==3.2.0               # via -r requirements/base.txt, pre-commit
 chardet==3.0.4            # via requests
 click==7.0                # via -r requirements/base.txt, pip-tools
 coverage==5.0.3           # via -r requirements/tests.ini
 deepdiff==4.0.9           # via -r requirements/tests.ini
+distlib==0.3.1            # via -r requirements/base.txt, virtualenv
 docopt==0.6.2             # via ptpython
-filelock==3.0.12          # via -r requirements/base.txt, tox
+filelock==3.0.12          # via -r requirements/base.txt, tox, virtualenv
 flake8-tuple==0.4.1       # via -r requirements/tests.ini
 flake8==3.5.0             # via -r requirements/tests.ini, flake8-tuple
 hypothesis==5.3.0         # via -r requirements/tests.ini
+identify==1.5.5           # via -r requirements/base.txt, pre-commit
 idna==2.8                 # via requests
-importlib-metadata==1.4.0  # via -r requirements/base.txt, jsonschema, pluggy, pytest, tox
+importlib-metadata==1.4.0  # via -r requirements/base.txt, jsonschema, pluggy, pre-commit, pytest, tox, virtualenv
+importlib-resources==3.0.0  # via -r requirements/base.txt, pre-commit, virtualenv
 isort==4.3.21             # via -r requirements/tests.ini
 jedi==0.15.2              # via ptpython
 jsonpickle==1.2           # via deepdiff
 jsonschema==3.2.0         # via -r requirements/base.txt
 mccabe==0.6.1             # via flake8
 more-itertools==8.1.0     # via -r requirements/base.txt, pytest, zipp
+nodeenv==1.5.0            # via -r requirements/base.txt, pre-commit
 ordered-set==3.1.1        # via deepdiff
 packaging==20.0           # via -r requirements/base.txt, pytest, tox
 parameterized==0.7.1      # via -r requirements/tests.ini
@@ -30,6 +36,7 @@ parso==0.5.2              # via jedi
 pendulum==2.1.2           # via -r requirements/base.txt
 pip-tools==5.2.1          # via -r requirements/base.txt
 pluggy==0.13.1            # via -r requirements/base.txt, pytest, tox
+pre-commit==2.7.1         # via -r requirements/base.txt
 prompt-toolkit==2.0.10    # via ptpython
 ptpython==2.0.6           # via -r requirements/tests.ini
 py==1.8.1                 # via -r requirements/base.txt, pytest, tox
@@ -41,17 +48,18 @@ pyrsistent==0.15.7        # via -r requirements/base.txt, jsonschema
 pytest==5.3.4             # via -r requirements/tests.ini
 python-dateutil==2.8.1    # via -r requirements/base.txt, pendulum
 pytzdata==2020.1          # via -r requirements/base.txt, pendulum
+pyyaml==5.3.1             # via -r requirements/base.txt, pre-commit
 redis==3.3.11             # via -r requirements/base.txt
 requests-mock==1.7.0      # via -r requirements/tests.ini
 requests==2.22.0          # via requests-mock
-six==1.14.0               # via -r requirements/base.txt, flake8-tuple, jsonschema, packaging, pip-tools, prompt-toolkit, pyrsistent, python-dateutil, requests-mock, tox
+six==1.14.0               # via -r requirements/base.txt, flake8-tuple, jsonschema, packaging, pip-tools, prompt-toolkit, pyrsistent, python-dateutil, requests-mock, tox, virtualenv
 sortedcontainers==2.1.0   # via hypothesis
-toml==0.10.0              # via -r requirements/base.txt, tox
+toml==0.10.0              # via -r requirements/base.txt, pre-commit, tox
 tox==3.14.3               # via -r requirements/base.txt
 urllib3==1.25.8           # via requests
-virtualenv==16.7.9        # via -r requirements/base.txt, tox
+virtualenv==20.0.32       # via -r requirements/base.txt, pre-commit, tox
 wcwidth==0.1.8            # via prompt-toolkit, pytest
-zipp==2.0.0               # via -r requirements/base.txt, importlib-metadata
+zipp==2.0.0               # via -r requirements/base.txt, importlib-metadata, importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
