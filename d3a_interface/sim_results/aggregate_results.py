@@ -32,7 +32,7 @@ class UnmatchedLoadsHelpers:
         loads for each
         :param accumulated_results: stores the merged unmatched load results, changes by reference
         :param current_results: results for the current market, that are used to update the
-        accumulated results
+         accumulated results
         :param area: area of the accumulated unmatched loads
         :return: None
         """
@@ -61,7 +61,7 @@ class UnmatchedLoadsHelpers:
         Merges the unmatched loads and unmatched times for a base area and a target area.
         :param accumulated_results: stores the merged unmatched load results, changes by reference
         :param current_results: results for the current market, that are used to update the
-        accumulated results
+         accumulated results
         :param area: area of the accumulated unmatched loads
         :param target: target area of the accumulated unmatched loads
         :return: None
@@ -97,7 +97,7 @@ class UnmatchedLoadsHelpers:
         Copies the accumulated results from the market results to the incremental results
         :param accumulated_results: stores the merged unmatched load results, changes by reference
         :param current_results: results for the current market, that are used to update the
-        accumulated results
+         accumulated results
         :param area: area of the accumulated unmatched loads
         :return: None
         """
@@ -112,7 +112,7 @@ class UnmatchedLoadsHelpers:
         existing unmatched loads (_unmatched_loads_incremental)
         :param accumulated_results: return value, stores the merged unmatched load results
         :param current_results: results for the current market, that are used to update the
-        accumulated results
+         accumulated results
         :return: accumulated_results
         """
         for base_area, target_results in current_results.items():
