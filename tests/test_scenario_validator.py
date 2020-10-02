@@ -39,9 +39,9 @@ class TestValidateGlobalSettings(unittest.TestCase):
 
     def test_initial_selling_rate_accepts_null_values_for_all_strategies(self):
         scenario = '''
-        {"name": "Area", "type": "Area", "uuid": "a4b42c3c-edc4-4eb3-992b-b6c1c6aae118", "children": [ 
-            {"name": "PV", "risk": 50, "type": "PV", "uuid": "2c53cf13-a209-4b08-b320-28fad72c8930", "panel_count": 1, "min_selling_rate": 0.0, "number_of_clones": 1, "initial_pv_rate_option": 2, "energy_rate_decrease_option": 1, "power_profile": null, "initial_selling_rate": null}, 
-            {"name": "Storage", "risk": 50, "type": "Storage", "uuid": "eec7e801-0959-4072-99b1-41ee1d607e1d", "battery_capacity": 5.0, "break_even_lower": 25.0, "break_even_upper": 25.1, "initial_capacity": 1.0, "number_of_clones": 1, "initial_rate_option": 2, "max_abs_battery_power": 5.0, "energy_rate_decrease_option": 1, "initial_selling_rate": null} 
+        {"name": "Area", "type": "Area", "uuid": "a4b42c3c-edc4-4eb3-992b-b6c1c6aae118", "children": [
+            {"name": "PV", "risk": 50, "type": "PV", "uuid": "2c53cf13-a209-4b08-b320-28fad72c8930", "panel_count": 1, "min_selling_rate": 0.0, "number_of_clones": 1, "initial_pv_rate_option": 2, "energy_rate_decrease_option": 1, "power_profile": null, "initial_selling_rate": null},
+            {"name": "Storage", "risk": 50, "type": "Storage", "uuid": "eec7e801-0959-4072-99b1-41ee1d607e1d", "battery_capacity": 5.0, "break_even_lower": 25.0, "break_even_upper": 25.1, "initial_capacity": 1.0, "number_of_clones": 1, "initial_rate_option": 2, "max_abs_battery_power": 5.0, "energy_rate_decrease_option": 1, "initial_selling_rate": null}
         ]}'''
         scenario_validator(json.loads(scenario))
 
