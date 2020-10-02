@@ -30,7 +30,8 @@ AreaSettings = ConstSettings.AreaSettings
 def validate_area(**kwargs):
     if key_in_dict_and_not_none_and_greater_than_zero(kwargs, "grid_fee_constant") and \
             key_in_dict_and_not_none_and_greater_than_zero(kwargs, "grid_fee_percentage"):
-        raise D3AAreaException("Cannot set both percentage and constant grid fees on the same area.")
+        raise D3AAreaException("Cannot set both percentage and constant "
+                               "grid fees on the same area.")
     if key_in_dict_and_not_none(kwargs, "grid_fee_percentage"):
         error_message = {"misconfiguration": [f"grid_fee_percentage should be in between "
                                               f"{AreaSettings.PERCENTAGE_FEE_LIMIT.min} & "
@@ -49,13 +50,13 @@ def validate_area(**kwargs):
 
     if key_in_dict_and_not_none_and_negative(kwargs, "baseline_peak_energy_import_kWh"):
         raise D3AAreaException({"misconfiguration": [f"baseline_peak_energy_import_kWh must be a "
-                                                 f"positive value."]})
+                                                     f"positive value."]})
     if key_in_dict_and_not_none_and_negative(kwargs, "baseline_peak_energy_export_kWh"):
         raise D3AAreaException({"misconfiguration": [f"baseline_peak_energy_export_kWh must be a "
-                                                 f"positive value."]})
+                                                     f"positive value."]})
     if key_in_dict_and_not_none_and_negative(kwargs, "import_capacity_kVA"):
         raise D3AAreaException(
             {"misconfiguration": [f"import_capacity_kVA must be a positive value."]})
     if key_in_dict_and_not_none_and_negative(kwargs, "export_capacity_kVA"):
         raise D3AAreaException({"misconfiguration": [f"export_capacity_kVA must be a "
-                                                 f"positive value."]})
+                                                     f"positive value."]})
