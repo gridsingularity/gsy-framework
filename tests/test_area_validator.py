@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
 
-from d3a_interface.exceptions import D3ADeviceException, D3AException
+from d3a_interface.exceptions import D3ADeviceException, D3AAreaException
 from d3a_interface.area_validator import validate_area
 
 
@@ -35,11 +35,11 @@ class TestValidateAreaSettings(unittest.TestCase):
             validate_area(grid_fee_percentage=-1)
         with self.assertRaises(D3ADeviceException):
             validate_area(grid_fee_percentage=101)
-        with self.assertRaises(D3AException):
+        with self.assertRaises(D3AAreaException):
             validate_area(baseline_peak_energy_import_kWh=-1.0)
-        with self.assertRaises(D3AException):
+        with self.assertRaises(D3AAreaException):
             validate_area(baseline_peak_energy_export_kWh=-1.0)
-        with self.assertRaises(D3AException):
+        with self.assertRaises(D3AAreaException):
             validate_area(import_capacity_kVA=-1.0)
-        with self.assertRaises(D3AException):
+        with self.assertRaises(D3AAreaException):
             validate_area(export_capacity_kVA=-1.0)
