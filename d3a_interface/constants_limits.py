@@ -62,7 +62,7 @@ class ConstSettings:
 
     class AreaSettings:
         PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
-        CONSTANT_FEE_LIMIT = RangeLimit(0, 200)
+        CONSTANT_FEE_LIMIT = RangeLimit(0, sys.maxsize)
 
     class CommercialProducerSettings:
         ENERGY_RATE_LIMIT = RangeLimit(0, 10000)
@@ -139,11 +139,6 @@ class ConstSettings:
         # Option 2: percentage grid fee
         GRID_FEE_TYPE = 1
         VALID_FEE_TYPES = [1, 2]
-        # Percentage value that controls the fee the IAA adds to the offers and bids.
-        FEE_PERCENTAGE = 0
-        FEE_PERCENTAGE_LIMIT = RangeLimit(0, 100)
-        FEE_CONSTANT = 0
-        FEE_CONSTANT_LIMIT = RangeLimit(0, sys.maxsize)
         # Market type option
         # Default value 1 stands for single sided market
         # Option 2 stands for double sided pay as bid market
