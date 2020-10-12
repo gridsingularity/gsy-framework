@@ -21,7 +21,11 @@ class D3AException(Exception):
     pass
 
 
-class SettingsException(D3AException):
+class D3AAreaException(D3AException):
+    pass
+
+
+class D3ASettingsException(D3AException):
     pass
 
 
