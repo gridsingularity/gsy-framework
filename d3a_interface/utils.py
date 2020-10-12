@@ -108,7 +108,9 @@ def datetime_to_string_incl_seconds(datetime):
     return datetime.format(DATE_TIME_FORMAT_SECONDS)
 
 
-def convert_pendulum_to_str_in_dict(indict, outdict, ui_format=False, unix_time=False):
+def convert_pendulum_to_str_in_dict(indict, outdict=None, ui_format=False, unix_time=False):
+    if outdict is None:
+        outdict = {}
     for key, value in indict.items():
         if isinstance(key, DateTime):
             outdict[format_datetime(key, ui_format, unix_time)] = indict[key]
@@ -123,6 +125,10 @@ def convert_pendulum_to_str_in_dict(indict, outdict, ui_format=False, unix_time=
         else:
             outdict[key] = copy(indict[key])
     return outdict
+
+
+def convert_str_to_pendulum_in_dict(indict):
+    return {str_to_pendulum_datetime(k): v for k, v in indict.items()}
 
 
 def mkdir_from_str(directory: str, exist_ok=True, parents=True):
