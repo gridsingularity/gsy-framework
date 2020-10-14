@@ -150,8 +150,8 @@ class ConstSettings:
         # Value 2 stands for integer precision/relaxation algorithm
         PAY_AS_CLEAR_AGGREGATION_ALGORITHM = 1
 
-        MIN_OFFER_AGE = 0
-        MIN_BID_AGE = 0
+        MIN_OFFER_AGE = 2
+        MIN_BID_AGE = 2
 
         class AlternativePricing:
             # Option 0: D3A_trading
