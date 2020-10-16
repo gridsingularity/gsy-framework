@@ -90,6 +90,16 @@ def str_to_pendulum_datetime(input_str):
     return pendulum_time
 
 
+def ui_str_to_pendulum_datetime(input_str):
+    if input_str is None:
+        return None
+    try:
+        pendulum_time = from_format(input_str, DATE_TIME_UI_FORMAT)
+    except ValueError:
+        raise Exception(f"Format is not '{DATE_TIME_UI_FORMAT}'.")
+    return pendulum_time
+
+
 def unix_time_to_str(unix_time, out_format):
     return from_timestamp(unix_time).format(out_format)
 
