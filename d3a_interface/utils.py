@@ -96,7 +96,7 @@ def ui_str_to_pendulum_datetime(input_str):
     try:
         pendulum_time = from_format(input_str, DATE_TIME_UI_FORMAT)
     except ValueError:
-        raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}')")
+        raise Exception(f"Format is not '{DATE_TIME_UI_FORMAT}'.")
     return pendulum_time
 
 
