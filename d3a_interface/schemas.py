@@ -183,7 +183,8 @@ class ResultsSchemas:
                             "last_energy_trades_high_resolution": {"type": "object"},
                             "bids_offers_trades": {"type": "object"},
                             "results_area_uuids": {"type": "array"},
-                            "simulation_state": {"type": "object"}
+                            "simulation_state": {"type": "object"},
+                            "cumulative_market_fees": {"type": "number"},
                           },
                       "additionalProperties": False,
                       "required": ["job_id",
