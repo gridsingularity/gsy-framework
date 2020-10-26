@@ -45,7 +45,6 @@ class ConstSettings:
         EXPORT_OFFER_BID_TRADE_HR = False
         # Boolean flag which forces d3a to run in real-time
         RUN_REAL_TIME = False
-        KEEP_PAST_MARKETS = False
         # Boolean flag which forces d3a to dispatch events via redis channels
         EVENT_DISPATCHING_VIA_REDIS = False
 
@@ -62,7 +61,7 @@ class ConstSettings:
 
     class AreaSettings:
         PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
-        CONSTANT_FEE_LIMIT = RangeLimit(0, 200)
+        CONSTANT_FEE_LIMIT = RangeLimit(0, sys.maxsize)
 
     class CommercialProducerSettings:
         ENERGY_RATE_LIMIT = RangeLimit(0, 10000)
@@ -139,11 +138,6 @@ class ConstSettings:
         # Option 2: percentage grid fee
         GRID_FEE_TYPE = 1
         VALID_FEE_TYPES = [1, 2]
-        # Percentage value that controls the fee the IAA adds to the offers and bids.
-        FEE_PERCENTAGE = 0
-        FEE_PERCENTAGE_LIMIT = RangeLimit(0, 100)
-        FEE_CONSTANT = 0
-        FEE_CONSTANT_LIMIT = RangeLimit(0, sys.maxsize)
         # Market type option
         # Default value 1 stands for single sided market
         # Option 2 stands for double sided pay as bid market
@@ -156,8 +150,8 @@ class ConstSettings:
         # Value 2 stands for integer precision/relaxation algorithm
         PAY_AS_CLEAR_AGGREGATION_ALGORITHM = 1
 
-        MIN_OFFER_AGE = 0
-        MIN_BID_AGE = 0
+        MIN_OFFER_AGE = 2
+        MIN_BID_AGE = 2
 
         class AlternativePricing:
             # Option 0: D3A_trading
@@ -222,8 +216,8 @@ class GlobalConfig:
 
 class HeartBeat:
     CHANNEL_NAME = "d3a-heartbeat"
-    RATE = 10  # in secs
-    TOLERANCE = 11  # in secs
+    RATE = 5  # in secs
+    TOLERANCE = 16  # in secs
 
 
 TIME_FORMAT = "HH:mm"

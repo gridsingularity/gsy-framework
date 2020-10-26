@@ -90,6 +90,16 @@ def str_to_pendulum_datetime(input_str):
     return pendulum_time
 
 
+def ui_str_to_pendulum_datetime(input_str):
+    if input_str is None:
+        return None
+    try:
+        pendulum_time = from_format(input_str, DATE_TIME_UI_FORMAT)
+    except ValueError:
+        raise Exception(f"Format is not '{DATE_TIME_UI_FORMAT}'.")
+    return pendulum_time
+
+
 def unix_time_to_str(unix_time, out_format):
     return from_timestamp(unix_time).format(out_format)
 
@@ -108,7 +118,9 @@ def datetime_to_string_incl_seconds(datetime):
     return datetime.format(DATE_TIME_FORMAT_SECONDS)
 
 
-def convert_pendulum_to_str_in_dict(indict, outdict, ui_format=False, unix_time=False):
+def convert_pendulum_to_str_in_dict(indict, outdict=None, ui_format=False, unix_time=False):
+    if outdict is None:
+        outdict = {}
     for key, value in indict.items():
         if isinstance(key, DateTime):
             outdict[format_datetime(key, ui_format, unix_time)] = indict[key]
@@ -123,6 +135,10 @@ def convert_pendulum_to_str_in_dict(indict, outdict, ui_format=False, unix_time=
         else:
             outdict[key] = copy(indict[key])
     return outdict
+
+
+def convert_str_to_pendulum_in_dict(indict):
+    return {str_to_pendulum_datetime(k): v for k, v in indict.items()}
 
 
 def mkdir_from_str(directory: str, exist_ok=True, parents=True):
@@ -155,3 +171,14 @@ def check_redis_health(redis_db):
             time.sleep(0.25)
             reconnect_needed = True
     return reconnect_needed
+
+
+def get_area_name_uuid_mapping(serialized_scenario, mapping={}):
+    if key_in_dict_and_not_none(serialized_scenario, "name") and \
+            key_in_dict_and_not_none(serialized_scenario, "uuid"):
+        mapping.update({serialized_scenario['name']: serialized_scenario['uuid']})
+    if key_in_dict_and_not_none(serialized_scenario, "children"):
+        for child in serialized_scenario["children"]:
+            new_mapping = get_area_name_uuid_mapping(child, mapping)
+            mapping.update(new_mapping)
+    return mapping
