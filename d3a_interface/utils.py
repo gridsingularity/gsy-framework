@@ -21,7 +21,7 @@ from functools import lru_cache
 from copy import copy
 from threading import Timer
 from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, \
-    DATE_TIME_FORMAT_SECONDS
+    DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION
 from redis.exceptions import ConnectionError
 import time
 import logging
@@ -182,3 +182,44 @@ def get_area_name_uuid_mapping(serialized_scenario, mapping={}):
             new_mapping = get_area_name_uuid_mapping(child, mapping)
             mapping.update(new_mapping)
     return mapping
+
+
+def round_floats_for_ui(number):
+    return round(number, 3)
+
+
+def create_subdict_or_update(indict, key, subdict):
+    if key in indict:
+        indict[key].update(subdict)
+    else:
+        indict[key] = subdict
+    return indict
+
+
+def add_or_create_key(dict, key, value):
+    if key in dict:
+        dict[key] += value
+    else:
+        dict[key] = value
+    return dict
+
+
+def subtract_or_create_key(dict, key, value):
+    if key in dict:
+        dict[key] -= value
+    else:
+        dict[key] = 0 - value
+    return dict
+
+
+def make_iaa_name_from_dict(owner):
+    return f"IAA {owner['name']}"
+
+
+def limit_float_precision(number):
+    return round(number, DEFAULT_PRECISION)
+
+
+def if_not_in_list_append(target_list, obj):
+    if obj not in target_list:
+        target_list.append(obj)
