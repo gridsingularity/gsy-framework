@@ -16,11 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from copy import deepcopy
-from d3a.d3a_core.util import round_floats_for_ui
-from d3a.d3a_core.util import area_name_from_area_or_iaa_name
-from d3a.d3a_core.sim_results import is_load_node_type, is_pv_node_type
-from d3a.constants import LOAD_PENALTY_RATE, PV_PENALTY_RATE
-from d3a.d3a_core.sim_results import get_unified_area_type
+from d3a_interface.utils import round_floats_for_ui
+from d3a_interface.sim_results import is_load_node_type, is_pv_node_type, \
+    area_name_from_area_or_iaa_name, get_unified_area_type
+from d3a_interface.constants_limits import ConstSettings
 
 
 class CumulativeBills:
@@ -93,9 +92,11 @@ class CumulativeBills:
             )
 
             if is_load_node_type(area_dict):
-                penalty_cost = penalty_energy * LOAD_PENALTY_RATE / 100.0
+                penalty_cost = penalty_energy * \
+                               ConstSettings.LoadSettings.LOAD_PENALTY_RATE / 100.0
             elif is_pv_node_type(area_dict):
-                penalty_cost = penalty_energy * PV_PENALTY_RATE / 100.0
+                penalty_cost = penalty_energy * \
+                               ConstSettings.PVSettings.PV_PENALTY_RATE / 100.0
             else:
                 penalty_cost = 0.0
 

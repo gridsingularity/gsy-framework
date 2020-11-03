@@ -185,13 +185,13 @@ class ResultsSchemas:
                             "results_area_uuids": {"type": "array"},
                             "simulation_state": {"type": "object"},
                             "cumulative_market_fees": {"type": "number"},
-                          },
+                            "simulation_raw_data": {"type": "object"},
+                            "configuration_tree": {"type": "object"}
+                      },
                       "additionalProperties": False,
                       "required": ["job_id",
+                                   "current_market",
                                    "random_seed",
-                                   "cumulative_grid_trades",
-                                   "bills",
-                                   "cumulative_bills",
                                    "status",
                                    "progress_info"]
                       }

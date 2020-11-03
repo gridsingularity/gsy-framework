@@ -33,13 +33,11 @@ def get_number_of_unmatched_loads(indict):
 
 
 class ExportUnmatchedLoads:
-    def __init__(self, area):
+    def __init__(self):
         self.hour_list = self.hour_list()
-        self.name_uuid_map = {area['name']: area['uuid']}
-        self.name_type_map = {area['name']: area['type']}
-        self.area = area
+        self.name_uuid_map = {}
+        self.name_type_map = {}
         self.load_count = 0
-        self.count_load_devices_in_setup(self.area)
 
     @staticmethod
     def hour_list():
@@ -50,6 +48,8 @@ class ExportUnmatchedLoads:
             return [GlobalConfig.start_date.add(hours=hour) for hour in range(24)]
 
     def count_load_devices_in_setup(self, area):
+        self.name_uuid_map[area['name']] = area['uuid']
+        self.name_type_map[area['name']] = area['type']
         for child in area['children']:
             if is_load_node_type(child):
                 self.load_count += 1
@@ -203,10 +203,10 @@ class MarketUnmatchedLoads:
     to the ExportUnmatchedLoads class, since it depends on the latter for calculating
     the unmatched loads for a market slot.
     """
-    def __init__(self, area):
+    def __init__(self):
         self.unmatched_loads = {}
         self.last_unmatched_loads = {}
-        self.export_unmatched_loads = ExportUnmatchedLoads(area)
+        self.export_unmatched_loads = ExportUnmatchedLoads()
 
     def write_none_to_unmatched_loads(self, area_dict):
         self.unmatched_loads[area_dict['name']] = None
@@ -229,6 +229,8 @@ class MarketUnmatchedLoads:
                                current_market_time_slot_str=None):
         if current_market_time_slot_str is None:
             return
+
+        self.export_unmatched_loads.count_load_devices_in_setup(area_dict)
         if self.export_unmatched_loads.load_count == 0:
             self.write_none_to_unmatched_loads(area_dict)
         else:

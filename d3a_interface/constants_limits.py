@@ -112,6 +112,7 @@ class ConstSettings:
         INITIAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
         # Max load energy rate, in ct/kWh
         FINAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
+        LOAD_PENALTY_RATE = 29.2
 
     class PVSettings:
         DEFAULT_PANEL_COUNT = 1
@@ -126,6 +127,7 @@ class ConstSettings:
         CLOUD_COVERAGE_LIMIT = RangeLimit(0, 4)
         # Applies to gaussian PVStrategy, controls the max panel output in Watts.
         MAX_PANEL_OUTPUT_W = 160
+        PV_PENALTY_RATE = 0
 
     class WindSettings:
         # This price should be just above the marginal costs for a Wind Power Plant - unit is cent
