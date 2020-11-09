@@ -160,6 +160,7 @@ class ResultsSchemas:
                       "properties": {
                             "job_id":  {"type": "string"},
                             "current_market": {"type": "string"},
+                            "current_market_ui_time_slot_str": {"type": "string"},
                             "random_seed": {"type": "number"},
                             "unmatched_loads": {"type": "object"},
                             "price_energy_day": {"type": "object"},
