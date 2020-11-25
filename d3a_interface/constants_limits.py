@@ -51,7 +51,6 @@ class ConstSettings:
         RATE_CHANGE_PER_UPDATE_LIMIT = RangeLimit(0, 1000)
         ENERGY_PROFILE_LIMIT = RangeLimit(0, sys.maxsize)
 
-        NUM_CLONES_LIMIT = RangeLimit(0, 100)
         MIN_NUM_TICKS = 10
         MIN_SLOT_LENGTH_M = 2
         MAX_SLOT_LENGTH_M = 60
