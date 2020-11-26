@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Dict
 from d3a_interface.utils import create_or_update_subdict, limit_float_precision
-from d3a_interface.sim_results import is_load_node_type, is_cell_tower_type, is_pv_node_type, \
+from d3a_interface.sim_results import is_load_node_type, is_pv_node_type, \
     is_prosumer_node_type
 FILL_VALUE = None
 
@@ -223,7 +223,7 @@ class DeviceStatistics:
         elif is_prosumer_node_type(area_dict):
             cls._soc_stats(area_dict, subdict, core_stats, current_market_slot)
 
-        elif is_load_node_type(area_dict) or is_cell_tower_type(area_dict):
+        elif is_load_node_type(area_dict):
             cls._load_profile_stats(area_dict, subdict, core_stats, current_market_slot)
 
         elif area_dict['type'] == "FinitePowerPlant":

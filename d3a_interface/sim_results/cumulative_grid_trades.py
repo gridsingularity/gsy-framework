@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
-from d3a_interface.sim_results import is_cell_tower_type, is_load_node_type, \
+from d3a_interface.sim_results import is_load_node_type, \
     is_producer_node_type, is_prosumer_node_type, is_buffer_node_type, area_sells_to_child, \
     child_buys_from_area, area_name_from_area_or_iaa_name
 from d3a_interface.utils import add_or_create_key, \
@@ -51,15 +51,9 @@ class CumulativeGridTrades:
     def accumulate_grid_trades_all_devices(cls, area_dict, flattened_area_core_stats_dict,
                                            accumulated_trades):
         for child_dict in area_dict['children']:
-            if is_cell_tower_type(child_dict):
-                accumulated_trades = CumulativeGridTrades._accumulate_load_trades(
-                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades,
-                    is_cell_tower=True
-                )
             if is_load_node_type(child_dict):
                 accumulated_trades = CumulativeGridTrades._accumulate_load_trades(
-                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades,
-                    is_cell_tower=False
+                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
                 )
             if is_producer_node_type(child_dict):
                 accumulated_trades = CumulativeGridTrades._accumulate_producer_trades(
@@ -85,10 +79,10 @@ class CumulativeGridTrades:
 
     @classmethod
     def _accumulate_load_trades(cls, load, grid, flattened_area_core_stats_dict,
-                                accumulated_trades, is_cell_tower):
+                                accumulated_trades):
         if load['name'] not in accumulated_trades:
             accumulated_trades[load['name']] = {
-                "type": "cell_tower" if is_cell_tower else "load",
+                "type": "load",
                 "produced": 0.0,
                 "earned": 0.0,
                 "consumedFrom": {},
