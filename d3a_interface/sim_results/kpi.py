@@ -143,11 +143,10 @@ class KPIState:
 
 
 class KPI:
-    def __init__(self, should_export_plots):
+    def __init__(self):
         self.performance_indices = dict()
         self.performance_indices_redis = dict()
         self.state = {}
-        self.should_export_plots = should_export_plots
 
     def __repr__(self):
         return f"KPI: {self.performance_indices}"
@@ -210,9 +209,8 @@ class KPI:
     def update_kpis_from_area(self, area_dict, core_stats, current_market_time_slot_str):
         self.performance_indices[area_dict['name']] = \
             self.area_performance_indices(area_dict, core_stats, current_market_time_slot_str)
-        if not self.should_export_plots:
-            self.performance_indices_redis[area_dict['uuid']] = \
-                self._kpi_ratio_to_percentage(area_dict['name'])
+        self.performance_indices_redis[area_dict['uuid']] = \
+            self._kpi_ratio_to_percentage(area_dict['name'])
 
         for child in area_dict['children']:
             if len(child['children']) > 0:
