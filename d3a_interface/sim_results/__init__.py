@@ -17,10 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 
-def is_cell_tower_type(area):
-    return area['type'] == "CellTowerLoadHoursStrategy"
-
-
 def is_load_node_type(area):
     return area['type'] in ["LoadHoursStrategy", "DefinedLoadStrategy",
                             "LoadHoursExternalStrategy", "LoadProfileExternalStrategy",
@@ -59,8 +55,6 @@ def get_unified_area_type(area):
         return "PV"
     elif is_load_node_type(area):
         return "Load"
-    elif is_cell_tower_type(area):
-        return "CellTower"
     elif is_prosumer_node_type(area):
         return "Storage"
     elif is_bulk_power_producer(area) or is_buffer_node_type(area):
