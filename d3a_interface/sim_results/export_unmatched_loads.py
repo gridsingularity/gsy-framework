@@ -19,7 +19,7 @@ from pendulum import duration
 from itertools import product
 from d3a_interface.constants_limits import GlobalConfig, FLOATING_POINT_TOLERANCE
 from d3a_interface.sim_results.aggregate_results import merge_unmatched_load_results_to_global
-from d3a_interface.sim_results import is_load_node_type, is_cell_tower_type
+from d3a_interface.sim_results import is_load_node_type
 
 
 def get_number_of_unmatched_loads(indict):
@@ -80,8 +80,7 @@ class ExportUnmatchedLoads:
                     child, core_stats, indict[area_dict['name']], current_market_time_slot_str
                 )
             else:
-                if (is_load_node_type(child) or is_cell_tower_type(child)) and \
-                        core_stats.get(child['uuid'], {}) != {}:
+                if is_load_node_type(child) and core_stats.get(child['uuid'], {}) != {}:
                     indict[area_dict['name']][child['name']] = \
                         self._calculate_unmatched_loads_leaf_area(child, core_stats,
                                                                   current_market_time_slot_str)
@@ -189,7 +188,7 @@ class ExportUnmatchedLoads:
         if area_dict['children']:
             indict[area_dict['name']] = {}
             for child in area_dict['children']:
-                if child['children'] or is_load_node_type(child) or is_cell_tower_type(child):
+                if child['children'] or is_load_node_type(child):
                     if child['name'] in indict:
                         indict[area_dict['name']][child['name']] = indict[child['name']]
                     self.arrange_output(indict, child)
