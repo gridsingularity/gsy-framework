@@ -207,6 +207,8 @@ class KPI:
                 }
 
     def update_kpis_from_area(self, area_dict, core_stats, current_market_time_slot_str):
+        if current_market_time_slot_str == "":
+            return
         self.performance_indices[area_dict['name']] = \
             self.area_performance_indices(area_dict, core_stats)
         self.performance_indices_redis[area_dict['uuid']] = \
