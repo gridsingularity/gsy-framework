@@ -14,7 +14,7 @@ jobs:
      script: tox -e $TOXENV
      after_script: rm -rf ./.tox
 # this is to trigger a new build of d3a-web for every push to master or production
-   - python: 3.8
+   - python: 3.6
      stage: trigger downstream
      jdk: oraclejdk8
      script: |
