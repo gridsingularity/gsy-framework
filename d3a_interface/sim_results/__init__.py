@@ -65,6 +65,10 @@ def get_unified_area_type(area):
         return "Area"
 
 
+def is_device(area):
+    return get_unified_area_type(area) != "Area"
+
+
 def area_sells_to_child(trade, area_name, child_names):
     return area_name_from_area_or_iaa_name(trade['seller']) == \
             area_name and area_name_from_area_or_iaa_name(trade['buyer']) in child_names

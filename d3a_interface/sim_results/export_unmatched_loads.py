@@ -19,7 +19,7 @@ from pendulum import duration
 from itertools import product
 from d3a_interface.constants_limits import GlobalConfig, FLOATING_POINT_TOLERANCE
 from d3a_interface.sim_results.aggregate_results import merge_unmatched_load_results_to_global
-from d3a_interface.sim_results import is_load_node_type
+from d3a_interface.sim_results import is_load_node_type, is_device
 
 
 def get_number_of_unmatched_loads(indict):
@@ -226,7 +226,7 @@ class MarketUnmatchedLoads:
 
     def update_unmatched_loads(self, area_dict={}, core_stats={},
                                current_market_time_slot_str=None):
-        if current_market_time_slot_str is None:
+        if current_market_time_slot_str is None or is_device(area_dict):
             return
 
         self.export_unmatched_loads.count_load_devices_in_setup(area_dict)
