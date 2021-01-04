@@ -1,5 +1,9 @@
 name: d3a-interface-ci
-on: [pull_request]
+on:
+  pull_request:
+    branches:
+      - master
+      - staging
 jobs:
   test-build:
     runs-on: ubuntu-latest
