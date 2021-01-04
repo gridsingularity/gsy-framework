@@ -16,8 +16,8 @@ jobs:
       env:
         TOXENV: ci
       run: |
-        bash .support/travis-install.sh
-        bash .support/travis-run.sh
+        pip install tox
+        tox -e $TOXENV
     - name: Trigger d3a deployment
       shell: bash
       run: |
