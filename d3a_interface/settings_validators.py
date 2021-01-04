@@ -15,10 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from d3a_interface.constants_limits import ConstSettings, GlobalConfig
-from d3a_interface.exceptions import D3ASettingsException
 from pendulum import duration, Duration
 from datetime import timedelta
+
+from d3a_interface.constants_limits import ConstSettings, GlobalConfig
+from d3a_interface.exceptions import D3ASettingsException
 
 
 def validate_global_settings(settings_dict):
@@ -26,6 +27,8 @@ def validate_global_settings(settings_dict):
         if "slot_length" in settings_dict else GlobalConfig.slot_length
     tick_length = settings_dict["tick_length"] \
         if "tick_length" in settings_dict else GlobalConfig.tick_length
+    slot_length_realtime = settings_dict["slot_length_realtime"] \
+        if "slot_length_realtime" in settings_dict else GlobalConfig.slot_length_realtime
 
     # converting into duration
     if not isinstance(tick_length, Duration):
@@ -34,6 +37,9 @@ def validate_global_settings(settings_dict):
     if not isinstance(slot_length, Duration):
         slot_length = duration(minutes=slot_length.seconds / 60) \
             if isinstance(slot_length, timedelta) else duration(minutes=slot_length)
+    if not isinstance(slot_length_realtime, Duration):
+        slot_length_realtime = duration(minutes=slot_length.seconds / 60) \
+            if isinstance(slot_length, timedelta) else duration(minutes=slot_length_realtime)
 
     if "tick_length" in settings_dict:
         min_tick_length, max_tick_length = calc_min_max_tick_length(slot_length)
@@ -76,6 +82,9 @@ def validate_global_settings(settings_dict):
             int(settings_dict["grid_fee_type"]) not in ConstSettings.IAASettings.VALID_FEE_TYPES:
         raise D3ASettingsException(f'Invalid value for grid_fee_type '
                                    f'({settings_dict["grid_fee_type"]}).')
+    if "slowdown" in settings_dict and settings_dict["slowdown"] > 0 and \
+            slot_length_realtime > GlobalConfig.slot_length_realtime:
+        raise D3ASettingsException("'slowdown' and 'slot_length_realtime' can not be set together")
 
 
 def calc_min_max_tick_length(slot_length):

@@ -194,6 +194,7 @@ class GlobalConfig:
     START_DATE = date.today()
     SLOT_LENGTH_M = 15
     TICK_LENGTH_S = 15
+    SLOT_LENGTH_REALTIME_M = 0
     DURATION_D = 1
     SLOWDOWN = 0
     MARKET_COUNT = 1
@@ -208,6 +209,7 @@ class GlobalConfig:
     market_count = MARKET_COUNT
     slot_length = duration(minutes=SLOT_LENGTH_M)
     tick_length = duration(seconds=TICK_LENGTH_S)
+    slot_length_realtime = duration(minutes=SLOT_LENGTH_REALTIME_M)
     ticks_per_slot = int(slot_length / tick_length)
     total_ticks = int(sim_duration / tick_length)
     cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
