@@ -14,7 +14,7 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       env:
-        TOXENV: travis
+        TOXENV: ci
       run: |
         bash .support/travis-install.sh
         bash .support/travis-run.sh
