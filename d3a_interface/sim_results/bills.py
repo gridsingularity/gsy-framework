@@ -45,10 +45,24 @@ class CumulativeBills:
                 "spent_total": round_floats_for_ui(results['spent_total']),
                 "earned": round_floats_for_ui(results['earned']),
                 "penalties": round_floats_for_ui(results['penalties']),
+                "penalty_energy": round_floats_for_ui(results['penalty_energy']),
                 "total": round_floats_for_ui(results['total'])
             }
             for uuid, results in self.cumulative_bills_results.items()
         }
+
+    def restore_state_from_area(self, area_uuid, last_known_state_data):
+        print(f"self.cumulative_bills_results: {self.cumulative_bills_results}")
+        if area_uuid not in self.cumulative_bills_results:
+            self.cumulative_bills_results[area_uuid] = {
+                "name": last_known_state_data['name'],
+                "spent_total": last_known_state_data['spent_total'],
+                "earned": last_known_state_data['earned'],
+                "penalties": last_known_state_data['penalties'],
+                "penalty_energy": last_known_state_data['penalty_energy'],
+                "total": last_known_state_data['total'],
+            }
+            print(f"self.cumulative_bills_results[area_uuid]: {self.cumulative_bills_results[area_uuid]}")
 
     def update_cumulative_bills(self, area_dict, core_stats, current_market_time_slot):
         for child in area_dict['children']:
