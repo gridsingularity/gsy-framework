@@ -258,7 +258,30 @@ class MarketEnergyBills:
         flattened = {}
         self._flatten_energy_bills(bills, flattened)
         self.bills_results = self._accumulate_by_children(area_dict, flattened, {})
+        # print(f"self.bills_results: {self.bills_results}")
         self._bills_for_redis(area_dict, deepcopy(self.bills_results))
+        # print(f"self.bills_redis_results: {self.bills_redis_results}")
+
+    def restore_state_from_area(self, area_dict, last_known_state_data):
+        print(f"area_dict: {area_dict}")
+        print(f"last_known_state_data: {last_known_state_data}")
+        self.bills_redis_results[area_dict['uuid']] = last_known_state_data
+        self.bills_results[area_dict['name']] = last_known_state_data
+        if "External Trades" in last_known_state_data:
+            external = last_known_state_data["External Trades"]
+            self.external_trades[area_dict['name']] = {}
+            self.external_trades[area_dict['name']].update(
+                {'bought': external.get('sold', 0.), 'sold': external.get('bought', 0.),
+                 'spent': external.get('earned', 0.), 'earned': external.get('spent', 0.),
+                 'market_fee': external.get('market_fee', 0.)}
+            )
+            self.external_trades[area_dict['name']]['total_energy'] = \
+                self.external_trades[area_dict['name']]['bought'] - \
+                self.external_trades[area_dict['name']]['sold']
+            self.external_trades[area_dict['name']]['total_cost'] = \
+                self.external_trades[area_dict['name']]['spent'] - \
+                self.external_trades[area_dict['name']]['earned'] + \
+                self.external_trades[area_dict['name']]['market_fee']
 
     @classmethod
     def _flatten_energy_bills(cls, energy_bills, flat_results):
