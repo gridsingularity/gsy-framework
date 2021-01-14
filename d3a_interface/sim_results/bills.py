@@ -52,7 +52,7 @@ class CumulativeBills:
         }
 
     def restore_state_from_area(self, area_uuid, last_known_state_data):
-        print(f"self.cumulative_bills_results: {self.cumulative_bills_results}")
+        # print(f"self.cumulative_bills_results: {self.cumulative_bills_results}")
         if area_uuid not in self.cumulative_bills_results:
             self.cumulative_bills_results[area_uuid] = {
                 "name": last_known_state_data['name'],
@@ -62,7 +62,7 @@ class CumulativeBills:
                 "penalty_energy": last_known_state_data['penalty_energy'],
                 "total": last_known_state_data['total'],
             }
-            print(f"self.cumulative_bills_results[area_uuid]: {self.cumulative_bills_results[area_uuid]}")
+            # print(f"self.cumulative_bills_results[area_uuid]: {self.cumulative_bills_results[area_uuid]}")
 
     def update_cumulative_bills(self, area_dict, core_stats, current_market_time_slot):
         for child in area_dict['children']:
@@ -263,8 +263,8 @@ class MarketEnergyBills:
         # print(f"self.bills_redis_results: {self.bills_redis_results}")
 
     def restore_state_from_area(self, area_dict, last_known_state_data):
-        print(f"area_dict: {area_dict}")
-        print(f"last_known_state_data: {last_known_state_data}")
+        # print(f"area_dict: {area_dict}")
+        # print(f"last_known_state_data: {last_known_state_data}")
         self.bills_redis_results[area_dict['uuid']] = last_known_state_data
         self.bills_results[area_dict['name']] = last_known_state_data
         if "External Trades" in last_known_state_data:
