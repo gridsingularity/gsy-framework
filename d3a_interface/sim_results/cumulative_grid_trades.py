@@ -15,19 +15,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from dataclasses import dataclass
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.sim_results import is_load_node_type, \
     is_producer_node_type, is_prosumer_node_type, is_buffer_node_type, area_sells_to_child, \
     child_buys_from_area, area_name_from_area_or_iaa_name
 from d3a_interface.utils import add_or_create_key, \
     make_iaa_name_from_dict, subtract_or_create_key, round_floats_for_ui
-
-
-@dataclass
-class ChildNameUuid:
-    name: str = None
-    uuid: str = None
 
 
 class CumulativeGridTrades:
@@ -41,17 +34,12 @@ class CumulativeGridTrades:
         self.export_cumulative_grid_trades(
             area_dict, flattened_area_core_stats_dict, self.accumulated_trades
         )
-        print(f"self.accumulated_trades: {self.accumulated_trades}")
-        print(f"self.current_trades: {self.current_trades}")
 
     def export_cumulative_grid_trades(self, area_dict, flattened_area_core_stats_dict,
                                       accumulated_trades_redis):
         self.accumulated_trades = CumulativeGridTrades.accumulate_grid_trades_all_devices(
             area_dict, flattened_area_core_stats_dict, accumulated_trades_redis
         )
-        # self.current_trades = CumulativeGridTrades.generate_cumulative_grid_trades_for_all_areas(
-        #         self.accumulated_trades, area_dict, None, {}
-        #     )
 
     @classmethod
     def accumulate_grid_trades_all_devices(cls, area_dict, flattened_area_core_stats_dict,
