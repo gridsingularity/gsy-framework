@@ -24,12 +24,6 @@ from d3a_interface.utils import add_or_create_key, \
     make_iaa_name_from_dict, subtract_or_create_key, round_floats_for_ui
 
 
-@dataclass
-class ChildNameUuid:
-    name: str = None
-    uuid: str = None
-
-
 class CumulativeGridTrades:
     def __init__(self):
         self.current_trades = {}
@@ -41,17 +35,12 @@ class CumulativeGridTrades:
         self.export_cumulative_grid_trades(
             area_dict, flattened_area_core_stats_dict, self.accumulated_trades
         )
-        print(f"self.accumulated_trades: {self.accumulated_trades}")
-        print(f"self.current_trades: {self.current_trades}")
 
     def export_cumulative_grid_trades(self, area_dict, flattened_area_core_stats_dict,
                                       accumulated_trades_redis):
         self.accumulated_trades = CumulativeGridTrades.accumulate_grid_trades_all_devices(
             area_dict, flattened_area_core_stats_dict, accumulated_trades_redis
         )
-        # self.current_trades = CumulativeGridTrades.generate_cumulative_grid_trades_for_all_areas(
-        #         self.accumulated_trades, area_dict, None, {}
-        #     )
 
     @classmethod
     def accumulate_grid_trades_all_devices(cls, area_dict, flattened_area_core_stats_dict,
