@@ -15,12 +15,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from dataclasses import dataclass
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.sim_results import is_load_node_type, \
     is_producer_node_type, is_prosumer_node_type, is_buffer_node_type, area_sells_to_child, \
     child_buys_from_area, area_name_from_area_or_iaa_name
 from d3a_interface.utils import add_or_create_key, \
     make_iaa_name_from_dict, subtract_or_create_key, round_floats_for_ui
+
+
+@dataclass
+class ChildNameUuid:
+    name: str = None
+    uuid: str = None
 
 
 class CumulativeGridTrades:
@@ -42,9 +49,9 @@ class CumulativeGridTrades:
         self.accumulated_trades = CumulativeGridTrades.accumulate_grid_trades_all_devices(
             area_dict, flattened_area_core_stats_dict, accumulated_trades_redis
         )
-        self.current_trades = CumulativeGridTrades.generate_cumulative_grid_trades_for_all_areas(
-                self.accumulated_trades, area_dict, None, {}
-            )
+        # self.current_trades = CumulativeGridTrades.generate_cumulative_grid_trades_for_all_areas(
+        #         self.accumulated_trades, area_dict, None, {}
+        #     )
 
     @classmethod
     def accumulate_grid_trades_all_devices(cls, area_dict, flattened_area_core_stats_dict,
@@ -81,11 +88,15 @@ class CumulativeGridTrades:
                                 accumulated_trades):
         if load['uuid'] not in accumulated_trades:
             accumulated_trades[load['uuid']] = {
+                "name": load['name'],
                 "type": "load",
                 "produced": 0.0,
                 "earned": 0.0,
                 "consumedFrom": {},
                 "spentTo": {},
+                "parent_uuid": load['parent_uuid'],
+                "children": [{'name': child['name'], 'uuid': child['uuid']}
+                             for child in load.get("children", [])]
             }
 
         area_trades = flattened_area_core_stats_dict.get(grid['uuid'], {}).get('trades', [])
@@ -105,10 +116,14 @@ class CumulativeGridTrades:
                                     accumulated_trades):
         if producer['uuid'] not in accumulated_trades:
             accumulated_trades[producer['uuid']] = {
+                "name": producer['name'],
                 "produced": 0.0,
                 "earned": 0.0,
                 "consumedFrom": {},
                 "spentTo": {},
+                "parent_uuid": producer['parent_uuid'],
+                "children": [{'name': child['name'], 'uuid': child['uuid']}
+                             for child in producer.get("children", [])]
             }
 
         area_trades = flattened_area_core_stats_dict.get(grid['uuid'], {}).get('trades', [])
@@ -125,10 +140,14 @@ class CumulativeGridTrades:
         if storage['uuid'] not in accumulated_trades:
             accumulated_trades[storage['uuid']] = {
                 "type": "Storage" if area['type'] == "StorageStrategy" else "InfiniteBus",
+                "name": storage['name'],
                 "produced": 0.0,
                 "earned": 0.0,
                 "consumedFrom": {},
                 "spentTo": {},
+                "parent_uuid": storage['parent_uuid'],
+                "children": [{'name': child['name'], 'uuid': child['uuid']}
+                             for child in storage.get("children", [])]
             }
 
         area_trades = flattened_area_core_stats_dict.get(area['uuid'], {}).get('trades', [])
@@ -152,6 +171,7 @@ class CumulativeGridTrades:
                                 accumulated_trades):
         if area['uuid'] not in accumulated_trades:
             accumulated_trades[area['uuid']] = {
+                "name": area['name'],
                 "type": "house",
                 "produced": 0.0,
                 "earned": 0.0,
@@ -161,6 +181,9 @@ class CumulativeGridTrades:
                 "earnedFromExternal": {},
                 "consumedFromExternal": {},
                 "spentToExternal": {},
+                "parent_uuid": area['parent_uuid'],
+                "children": [{'name': child['name'], 'uuid': child['uuid']}
+                             for child in area.get("children", [])]
             }
         area_IAA_name = make_iaa_name_from_dict(area)
         child_names = [area_name_from_area_or_iaa_name(c['name']) for c in area['children']]
@@ -210,32 +233,6 @@ class CumulativeGridTrades:
         return accumulated_trades
 
     @classmethod
-    def generate_cumulative_grid_trades_for_all_areas(cls, accumulated_trades, area,
-                                                      parent, results):
-        if area['children'] == []:
-            return results
-
-        cls.generate_cumulative_grid_trades_target_area(accumulated_trades, area, parent, results)
-
-        for child in area['children']:
-            results = cls.generate_cumulative_grid_trades_for_all_areas(
-                accumulated_trades, child, area, results
-            )
-        return results
-
-    @classmethod
-    def generate_cumulative_grid_trades_target_area(cls, accumulated_trades, area, parent, results):
-        results[area['uuid']] = [CumulativeGridTrades.generate_area_cumulative_trade_redis(
-            child, area, accumulated_trades
-        )
-            for child in area['children']
-            if child['uuid'] in accumulated_trades
-        ]
-        if parent is not None:
-            results[area['uuid']].append(CumulativeGridTrades._external_trade_entries(
-                area, accumulated_trades))
-
-    @classmethod
     def _area_trade_from_parent(cls, area, parent, flattened_area_core_stats_dict,
                                 accumulated_trades):
         area_IAA_name = make_iaa_name_from_dict(area)
@@ -254,7 +251,7 @@ class CumulativeGridTrades:
         return accumulated_trades
 
     @classmethod
-    def generate_area_cumulative_trade_redis(cls, child, parent, accumulated_trades):
+    def generate_area_cumulative_trade_redis(cls, child, parent_name, accumulated_trades):
         results = {"areaName": child['name']}
         area_data = accumulated_trades[child['uuid']]
         results["bars"] = []
@@ -273,7 +270,7 @@ class CumulativeGridTrades:
         # Consumer entries
         for producer, energy in area_data["consumedFrom"].items():
             money = round_floats_for_ui(area_data["spentTo"][producer])
-            tag = "external sources" if producer == parent['name'] else producer
+            tag = "external sources" if producer == parent_name else producer
             results["bars"].append({
                 "energy": round_floats_for_ui(energy),
                 "targetArea": producer,
@@ -286,9 +283,9 @@ class CumulativeGridTrades:
         return results
 
     @classmethod
-    def _external_trade_entries(cls, child, accumulated_trades):
+    def _external_trade_entries(cls, child_uuid, accumulated_trades):
         results = {"areaName": "External Trades"}
-        area_data = accumulated_trades[child['uuid']]
+        area_data = accumulated_trades[child_uuid]
         results["bars"] = []
         incoming_energy = 0
         spent = 0
@@ -299,7 +296,7 @@ class CumulativeGridTrades:
                 spent += round_floats_for_ui(area_data["spentToExternal"][k])
             results["bars"].append({
                 "energy": incoming_energy,
-                "targetArea": child['name'],
+                "targetArea": area_data['name'],
                 "energyLabel": f"External sources sold "
                                f"{abs(round_floats_for_ui(incoming_energy))} kWh",
                 "priceLabel": f"External sources earned {abs(round_floats_for_ui(spent))} cents"
@@ -315,6 +312,6 @@ class CumulativeGridTrades:
                     "targetArea": k,
                     "energyLabel": f"External sources bought {abs(outgoing_energy)} kWh "
                                    f"from {k}",
-                    "priceLabel": f"{child['name']} spent {earned} cents."
+                    "priceLabel": f"{area_data['name']} spent {earned} cents."
                 })
         return results
