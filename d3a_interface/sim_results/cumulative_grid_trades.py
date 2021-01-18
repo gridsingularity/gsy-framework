@@ -35,7 +35,7 @@ class CumulativeGridTrades:
             area_dict, flattened_area_core_stats_dict, self.accumulated_trades
         )
 
-    def restore_state_from_area(self, area_uuid, last_known_state_data):
+    def restore_area_results_state(self, area_uuid, last_known_state_data):
         if area_uuid not in self.accumulated_trades:
             self.accumulated_trades[area_uuid] = last_known_state_data
 

@@ -222,7 +222,7 @@ class KPI:
             if len(child['children']) > 0:
                 self.update_kpis_from_area(child, core_stats, current_market_time_slot_str)
 
-    def restore_state_from_area(self, area_dict, last_known_state_data):
+    def restore_area_results_state(self, area_dict, last_known_state_data):
         if area_dict['name'] not in self.state:
             self.state[area_dict['name']] = KPIState()
             self.state[area_dict['name']].self_consumption = \
