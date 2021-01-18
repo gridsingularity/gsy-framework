@@ -70,7 +70,7 @@ def key_in_dict_and_not_none_and_not_str_type(d, key):
 
 
 def key_in_dict_and_not_none_and_list_type(d, key):
-    return key_in_dict_and_not_none(d, key) and not isinstance(d[key], list)
+    return key_in_dict_and_not_none(d, key) and isinstance(d[key], list)
 
 
 def key_in_dict_and_not_none_and_dict_type(d, key):
