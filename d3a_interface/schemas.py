@@ -111,6 +111,7 @@ class ScenarioSchemas:
                     "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "fit_to_limit": {"type": "boolean"},
                     "update_interval":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "grid_connected": {"type": "boolean"},
                     "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
                                                                   {"type": "null"}]},
                     "daily_load_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
