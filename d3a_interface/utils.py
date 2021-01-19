@@ -69,6 +69,14 @@ def key_in_dict_and_not_none_and_not_str_type(d, key):
     return key_in_dict_and_not_none(d, key) and not isinstance(d[key], str)
 
 
+def key_in_dict_and_not_none_and_list_type(d, key):
+    return key_in_dict_and_not_none(d, key) and isinstance(d[key], list)
+
+
+def key_in_dict_and_not_none_and_dict_type(d, key):
+    return key_in_dict_and_not_none(d, key) and isinstance(d[key], dict)
+
+
 def key_in_dict_and_not_none_and_greater_than_zero(d, key):
     return key in d and d[key] is not None and d[key] > 0
 
