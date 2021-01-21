@@ -75,6 +75,10 @@ class CumulativeGridTrades:
                 accumulated_trades = CumulativeGridTrades._accumulate_area_trades(
                     child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
                 )
+        if area_dict['parent_uuid'] == "":
+            accumulated_trades = CumulativeGridTrades._accumulate_area_trades(
+                area_dict, {}, flattened_area_core_stats_dict, accumulated_trades
+            )
         return accumulated_trades
 
     @classmethod
@@ -230,6 +234,8 @@ class CumulativeGridTrades:
     @classmethod
     def _area_trade_from_parent(cls, area, parent, flattened_area_core_stats_dict,
                                 accumulated_trades):
+        if not parent:
+            return accumulated_trades
         area_IAA_name = make_iaa_name_from_dict(area)
         parent_trades = flattened_area_core_stats_dict.get(parent['uuid'], {}).get('trades', [])
 
@@ -281,6 +287,8 @@ class CumulativeGridTrades:
     def _external_trade_entries(cls, child_uuid, accumulated_trades):
         results = {"areaName": "External Trades"}
         area_data = accumulated_trades[child_uuid]
+        if type(area_data) is str:
+            area_data = ast.literal_eval(area_data)
         results["bars"] = []
         incoming_energy = 0
         spent = 0
@@ -289,14 +297,15 @@ class CumulativeGridTrades:
             for k, v in area_data["consumedFromExternal"].items():
                 incoming_energy += round_floats_for_ui(area_data["consumedFromExternal"][k])
                 spent += round_floats_for_ui(area_data["spentToExternal"][k])
-            results["bars"].append({
-                "energy": incoming_energy,
-                "targetArea": area_data['name'],
-                "energyLabel": f"External sources sold "
-                               f"{abs(round_floats_for_ui(incoming_energy))} kWh",
-                "priceLabel": f"External sources earned {abs(round_floats_for_ui(spent))} cents"
+                results["bars"].append({
+                    "energy": incoming_energy,
+                    "targetArea": area_data['name'],
+                    "energyLabel": f"External sources sold "
+                                   f"{abs(round_floats_for_ui(incoming_energy))} kWh",
+                    "priceLabel": f"External sources "
+                                  f"earned {abs(round_floats_for_ui(spent))} cents"
 
-            })
+                })
 
         if "producedForExternal" in area_data:
             for k, v in area_data["producedForExternal"].items():
@@ -315,16 +324,17 @@ class CumulativeGridTrades:
     def generate_cumulative_grid_trades_target_area(area_uuid, last_db_result):
         results = {area_uuid: []}
 
-        if last_db_result is None:
+        if last_db_result is None or last_db_result.get('cumulative_grid_trades', None) is None:
             return {area_uuid: None}
-        accumulated_trades = {area_uuid: last_db_result['cumulative_grid_trades']}
+        accumulated_trades = {area_uuid: last_db_result.get('cumulative_grid_trades', None)}
+        if accumulated_trades is None:
+            return results
 
         area_detail = accumulated_trades.get(area_uuid, {})
         if type(area_detail) is str:
             area_detail = ast.literal_eval(area_detail)
         if not area_detail:
             return results
-
         results[area_uuid] = []
         for child in area_detail.get('children', []):
             if child['accumulated_trades'] != {}:
