@@ -15,6 +15,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import ast
+
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.sim_results import is_load_node_type, \
     is_producer_node_type, is_prosumer_node_type, is_buffer_node_type, area_sells_to_child, \
@@ -67,11 +69,11 @@ class CumulativeGridTrades:
                 # Leaf node, no need for calculating cumulative trades, continue iteration
                 continue
             else:
-                accumulated_trades = CumulativeGridTrades._accumulate_area_trades(
-                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
-                )
                 accumulated_trades = cls.accumulate_grid_trades_all_devices(
                     child_dict, flattened_area_core_stats_dict, accumulated_trades
+                )
+                accumulated_trades = CumulativeGridTrades._accumulate_area_trades(
+                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
                 )
         return accumulated_trades
 
@@ -174,7 +176,8 @@ class CumulativeGridTrades:
                 "consumedFromExternal": {},
                 "spentToExternal": {},
                 "parent_uuid": area['parent_uuid'],
-                "children": [{'name': child['name'], 'uuid': child['uuid']}
+                "children": [{'name': child['name'], 'uuid': child['uuid'],
+                              'accumulated_trades': accumulated_trades.get(child['uuid'], {})}
                              for child in area.get("children", [])]
             }
         area_IAA_name = make_iaa_name_from_dict(area)
@@ -306,4 +309,32 @@ class CumulativeGridTrades:
                                    f"from {k}",
                     "priceLabel": f"{area_data['name']} spent {earned} cents."
                 })
+        return results
+
+    @staticmethod
+    def generate_cumulative_grid_trades_target_area(area_uuid, last_db_result):
+        results = {area_uuid: []}
+
+        if last_db_result is None:
+            return {area_uuid: None}
+        accumulated_trades = {area_uuid: last_db_result['cumulative_grid_trades']}
+
+        area_detail = accumulated_trades.get(area_uuid, {})
+        if type(area_detail) is str:
+            area_detail = ast.literal_eval(area_detail)
+        if not area_detail:
+            return results
+
+        results[area_uuid] = []
+        for child in area_detail.get('children', []):
+            if child['accumulated_trades'] != {}:
+                accumulated_trades[child['uuid']] = child['accumulated_trades']
+                results[area_uuid].append(
+                    CumulativeGridTrades.generate_area_cumulative_trade_redis(
+                        child, area_detail['name'], accumulated_trades
+                    ))
+
+        if area_detail.get("parent_uuid", None) is not None:
+            results[area_uuid].append(CumulativeGridTrades._external_trade_entries(
+                area_uuid, accumulated_trades))
         return results
