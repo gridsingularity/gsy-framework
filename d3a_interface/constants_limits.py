@@ -195,7 +195,6 @@ class GlobalConfig:
     SLOT_LENGTH_M = 15
     TICK_LENGTH_S = 15
     DURATION_D = 1
-    SLOWDOWN = 0
     MARKET_COUNT = 1
     CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
