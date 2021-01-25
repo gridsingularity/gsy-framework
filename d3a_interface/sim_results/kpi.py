@@ -182,6 +182,8 @@ class KPI:
         return {
             "self_sufficiency": self_sufficiency, "self_consumption": self_consumption,
             "total_energy_demanded_wh": self.state[area_dict['name']].total_demand,
+            "demanded_buffer_wh": self.state[area_dict['name']].demanded_buffer_wh,
+            "self_consumption_buffer_wh": self.state[area_dict['name']].self_consumption_buffer_wh,
             "total_energy_produced_wh": self.state[area_dict['name']].total_energy_produced_wh,
             "total_self_consumption_wh":
                 self.state[area_dict['name']].total_self_consumption_wh}
@@ -202,6 +204,8 @@ class KPI:
         return {"self_sufficiency": self_sufficiency_percentage,
                 "self_consumption": self_consumption_percentage,
                 "total_energy_demanded_wh": area_kpis["total_energy_demanded_wh"],
+                "demanded_buffer_wh": area_kpis['demanded_buffer_wh'],
+                "self_consumption_buffer_wh": area_kpis['self_consumption_buffer_wh'],
                 "total_energy_produced_wh": area_kpis["total_energy_produced_wh"],
                 "total_self_consumption_wh": area_kpis["total_self_consumption_wh"]
                 }
@@ -217,3 +221,21 @@ class KPI:
         for child in area_dict['children']:
             if len(child['children']) > 0:
                 self.update_kpis_from_area(child, core_stats, current_market_time_slot_str)
+
+    def restore_area_results_state(self, area_dict, last_known_state_data):
+        if area_dict['name'] not in self.state:
+            self.state[area_dict['name']] = KPIState()
+            self.state[area_dict['name']].self_consumption = \
+                last_known_state_data['self_consumption']
+            self.state[area_dict['name']].self_sufficiency = \
+                last_known_state_data['self_sufficiency']
+            self.state[area_dict['name']].demanded_buffer_wh = \
+                last_known_state_data['demanded_buffer_wh']
+            self.state[area_dict['name']].total_energy_demanded_wh = \
+                last_known_state_data['total_energy_demanded_wh']
+            self.state[area_dict['name']].total_energy_produced_wh = \
+                last_known_state_data['total_energy_produced_wh']
+            self.state[area_dict['name']].total_self_consumption_wh = \
+                last_known_state_data['total_self_consumption_wh']
+            self.state[area_dict['name']].self_consumption_buffer_wh = \
+                last_known_state_data['self_consumption_buffer_wh']
