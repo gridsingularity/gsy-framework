@@ -336,6 +336,8 @@ class CumulativeGridTrades:
         if not area_detail:
             return results
         results[area_uuid] = []
+        if type(area_detail) is list:
+            return {area_uuid: area_detail}
         for child in area_detail.get('children', []):
             if child['accumulated_trades'] != {}:
                 accumulated_trades[child['uuid']] = child['accumulated_trades']
