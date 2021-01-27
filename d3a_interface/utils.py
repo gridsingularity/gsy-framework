@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import pathlib
+from pkgutil import walk_packages
+
 from pendulum import DateTime, from_format, from_timestamp
 from functools import lru_cache
 from copy import copy
@@ -231,3 +233,13 @@ def limit_float_precision(number):
 def if_not_in_list_append(target_list, obj):
     if obj not in target_list:
         target_list.append(obj)
+
+
+def iterate_over_all_modules(modules_path):
+    module_list = []
+    for loader, module_name, is_pkg in walk_packages(modules_path):
+        if is_pkg:
+            loader.find_module(module_name).load_module(module_name)
+        else:
+            module_list.append(module_name)
+    return module_list
