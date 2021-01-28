@@ -235,8 +235,9 @@ def if_not_in_list_append(target_list, obj):
         target_list.append(obj)
 
 
-def iterate_over_all_modules(modules_path):
+def iterate_over_all_modules(modules):
     module_list = []
+    modules_path = modules.__path__
     for loader, module_name, is_pkg in walk_packages(modules_path):
         if is_pkg:
             loader.find_module(module_name).load_module(module_name)
