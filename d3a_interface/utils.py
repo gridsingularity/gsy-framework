@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import pathlib
+import re
 from pkgutil import walk_packages
 
 from pendulum import DateTime, from_format, from_timestamp
@@ -243,3 +244,9 @@ def iterate_over_all_modules(modules_path):
         else:
             module_list.append(module_name)
     return module_list
+
+
+def extract_number_from_list(string_list):
+    string_list = string_list.split(" ")
+    float_list = [s for s in string_list if re.match(r'\d+(?:\.\d+)+$', s)]
+    return float(float_list[0])

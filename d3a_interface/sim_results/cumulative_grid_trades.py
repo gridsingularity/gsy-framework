@@ -22,7 +22,22 @@ from d3a_interface.sim_results import is_load_node_type, \
     is_producer_node_type, is_prosumer_node_type, is_buffer_node_type, area_sells_to_child, \
     child_buys_from_area, area_name_from_area_or_iaa_name
 from d3a_interface.utils import add_or_create_key, \
-    make_iaa_name_from_dict, subtract_or_create_key, round_floats_for_ui
+    make_iaa_name_from_dict, subtract_or_create_key, round_floats_for_ui, extract_number_from_list
+
+accumulated_trades_default_dict = {
+            "name": "",
+            "type": "",
+            "produced": 0.0,
+            "earned": 0.0,
+            "consumedFrom": {},
+            "spentTo": {},
+            "producedForExternal": {},
+            "earnedFromExternal": {},
+            "consumedFromExternal": {},
+            "spentToExternal": {},
+            "parent_uuid": "",
+            "children": []
+        }
 
 
 class CumulativeGridTrades:
@@ -37,8 +52,62 @@ class CumulativeGridTrades:
             area_dict, flattened_area_core_stats_dict, self.accumulated_trades
         )
 
-    def restore_area_results_state(self, area_uuid, last_known_state_data):
+    @classmethod
+    def format_last_known_state(cls, area_uuid, last_known_state_data, area_name_uuid_map,
+                                accumulated_trades={}):
+        accumulated_trades[area_uuid] = accumulated_trades_default_dict
+        accumulated_trades[area_uuid]['children'] = []
+        accumulated_trades_map = {}
+        for state_data in last_known_state_data:
+            if state_data['areaName'] != 'External Trades':
+                for data_list in state_data['bars']:
+                    parsed_price = extract_number_from_list(data_list['priceLabel'])
+                    if data_list['targetArea'] not in accumulated_trades_map:
+                        accumulated_trades_map[data_list['targetArea']] = \
+                            accumulated_trades_default_dict
+                        accumulated_trades_map[data_list['targetArea']].update(
+                            {'name': data_list['targetArea']}
+                        )
+                    # Producer entries
+                    if "earned" in data_list['priceLabel'].split(" "):
+                        accumulated_trades_map[data_list['targetArea']].update(
+                            {'earned': parsed_price, 'produced': data_list['energy']}
+                        )
+                    # Consumer entries
+                    elif "spent" in data_list['priceLabel'].split(" "):
+                        accumulated_trades_map[data_list['targetArea']].update(
+                            {'consumedFrom': {data_list['targetArea']: data_list['energy']},
+                             'spentTo': {data_list['targetArea']: parsed_price}}
+                        )
+            else:
+                for data_list in state_data['bars']:
+                    parsed_price = extract_number_from_list(data_list['priceLabel'])
+                    # Producer entries
+                    if "earned" in data_list['priceLabel'].split(" "):
+                        accumulated_trades[area_uuid].update(
+                            {'earned': parsed_price, 'produced': data_list['energy']}
+                        )
+                    # Consumer entries
+                    elif "spent" in data_list['priceLabel'].split(" "):
+                        accumulated_trades[area_uuid]['consumedFrom'].update(
+                            {data_list['targetArea']: data_list['energy']}
+                        )
+                        accumulated_trades[area_uuid]['spentTo'].update(
+                            {data_list['targetArea']: parsed_price}
+                        )
+        for area_name, acc_data in accumulated_trades_map.items():
+            accumulated_trades[area_uuid]['children'].append(
+                {'name': area_name, 'uuid': area_name_uuid_map[area_name],
+                 'accumulated_trades': acc_data}
+            )
+        return accumulated_trades
+
+    def restore_area_results_state(self, area_uuid, last_known_state_data, area_name_uuid_map):
         if area_uuid not in self.accumulated_trades:
+            if type(last_known_state_data) is list:
+                last_known_state_data = self.format_last_known_state(
+                    area_uuid, last_known_state_data, area_name_uuid_map
+                )
             self.accumulated_trades[area_uuid] = last_known_state_data
 
     def export_cumulative_grid_trades(self, area_dict, flattened_area_core_stats_dict,
@@ -337,6 +406,7 @@ class CumulativeGridTrades:
             return results
         results[area_uuid] = []
         if type(area_detail) is list:
+            # for an old format of accumulated trades
             return {area_uuid: area_detail}
         for child in area_detail.get('children', []):
             if child['accumulated_trades'] != {}:
