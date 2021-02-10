@@ -51,7 +51,8 @@ class TestBills(unittest.TestCase):
             pv2_uuid: self._empty_bills,
         }
         results = self.bills._swap_children_uuids_to_names(area_dict, uuid_results)
-        assert set(results.keys()) == {grid_uuid, house1_uuid, house2_uuid, pv_uuid, load_uuid, pv2_uuid}
+        assert set(results.keys()) == {grid_uuid, house1_uuid, house2_uuid, pv_uuid,
+                                       load_uuid, pv2_uuid}
         assert set(results[grid_uuid].keys()) == {"house1", "house2", *ACCUMULATED_KEYS_LIST}
         assert set(results[house1_uuid].keys()) == {"pv", "load", *ACCUMULATED_KEYS_LIST}
         assert set(results[house2_uuid].keys()) == {"pv2", *ACCUMULATED_KEYS_LIST}

@@ -267,24 +267,24 @@ class MarketEnergyBills:
         # The flattened dict contains only area_uuid -> energy_bills_dict, no children
         # or aggregated data like Totals, External Trades etc.
         self._flatten_energy_bills(bills, flattened)
-        # Adds children to the flattened dict by iterating over the area_dict, finding out the children
-        # of each area, and copying the children bills under their respective parent. Only 1 level
-        # child hierarchy.
-        # The same function populates the Eternal Trades, Accumulated Trades, Market Fees and Totals
-        # bills for the areas that are not leaves (and have children).
+        # Adds children to the flattened dict by iterating over the area_dict, finding out the
+        # children of each area, and copying the children bills under their respective parent. Only
+        # 1 level child hierarchy.
+        # The same function populates the Eternal Trades, Accumulated Trades, Market Fees and
+        # Totals bills for the areas that are not leaves (and have children).
         # The naming format of the areas is still uuid
         bills = self._accumulate_by_children(area_dict, flattened, {})
         # Keep the state of the unformatted bills in order to be reused by _energy_bills method.
         # We need this in order to read past results when calculating the new energy bills.
         self.current_raw_bills = deepcopy(bills)
-        # Converts the children of the bills from uuids to names, because the UI uses these as headers in
-        # the table where these data are reported.
+        # Converts the children of the bills from uuids to names, because the UI uses these
+        # as headers in the table where these data are reported.
         bills = self._swap_children_uuids_to_names(area_dict, bills)
-        # Converts the keys of the result dict from uuids to names, in order to end up in the CSV files
-        # in a human-readable format.
+        # Converts the keys of the result dict from uuids to names, in order to end up in
+        # the CSV files in a human-readable format.
         self.bills_results = self._bills_local_format(area_dict, bills)
-        # Rounds the precision of the results to 3 decimal points, in order for the UI to report them
-        # correctly.
+        # Rounds the precision of the results to 3 decimal points, in order for the UI to report
+        # them correctly.
         self.bills_redis_results = self._round_results_for_ui(deepcopy(bills))
 
     def restore_area_results_state(self, area_dict, last_known_state_data):
