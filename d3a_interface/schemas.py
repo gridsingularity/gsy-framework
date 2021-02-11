@@ -79,7 +79,7 @@ class ScenarioSchemas:
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-                    "initial_soc": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "initial_soc": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "min_allowed_soc": {"type": "number"},
                     "battery_capacity_kWh": {"type": "number"},
                     "max_abs_battery_power_kW": {"type": "number"},
