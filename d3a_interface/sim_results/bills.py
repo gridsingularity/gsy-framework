@@ -121,13 +121,13 @@ class CumulativeBills:
 
 
 class MarketEnergyBills:
-    def __init__(self, is_spot_market=True):
-        self.is_spot_market = is_spot_market
+    def __init__(self, should_export_plots=False):
+        self._should_export_plots = should_export_plots
         self.current_raw_bills = {}
         self.bills_results = {}
         self.bills_redis_results = {}
         self.market_fees = {}
-        self.cumulative_fee_charged_per_market = 0.
+        self.cumulative_fee_all_markets_whole_sim = 0.
         self.external_trades = {}
 
     @staticmethod
@@ -239,27 +239,20 @@ class MarketEnergyBills:
     def _accumulate_market_fees(self, area_dict, area_core_stats):
         if area_dict['uuid'] not in self.market_fees:
             self.market_fees[area_dict['uuid']] = 0.0
-        self.market_fees[area_dict['uuid']] += \
-            area_core_stats[area_dict['uuid']]['market_fee'] / 100.0
+        market_fee_eur = area_core_stats[area_dict['uuid']]['market_fee'] / 100.0
+        self.market_fees[area_dict['uuid']] += market_fee_eur
+        self.cumulative_fee_all_markets_whole_sim += market_fee_eur
         for child in area_dict['children']:
             self._accumulate_market_fees(child, area_core_stats)
 
     def _update_market_fees(self, area_dict, area_core_stats):
         self._accumulate_market_fees(area_dict, area_core_stats)
 
-    def _accumulate_grid_fee_charged(self, area_dict, area_core_stats):
-        area_stats = area_core_stats.get(area_dict['uuid'])
-        self.cumulative_fee_charged_per_market += area_stats.get('market_fee', 0.) / 100.
-        for child in area_dict['children']:
-            self._accumulate_grid_fee_charged(child, area_core_stats)
-
     def update(self, area_dict, area_core_stats):
         # Updates the self.market_fees dict which keeps track of the accumulated market fees for
-        # each area.
+        # each area. Also calculates the cumulative_fee_all_markets_whole_sim, which
+        # is the sum of the grid fees for all markets for the whole simulation duration.
         self._update_market_fees(area_dict, area_core_stats)
-        # Calculates the cumulative_fee_charged_per_market , which in reality is the sum of the
-        # grid fees for all markets for the whole simulation duration.
-        self._accumulate_grid_fee_charged(area_dict, area_core_stats)
         # Generate tree of energy bills, following the area_dict structure. Uses uuids
         bills = self._energy_bills(area_dict, area_core_stats)
         flattened = {}
@@ -270,7 +263,7 @@ class MarketEnergyBills:
         # Adds children to the flattened dict by iterating over the area_dict, finding out the
         # children of each area, and copying the children bills under their respective parent. Only
         # 1 level child hierarchy.
-        # The same function populates the Eternal Trades, Accumulated Trades, Market Fees and
+        # The same function populates the External Trades, Accumulated Trades, Market Fees and
         # Totals bills for the areas that are not leaves (and have children).
         # The naming format of the areas is still uuid
         bills = self._accumulate_by_children(area_dict, flattened, {})
@@ -282,7 +275,8 @@ class MarketEnergyBills:
         bills = self._swap_children_uuids_to_names(area_dict, bills)
         # Converts the keys of the result dict from uuids to names, in order to end up in
         # the CSV files in a human-readable format.
-        self.bills_results = self._bills_local_format(area_dict, bills)
+        if self._should_export_plots:
+            self.bills_results = self._bills_local_format(area_dict, bills)
         # Rounds the precision of the results to 3 decimal points, in order for the UI to report
         # them correctly.
         self.bills_redis_results = self._round_results_for_ui(deepcopy(bills))
