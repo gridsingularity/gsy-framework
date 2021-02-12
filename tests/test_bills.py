@@ -1,8 +1,7 @@
 import unittest
 from uuid import uuid4
-from parameterized import parameterized
 from d3a_interface.sim_results.bills import MarketEnergyBills
-from tests import assert_dicts_identical
+from d3a_interface.unit_test_utils import assert_dicts_identical
 
 ACCUMULATED_KEYS_LIST = ["Accumulated Trades", "External Trades", "Totals", "Market Fees"]
 
@@ -93,7 +92,8 @@ class TestBills(unittest.TestCase):
 
         self.bills.restore_area_results_state(area_dict["children"][0],
                                               name_results[house1_uuid])
-        assert_dicts_identical(self.bills.bills_redis_results[house1_uuid], name_results[house1_uuid])
+        assert_dicts_identical(self.bills.bills_redis_results[house1_uuid],
+                               name_results[house1_uuid])
         assert_dicts_identical(self.bills.bills_results["house1"], name_results[house1_uuid])
         assert_dicts_identical(self.bills.current_raw_bills[house1_uuid],
                                self.create_empty_results_with_children([pv_uuid, load_uuid]))
