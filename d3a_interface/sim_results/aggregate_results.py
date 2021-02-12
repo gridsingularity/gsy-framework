@@ -40,6 +40,8 @@ class UnmatchedLoadsHelpers:
             accumulated_results[area] = None
             return
         for target, target_value in current_results[area].items():
+            if accumulated_results[area] is None:
+                accumulated_results[area] = {}
             if target not in accumulated_results[area]:
                 accumulated_results[area][target] = deepcopy(target_value)
             else:

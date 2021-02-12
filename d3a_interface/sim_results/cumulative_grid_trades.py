@@ -72,6 +72,7 @@ class CumulativeGridTrades:
                 accumulated_trades = cls.accumulate_grid_trades_all_devices(
                     child_dict, flattened_area_core_stats_dict, accumulated_trades
                 )
+
                 accumulated_trades = CumulativeGridTrades._accumulate_area_trades(
                     child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
                 )
@@ -165,6 +166,34 @@ class CumulativeGridTrades:
         return accumulated_trades
 
     @classmethod
+    def _generate_accumulated_trades_child_dict(cls, accumulated_trades, child):
+        return {
+            'name': child['name'], 'uuid': child['uuid'],
+            'accumulated_trades': accumulated_trades.get(child['uuid'], {})
+        }
+
+    @classmethod
+    def _update_area_children_in_accumulated_trades_dict(cls, accumulated_trades, area):
+        """
+        Updating current accumulated trades dynamically with children that might have been
+        created after the simulation has started, via live events. We need to read again the
+        child list from the accumulated trades and see if it matches with the
+        Args:
+            accumulated_trades: dict that stores the accumulated trades. Its value is changed
+                                by reference in the method.
+            area: area dict that includes children
+        Returns: None
+        """
+        current_child_names = [
+            c['name'] for c in accumulated_trades[area['uuid']]['children']
+        ]
+        for child in area.get("children", []):
+            if child["name"] not in current_child_names:
+                accumulated_trades[area['uuid']]['children'].append(
+                    cls._generate_accumulated_trades_child_dict(accumulated_trades, child)
+                )
+
+    @classmethod
     def _accumulate_area_trades(cls, area, parent, flattened_area_core_stats_dict,
                                 accumulated_trades):
         if area['uuid'] not in accumulated_trades:
@@ -180,10 +209,14 @@ class CumulativeGridTrades:
                 "consumedFromExternal": {},
                 "spentToExternal": {},
                 "parent_uuid": area['parent_uuid'],
-                "children": [{'name': child['name'], 'uuid': child['uuid'],
-                              'accumulated_trades': accumulated_trades.get(child['uuid'], {})}
-                             for child in area.get("children", [])]
+                "children": [
+                    cls._generate_accumulated_trades_child_dict(accumulated_trades, child)
+                    for child in area.get("children", [])
+                ]
             }
+
+        cls._update_area_children_in_accumulated_trades_dict(accumulated_trades, area)
+
         area_IAA_name = make_iaa_name_from_dict(area)
         child_names = [area_name_from_area_or_iaa_name(c['name']) for c in area['children']]
         area_trades = flattened_area_core_stats_dict.get(area['uuid'], {}).get('trades', [])
