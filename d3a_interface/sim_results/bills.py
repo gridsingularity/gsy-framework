@@ -16,7 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from copy import deepcopy, copy
-from d3a_interface.utils import round_floats_for_ui, key_in_dict_and_not_none
+from d3a_interface.utils import round_floats_for_ui, get_area_uuid_name_mapping, \
+    key_in_dict_and_not_none
 from d3a_interface.sim_results import is_load_node_type, is_pv_node_type, \
     area_name_from_area_or_iaa_name, get_unified_area_type
 from d3a_interface.constants_limits import ConstSettings
@@ -26,7 +27,8 @@ class CumulativeBills:
     def __init__(self):
         self.cumulative_bills_results = {}
 
-    def _calculate_device_penalties(self, area, area_core_stats):
+    @classmethod
+    def _calculate_device_penalties(cls, area, area_core_stats):
         if len(area['children']) > 0 or area_core_stats == {}:
             return 0.0
 
@@ -284,21 +286,24 @@ class MarketEnergyBills:
     def restore_area_results_state(self, area_dict, last_known_state_data):
         self.bills_redis_results[area_dict['uuid']] = last_known_state_data
         self.bills_results[area_dict['name']] = last_known_state_data
+        self.current_raw_bills[area_dict['uuid']] = \
+            self._swap_children_names_to_uuids(area_dict, area_dict['uuid'], last_known_state_data)
+
         if "External Trades" in last_known_state_data:
             external = last_known_state_data["External Trades"]
-            self.external_trades[area_dict['name']] = {}
-            self.external_trades[area_dict['name']].update(
+            self.external_trades[area_dict['uuid']] = {}
+            self.external_trades[area_dict['uuid']].update(
                 {'bought': external.get('sold', 0.), 'sold': external.get('bought', 0.),
                  'spent': external.get('earned', 0.), 'earned': external.get('spent', 0.),
                  'market_fee': external.get('market_fee', 0.)}
             )
-            self.external_trades[area_dict['name']]['total_energy'] = \
-                self.external_trades[area_dict['name']]['bought'] - \
-                self.external_trades[area_dict['name']]['sold']
-            self.external_trades[area_dict['name']]['total_cost'] = \
-                self.external_trades[area_dict['name']]['spent'] - \
-                self.external_trades[area_dict['name']]['earned'] + \
-                self.external_trades[area_dict['name']]['market_fee']
+            self.external_trades[area_dict['uuid']]['total_energy'] = \
+                self.external_trades[area_dict['uuid']]['bought'] - \
+                self.external_trades[area_dict['uuid']]['sold']
+            self.external_trades[area_dict['uuid']]['total_cost'] = \
+                self.external_trades[area_dict['uuid']]['spent'] - \
+                self.external_trades[area_dict['uuid']]['earned'] + \
+                self.external_trades[area_dict['uuid']]['market_fee']
 
     @classmethod
     def _flatten_energy_bills(cls, energy_bills, flat_results):
@@ -388,27 +393,20 @@ class MarketEnergyBills:
         return results
 
     @classmethod
-    def _bills_local_format(self, area_dict, bills_results_uuids):
+    def _bills_local_format(cls, area_dict, bills_results_uuids):
         bills_results = {}
         if area_dict['uuid'] in bills_results_uuids:
             bills_results[area_dict['name']] = bills_results_uuids[area_dict['uuid']]
         for child in area_dict['children']:
             if child['children']:
-                bills_results.update(self._bills_local_format(child, bills_results_uuids))
+                bills_results.update(cls._bills_local_format(child, bills_results_uuids))
             elif child['uuid'] in bills_results_uuids:
                 bills_results[child['name']] = bills_results_uuids[child['uuid']]
         return bills_results
 
     @classmethod
-    def _create_uuid_name_mapping(cls, area_dict, results):
-        results[area_dict["uuid"]] = area_dict["name"]
-        if key_in_dict_and_not_none(area_dict, "children"):
-            for child in area_dict["children"]:
-                results.update(cls._create_uuid_name_mapping(child, results))
-        return results
-
-    def _swap_children_uuids_to_names(self, area_dict, bills_results):
-        area_uuid_name_mapping = self._create_uuid_name_mapping(area_dict, {})
+    def _swap_children_uuids_to_names(cls, area_dict, bills_results):
+        area_uuid_name_mapping = get_area_uuid_name_mapping(area_dict, {})
         final_result = {}
         for k, children in bills_results.items():
             children_result = {}
@@ -424,6 +422,25 @@ class MarketEnergyBills:
 
             final_result[k] = children_result
         return final_result
+
+    @classmethod
+    def _swap_children_names_to_uuids(cls, area_dict, area_uuid, area_results):
+        if not key_in_dict_and_not_none(area_dict, "children"):
+            return {}
+
+        if key_in_dict_and_not_none(area_dict, "name") and \
+                key_in_dict_and_not_none(area_dict, "uuid") and \
+                area_uuid == area_dict["uuid"]:
+            child_name_uuid_mapping = {c["name"]: c["uuid"] for c in area_dict["children"]}
+            return {
+                child_name_uuid_mapping.get(k, k): v for k, v in area_results.items()
+            }
+
+        for child in area_dict["children"]:
+            converted_result = cls._swap_children_names_to_uuids(child, area_uuid, area_results)
+            if converted_result:
+                return converted_result
+        return {}
 
     @classmethod
     def _round_child_bill_results(cls, results):

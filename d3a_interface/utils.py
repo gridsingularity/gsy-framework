@@ -194,6 +194,16 @@ def get_area_name_uuid_mapping(serialized_scenario, mapping={}):
     return mapping
 
 
+def get_area_uuid_name_mapping(area_dict, results):
+    if key_in_dict_and_not_none(area_dict, "name") and \
+            key_in_dict_and_not_none(area_dict, "uuid"):
+        results[area_dict["uuid"]] = area_dict["name"]
+    if key_in_dict_and_not_none(area_dict, "children"):
+        for child in area_dict["children"]:
+            results.update(get_area_uuid_name_mapping(child, results))
+    return results
+
+
 def round_floats_for_ui(number):
     return round(number, 3)
 

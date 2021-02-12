@@ -1,6 +1,8 @@
 import unittest
 from uuid import uuid4
+from parameterized import parameterized
 from d3a_interface.sim_results.bills import MarketEnergyBills
+from tests import assert_dicts_identical
 
 ACCUMULATED_KEYS_LIST = ["Accumulated Trades", "External Trades", "Totals", "Market Fees"]
 
@@ -56,6 +58,51 @@ class TestBills(unittest.TestCase):
         assert set(results[grid_uuid].keys()) == {"house1", "house2", *ACCUMULATED_KEYS_LIST}
         assert set(results[house1_uuid].keys()) == {"pv", "load", *ACCUMULATED_KEYS_LIST}
         assert set(results[house2_uuid].keys()) == {"pv2", *ACCUMULATED_KEYS_LIST}
+
+    def test_restore_area_results_state(self):
+        grid_uuid = str(uuid4())
+        house1_uuid = str(uuid4())
+        house2_uuid = str(uuid4())
+        pv_uuid = str(uuid4())
+        load_uuid = str(uuid4())
+        pv2_uuid = str(uuid4())
+        name_results = {
+            grid_uuid: self.create_empty_results_with_children(["house1", "house2"]),
+            house1_uuid: self.create_empty_results_with_children(["pv", "load"]),
+            house2_uuid: self.create_empty_results_with_children(["pv2"]),
+            pv_uuid: self._empty_bills,
+            load_uuid: self._empty_bills,
+            pv2_uuid: self._empty_bills,
+        }
+        area_dict = {"name": "grid", "uuid": grid_uuid, "parent_uuid": "", "children": [
+            {"name": "house1", "uuid": house1_uuid, "parent_uuid": grid_uuid, "children": [
+                {"name": "pv", "uuid": pv_uuid, "parent_uuid": house1_uuid, "children": []},
+                {"name": "load", "uuid": load_uuid, "parent_uuid": house1_uuid, "children": []}
+            ]},
+            {"name": "house2", "uuid": house2_uuid, "parent_uuid": grid_uuid, "children": [
+                {"name": "pv2", "uuid": pv2_uuid, "parent_uuid": house2_uuid, "children": []},
+            ]}
+            ]
+        }
+
+        self.bills.restore_area_results_state(area_dict, name_results[grid_uuid])
+        assert_dicts_identical(self.bills.bills_redis_results[grid_uuid], name_results[grid_uuid])
+        assert_dicts_identical(self.bills.bills_results["grid"], name_results[grid_uuid])
+        assert_dicts_identical(self.bills.current_raw_bills[grid_uuid],
+                               self.create_empty_results_with_children([house1_uuid, house2_uuid]))
+
+        self.bills.restore_area_results_state(area_dict["children"][0],
+                                              name_results[house1_uuid])
+        assert_dicts_identical(self.bills.bills_redis_results[house1_uuid], name_results[house1_uuid])
+        assert_dicts_identical(self.bills.bills_results["house1"], name_results[house1_uuid])
+        assert_dicts_identical(self.bills.current_raw_bills[house1_uuid],
+                               self.create_empty_results_with_children([pv_uuid, load_uuid]))
+
+        self.bills.restore_area_results_state(area_dict["children"][1]["children"][0],
+                                              name_results[pv2_uuid])
+        assert_dicts_identical(self.bills.bills_redis_results[pv2_uuid], name_results[pv2_uuid])
+        assert_dicts_identical(self.bills.bills_results["pv2"], name_results[pv2_uuid])
+        assert_dicts_identical(self.bills.current_raw_bills[pv2_uuid], self._empty_bills)
 
     def test_bills_local_format(self):
         grid_uuid = str(uuid4())
