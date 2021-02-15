@@ -35,8 +35,6 @@ def get_number_of_unmatched_loads(indict):
 class ExportUnmatchedLoads:
     def __init__(self):
         self.hour_list = self.hour_list()
-        self.name_uuid_map = {}
-        self.name_type_map = {}
         self.load_count = 0
 
     @staticmethod
@@ -48,8 +46,6 @@ class ExportUnmatchedLoads:
             return [GlobalConfig.start_date.add(hours=hour) for hour in range(24)]
 
     def count_load_devices_in_setup(self, area):
-        self.name_uuid_map[area['name']] = area['uuid']
-        self.name_type_map[area['name']] = area['type']
         for child in area['children']:
             if is_load_node_type(child):
                 self.load_count += 1
@@ -58,14 +54,18 @@ class ExportUnmatchedLoads:
 
     def get_current_market_results(self, area_dict={}, core_stats={},
                                    current_market_time_slot_str=None):
-        unmatched_loads = self.arrange_output(self.append_device_type(
-            self.expand_to_ul_to_hours(
+        unmatched_loads = self.expand_to_ul_to_hours(
                 self.expand_ul_to_parents(
                     self.find_unmatched_loads(area_dict, core_stats, {},
                                               current_market_time_slot_str)[area_dict['name']],
                     area_dict['name'], {}
-                ), current_market_time_slot_str)), area_dict)
-        return unmatched_loads, self.change_name_to_uuid(unmatched_loads)
+                ), current_market_time_slot_str)
+
+        ul_uuid_as_key = {}
+        ul_name_as_key = {}
+        self.arrange_output_add_type(unmatched_loads, area_dict, ul_name_as_key)
+        self.arrange_output_add_type(unmatched_loads, area_dict, ul_uuid_as_key, uuid_as_key=True)
+        return ul_name_as_key, ul_uuid_as_key
 
     def find_unmatched_loads(self, area_dict, core_stats, indict, current_market_time_slot_str):
         """
@@ -73,8 +73,6 @@ class ExportUnmatchedLoads:
         """
         indict[area_dict['name']] = {}
         for child in area_dict['children']:
-            self.name_uuid_map[child['name']] = child['uuid']
-            self.name_type_map[child['name']] = child['type']
             if child['children']:
                 indict[area_dict['name']] = self.find_unmatched_loads(
                     child, core_stats, indict[area_dict['name']], current_market_time_slot_str
@@ -100,15 +98,6 @@ class ExportUnmatchedLoads:
         if deficit > FLOATING_POINT_TOLERANCE:
             unmatched_times.append(current_market_time_slot_str)
         return {"unmatched_times": unmatched_times}
-
-    def change_name_to_uuid(self, indict):
-        """
-        postprocessing: changing area names to uuids
-        """
-        new = {}
-        for k, v in indict.items():
-            new[self.name_uuid_map[k]] = v
-        return new
 
     def _accumulate_all_uls_in_branch(self, subdict, unmatched_list) -> list:
         """
@@ -175,24 +164,23 @@ class ExportUnmatchedLoads:
                 self._get_hover_info(subdict, current_market_time_slot_str)
         return outdict
 
-    def append_device_type(self, indict):
-        outdict = {}
-        for name, unmatched_times in indict.items():
-            outdict[name] = {
-                "unmatched_loads": unmatched_times,
-                "type": self.name_type_map[name]
-            }
-        return outdict
-
-    def arrange_output(self, indict, area_dict):
+    def arrange_output_add_type(self, indict, area_dict, outdict, uuid_as_key=False):
         if area_dict['children']:
-            indict[area_dict['name']] = {}
+            key = area_dict['uuid' if uuid_as_key else 'name']
+            if key not in outdict:
+                outdict[key] = {}
             for child in area_dict['children']:
                 if child['children'] or is_load_node_type(child):
                     if child['name'] in indict:
-                        indict[area_dict['name']][child['name']] = indict[child['name']]
-                    self.arrange_output(indict, child)
-        return indict
+                        if uuid_as_key:
+                            outdict[area_dict['uuid']][child['name']] = \
+                                {"unmatched_loads": indict[child['name']],
+                                 "type": child["type"]}
+                        else:
+                            outdict[area_dict['name']][child['name']] = \
+                                {"unmatched_loads": indict[child['name']],
+                                 "type": child["type"]}
+                    self.arrange_output_add_type(indict, child, outdict, uuid_as_key)
 
 
 class MarketUnmatchedLoads:
