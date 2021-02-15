@@ -184,14 +184,18 @@ class CumulativeGridTrades:
             area: area dict that includes children
         Returns: None
         """
-        current_child_names = [
-            c['name'] for c in accumulated_trades[area['uuid']]['children']
+        current_child_uuids = [
+            c['uuid'] for c in accumulated_trades[area['uuid']]['children']
         ]
         for child in area.get("children", []):
-            if child["name"] not in current_child_names:
+            if child["uuid"] not in current_child_uuids:
                 accumulated_trades[area['uuid']]['children'].append(
                     cls._generate_accumulated_trades_child_dict(accumulated_trades, child)
                 )
+            else:
+                child_index = current_child_uuids.index(child['uuid'])
+                accumulated_trades[area['uuid']]['children'][child_index] = \
+                    cls._generate_accumulated_trades_child_dict(accumulated_trades, child)
 
     @classmethod
     def _accumulate_area_trades(cls, area, parent, flattened_area_core_stats_dict,
