@@ -35,8 +35,9 @@ class CumulativeGridTrades:
 
     def update(self, area_dict, flattened_area_core_stats_dict):
         self.export_cumulative_grid_trades(
-            area_dict, flattened_area_core_stats_dict, self.accumulated_trades, self._restored
+            area_dict, flattened_area_core_stats_dict, self.accumulated_trades
         )
+        self._restored = False
 
     def restore_area_results_state(self, area_uuid, last_known_state_data):
         self._restored = True
@@ -44,14 +45,13 @@ class CumulativeGridTrades:
             self.accumulated_trades[area_uuid] = last_known_state_data
 
     def export_cumulative_grid_trades(self, area_dict, flattened_area_core_stats_dict,
-                                      accumulated_trades_redis, restored_state):
-        self.accumulated_trades = CumulativeGridTrades.accumulate_grid_trades_all_devices(
-            area_dict, flattened_area_core_stats_dict, accumulated_trades_redis, restored_state
+                                      accumulated_trades_redis):
+        self.accumulated_trades = self.accumulate_grid_trades_all_devices(
+            area_dict, flattened_area_core_stats_dict, accumulated_trades_redis
         )
 
-    @classmethod
-    def accumulate_grid_trades_all_devices(cls, area_dict, flattened_area_core_stats_dict,
-                                           accumulated_trades, restored_state):
+    def accumulate_grid_trades_all_devices(self, area_dict, flattened_area_core_stats_dict,
+                                           accumulated_trades):
         for child_dict in area_dict['children']:
             if is_load_node_type(child_dict):
                 accumulated_trades = CumulativeGridTrades._accumulate_load_trades(
@@ -71,22 +71,21 @@ class CumulativeGridTrades:
                 # Leaf node, no need for calculating cumulative trades, continue iteration
                 continue
             else:
-                accumulated_trades = cls.accumulate_grid_trades_all_devices(
+                accumulated_trades = self.accumulate_grid_trades_all_devices(
                     child_dict, flattened_area_core_stats_dict, accumulated_trades
                 )
 
-                accumulated_trades = CumulativeGridTrades._accumulate_area_trades(
-                    child_dict, area_dict, flattened_area_core_stats_dict,
-                    accumulated_trades, restored_state
+                accumulated_trades = self._accumulate_area_trades(
+                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
                 )
         if area_dict['parent_uuid'] == "":
-            accumulated_trades = CumulativeGridTrades._accumulate_area_trades(
-                area_dict, {}, flattened_area_core_stats_dict, accumulated_trades, restored_state
+            accumulated_trades = self._accumulate_area_trades(
+                area_dict, {}, flattened_area_core_stats_dict, accumulated_trades
             )
         return accumulated_trades
 
     @classmethod
-    def _accumulate_load_trades(cls, load, grid, flattened_area_core_stats_dict,
+    def _accumulate_load_trades(self, load, grid, flattened_area_core_stats_dict,
                                 accumulated_trades):
         if load['uuid'] not in accumulated_trades:
             accumulated_trades[load['uuid']] = {
@@ -175,9 +174,7 @@ class CumulativeGridTrades:
             'accumulated_trades': accumulated_trades.get(child['uuid'], {})
         }
 
-    @classmethod
-    def _update_area_children_in_accumulated_trades_dict(cls, accumulated_trades, area,
-                                                         restored_state=False):
+    def _update_area_children_in_accumulated_trades_dict(self, accumulated_trades, area):
         """
         Updating current accumulated trades dynamically with children that might have been
         created after the simulation has started, via live events. We need to read again the
@@ -194,16 +191,19 @@ class CumulativeGridTrades:
         for child in area.get("children", []):
             if child["uuid"] not in current_child_uuids:
                 accumulated_trades[area['uuid']]['children'].append(
-                    cls._generate_accumulated_trades_child_dict(accumulated_trades, child)
+                    CumulativeGridTrades._generate_accumulated_trades_child_dict(
+                        accumulated_trades, child
+                    )
                 )
-            if restored_state:
+            if self._restored:
                 child_index = current_child_uuids.index(child['uuid'])
                 accumulated_trades[area['uuid']]['children'][child_index] = \
-                    cls._generate_accumulated_trades_child_dict(accumulated_trades, child)
+                    CumulativeGridTrades._generate_accumulated_trades_child_dict(
+                        accumulated_trades, child
+                    )
 
-    @classmethod
-    def _accumulate_area_trades(cls, area, parent, flattened_area_core_stats_dict,
-                                accumulated_trades, restored_state):
+    def _accumulate_area_trades(self, area, parent, flattened_area_core_stats_dict,
+                                accumulated_trades):
         if area['uuid'] not in accumulated_trades:
             accumulated_trades[area['uuid']] = {
                 "name": area['name'],
@@ -218,14 +218,14 @@ class CumulativeGridTrades:
                 "spentToExternal": {},
                 "parent_uuid": area['parent_uuid'],
                 "children": [
-                    cls._generate_accumulated_trades_child_dict(accumulated_trades, child)
+                    CumulativeGridTrades._generate_accumulated_trades_child_dict(
+                        accumulated_trades, child
+                    )
                     for child in area.get("children", [])
                 ]
             }
 
-        cls._update_area_children_in_accumulated_trades_dict(
-            accumulated_trades, area, restored_state
-        )
+        self._update_area_children_in_accumulated_trades_dict(accumulated_trades, area)
 
         area_IAA_name = make_iaa_name_from_dict(area)
         child_names = [area_name_from_area_or_iaa_name(c['name']) for c in area['children']]
