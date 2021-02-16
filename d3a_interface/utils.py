@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import pathlib
+from pkgutil import walk_packages
+
 from pendulum import DateTime, from_format, from_timestamp
 from functools import lru_cache
 from copy import copy
@@ -67,6 +69,14 @@ def key_in_dict_and_not_none(d, key):
 
 def key_in_dict_and_not_none_and_not_str_type(d, key):
     return key_in_dict_and_not_none(d, key) and not isinstance(d[key], str)
+
+
+def key_in_dict_and_not_none_and_list_type(d, key):
+    return key_in_dict_and_not_none(d, key) and isinstance(d[key], list)
+
+
+def key_in_dict_and_not_none_and_dict_type(d, key):
+    return key_in_dict_and_not_none(d, key) and isinstance(d[key], dict)
 
 
 def key_in_dict_and_not_none_and_greater_than_zero(d, key):
@@ -184,6 +194,16 @@ def get_area_name_uuid_mapping(serialized_scenario, mapping={}):
     return mapping
 
 
+def get_area_uuid_name_mapping(area_dict, results):
+    if key_in_dict_and_not_none(area_dict, "name") and \
+            key_in_dict_and_not_none(area_dict, "uuid"):
+        results[area_dict["uuid"]] = area_dict["name"]
+    if key_in_dict_and_not_none(area_dict, "children"):
+        for child in area_dict["children"]:
+            results.update(get_area_uuid_name_mapping(child, results))
+    return results
+
+
 def round_floats_for_ui(number):
     return round(number, 3)
 
@@ -223,3 +243,13 @@ def limit_float_precision(number):
 def if_not_in_list_append(target_list, obj):
     if obj not in target_list:
         target_list.append(obj)
+
+
+def iterate_over_all_modules(modules_path):
+    module_list = []
+    for loader, module_name, is_pkg in walk_packages(modules_path):
+        if is_pkg:
+            loader.find_module(module_name).load_module(module_name)
+        else:
+            module_list.append(module_name)
+    return module_list
