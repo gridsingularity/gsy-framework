@@ -79,7 +79,7 @@ class ScenarioSchemas:
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-                    "initial_soc": {"type": "number"},
+                    "initial_soc": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "min_allowed_soc": {"type": "number"},
                     "battery_capacity_kWh": {"type": "number"},
                     "max_abs_battery_power_kW": {"type": "number"},
@@ -111,6 +111,7 @@ class ScenarioSchemas:
                     "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "fit_to_limit": {"type": "boolean"},
                     "update_interval":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "grid_connected": {"type": "boolean"},
                     "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
                                                                   {"type": "null"}]},
                     "daily_load_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
@@ -160,6 +161,7 @@ class ResultsSchemas:
                       "properties": {
                             "job_id":  {"type": "string"},
                             "current_market": {"type": "string"},
+                            "current_market_ui_time_slot_str": {"type": "string"},
                             "random_seed": {"type": "number"},
                             "unmatched_loads": {"type": "object"},
                             "price_energy_day": {"type": "object"},
@@ -185,13 +187,13 @@ class ResultsSchemas:
                             "results_area_uuids": {"type": "array"},
                             "simulation_state": {"type": "object"},
                             "cumulative_market_fees": {"type": "number"},
-                          },
+                            "simulation_raw_data": {"type": "object"},
+                            "configuration_tree": {"type": "object"}
+                      },
                       "additionalProperties": False,
                       "required": ["job_id",
+                                   "current_market",
                                    "random_seed",
-                                   "cumulative_grid_trades",
-                                   "bills",
-                                   "cumulative_bills",
                                    "status",
                                    "progress_info"]
                       }

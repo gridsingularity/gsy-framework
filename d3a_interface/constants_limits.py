@@ -51,7 +51,6 @@ class ConstSettings:
         RATE_CHANGE_PER_UPDATE_LIMIT = RangeLimit(0, 1000)
         ENERGY_PROFILE_LIMIT = RangeLimit(0, sys.maxsize)
 
-        NUM_CLONES_LIMIT = RangeLimit(0, 100)
         MIN_NUM_TICKS = 10
         MIN_SLOT_LENGTH_M = 2
         MAX_SLOT_LENGTH_M = 60
@@ -112,6 +111,7 @@ class ConstSettings:
         INITIAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
         # Max load energy rate, in ct/kWh
         FINAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
+        LOAD_PENALTY_RATE = 29.2
 
     class PVSettings:
         DEFAULT_PANEL_COUNT = 1
@@ -126,6 +126,7 @@ class ConstSettings:
         CLOUD_COVERAGE_LIMIT = RangeLimit(0, 4)
         # Applies to gaussian PVStrategy, controls the max panel output in Watts.
         MAX_PANEL_OUTPUT_W = 160
+        PV_PENALTY_RATE = 0
 
     class WindSettings:
         # This price should be just above the marginal costs for a Wind Power Plant - unit is cent
@@ -194,7 +195,6 @@ class GlobalConfig:
     SLOT_LENGTH_M = 15
     TICK_LENGTH_S = 15
     DURATION_D = 1
-    SLOWDOWN = 0
     MARKET_COUNT = 1
     CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
@@ -228,3 +228,6 @@ DATE_TIME_FORMAT_SECONDS = f"{DATE_FORMAT}T{TIME_FORMAT_SECONDS}"
 DATE_TIME_UI_FORMAT = "MMMM DD YYYY, HH:mm [h]"
 
 JWT_TOKEN_EXPIRY_IN_SECS = 3600
+
+DEFAULT_PRECISION = 8
+FLOATING_POINT_TOLERANCE = 0.00001

@@ -25,26 +25,25 @@ class TestValidateResults(unittest.TestCase):
 
     def test_results_validator(self):
 
-        results = { 'job_id': '46ff19de-6a4d-4ce8-a6c9-cd7b2778f2fc',
+        results = {'job_id': '46ff19de-6a4d-4ce8-a6c9-cd7b2778f2fc',
+                    "current_market": "2020-10-31T04:00",
                     'random_seed': 0,
-                    'unmatched_loads': {},
-                    'price_energy_day': {},
-                    'cumulative_grid_trades': {},
-                    'bills': {},
-                    'cumulative_bills': {},
-                    'progress_info': {},
                     'status': 'running',
-                    'device_statistics': {},
-                    'energy_trade_profile': {}
+                    'progress_info': {
+                        "eta_seconds": 0,
+                        "elapsed_time_seconds": 0,
+                        "percentage_completed": 0
                     }
+        }
         results_validator(results)
 
-        results = { 'job_id': '46ff19de-6a4d-4ce8-a6c9-cd7b2778f2fc',
+        results = {'job_id': '46ff19de-6a4d-4ce8-a6c9-cd7b2778f2fc',
+                    "current_market": "2020-10-31T04:00",
                     'random_seed': 0,
+                    'status': 'running',
                     'unmatched_loads': {},
                     'price_energy_day': {},
                     'cumulative_grid_trades': {},
-                    'progress_info': {},
                     'bills': {},
                     'cumulative_bills': {},
                     'device_statistics': {},
