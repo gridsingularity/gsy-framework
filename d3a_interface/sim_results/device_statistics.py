@@ -22,11 +22,12 @@ from d3a_interface.utils import create_or_update_subdict, limit_float_precision
 from d3a_interface.sim_results import is_load_node_type, is_pv_node_type, \
     is_prosumer_node_type, is_bulk_power_producer, is_buffer_node_type, \
     is_finite_power_plant_node_type
+from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 FILL_VALUE = None
 
 
-class DeviceStatistics:
+class DeviceStatistics(ResultsBaseClass):
 
     def __init__(self, should_export_plots):
         self.device_stats_dict = {}
@@ -179,10 +180,9 @@ class DeviceStatistics:
         cls._calc_min_max_from_sim_dict(subdict, key_name)
 
     def update(self, area_result_dict=None, core_stats=None, current_market_slot=None):
-        if area_result_dict is None:
-            area_result_dict = {}
-        if core_stats is None:
-            core_stats = {}
+        if not self._validate_update_parameters(
+                area_result_dict, core_stats, current_market_slot):
+            return
         if self.should_export_plots:
             self.gather_device_statistics(
                 area_result_dict, self.device_stats_dict, {}, core_stats,
@@ -238,3 +238,19 @@ class DeviceStatistics:
             cls._calc_min_max_from_sim_dict(subdict, "production_kWh")
 
         flat_result_dict[area_dict["uuid"]] = subdict.copy()
+
+    @staticmethod
+    def merge_results_to_global(market_device: Dict, global_device: Dict, _):
+        if not global_device:
+            global_device = market_device
+            return global_device
+        for area_uuid in market_device:
+            if area_uuid not in global_device:
+                global_device[area_uuid] = market_device[area_uuid]
+            else:
+                for stat in market_device[area_uuid]:
+                    if stat not in global_device[area_uuid]:
+                        global_device[area_uuid][stat] = market_device[area_uuid][stat]
+                    else:
+                        global_device[area_uuid][stat].update(market_device[area_uuid][stat])
+        return global_device
