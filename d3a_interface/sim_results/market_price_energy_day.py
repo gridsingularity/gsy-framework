@@ -111,7 +111,7 @@ class MarketPriceEnergyDay(ResultsBaseClass):
             redis_output[node_uuid]["price-energy-day"][0].update({"grid_fee_constant": fee})
 
     @staticmethod
-    def merge_results_to_global(market_pe: Dict, global_pe: Dict, _):
+    def merge_results_to_global(market_pe: Dict, global_pe: Dict, *_):
         if not global_pe:
             global_pe = market_pe
             return global_pe

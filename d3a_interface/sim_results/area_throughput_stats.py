@@ -92,7 +92,7 @@ class AreaThroughputStats(ResultsBaseClass):
                 self.update_results(child, core_stats, current_market_time_slot_str)
 
     @staticmethod
-    def merge_results_to_global(market_trade: Dict, global_trade: Dict, _):
+    def merge_results_to_global(market_trade: Dict, global_trade: Dict, *_):
         if not global_trade:
             global_trade = market_trade
             return global_trade

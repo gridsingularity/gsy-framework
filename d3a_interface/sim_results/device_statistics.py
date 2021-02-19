@@ -240,7 +240,7 @@ class DeviceStatistics(ResultsBaseClass):
         flat_result_dict[area_dict["uuid"]] = subdict.copy()
 
     @staticmethod
-    def merge_results_to_global(market_device: Dict, global_device: Dict, _):
+    def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
         if not global_device:
             global_device = market_device
             return global_device
