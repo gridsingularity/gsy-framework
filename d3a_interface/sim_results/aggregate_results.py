@@ -29,6 +29,7 @@ from d3a_interface.sim_results.device_statistics import DeviceStatistics
 REQUESTED_FIELDS_LIST = ["unmatched_loads", "price_energy_day", "device_statistics",
                          "energy_trade_profile", "area_throughput"]
 
+
 REQUESTED_FIELDS_CLASS_MAP = {
     "unmatched_loads": MarketUnmatchedLoads,
     "price_energy_day": MarketPriceEnergyDay,
