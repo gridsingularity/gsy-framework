@@ -47,3 +47,7 @@ class ResultsHandler:
             k: v.ui_formatted_results
             for k, v in self.results_mapping.items()
         }
+
+    @property
+    def trade_profile_plot_results(self):
+        return self.results_mapping["trade_profile"].plot_results

@@ -175,6 +175,10 @@ class EnergyTradeProfile(ResultsBaseClass):
         pass
 
     @property
+    def plot_results(self):
+        return self.convert_timestamp_strings_to_datetimes(self.traded_energy_profile)
+
+    @property
     def raw_results(self):
         return convert_pendulum_to_str_in_dict(
             self.traded_energy_profile, {}, ui_format=True)
