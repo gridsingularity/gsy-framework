@@ -102,3 +102,14 @@ class AreaThroughputStats(ResultsBaseClass):
             for time_slot in market_trade[area_uuid]:
                 global_trade[area_uuid][time_slot] = market_trade[area_uuid][time_slot]
         return global_trade
+
+    def restore_area_results_state(self, area_uuid, last_known_state_data):
+        pass
+
+    @property
+    def raw_results(self):
+        return self.results
+
+    @property
+    def ui_formatted_results(self):
+        return self.results_redis

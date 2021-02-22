@@ -254,3 +254,14 @@ class DeviceStatistics(ResultsBaseClass):
                     else:
                         global_device[area_uuid][stat].update(market_device[area_uuid][stat])
         return global_device
+
+    def restore_area_results_state(self, area_uuid, last_known_state_data):
+        pass
+
+    @property
+    def raw_results(self):
+        return self.device_stats_dict
+
+    @property
+    def ui_formatted_results(self):
+        return self.current_stats_dict

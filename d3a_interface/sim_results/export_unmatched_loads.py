@@ -54,8 +54,7 @@ class ExportUnmatchedLoads:
             if child['children']:
                 self.count_load_devices_in_setup(child)
 
-    def get_current_market_results(self, area_dict={}, core_stats={},
-                                   current_market_time_slot_str=None):
+    def get_current_market_results(self, area_dict, core_stats, current_market_time_slot_str):
         unmatched_loads = self.expand_to_ul_to_hours(
                 self.expand_ul_to_parents(
                     self.find_unmatched_loads(area_dict, core_stats, {},
@@ -237,6 +236,17 @@ class MarketUnmatchedLoads(ResultsBaseClass):
             global_ul = market_ul
             return global_ul
         return UnmatchedLoadsHelpers.accumulate_current_market_results(global_ul, market_ul)
+
+    def restore_area_results_state(self, area_uuid, last_known_state_data):
+        pass
+
+    @property
+    def raw_results(self):
+        return self.unmatched_loads
+
+    @property
+    def ui_formatted_results(self):
+        return self.last_unmatched_loads
 
 
 class UnmatchedLoadsHelpers:

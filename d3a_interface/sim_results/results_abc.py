@@ -27,8 +27,26 @@ class ResultsBaseClass(ABC):
         pass
 
     @abstractmethod
-    def update(self, area_result_dict=None, core_stats=None, current_market_slot=None):
+    def update(self, area_result_dict, core_stats, current_market_slot):
         """
         Updates the simulation results with bid/offer/trade data that arrive from the
         """
         pass
+
+    @abstractmethod
+    def restore_area_results_state(self, area_uuid, last_known_state_data):
+        """
+        Restores the state of the simulation results for a specific area, defined by area_uuid.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def raw_results(self):
+        """
+        Retrieves the accumulated result set.
+        """
+        pass
+
+    def ui_formatted_results(self):
+        return self.raw_results

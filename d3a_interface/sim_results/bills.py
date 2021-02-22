@@ -16,14 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from copy import deepcopy, copy
+from typing import Dict
 from d3a_interface.utils import round_floats_for_ui, get_area_uuid_name_mapping, \
     key_in_dict_and_not_none
 from d3a_interface.sim_results import is_load_node_type, is_pv_node_type, \
     area_name_from_area_or_iaa_name, get_unified_area_type
 from d3a_interface.constants_limits import ConstSettings
+from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
-class CumulativeBills:
+class CumulativeBills(ResultsBaseClass):
     def __init__(self):
         self.cumulative_bills_results = {}
 
@@ -64,9 +66,12 @@ class CumulativeBills:
                 "total": last_known_state_data['total'],
             }
 
-    def update_cumulative_bills(self, area_dict, core_stats, current_market_time_slot):
+    def update(self, area_dict=None, core_stats=None, current_market_slot=None):
+        if not self._validate_update_parameters(
+                area_dict, core_stats, current_market_slot):
+            return
         for child in area_dict['children']:
-            self.update_cumulative_bills(child, core_stats, current_market_time_slot)
+            self.update(child, core_stats, current_market_slot)
 
         if area_dict['uuid'] not in self.cumulative_bills_results:
             self.cumulative_bills_results[area_dict['uuid']] = {
@@ -121,15 +126,24 @@ class CumulativeBills:
             self.cumulative_bills_results[area_dict['uuid']]["penalty_energy"] += penalty_energy
             self.cumulative_bills_results[area_dict['uuid']]["total"] += total
 
+    @staticmethod
+    def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
+        raise NotImplemented("Cumulative bills endpoint supports only global results, "
+                             "merge not supported.")
 
-class MarketEnergyBills:
+    @property
+    def raw_results(self):
+        return self.cumulative_bills
+
+
+class MarketEnergyBills(ResultsBaseClass):
     def __init__(self, should_export_plots=False):
         self._should_export_plots = should_export_plots
         self.current_raw_bills = {}
         self.bills_results = {}
         self.bills_redis_results = {}
         self.market_fees = {}
-        self.cumulative_fee_all_markets_whole_sim = 0.
+        self._cumulative_fee_all_markets_whole_sim = 0.
         self.external_trades = {}
 
     @staticmethod
@@ -243,14 +257,17 @@ class MarketEnergyBills:
             self.market_fees[area_dict['uuid']] = 0.0
         market_fee_eur = area_core_stats[area_dict['uuid']]['market_fee'] / 100.0
         self.market_fees[area_dict['uuid']] += market_fee_eur
-        self.cumulative_fee_all_markets_whole_sim += market_fee_eur
+        self._cumulative_fee_all_markets_whole_sim += market_fee_eur
         for child in area_dict['children']:
             self._accumulate_market_fees(child, area_core_stats)
 
     def _update_market_fees(self, area_dict, area_core_stats):
         self._accumulate_market_fees(area_dict, area_core_stats)
 
-    def update(self, area_dict, area_core_stats):
+    def update(self, area_dict, area_core_stats, current_market_slot):
+        if not self._validate_update_parameters(
+                area_dict, area_core_stats, current_market_slot):
+            return
         # Updates the self.market_fees dict which keeps track of the accumulated market fees for
         # each area. Also calculates the cumulative_fee_all_markets_whole_sim, which
         # is the sum of the grid fees for all markets for the whole simulation duration.
@@ -466,3 +483,19 @@ class MarketEnergyBills:
                     for c_name, child_results in area_results.items()
                 }
         return rounded_results
+
+    @staticmethod
+    def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
+        raise NotImplemented("Bills endpoint supports only global results, merge not supported.")
+
+    @property
+    def raw_results(self):
+        return self.bills_results
+
+    @property
+    def ui_formatted_results(self):
+        return self.bills_redis_results
+
+    @property
+    def cumulative_fee_all_markets_whole_sim(self):
+        return self._cumulative_fee_all_markets_whole_sim

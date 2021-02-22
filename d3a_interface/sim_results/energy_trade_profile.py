@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import Dict, List
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.utils import round_floats_for_ui, add_or_create_key, key_in_dict_and_not_none, \
-    ui_str_to_pendulum_datetime
+    ui_str_to_pendulum_datetime, convert_pendulum_to_str_in_dict
 from d3a_interface.sim_results import area_name_from_area_or_iaa_name
 from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
@@ -170,3 +170,16 @@ class EnergyTradeProfile(ResultsBaseClass):
                             market_trade[area_uuid][sold_bought][target_area][source_area]
                         )
         return global_trade
+
+    def restore_area_results_state(self, area_uuid, last_known_state_data):
+        pass
+
+    @property
+    def raw_results(self):
+        return convert_pendulum_to_str_in_dict(
+            self.traded_energy_profile, {}, ui_format=True)
+
+    @property
+    def ui_formatted_results(self):
+        return convert_pendulum_to_str_in_dict(
+            self.traded_energy_current, {}, ui_format=True)

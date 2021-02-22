@@ -77,3 +77,7 @@ def child_buys_from_area(trade, area_name, child_names):
 
 def area_name_from_area_or_iaa_name(name):
     return name[4:] if name[:4] == 'IAA ' else name
+
+
+RESULT_NAMES_LIST = ["unmatched_loads", "price_energy_day", "cumulative_grid_trades", "bills", "cumulative_bills",
+                     "device_statistics", "energy_trade_profile", "kpi", "area_throughput"]

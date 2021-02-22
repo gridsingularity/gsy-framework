@@ -20,7 +20,8 @@ from statistics import mean
 from typing import Dict
 from copy import deepcopy
 
-from d3a_interface.utils import key_in_dict_and_not_none, round_floats_for_ui
+from d3a_interface.utils import key_in_dict_and_not_none, round_floats_for_ui, \
+    convert_pendulum_to_str_in_dict
 from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
@@ -122,3 +123,14 @@ class MarketPriceEnergyDay(ResultsBaseClass):
                 global_pe[area_uuid]["price-energy-day"].extend(
                     market_pe[area_uuid]["price-energy-day"])
         return global_pe
+
+    def restore_area_results_state(self, area_uuid, last_known_state_data):
+        pass
+
+    @property
+    def raw_results(self):
+        return self.csv_output
+
+    @property
+    def ui_formatted_results(self):
+        return convert_pendulum_to_str_in_dict(self.redis_output, {})
