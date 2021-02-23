@@ -269,7 +269,8 @@ def deep_size_of(input_obj):
     Given object A declared and referenced object B
     AND   object C referenced object B
     AND   we need to calculate the size of object A to clean memory
-    THEN  we will get the size of B returned, giving a false feeling that cleaning A will free this amount
+    THEN  we will get the size of B returned, giving a false feeling that
+        cleaning A will free this amount
 
     """
     memory_size = sys.getsizeof(input_obj)
