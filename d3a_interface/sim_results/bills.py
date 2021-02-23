@@ -322,6 +322,9 @@ class MarketEnergyBills(ResultsBaseClass):
                 self.external_trades[area_dict['uuid']]['earned'] + \
                 self.external_trades[area_dict['uuid']]['market_fee']
 
+    def restore_cumulative_fees_whole_sim(self, cumulative_fees):
+        self._cumulative_fee_all_markets_whole_sim = cumulative_fees
+
     @classmethod
     def _flatten_energy_bills(cls, energy_bills, flat_results):
         for k, v in energy_bills.items():

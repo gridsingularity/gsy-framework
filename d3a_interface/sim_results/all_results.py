@@ -10,29 +10,56 @@ from d3a_interface.sim_results.kpi import KPI
 
 
 class ResultsHandler:
-    def __init__(self, should_export_plots: bool = True):
+    def __init__(self, should_export_plots: bool = False):
         self.should_export_plots = should_export_plots
-        if self.should_export_plots:
-            self.results_mapping = {
-                "bills": MarketEnergyBills(should_export_plots),
-                "kpi": KPI(),
-                "unmatched_loads": MarketUnmatchedLoads(),
-                "price_energy_day": MarketPriceEnergyDay(should_export_plots),
-                "cumulative_bills": CumulativeBills(),
-                "cumulative_grid_trades": CumulativeGridTrades(),
-                "device_statistics": DeviceStatistics(should_export_plots),
-                "trade_profile": EnergyTradeProfile(should_export_plots),
-                "area_throughput_stats": AreaThroughputStats(),
-            }
-        else:
-            self.results_mapping = {
-                "bills": MarketEnergyBills(should_export_plots),
-                "kpi": KPI()
-            }
+        self.bids_offers_trades = {}
+        self.results_mapping = {
+            "bills": MarketEnergyBills(should_export_plots),
+            "kpi": KPI(),
+            "unmatched_loads": MarketUnmatchedLoads(),
+            "price_energy_day": MarketPriceEnergyDay(should_export_plots),
+            "cumulative_bills": CumulativeBills(),
+            "cumulative_grid_trades": CumulativeGridTrades(),
+            "device_statistics": DeviceStatistics(should_export_plots),
+            "trade_profile": EnergyTradeProfile(should_export_plots),
+            "area_throughput": AreaThroughputStats()
+        }
+
+    @property
+    def _results_name_to_db_name_mapping(self):
+        mapping = {
+            k: k for k in self.results_mapping.keys()
+        }
+        mapping.update({
+            "bills": "price_energy_area_balance",
+            "trade_profile": "energy_trade_profile",
+            "area_throughput_stats": "area_throughput",
+        })
+        return mapping
 
     def update(self, area_dict: Dict, core_stats: Dict, current_market_slot: str):
-        for _, v in self.results_mapping.items():
+        for area_uuid, area_result in core_stats.items():
+            self.bids_offers_trades[area_uuid] = \
+                {k: area_result.get(k, []) for k in ('offers', 'bids', 'trades')}
+        for k, v in self.results_mapping.items():
             v.update(area_dict, core_stats, current_market_slot)
+
+    def restore_area_results_state(self, config_tree, area_results_map, cumulative_grid_fees=None):
+        if cumulative_grid_fees is not None:
+            self.results_mapping["bills"].restore_cumulative_fees_whole_sim(cumulative_grid_fees)
+        if area_results_map.get(config_tree['uuid'], {}):
+            area_results = area_results_map[config_tree['uuid']]
+            for k, v in self.results_mapping.items():
+                db_field_name = self._results_name_to_db_name_mapping[k]
+                if db_field_name not in area_results:
+                    continue
+                else:
+                    self.results_mapping[k].restore_area_results_state(
+                        config_tree, area_results[db_field_name]
+                    )
+
+        for child in config_tree['children']:
+            self.restore_area_results_state(child, area_results_map)
 
     @property
     def all_raw_results(self) -> Dict:
@@ -47,6 +74,17 @@ class ResultsHandler:
             k: v.ui_formatted_results
             for k, v in self.results_mapping.items()
         }
+
+    @property
+    def all_db_results(self) -> Dict:
+        results = {
+            self._results_name_to_db_name_mapping[k]: v.ui_formatted_results
+            for k, v in self.results_mapping.items()
+        }
+        results["bids_offers_trades"] = self.bids_offers_trades
+        results["cumulative_market_fees"] = \
+            self.results_mapping["bills"].cumulative_fee_all_markets_whole_sim
+        return results
 
     @property
     def trade_profile_plot_results(self):

@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import Dict, List
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.utils import round_floats_for_ui, add_or_create_key, key_in_dict_and_not_none, \
-    ui_str_to_pendulum_datetime, convert_pendulum_to_str_in_dict
+    ui_str_to_pendulum_datetime, convert_pendulum_to_str_in_dict, \
+    datetime_str_to_ui_formatted_datetime_str
 from d3a_interface.sim_results import area_name_from_area_or_iaa_name
 from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
@@ -33,6 +34,7 @@ class EnergyTradeProfile(ResultsBaseClass):
         if not self._validate_update_parameters(
                 area_result_dict, core_stats, current_market_slot):
             return
+        current_market_slot = datetime_str_to_ui_formatted_datetime_str(current_market_slot)
         self.traded_energy_current = {}
         self._populate_area_children_data(area_result_dict, core_stats, current_market_slot)
 

@@ -100,6 +100,10 @@ def str_to_pendulum_datetime(input_str):
     return pendulum_time
 
 
+def datetime_str_to_ui_formatted_datetime_str(input_str):
+    return format_datetime(str_to_pendulum_datetime(input_str), ui_format=True)
+
+
 def ui_str_to_pendulum_datetime(input_str):
     if input_str is None:
         return None

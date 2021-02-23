@@ -48,5 +48,6 @@ class ResultsBaseClass(ABC):
         """
         pass
 
+    @property
     def ui_formatted_results(self):
         return self.raw_results
