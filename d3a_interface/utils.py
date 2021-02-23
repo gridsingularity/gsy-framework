@@ -15,7 +15,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import gc
 import pathlib
+import sys
+
 from pkgutil import walk_packages
 
 from pendulum import DateTime, from_format, from_timestamp
@@ -253,3 +256,21 @@ def iterate_over_all_modules(modules_path):
         else:
             module_list.append(module_name)
     return module_list
+
+
+def deep_size_of(input_obj):
+    """
+    Gets the real size of a python object taking into consideration the nested objects
+    """
+    memory_size = 0
+    ids = set()
+    objects = [input_obj]
+    while objects:
+        new = []
+        for obj in objects:
+            if id(obj) not in ids:
+                ids.add(id(obj))
+                memory_size += sys.getsizeof(obj)
+                new.append(obj)
+        objects = gc.get_referents(*new)
+    return memory_size
