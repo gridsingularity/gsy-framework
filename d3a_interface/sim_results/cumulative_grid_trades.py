@@ -397,8 +397,9 @@ class CumulativeGridTrades(ResultsBaseClass):
 
     @staticmethod
     def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
-        raise NotImplemented("Cumulative grid trades endpoint supports only global results,"
-                             " merge not supported.")
+        raise NotImplementedError(
+            "Cumulative grid trades endpoint supports only global results,"
+            " merge not supported.")
 
     @property
     def raw_results(self):

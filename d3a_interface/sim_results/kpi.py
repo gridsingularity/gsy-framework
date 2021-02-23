@@ -244,7 +244,8 @@ class KPI(ResultsBaseClass):
 
     @staticmethod
     def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
-        raise NotImplemented("KPI endpoint supports only global results, merge not supported.")
+        raise NotImplementedError(
+            "KPI endpoint supports only global results, merge not supported.")
 
     @property
     def raw_results(self):
