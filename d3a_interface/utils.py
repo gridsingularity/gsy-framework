@@ -253,3 +253,17 @@ def iterate_over_all_modules(modules_path):
         else:
             module_list.append(module_name)
     return module_list
+
+
+def area_name_from_area_or_iaa_name(name):
+    return name[4:] if name[:4] == 'IAA ' else name
+
+
+def area_bought_from_child(trade, area_name, child_names):
+    return area_name_from_area_or_iaa_name(trade['buyer']) == area_name and \
+           area_name_from_area_or_iaa_name(trade['seller']) in child_names
+
+
+def area_sells_to_child(trade, area_name, child_names):
+    return area_name_from_area_or_iaa_name(trade['seller']) == area_name and \
+           area_name_from_area_or_iaa_name(trade['buyer']) in child_names
