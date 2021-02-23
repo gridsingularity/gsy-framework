@@ -261,6 +261,16 @@ def iterate_over_all_modules(modules_path):
 def deep_size_of(input_obj):
     """
     Gets the real size of a python object taking into consideration the nested objects
+    Note :
+    This function works well with data containers (such as lists or dicts)
+    However, one thing to take into consideration is that it may return ambiguous result because of
+    the fact that an object can be referenced by multiple objects as in the following scenario :
+
+    Given object A declared and referenced object B
+    AND   object C referenced object B
+    AND   we need to calculate the size of object A to clean memory
+    THEN  we will get the size of B returned, giving a false feeling that cleaning A will free this amount
+
     """
     memory_size = sys.getsizeof(input_obj)
     ids = set()
