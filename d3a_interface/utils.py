@@ -262,7 +262,7 @@ def deep_size_of(input_obj):
     """
     Gets the real size of a python object taking into consideration the nested objects
     """
-    memory_size = 0
+    memory_size = sys.getsizeof(input_obj)
     ids = set()
     objects = [input_obj]
     while objects:
