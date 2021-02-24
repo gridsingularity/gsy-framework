@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from typing import Dict, List
+from copy import deepcopy
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.utils import round_floats_for_ui, add_or_create_key, key_in_dict_and_not_none, \
     ui_str_to_pendulum_datetime, convert_pendulum_to_str_in_dict, \
@@ -178,10 +179,11 @@ class EnergyTradeProfile(ResultsBaseClass):
 
     @property
     def plot_results(self):
-        return self.convert_timestamp_strings_to_datetimes(
-            convert_pendulum_to_str_in_dict(
-                self.traded_energy_profile, {}, ui_format=True)
+        traded_profile_for_plot = self.convert_timestamp_strings_to_datetimes(
+                deepcopy(self.traded_energy_profile)
         )
+        EnergyTradeProfile.add_sold_bought_lists(traded_profile_for_plot)
+        return traded_profile_for_plot
 
     @property
     def raw_results(self):
