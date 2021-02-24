@@ -28,6 +28,10 @@ class CumulativeNetEnergyFlow:
             return
         self.update_results(area_dict, core_stats, current_market_time_slot_str)
 
+    def restore_area_results_state(self, area_uuid, last_known_state_data):
+        if area_uuid not in self.net_area_flow:
+            self.net_area_flow[area_uuid] = last_known_state_data
+
     def update_results(self, area_dict, core_stats, current_market_time_slot_str):
         self._accumulate_net_energy(area_dict, core_stats)
         for child in area_dict['children']:
