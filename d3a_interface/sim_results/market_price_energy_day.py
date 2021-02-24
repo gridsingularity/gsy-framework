@@ -59,7 +59,7 @@ class MarketPriceEnergyDay(ResultsBaseClass):
         price_lists[area_dict['uuid']][current_market_slot].extend(trade_rates)
 
     def update(self, area_result_dict=None, core_stats=None, current_market_slot=None):
-        if not self._validate_update_parameters(
+        if not self._has_update_parameters(
                 area_result_dict, core_stats, current_market_slot):
             return
         current_price_lists = self.gather_trade_rates(

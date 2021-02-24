@@ -67,7 +67,7 @@ class CumulativeBills(ResultsBaseClass):
             }
 
     def update(self, area_dict=None, core_stats=None, current_market_slot=None):
-        if not self._validate_update_parameters(
+        if not self._has_update_parameters(
                 area_dict, core_stats, current_market_slot):
             return
         for child in area_dict['children']:
@@ -266,7 +266,7 @@ class MarketEnergyBills(ResultsBaseClass):
         self._accumulate_market_fees(area_dict, area_core_stats)
 
     def update(self, area_dict, area_core_stats, current_market_slot):
-        if not self._validate_update_parameters(
+        if not self._has_update_parameters(
                 area_dict, area_core_stats, current_market_slot):
             return
         # Updates the self.market_fees dict which keeps track of the accumulated market fees for

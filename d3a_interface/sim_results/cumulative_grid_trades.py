@@ -34,9 +34,12 @@ class CumulativeGridTrades(ResultsBaseClass):
         self.accumulated_balancing_trades = {}
         self._restored = False
 
-    def update(self, area_dict, flattened_area_core_stats_dict, *_):
+    def update(self, area_dict, core_stats, current_market_slot):
+        if not self._has_update_parameters(
+                area_dict, core_stats, current_market_slot):
+            return
         self.export_cumulative_grid_trades(
-            area_dict, flattened_area_core_stats_dict, self.accumulated_trades
+            area_dict, core_stats, self.accumulated_trades
         )
         self._restored = False
 

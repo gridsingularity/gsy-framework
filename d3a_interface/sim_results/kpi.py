@@ -213,7 +213,7 @@ class KPI(ResultsBaseClass):
                 }
 
     def update(self, area_dict, core_stats, current_market_slot):
-        if not self._validate_update_parameters(area_dict, core_stats, current_market_slot):
+        if not self._has_update_parameters(area_dict, core_stats, current_market_slot):
             return
         self.performance_indices[area_dict['name']] = \
             self.area_performance_indices(area_dict, core_stats)
