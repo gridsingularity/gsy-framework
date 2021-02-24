@@ -285,3 +285,17 @@ def deep_size_of(input_obj):
                 referents_objs.append(obj)
         objects = gc.get_referents(*referents_objs)
     return memory_size
+  
+  
+def area_name_from_area_or_iaa_name(name):
+    return name[4:] if name[:4] == 'IAA ' else name
+
+
+def area_bought_from_child(trade: dict, area_name: str, child_names: list):
+    return area_name_from_area_or_iaa_name(trade['buyer']) == area_name and \
+           area_name_from_area_or_iaa_name(trade['seller']) in child_names
+
+
+def area_sells_to_child(trade: dict, area_name: str, child_names: list):
+    return area_name_from_area_or_iaa_name(trade['seller']) == area_name and \
+           area_name_from_area_or_iaa_name(trade['buyer']) in child_names
