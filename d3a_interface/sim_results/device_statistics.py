@@ -180,7 +180,7 @@ class DeviceStatistics(ResultsBaseClass):
         cls._calc_min_max_from_sim_dict(subdict, key_name)
 
     def update(self, area_result_dict=None, core_stats=None, current_market_slot=None):
-        if not self._validate_update_parameters(
+        if not self._has_update_parameters(
                 area_result_dict, core_stats, current_market_slot):
             return
         if self.should_export_plots:

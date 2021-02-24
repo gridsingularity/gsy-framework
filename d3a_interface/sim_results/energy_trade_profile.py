@@ -31,7 +31,7 @@ class EnergyTradeProfile(ResultsBaseClass):
         self.should_export_plots = should_export_plots
 
     def update(self, area_result_dict=None, core_stats=None, current_market_slot=None):
-        if not self._validate_update_parameters(
+        if not self._has_update_parameters(
                 area_result_dict, core_stats, current_market_slot):
             return
         current_market_slot = datetime_str_to_ui_formatted_datetime_str(current_market_slot)

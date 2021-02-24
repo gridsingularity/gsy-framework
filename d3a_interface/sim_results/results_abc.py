@@ -5,7 +5,7 @@ from typing import Dict, List
 class ResultsBaseClass(ABC):
 
     @staticmethod
-    def _validate_update_parameters(area_result_dict, core_stats, current_market_slot):
+    def _has_update_parameters(area_result_dict, core_stats, current_market_slot):
         """
         Validates the update method parameters.
         Should be used to early-return in case any one of the input parameters is empty.

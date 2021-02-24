@@ -28,7 +28,7 @@ class AreaThroughputStats(ResultsBaseClass):
         self.imported_energy = {}
 
     def update(self, area_result_dict=None, core_stats=None, current_market_slot=None):
-        if not self._validate_update_parameters(
+        if not self._has_update_parameters(
                 area_result_dict, core_stats, current_market_slot):
             return
         self.results = {}
