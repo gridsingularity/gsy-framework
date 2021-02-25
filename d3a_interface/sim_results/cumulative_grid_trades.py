@@ -302,13 +302,7 @@ class CumulativeGridTrades:
         # Producer entries
         if abs(area_data["produced"]) > FLOATING_POINT_TOLERANCE:
             results["bars"].append(
-                {"energy": round_floats_for_ui(area_data["produced"]), "targetArea": child['name'],
-                 "energyLabel":
-                     f"{child['name']} sold "
-                     f"{str(round_floats_for_ui(abs(area_data['produced'])))} kWh",
-                 "priceLabel":
-                     f"{child['name']} earned "
-                     f"{str(round_floats_for_ui(area_data['earned']))} cents"}
+                {"energy": round_floats_for_ui(area_data["produced"]), "targetArea": child['name']}
             )
 
         # Consumer entries
@@ -317,11 +311,7 @@ class CumulativeGridTrades:
             tag = "external sources" if producer == parent_name else producer
             results["bars"].append({
                 "energy": round_floats_for_ui(energy),
-                "targetArea": producer,
-                "energyLabel": f"{child['name']} bought "
-                               f"{str(round_floats_for_ui(energy))} kWh from {tag}",
-                "priceLabel": f"{child['name']} spent "
-                              f"{str(round_floats_for_ui(money))} cents on energy from {tag}",
+                "targetArea": producer
             })
 
         return results
@@ -342,24 +332,15 @@ class CumulativeGridTrades:
                 spent += round_floats_for_ui(area_data["spentToExternal"][k])
                 results["bars"].append({
                     "energy": incoming_energy,
-                    "targetArea": area_data['name'],
-                    "energyLabel": f"External sources sold "
-                                   f"{abs(round_floats_for_ui(incoming_energy))} kWh",
-                    "priceLabel": f"External sources "
-                                  f"earned {abs(round_floats_for_ui(spent))} cents"
-
+                    "targetArea": area_data['name']
                 })
 
         if "producedForExternal" in area_data:
             for k, v in area_data["producedForExternal"].items():
                 outgoing_energy = round_floats_for_ui(area_data["producedForExternal"][k])
-                earned = round_floats_for_ui(area_data["earnedFromExternal"][k])
                 results["bars"].append({
                     "energy": outgoing_energy,
-                    "targetArea": k,
-                    "energyLabel": f"External sources bought {abs(outgoing_energy)} kWh "
-                                   f"from {k}",
-                    "priceLabel": f"{area_data['name']} spent {earned} cents."
+                    "targetArea": k
                 })
         return results
 
