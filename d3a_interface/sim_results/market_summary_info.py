@@ -17,6 +17,7 @@ class MarketSummaryInfo(ResultsBaseClass):
             global_results = {
                 area_uuid: [results]
                 for area_uuid, results in market_results.items()
+                if results
             }
             return global_results
         for area_uuid in market_results:
@@ -27,7 +28,7 @@ class MarketSummaryInfo(ResultsBaseClass):
         return global_results
 
     def update(self, area_result_dict, core_stats, current_market_slot):
-        if not self._validate_update_parameters(
+        if not self._has_update_parameters(
                 area_result_dict, core_stats, current_market_slot):
             return
         if self._should_export_plots:
