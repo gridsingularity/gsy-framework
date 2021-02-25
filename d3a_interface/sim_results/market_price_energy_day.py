@@ -16,9 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from collections import OrderedDict
-from statistics import mean
 
-from d3a_interface.utils import key_in_dict_and_not_none, round_floats_for_ui
+from d3a_interface.utils import round_floats_for_ui
 
 
 class MarketPriceEnergyDay:
