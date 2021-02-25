@@ -307,8 +307,6 @@ class CumulativeGridTrades:
 
         # Consumer entries
         for producer, energy in area_data["consumedFrom"].items():
-            money = round_floats_for_ui(area_data["spentTo"][producer])
-            tag = "external sources" if producer == parent_name else producer
             results["bars"].append({
                 "energy": round_floats_for_ui(energy),
                 "targetArea": producer
