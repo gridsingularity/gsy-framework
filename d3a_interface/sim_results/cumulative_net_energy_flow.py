@@ -15,27 +15,30 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from typing import Dict
 from d3a_interface.utils import subtract_or_create_key, add_or_create_key, \
     area_bought_from_child, area_sells_to_child
+from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
-class CumulativeNetEnergyFlow:
+class CumulativeNetEnergyFlow(ResultsBaseClass):
     def __init__(self):
         self.net_area_flow = {}
 
-    def update(self, area_dict, core_stats, current_market_time_slot_str):
-        if current_market_time_slot_str == "":
+    def update(self, area_dict, core_stats, current_market_slot):
+        if not self._has_update_parameters(
+                area_dict, core_stats, current_market_slot):
             return
-        self.update_results(area_dict, core_stats, current_market_time_slot_str)
+        self._update_results(area_dict, core_stats, current_market_slot)
 
     def restore_area_results_state(self, area_uuid, last_known_state_data):
         if area_uuid not in self.net_area_flow:
             self.net_area_flow[area_uuid] = last_known_state_data
 
-    def update_results(self, area_dict, core_stats, current_market_time_slot_str):
+    def _update_results(self, area_dict, core_stats, current_market_time_slot_str):
         self._accumulate_net_energy(area_dict, core_stats)
         for child in area_dict['children']:
-            self.update_results(child, core_stats, current_market_time_slot_str)
+            self._update_results(child, core_stats, current_market_time_slot_str)
 
     def _accumulate_net_energy(self, area_dict, core_stats):
 
@@ -50,3 +53,13 @@ class CumulativeNetEnergyFlow:
                 subtract_or_create_key(
                     self.net_area_flow, area_dict['uuid'], trade['energy']
                 )
+
+    @staticmethod
+    def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
+        raise NotImplementedError(
+            "Cumulative net energy flow endpoint supports only global results,"
+            " merge not supported.")
+
+    @property
+    def raw_results(self):
+        return self.net_area_flow

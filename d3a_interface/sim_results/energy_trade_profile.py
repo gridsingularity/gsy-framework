@@ -15,20 +15,27 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from typing import Dict, List
+from copy import deepcopy
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.utils import round_floats_for_ui, add_or_create_key, key_in_dict_and_not_none, \
-    ui_str_to_pendulum_datetime
+    ui_str_to_pendulum_datetime, convert_pendulum_to_str_in_dict, \
+    datetime_str_to_ui_formatted_datetime_str
 from d3a_interface.sim_results import area_name_from_area_or_iaa_name
-from d3a_interface.sim_results.aggregate_results import merge_energy_trade_profile_to_global
+from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
-class EnergyTradeProfile:
+class EnergyTradeProfile(ResultsBaseClass):
     def __init__(self, should_export_plots):
         self.traded_energy_profile = {}
         self.traded_energy_current = {}
         self.should_export_plots = should_export_plots
 
     def update(self, area_result_dict=None, core_stats=None, current_market_slot=None):
+        if not self._has_update_parameters(
+                area_result_dict, core_stats, current_market_slot):
+            return
+        current_market_slot = datetime_str_to_ui_formatted_datetime_str(current_market_slot)
         self.traded_energy_current = {}
         self._populate_area_children_data(area_result_dict, core_stats, current_market_slot)
 
@@ -66,7 +73,7 @@ class EnergyTradeProfile:
                 core_stats, current_market_slot)
 
             traded_energy_current_name = {area_name: self.traded_energy_current[area_name]}
-            self.traded_energy_profile = merge_energy_trade_profile_to_global(
+            self.traded_energy_profile = self.merge_results_to_global(
                 traded_energy_current_name, self.traded_energy_profile,
                 [current_market_slot])
 
@@ -145,3 +152,45 @@ class EnergyTradeProfile:
                             outdict[k][sold_bought][dev][target][datetime_obj] = \
                                 profile[k][sold_bought][dev][target][timestamp_str]
         return outdict
+
+    @staticmethod
+    def merge_results_to_global(market_trade: Dict, global_trade: Dict, slot_list: List):
+        if not global_trade:
+            global_trade = market_trade
+            return global_trade
+        for area_uuid in market_trade:
+            if area_uuid not in global_trade or global_trade[area_uuid] == {}:
+                global_trade[area_uuid] = {"sold_energy": {}, "bought_energy": {}}
+            for sold_bought in market_trade[area_uuid]:
+                for target_area in market_trade[area_uuid][sold_bought]:
+                    if target_area not in global_trade[area_uuid][sold_bought]:
+                        global_trade[area_uuid][sold_bought][target_area] = {}
+                    for source_area in market_trade[area_uuid][sold_bought][target_area]:
+                        if source_area not in global_trade[area_uuid][sold_bought][target_area]:
+                            global_trade[area_uuid][sold_bought][target_area][source_area] = \
+                                {i: 0 for i in slot_list}
+                        global_trade[area_uuid][sold_bought][target_area][source_area].update(
+                            market_trade[area_uuid][sold_bought][target_area][source_area]
+                        )
+        return global_trade
+
+    def restore_area_results_state(self, area_uuid, last_known_state_data):
+        pass
+
+    @property
+    def plot_results(self):
+        traded_profile_for_plot = self.convert_timestamp_strings_to_datetimes(
+                deepcopy(self.traded_energy_profile)
+        )
+        EnergyTradeProfile.add_sold_bought_lists(traded_profile_for_plot)
+        return traded_profile_for_plot
+
+    @property
+    def raw_results(self):
+        return convert_pendulum_to_str_in_dict(
+            self.traded_energy_profile, {}, ui_format=True)
+
+    @property
+    def ui_formatted_results(self):
+        return convert_pendulum_to_str_in_dict(
+            self.traded_energy_current, {}, ui_format=True)

@@ -15,9 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from typing import Dict
 from d3a_interface.utils import if_not_in_list_append
 from d3a_interface.sim_results import is_load_node_type, is_buffer_node_type, \
     is_prosumer_node_type, is_producer_node_type
+from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
 class KPIState:
@@ -142,7 +144,7 @@ class KPIState:
         self._accumulate_energy_trace(core_stats)
 
 
-class KPI:
+class KPI(ResultsBaseClass):
     def __init__(self):
         self.performance_indices = dict()
         self.performance_indices_redis = dict()
@@ -210,8 +212,8 @@ class KPI:
                 "total_self_consumption_wh": area_kpis["total_self_consumption_wh"]
                 }
 
-    def update_kpis_from_area(self, area_dict, core_stats, current_market_time_slot_str):
-        if current_market_time_slot_str == "":
+    def update(self, area_dict, core_stats, current_market_slot):
+        if not self._has_update_parameters(area_dict, core_stats, current_market_slot):
             return
         self.performance_indices[area_dict['name']] = \
             self.area_performance_indices(area_dict, core_stats)
@@ -220,7 +222,7 @@ class KPI:
 
         for child in area_dict['children']:
             if len(child['children']) > 0:
-                self.update_kpis_from_area(child, core_stats, current_market_time_slot_str)
+                self.update(child, core_stats, current_market_slot)
 
     def restore_area_results_state(self, area_dict, last_known_state_data):
         if area_dict['name'] not in self.state:
@@ -239,3 +241,16 @@ class KPI:
                 last_known_state_data['total_self_consumption_wh']
             self.state[area_dict['name']].self_consumption_buffer_wh = \
                 last_known_state_data['self_consumption_buffer_wh']
+
+    @staticmethod
+    def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
+        raise NotImplementedError(
+            "KPI endpoint supports only global results, merge not supported.")
+
+    @property
+    def raw_results(self):
+        return self.performance_indices
+
+    @property
+    def ui_formatted_results(self):
+        return self.performance_indices_redis
