@@ -20,7 +20,7 @@ from typing import Dict
 from copy import deepcopy
 
 from d3a_interface.utils import round_floats_for_ui, \
-    convert_pendulum_to_str_in_dict
+    convert_pendulum_to_str_in_dict, key_in_dict_and_not_none
 from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
