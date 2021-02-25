@@ -94,14 +94,7 @@ class MarketPriceEnergyDay:
             redis_output[node_uuid]["price-energy-day"] = [
                 {
                     "time": timeslot,
-                    "av_price": round_floats_for_ui(mean(trades) if len(trades) > 0 else 0),
                     "min_price": round_floats_for_ui(min(trades) if len(trades) > 0 else 0),
                     "max_price": round_floats_for_ui(max(trades) if len(trades) > 0 else 0),
                 } for timeslot, trades in trade_rates.items()
             ]
-
-            area_core_stats = core_stats.get(node_uuid, {})
-            fee = area_core_stats['grid_fee_constant'] / 100 \
-                if key_in_dict_and_not_none(area_core_stats, 'grid_fee_constant') else None
-
-            redis_output[node_uuid]["price-energy-day"][0].update({"grid_fee_constant": fee})
