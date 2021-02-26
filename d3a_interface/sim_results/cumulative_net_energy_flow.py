@@ -33,7 +33,13 @@ class CumulativeNetEnergyFlow(ResultsBaseClass):
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         area_uuid = area_dict["uuid"]
-        if area_uuid not in self.net_area_flow:
+        # TODO: Restore the state only if it is a float. At the moment, the default value for
+        # the DB column is an empty dict, which will be added for areas that do not support
+        # the net energy flow. These need to be omitted from the state restore.
+        # Needs to be refactored by changing the DB field from JSON to a float value,
+        # and denote absence of the value by leaving the field empty.
+        if area_uuid not in self.net_area_flow and \
+                isinstance(last_known_state_data, float):
             self.net_area_flow[area_uuid] = last_known_state_data
 
     def _update_results(self, area_dict, core_stats, current_market_time_slot_str):
