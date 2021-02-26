@@ -103,7 +103,7 @@ class AreaThroughputStats(ResultsBaseClass):
                 global_trade[area_uuid][time_slot] = market_trade[area_uuid][time_slot]
         return global_trade
 
-    def restore_area_results_state(self, area_uuid, last_known_state_data):
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         pass
 
     @property

@@ -122,7 +122,7 @@ class MarketPriceEnergyDay(ResultsBaseClass):
                     market_pe[area_uuid]["price-energy-day"])
         return global_pe
 
-    def restore_area_results_state(self, area_uuid, last_known_state_data):
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         pass
 
     @property
