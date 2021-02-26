@@ -31,7 +31,8 @@ class CumulativeNetEnergyFlow(ResultsBaseClass):
             return
         self._update_results(area_dict, core_stats, current_market_slot)
 
-    def restore_area_results_state(self, area_uuid, last_known_state_data):
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
+        area_uuid = area_dict["uuid"]
         if area_uuid not in self.net_area_flow:
             self.net_area_flow[area_uuid] = last_known_state_data
 
