@@ -225,22 +225,24 @@ class KPI(ResultsBaseClass):
                 self.update(child, core_stats, current_market_slot)
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
+        if not last_known_state_data:
+            return
         if area_dict['name'] not in self.state:
             self.state[area_dict['name']] = KPIState()
             self.state[area_dict['name']].self_consumption = \
-                last_known_state_data['self_consumption']
+                last_known_state_data.get('self_consumption', 0.0)
             self.state[area_dict['name']].self_sufficiency = \
-                last_known_state_data['self_sufficiency']
+                last_known_state_data.get('self_sufficiency', 0.0)
             self.state[area_dict['name']].demanded_buffer_wh = \
-                last_known_state_data['demanded_buffer_wh']
+                last_known_state_data.get('demanded_buffer_wh', 0.0)
             self.state[area_dict['name']].total_energy_demanded_wh = \
-                last_known_state_data['total_energy_demanded_wh']
+                last_known_state_data.get('total_energy_demanded_wh', 0.0)
             self.state[area_dict['name']].total_energy_produced_wh = \
-                last_known_state_data['total_energy_produced_wh']
+                last_known_state_data.get('total_energy_produced_wh', 0.0)
             self.state[area_dict['name']].total_self_consumption_wh = \
-                last_known_state_data['total_self_consumption_wh']
+                last_known_state_data.get('total_self_consumption_wh', 0.0)
             self.state[area_dict['name']].self_consumption_buffer_wh = \
-                last_known_state_data['self_consumption_buffer_wh']
+                last_known_state_data.get('self_consumption_buffer_wh', 0.0)
 
     @staticmethod
     def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
