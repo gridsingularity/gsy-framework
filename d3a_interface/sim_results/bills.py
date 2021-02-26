@@ -56,6 +56,8 @@ class CumulativeBills(ResultsBaseClass):
         }
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
+        if not last_known_state_data:
+            return
         if area_dict["uuid"] not in self.cumulative_bills_results:
             self.cumulative_bills_results[area_dict["uuid"]] = {
                 "name": last_known_state_data['name'],
