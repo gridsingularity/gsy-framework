@@ -38,15 +38,15 @@ class KPIState:
     def accumulate_devices(self, area_dict):
         for child in area_dict['children']:
             if is_producer_node_type(child):
-                if_not_in_list_append(self.producer_list, child['name'])
+                if_not_in_list_append(self.producer_list, child['uuid'])
                 if_not_in_list_append(self.areas_to_trace_list, child['parent_uuid'])
             elif is_load_node_type(child):
-                if_not_in_list_append(self.consumer_list, child['name'])
+                if_not_in_list_append(self.consumer_list, child['uuid'])
                 if_not_in_list_append(self.areas_to_trace_list, child['parent_uuid'])
             elif is_prosumer_node_type(child):
-                if_not_in_list_append(self.ess_list, child['name'])
+                if_not_in_list_append(self.ess_list, child['uuid'])
             elif is_buffer_node_type(child):
-                if_not_in_list_append(self.buffer_list, child['name'])
+                if_not_in_list_append(self.buffer_list, child['uuid'])
             if child['children']:
                 self.accumulate_devices(child)
 
@@ -59,31 +59,31 @@ class KPIState:
                 self._accumulate_total_energy_demanded(child, core_stats)
 
     def _accumulate_self_production(self, trade):
-        # Trade seller origin should be equal to the trade seller in order to
+        # Trade seller_id origin should be equal to the trade seller_id in order to
         # not double count trades in higher hierarchies
-        if trade['seller_origin'] in self.producer_list and \
-                trade['seller_origin'] == trade['seller']:
+        if trade['seller_origin_id'] in self.producer_list and \
+                trade['seller_origin_id'] == trade['seller_id']:
             self.total_energy_produced_wh += trade['energy'] * 1000
 
     def _accumulate_self_consumption(self, trade):
-        # Trade buyer origin should be equal to the trade buyer in order to
+        # Trade buyer_id origin should be equal to the trade buyer_id in order to
         # not double count trades in higher hierarchies
-        if trade['seller_origin'] in self.producer_list and \
-                trade['buyer_origin'] in self.consumer_list and \
-                trade['buyer_origin'] == trade['buyer']:
+        if trade['seller_origin_id'] in self.producer_list and \
+                trade['buyer_origin_id'] in self.consumer_list and \
+                trade['buyer_origin_id'] == trade['buyer_id']:
             self.total_self_consumption_wh += trade['energy'] * 1000
 
     def _accumulate_self_consumption_buffer(self, trade):
-        if trade['seller_origin'] in self.producer_list and \
-                trade['buyer_origin'] in self.ess_list:
+        if trade['seller_origin_id'] in self.producer_list and \
+                trade['buyer_origin_id'] in self.ess_list:
             self.self_consumption_buffer_wh += trade['energy'] * 1000
 
     def _dissipate_self_consumption_buffer(self, trade):
-        if trade['seller_origin'] in self.ess_list:
+        if trade['seller_origin_id'] in self.ess_list:
             # self_consumption_buffer needs to be exhausted to total_self_consumption
             # if sold to internal consumer
-            if trade['buyer_origin'] in self.consumer_list and \
-                    trade['buyer_origin'] == trade['buyer'] and \
+            if trade['buyer_origin_id'] in self.consumer_list and \
+                    trade['buyer_origin_id'] == trade['buyer_id'] and \
                     self.self_consumption_buffer_wh > 0:
                 if (self.self_consumption_buffer_wh - trade['energy'] * 1000) > 0:
                     self.self_consumption_buffer_wh -= trade['energy'] * 1000
@@ -92,8 +92,8 @@ class KPIState:
                     self.total_self_consumption_wh += self.self_consumption_buffer_wh
                     self.self_consumption_buffer_wh = 0
             # self_consumption_buffer needs to be exhausted if sold to any external agent
-            elif trade['buyer_origin'] not in [*self.ess_list, *self.consumer_list] and \
-                    trade['buyer_origin'] == trade['buyer'] and \
+            elif trade['buyer_origin_id'] not in [*self.ess_list, *self.consumer_list] and \
+                    trade['buyer_origin_id'] == trade['buyer_id'] and \
                     self.self_consumption_buffer_wh > 0:
                 if (self.self_consumption_buffer_wh - trade['energy'] * 1000) > 0:
                     self.self_consumption_buffer_wh -= trade['energy'] * 1000
@@ -102,28 +102,28 @@ class KPIState:
 
     def _accumulate_infinite_consumption(self, trade):
         """
-        If the InfiniteBus is a seller of the trade when below the referenced area and bought
+        If the InfiniteBus is a seller_id of the trade when below the referenced area and bought
         by any of child devices.
         * total_self_consumption_wh needs to accumulated.
         * total_energy_produced_wh also needs to accumulated accounting of what
         the InfiniteBus has produced.
         """
-        if trade['seller_origin'] in self.buffer_list and \
-                trade['buyer_origin'] in self.consumer_list and \
-                trade['buyer_origin'] == trade['buyer']:
+        if trade['seller_origin_id'] in self.buffer_list and \
+                trade['buyer_origin_id'] in self.consumer_list and \
+                trade['buyer_origin_id'] == trade['buyer_id']:
             self.total_self_consumption_wh += trade['energy'] * 1000
             self.total_energy_produced_wh += trade['energy'] * 1000
 
     def _dissipate_infinite_consumption(self, trade):
         """
-        If the InfiniteBus is a buyer of the trade when below the referenced area
+        If the InfiniteBus is a buyer_id of the trade when below the referenced area
         and sold by any of child devices.
         total_self_consumption_wh needs to accumulated.
         demanded_buffer_wh also needs to accumulated accounting of what
         the InfiniteBus has consumed/demanded.
         """
-        if trade['buyer_origin'] in self.buffer_list and \
-                trade['seller_origin'] in self.producer_list:
+        if trade['buyer_origin_id'] in self.buffer_list and \
+                trade['seller_origin_id'] in self.producer_list:
             self.total_self_consumption_wh += trade['energy'] * 1000
             self.demanded_buffer_wh += trade['energy'] * 1000
 
@@ -154,41 +154,41 @@ class KPI(ResultsBaseClass):
         return f"KPI: {self.performance_indices}"
 
     def area_performance_indices(self, area_dict, core_stats):
-        if area_dict['name'] not in self.state:
-            self.state[area_dict['name']] = KPIState()
-        self.state[area_dict['name']].accumulate_devices(area_dict)
+        if area_dict['uuid'] not in self.state:
+            self.state[area_dict['uuid']] = KPIState()
+        self.state[area_dict['uuid']].accumulate_devices(area_dict)
 
-        self.state[area_dict['name']].update_area_kpi(area_dict, core_stats)
-        self.state[area_dict['name']].total_demand = \
-            self.state[area_dict['name']].total_energy_demanded_wh + \
-            self.state[area_dict['name']].demanded_buffer_wh
+        self.state[area_dict['uuid']].update_area_kpi(area_dict, core_stats)
+        self.state[area_dict['uuid']].total_demand = \
+            self.state[area_dict['uuid']].total_energy_demanded_wh + \
+            self.state[area_dict['uuid']].demanded_buffer_wh
 
         # in case when the area doesn't have any load demand
-        if self.state[area_dict['name']].total_demand <= 0:
+        if self.state[area_dict['uuid']].total_demand <= 0:
             self_sufficiency = None
-        elif self.state[area_dict['name']].total_self_consumption_wh >= \
-                self.state[area_dict['name']].total_demand:
+        elif self.state[area_dict['uuid']].total_self_consumption_wh >= \
+                self.state[area_dict['uuid']].total_demand:
             self_sufficiency = 1.0
         else:
-            self_sufficiency = self.state[area_dict['name']].total_self_consumption_wh / \
-                               self.state[area_dict['name']].total_demand
+            self_sufficiency = self.state[area_dict['uuid']].total_self_consumption_wh / \
+                               self.state[area_dict['uuid']].total_demand
 
-        if self.state[area_dict['name']].total_energy_produced_wh <= 0:
+        if self.state[area_dict['uuid']].total_energy_produced_wh <= 0:
             self_consumption = None
-        elif self.state[area_dict['name']].total_self_consumption_wh >= \
-                self.state[area_dict['name']].total_energy_produced_wh:
+        elif self.state[area_dict['uuid']].total_self_consumption_wh >= \
+                self.state[area_dict['uuid']].total_energy_produced_wh:
             self_consumption = 1.0
         else:
-            self_consumption = self.state[area_dict['name']].total_self_consumption_wh / \
-                               self.state[area_dict['name']].total_energy_produced_wh
+            self_consumption = self.state[area_dict['uuid']].total_self_consumption_wh / \
+                               self.state[area_dict['uuid']].total_energy_produced_wh
         return {
             "self_sufficiency": self_sufficiency, "self_consumption": self_consumption,
-            "total_energy_demanded_wh": self.state[area_dict['name']].total_demand,
-            "demanded_buffer_wh": self.state[area_dict['name']].demanded_buffer_wh,
-            "self_consumption_buffer_wh": self.state[area_dict['name']].self_consumption_buffer_wh,
-            "total_energy_produced_wh": self.state[area_dict['name']].total_energy_produced_wh,
+            "total_energy_demanded_wh": self.state[area_dict['uuid']].total_demand,
+            "demanded_buffer_wh": self.state[area_dict['uuid']].demanded_buffer_wh,
+            "self_consumption_buffer_wh": self.state[area_dict['uuid']].self_consumption_buffer_wh,
+            "total_energy_produced_wh": self.state[area_dict['uuid']].total_energy_produced_wh,
             "total_self_consumption_wh":
-                self.state[area_dict['name']].total_self_consumption_wh}
+                self.state[area_dict['uuid']].total_self_consumption_wh}
 
     def _kpi_ratio_to_percentage(self, area_name):
         area_kpis = self.performance_indices[area_name]
@@ -215,10 +215,10 @@ class KPI(ResultsBaseClass):
     def update(self, area_dict, core_stats, current_market_slot):
         if not self._has_update_parameters(area_dict, core_stats, current_market_slot):
             return
-        self.performance_indices[area_dict['name']] = \
+        self.performance_indices[area_dict['uuid']] = \
             self.area_performance_indices(area_dict, core_stats)
         self.performance_indices_redis[area_dict['uuid']] = \
-            self._kpi_ratio_to_percentage(area_dict['name'])
+            self._kpi_ratio_to_percentage(area_dict['uuid'])
 
         for child in area_dict['children']:
             if len(child['children']) > 0:
@@ -227,21 +227,21 @@ class KPI(ResultsBaseClass):
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         if not last_known_state_data:
             return
-        if area_dict['name'] not in self.state:
-            self.state[area_dict['name']] = KPIState()
-            self.state[area_dict['name']].self_consumption = \
+        if area_dict['uuid'] not in self.state:
+            self.state[area_dict['uuid']] = KPIState()
+            self.state[area_dict['uuid']].self_consumption = \
                 last_known_state_data['self_consumption']
-            self.state[area_dict['name']].self_sufficiency = \
+            self.state[area_dict['uuid']].self_sufficiency = \
                 last_known_state_data['self_sufficiency']
-            self.state[area_dict['name']].demanded_buffer_wh = \
+            self.state[area_dict['uuid']].demanded_buffer_wh = \
                 last_known_state_data['demanded_buffer_wh']
-            self.state[area_dict['name']].total_energy_demanded_wh = \
+            self.state[area_dict['uuid']].total_energy_demanded_wh = \
                 last_known_state_data['total_energy_demanded_wh']
-            self.state[area_dict['name']].total_energy_produced_wh = \
+            self.state[area_dict['uuid']].total_energy_produced_wh = \
                 last_known_state_data['total_energy_produced_wh']
-            self.state[area_dict['name']].total_self_consumption_wh = \
+            self.state[area_dict['uuid']].total_self_consumption_wh = \
                 last_known_state_data['total_self_consumption_wh']
-            self.state[area_dict['name']].self_consumption_buffer_wh = \
+            self.state[area_dict['uuid']].self_consumption_buffer_wh = \
                 last_known_state_data['self_consumption_buffer_wh']
 
     @staticmethod
