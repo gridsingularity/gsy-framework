@@ -55,9 +55,11 @@ class CumulativeBills(ResultsBaseClass):
             for uuid, results in self.cumulative_bills_results.items()
         }
 
-    def restore_area_results_state(self, area_uuid, last_known_state_data):
-        if area_uuid not in self.cumulative_bills_results:
-            self.cumulative_bills_results[area_uuid] = {
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
+        if not last_known_state_data:
+            return
+        if area_dict["uuid"] not in self.cumulative_bills_results:
+            self.cumulative_bills_results[area_dict["uuid"]] = {
                 "name": last_known_state_data['name'],
                 "spent_total": last_known_state_data['spent_total'],
                 "earned": last_known_state_data['earned'],
@@ -301,7 +303,7 @@ class MarketEnergyBills(ResultsBaseClass):
         # them correctly.
         self.bills_redis_results = self._round_results_for_ui(deepcopy(bills))
 
-    def restore_area_results_state(self, area_dict, last_known_state_data):
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         self.bills_redis_results[area_dict['uuid']] = last_known_state_data
         self.bills_results[area_dict['name']] = last_known_state_data
         self.current_raw_bills[area_dict['uuid']] = \

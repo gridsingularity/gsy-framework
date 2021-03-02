@@ -43,10 +43,10 @@ class CumulativeGridTrades(ResultsBaseClass):
         )
         self._restored = False
 
-    def restore_area_results_state(self, area_uuid, last_known_state_data):
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         self._restored = True
-        if area_uuid not in self.accumulated_trades:
-            self.accumulated_trades[area_uuid] = last_known_state_data
+        if area_dict["uuid"] not in self.accumulated_trades:
+            self.accumulated_trades[area_dict["uuid"]] = last_known_state_data
 
     def export_cumulative_grid_trades(self, area_dict, flattened_area_core_stats_dict,
                                       accumulated_trades_redis):
@@ -306,26 +306,14 @@ class CumulativeGridTrades(ResultsBaseClass):
         # Producer entries
         if abs(area_data["produced"]) > FLOATING_POINT_TOLERANCE:
             results["bars"].append(
-                {"energy": round_floats_for_ui(area_data["produced"]), "targetArea": child['name'],
-                 "energyLabel":
-                     f"{child['name']} sold "
-                     f"{str(round_floats_for_ui(abs(area_data['produced'])))} kWh",
-                 "priceLabel":
-                     f"{child['name']} earned "
-                     f"{str(round_floats_for_ui(area_data['earned']))} cents"}
+                {"energy": round_floats_for_ui(area_data["produced"]), "targetArea": child['name']}
             )
 
         # Consumer entries
         for producer, energy in area_data["consumedFrom"].items():
-            money = round_floats_for_ui(area_data["spentTo"][producer])
-            tag = "external sources" if producer == parent_name else producer
             results["bars"].append({
                 "energy": round_floats_for_ui(energy),
-                "targetArea": producer,
-                "energyLabel": f"{child['name']} bought "
-                               f"{str(round_floats_for_ui(energy))} kWh from {tag}",
-                "priceLabel": f"{child['name']} spent "
-                              f"{str(round_floats_for_ui(money))} cents on energy from {tag}",
+                "targetArea": producer
             })
 
         return results
@@ -346,24 +334,15 @@ class CumulativeGridTrades(ResultsBaseClass):
                 spent += round_floats_for_ui(area_data["spentToExternal"][k])
                 results["bars"].append({
                     "energy": incoming_energy,
-                    "targetArea": area_data['name'],
-                    "energyLabel": f"External sources sold "
-                                   f"{abs(round_floats_for_ui(incoming_energy))} kWh",
-                    "priceLabel": f"External sources "
-                                  f"earned {abs(round_floats_for_ui(spent))} cents"
-
+                    "targetArea": area_data['name']
                 })
 
         if "producedForExternal" in area_data:
             for k, v in area_data["producedForExternal"].items():
                 outgoing_energy = round_floats_for_ui(area_data["producedForExternal"][k])
-                earned = round_floats_for_ui(area_data["earnedFromExternal"][k])
                 results["bars"].append({
                     "energy": outgoing_energy,
-                    "targetArea": k,
-                    "energyLabel": f"External sources bought {abs(outgoing_energy)} kWh "
-                                   f"from {k}",
-                    "priceLabel": f"{area_data['name']} spent {earned} cents."
+                    "targetArea": k
                 })
         return results
 

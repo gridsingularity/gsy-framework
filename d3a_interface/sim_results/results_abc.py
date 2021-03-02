@@ -34,7 +34,7 @@ class ResultsBaseClass(ABC):
         pass
 
     @abstractmethod
-    def restore_area_results_state(self, area_uuid, last_known_state_data):
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         """
         Restores the state of the simulation results for a specific area, defined by area_uuid.
         """

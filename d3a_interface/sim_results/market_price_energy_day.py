@@ -16,12 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from collections import OrderedDict
-from statistics import mean
 from typing import Dict
 from copy import deepcopy
 
-from d3a_interface.utils import key_in_dict_and_not_none, round_floats_for_ui, \
-    convert_pendulum_to_str_in_dict
+from d3a_interface.utils import round_floats_for_ui, \
+    convert_pendulum_to_str_in_dict, key_in_dict_and_not_none
 from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
@@ -99,7 +98,6 @@ class MarketPriceEnergyDay(ResultsBaseClass):
             redis_output[node_uuid]["price-energy-day"] = [
                 {
                     "time": timeslot,
-                    "av_price": round_floats_for_ui(mean(trades) if len(trades) > 0 else 0),
                     "min_price": round_floats_for_ui(min(trades) if len(trades) > 0 else 0),
                     "max_price": round_floats_for_ui(max(trades) if len(trades) > 0 else 0),
                 } for timeslot, trades in trade_rates.items()
@@ -124,7 +122,7 @@ class MarketPriceEnergyDay(ResultsBaseClass):
                     market_pe[area_uuid]["price-energy-day"])
         return global_pe
 
-    def restore_area_results_state(self, area_uuid, last_known_state_data):
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         pass
 
     @property
