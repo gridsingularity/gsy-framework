@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import gc
 import pathlib
 import sys
+import json
 
 from pkgutil import walk_packages
 
@@ -289,6 +290,14 @@ def deep_size_of(input_obj):
                 referents_objs.append(obj)
         objects = gc.get_referents(*referents_objs)
     return memory_size
+
+
+def utf8len(s):
+    return len(s.encode('utf-8')) / 1000.0
+
+
+def get_json_dict_memory_allocation_size(json_dict):
+    return sys.getsizeof(json.dumps(json_dict)) / 1024.
 
 
 def area_name_from_area_or_iaa_name(name):
