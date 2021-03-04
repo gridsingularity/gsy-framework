@@ -8,6 +8,7 @@ from d3a_interface.sim_results.device_statistics import DeviceStatistics
 from d3a_interface.sim_results.export_unmatched_loads import MarketUnmatchedLoads
 from d3a_interface.sim_results.energy_trade_profile import EnergyTradeProfile
 from d3a_interface.sim_results.cumulative_grid_trades import CumulativeGridTrades
+from d3a_interface.sim_results.market_summary_info import MarketSummaryInfo
 from d3a_interface.sim_results.cumulative_net_energy_flow import CumulativeNetEnergyFlow
 from d3a_interface.sim_results.kpi import KPI
 
@@ -26,7 +27,8 @@ class ResultsHandler:
             "cumulative_grid_trades": CumulativeGridTrades(),
             "device_statistics": DeviceStatistics(should_export_plots),
             "trade_profile": EnergyTradeProfile(should_export_plots),
-            "area_throughput": AreaThroughputStats()
+            "area_throughput": AreaThroughputStats(),
+            "market_summary": MarketSummaryInfo(should_export_plots)
         }
         self._total_memory_utilization_kb = 0.0
 
