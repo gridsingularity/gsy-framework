@@ -196,6 +196,11 @@ class MarketUnmatchedLoads(ResultsBaseClass):
         self.last_unmatched_loads = {}
         self.export_unmatched_loads = ExportUnmatchedLoads()
 
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.unmatched_loads, self.last_unmatched_loads
+        ])
+
     def write_none_to_unmatched_loads(self, area_dict):
         self.unmatched_loads[area_dict['name']] = None
         self.last_unmatched_loads[area_dict['uuid']] = None

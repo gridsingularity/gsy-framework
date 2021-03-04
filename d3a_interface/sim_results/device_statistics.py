@@ -265,3 +265,8 @@ class DeviceStatistics(ResultsBaseClass):
     @property
     def ui_formatted_results(self):
         return self.current_stats_dict
+
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.device_stats_dict, self.current_stats_dict, self.current_stats_time_str
+        ])

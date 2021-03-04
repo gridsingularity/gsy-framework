@@ -70,3 +70,6 @@ class CumulativeNetEnergyFlow(ResultsBaseClass):
     @property
     def raw_results(self):
         return self.net_area_flow
+
+    def memory_allocation_size_kb(self):
+        return 0.0

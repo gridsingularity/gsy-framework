@@ -150,6 +150,11 @@ class KPI(ResultsBaseClass):
         self.performance_indices_redis = dict()
         self.state = {}
 
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.performance_indices, self.performance_indices_redis
+        ])
+
     def __repr__(self):
         return f"KPI: {self.performance_indices}"
 
