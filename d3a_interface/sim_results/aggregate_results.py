@@ -26,7 +26,6 @@ from d3a_interface.sim_results.device_statistics import DeviceStatistics
 from d3a_interface.sim_results.market_summary_info import MarketSummaryInfo
 
 
-
 REQUESTED_FIELDS_LIST = ["price_energy_day", "device_statistics",
                          "energy_trade_profile", "area_throughput", "market_summary"]
 
