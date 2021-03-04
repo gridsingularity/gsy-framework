@@ -22,16 +22,14 @@ from d3a_interface.utils import generate_market_slot_list_from_config, \
 from d3a_interface.sim_results.area_throughput_stats import AreaThroughputStats
 from d3a_interface.sim_results.energy_trade_profile import EnergyTradeProfile
 from d3a_interface.sim_results.market_price_energy_day import MarketPriceEnergyDay
-from d3a_interface.sim_results.export_unmatched_loads import MarketUnmatchedLoads
 from d3a_interface.sim_results.device_statistics import DeviceStatistics
 
 
-REQUESTED_FIELDS_LIST = ["unmatched_loads", "price_energy_day", "device_statistics",
+REQUESTED_FIELDS_LIST = ["price_energy_day", "device_statistics",
                          "energy_trade_profile", "area_throughput"]
 
 
 REQUESTED_FIELDS_CLASS_MAP = {
-    "unmatched_loads": MarketUnmatchedLoads,
     "price_energy_day": MarketPriceEnergyDay,
     "device_statistics": DeviceStatistics,
     "energy_trade_profile": EnergyTradeProfile,
