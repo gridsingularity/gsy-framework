@@ -34,6 +34,12 @@ class CumulativeGridTrades(ResultsBaseClass):
         self.accumulated_balancing_trades = {}
         self._restored = False
 
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.current_trades, self.current_balancing_trades, self.accumulated_trades,
+            self.accumulated_balancing_trades
+        ])
+
     def update(self, area_dict, core_stats, current_market_slot):
         if not self._has_update_parameters(
                 area_dict, core_stats, current_market_slot):

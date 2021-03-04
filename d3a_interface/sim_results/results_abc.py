@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
+from d3a_interface.utils import get_json_dict_memory_allocation_size
+
 
 class ResultsBaseClass(ABC):
 
@@ -51,3 +53,14 @@ class ResultsBaseClass(ABC):
     @property
     def ui_formatted_results(self):
         return self.raw_results
+
+    @abstractmethod
+    def memory_allocation_size_kb(self):
+        return 0.0
+
+    @staticmethod
+    def _calculate_memory_allocated_by_objects(object_list: List) -> float:
+        return sum(
+            get_json_dict_memory_allocation_size(o)
+            for o in object_list
+        )

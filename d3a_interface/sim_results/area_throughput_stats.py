@@ -113,3 +113,8 @@ class AreaThroughputStats(ResultsBaseClass):
     @property
     def ui_formatted_results(self):
         return self.results_redis
+
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.results, self.results_redis, self.imported_energy, self.exported_energy
+        ])

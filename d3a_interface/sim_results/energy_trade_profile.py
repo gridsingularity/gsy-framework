@@ -194,3 +194,8 @@ class EnergyTradeProfile(ResultsBaseClass):
     def ui_formatted_results(self):
         return convert_pendulum_to_str_in_dict(
             self.traded_energy_current, {}, ui_format=True)
+
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.traded_energy_current, self.traded_energy_profile
+        ])

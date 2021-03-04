@@ -138,6 +138,9 @@ class CumulativeBills(ResultsBaseClass):
     def raw_results(self):
         return self.cumulative_bills
 
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([self.cumulative_bills_results])
+
 
 class MarketEnergyBills(ResultsBaseClass):
     def __init__(self, should_export_plots=False):
@@ -148,6 +151,12 @@ class MarketEnergyBills(ResultsBaseClass):
         self.market_fees = {}
         self._cumulative_fee_all_markets_whole_sim = 0.
         self.external_trades = {}
+
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.current_raw_bills, self.bills_results, self.bills_redis_results,
+            self.market_fees, self.external_trades
+        ])
 
     @staticmethod
     def _store_bought_trade(result_dict, trade):

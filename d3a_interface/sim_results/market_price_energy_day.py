@@ -31,6 +31,11 @@ class MarketPriceEnergyDay(ResultsBaseClass):
         self.redis_output = {}
         self.should_export_plots = should_export_plots
 
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.csv_output, self.redis_output, self._price_energy_day
+        ])
+
     @classmethod
     def gather_trade_rates(cls, area_dict, core_stats, current_market_slot, price_lists):
         if area_dict['children'] == []:
