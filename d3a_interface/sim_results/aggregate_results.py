@@ -23,17 +23,20 @@ from d3a_interface.sim_results.area_throughput_stats import AreaThroughputStats
 from d3a_interface.sim_results.energy_trade_profile import EnergyTradeProfile
 from d3a_interface.sim_results.market_price_energy_day import MarketPriceEnergyDay
 from d3a_interface.sim_results.device_statistics import DeviceStatistics
+from d3a_interface.sim_results.market_summary_info import MarketSummaryInfo
+
 
 
 REQUESTED_FIELDS_LIST = ["price_energy_day", "device_statistics",
-                         "energy_trade_profile", "area_throughput"]
+                         "energy_trade_profile", "area_throughput", "market_summary"]
 
 
 REQUESTED_FIELDS_CLASS_MAP = {
     "price_energy_day": MarketPriceEnergyDay,
     "device_statistics": DeviceStatistics,
     "energy_trade_profile": EnergyTradeProfile,
-    "area_throughput": AreaThroughputStats
+    "area_throughput": AreaThroughputStats,
+    "market_summary": MarketSummaryInfo
 }
 
 
