@@ -293,11 +293,11 @@ def deep_size_of(input_obj):
 
 
 def utf8len(s):
-    return len(s.encode('utf-8')) / 1000.0
+    return len(s.encode('utf-8'))
 
 
 def get_json_dict_memory_allocation_size(json_dict):
-    return sys.getsizeof(json.dumps(json_dict)) / 1024.
+    return utf8len(json.dumps(json_dict)) / 1024.
 
 
 def area_name_from_area_or_iaa_name(name):
