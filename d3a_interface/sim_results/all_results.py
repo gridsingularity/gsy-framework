@@ -1,4 +1,6 @@
 from typing import Dict
+import logging
+from time import time
 from d3a_interface.sim_results.market_price_energy_day import MarketPriceEnergyDay
 from d3a_interface.sim_results.area_throughput_stats import AreaThroughputStats
 from d3a_interface.sim_results.bills import MarketEnergyBills, CumulativeBills
@@ -28,6 +30,7 @@ class ResultsHandler:
             "area_throughput": AreaThroughputStats(),
             "market_summary": MarketSummaryInfo(should_export_plots)
         }
+        self._total_memory_utilization_kb = 0.0
 
     @property
     def _results_name_to_db_name_mapping(self):
@@ -41,12 +44,23 @@ class ResultsHandler:
         })
         return mapping
 
+    def _update_memory_utilization(self):
+        t1 = time()
+        self._total_memory_utilization_kb = sum([
+            v.memory_allocation_size_kb()
+            for k, v in self.results_mapping.items()
+        ])
+        t2 = time()
+        logging.info(f"Memory allocation calculation lasted {t2 -t1}. "
+                     f"Total allocated memory {self._total_memory_utilization_kb}")
+
     def update(self, area_dict: Dict, core_stats: Dict, current_market_slot: str):
         for area_uuid, area_result in core_stats.items():
             self.bids_offers_trades[area_uuid] = \
                 {k: area_result.get(k, []) for k in ('offers', 'bids', 'trades')}
         for k, v in self.results_mapping.items():
             v.update(area_dict, core_stats, current_market_slot)
+        self._update_memory_utilization()
 
     def restore_area_results_state(self, config_tree, area_results_map, cumulative_grid_fees=None):
         if cumulative_grid_fees is not None:
@@ -93,3 +107,7 @@ class ResultsHandler:
     @property
     def trade_profile_plot_results(self):
         return self.results_mapping["trade_profile"].plot_results
+
+    @property
+    def total_memory_utilization_kb(self):
+        return self._total_memory_utilization_kb
