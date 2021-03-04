@@ -67,3 +67,8 @@ class MarketSummaryInfo(ResultsBaseClass):
     @property
     def raw_results(self):
         return self._market_summary
+
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self._market_summary
+        ])
