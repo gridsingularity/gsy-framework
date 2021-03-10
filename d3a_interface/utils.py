@@ -312,3 +312,18 @@ def area_bought_from_child(trade: dict, area_name: str, child_names: list):
 def area_sells_to_child(trade: dict, area_name: str, child_names: list):
     return area_name_from_area_or_iaa_name(trade['seller']) == area_name and \
            area_name_from_area_or_iaa_name(trade['buyer']) in child_names
+
+
+def scenario_representation_traversal(sc_repr, parent=None):
+    """
+        Yields scenario representation in tuple form: ( child, parent )
+    """
+    children = []
+    if type(sc_repr) == dict and "children" in sc_repr:
+        children = sc_repr["children"]
+    elif hasattr(sc_repr, "children"):
+        children = getattr(sc_repr, "children")
+    for child in children:
+        yield from scenario_representation_traversal(child, sc_repr)
+
+    yield sc_repr, parent
