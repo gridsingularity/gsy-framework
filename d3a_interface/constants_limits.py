@@ -200,6 +200,7 @@ class GlobalConfig:
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = str(ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
     POWER_FLOW = False
+    IS_CANARY_NETWORK = False
 
     # Default simulation settings d3a side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))
@@ -226,6 +227,8 @@ DATE_FORMAT = "YYYY-MM-DD"
 DATE_TIME_FORMAT = f"{DATE_FORMAT}T{TIME_FORMAT}"
 DATE_TIME_FORMAT_SECONDS = f"{DATE_FORMAT}T{TIME_FORMAT_SECONDS}"
 DATE_TIME_UI_FORMAT = "MMMM DD YYYY, HH:mm [h]"
+TIME_ZONE = 'UTC'
+CN_PROFILE_EXPANSION_DAYS = 7
 
 JWT_TOKEN_EXPIRY_IN_SECS = 3600
 

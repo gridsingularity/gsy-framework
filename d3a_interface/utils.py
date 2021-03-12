@@ -19,18 +19,17 @@ import gc
 import pathlib
 import sys
 import json
-
-from pkgutil import walk_packages
-
-from pendulum import DateTime, from_format, from_timestamp
-from functools import lru_cache
-from copy import copy
-from threading import Timer
-from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, \
-    DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION
-from redis.exceptions import ConnectionError
 import time
 import logging
+from functools import wraps, lru_cache
+from collections import OrderedDict
+from copy import copy
+from threading import Timer
+from pkgutil import walk_packages
+from redis.exceptions import ConnectionError
+from pendulum import DateTime, from_format, from_timestamp, duration, today, datetime
+from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, \
+    DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION, GlobalConfig, TIME_ZONE, CN_PROFILE_EXPANSION_DAYS
 
 
 def convert_datetime_to_str_in_list(in_list, ui_format=False):
@@ -56,6 +55,45 @@ def generate_market_slot_list_from_config(sim_duration, start_date, market_count
             (sim_duration + (market_count * slot_length)) //
             slot_length - 1)
         if (slot_length * i) <= sim_duration]
+
+
+def generate_market_slot_list():
+    start_date = today(tz=TIME_ZONE) \
+        if GlobalConfig.IS_CANARY_NETWORK else GlobalConfig.start_date
+    time_span = duration(days=CN_PROFILE_EXPANSION_DAYS) \
+        if GlobalConfig.IS_CANARY_NETWORK else GlobalConfig.sim_duration
+    sim_duration_plus_future_markets = time_span + GlobalConfig.slot_length * \
+        (GlobalConfig.market_count - 1)
+    market_slot_list = \
+        generate_market_slot_list_from_config(sim_duration=sim_duration_plus_future_markets,
+                                              start_date=start_date,
+                                              market_count=GlobalConfig.market_count,
+                                              slot_length=GlobalConfig.slot_length)
+
+    if not getattr(GlobalConfig, 'market_slot_list', []):
+        GlobalConfig.market_slot_list = market_slot_list
+    return market_slot_list
+
+
+def find_object_of_same_weekday_and_time(indict, time_slot, ignore_not_found=False):
+    if GlobalConfig.IS_CANARY_NETWORK:
+        start_time = list(indict.keys())[0]
+        add_days = time_slot.weekday() - start_time.weekday()
+        if add_days < 0:
+            add_days += 7
+        timestamp_key = datetime(year=start_time.year, month=start_time.month, day=start_time.day,
+                                 hour=time_slot.hour, minute=time_slot.minute, tz=TIME_ZONE).add(
+            days=add_days)
+
+        if timestamp_key in indict:
+            return indict[timestamp_key]
+        else:
+            if not ignore_not_found:
+                log.error(f"Weekday and time not found in dict for {time_slot}")
+            return
+
+    else:
+        return indict[time_slot]
 
 
 def wait_until_timeout_blocking(functor, timeout=10, polling_period=0.01):
@@ -312,3 +350,22 @@ def area_bought_from_child(trade: dict, area_name: str, child_names: list):
 def area_sells_to_child(trade: dict, area_name: str, child_names: list):
     return area_name_from_area_or_iaa_name(trade['seller']) == area_name and \
            area_name_from_area_or_iaa_name(trade['buyer']) in child_names
+
+
+def convert_W_to_kWh(power_W, slot_length):
+    return (slot_length / duration(hours=1)) * power_W / 1000
+
+
+def convert_W_to_Wh(power_W, slot_length):
+    return (slot_length / duration(hours=1)) * power_W
+
+
+def convert_kW_to_kWh(power_W, slot_length):
+    return convert_W_to_Wh(power_W, slot_length)
+
+
+def return_ordered_dict(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        return OrderedDict(sorted(function(*args, **kwargs).items()))
+    return wrapper
