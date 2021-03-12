@@ -41,7 +41,6 @@ class TestValidateResults(unittest.TestCase):
                     "current_market": "2020-10-31T04:00",
                     'random_seed': 0,
                     'status': 'running',
-                    'unmatched_loads': {},
                     'price_energy_day': {},
                     'cumulative_grid_trades': {},
                     'bills': {},
@@ -53,7 +52,6 @@ class TestValidateResults(unittest.TestCase):
 
         results = { 'job_id': '46ff19de-6a4d-4ce8-a6c9-cd7b2778f2fc',
                     'random_seed': 0,
-                    'unmatched_loads': {},
                     'price_energy_day': {},
                     'cumulative_grid_trades': {},
                     'bills': {},

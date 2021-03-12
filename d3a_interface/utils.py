@@ -89,7 +89,7 @@ def find_object_of_same_weekday_and_time(indict, time_slot, ignore_not_found=Fal
             return indict[timestamp_key]
         else:
             if not ignore_not_found:
-                log.error(f"Weekday and time not found in dict for {time_slot}")
+                logging.error(f"Weekday and time not found in dict for {time_slot}")
             return
 
     else:
@@ -369,3 +369,18 @@ def return_ordered_dict(function):
     def wrapper(*args, **kwargs):
         return OrderedDict(sorted(function(*args, **kwargs).items()))
     return wrapper
+
+
+def scenario_representation_traversal(sc_repr, parent=None):
+    """
+        Yields scenario representation in tuple form: ( child, parent )
+    """
+    children = []
+    if type(sc_repr) == dict and "children" in sc_repr:
+        children = sc_repr["children"]
+    elif hasattr(sc_repr, "children"):
+        children = getattr(sc_repr, "children")
+    for child in children:
+        yield from scenario_representation_traversal(child, sc_repr)
+
+    yield sc_repr, parent
