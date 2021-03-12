@@ -5,7 +5,6 @@ from d3a_interface.sim_results.market_price_energy_day import MarketPriceEnergyD
 from d3a_interface.sim_results.area_throughput_stats import AreaThroughputStats
 from d3a_interface.sim_results.bills import MarketEnergyBills, CumulativeBills
 from d3a_interface.sim_results.device_statistics import DeviceStatistics
-from d3a_interface.sim_results.export_unmatched_loads import MarketUnmatchedLoads
 from d3a_interface.sim_results.energy_trade_profile import EnergyTradeProfile
 from d3a_interface.sim_results.cumulative_grid_trades import CumulativeGridTrades
 from d3a_interface.sim_results.market_summary_info import MarketSummaryInfo
@@ -21,7 +20,6 @@ class ResultsHandler:
             "bills": MarketEnergyBills(should_export_plots),
             "kpi": KPI(),
             "cumulative_net_energy_flow": CumulativeNetEnergyFlow(),
-            "unmatched_loads": MarketUnmatchedLoads(),
             "price_energy_day": MarketPriceEnergyDay(should_export_plots),
             "cumulative_bills": CumulativeBills(),
             "cumulative_grid_trades": CumulativeGridTrades(),
