@@ -21,6 +21,7 @@ import sys
 import json
 import time
 import logging
+from typing import Dict, List, Callable
 from functools import wraps, lru_cache
 from collections import OrderedDict
 from copy import copy
@@ -32,9 +33,13 @@ from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT
     DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION, GlobalConfig, TIME_ZONE, CN_PROFILE_EXPANSION_DAYS
 
 
-def convert_datetime_to_str_in_list(in_list, ui_format=False):
+def convert_datetime_to_str_in_list(in_list: List, ui_format: bool = False):
     """
     Converts all Datetime elements in a list into strings in DATE_TIME_FORMAT
+    @param in_list: List with datetimes that will be converted to datetime strings
+    @param ui_format: Boolean parameter that switches between  DATE_TIME_FORMAT and
+                      DATE_TIME_UI_FORMAT
+    @return: List with datetime strings
     """
     out_list = []
     for in_datetime in in_list:
@@ -46,9 +51,15 @@ def convert_datetime_to_str_in_list(in_list, ui_format=False):
     return out_list
 
 
-def generate_market_slot_list_from_config(sim_duration, start_date, market_count, slot_length):
+def generate_market_slot_list_from_config(sim_duration: duration, start_date: DateTime,
+                                          market_count: int, slot_length: duration):
     """
     Returns a list of all slot times in Datetime format
+    @param sim_duration: Total simulation duration
+    @param start_date: Start datetime of the simulation
+    @param market_count: Number of future markets
+    @param slot_length: Market slot length
+    @return: List with market slot datetimes
     """
     return [
         start_date + (slot_length * i) for i in range(
@@ -58,6 +69,11 @@ def generate_market_slot_list_from_config(sim_duration, start_date, market_count
 
 
 def generate_market_slot_list():
+    """
+    Creates a list with datetimes that correspond to market slots of the simulation.
+    No input arguments, required input is only handled by a preconfigured GlobalConfig
+    @return: List with market slot datetimes
+    """
     start_date = today(tz=TIME_ZONE) \
         if GlobalConfig.IS_CANARY_NETWORK else GlobalConfig.start_date
     time_span = duration(days=CN_PROFILE_EXPANSION_DAYS) \
@@ -75,7 +91,23 @@ def generate_market_slot_list():
     return market_slot_list
 
 
-def find_object_of_same_weekday_and_time(indict, time_slot, ignore_not_found=False):
+def find_object_of_same_weekday_and_time(indict: Dict, time_slot: DateTime,
+                                         ignore_not_found: bool = False):
+    """
+    Based on a profile with datetimes that span in one week as keys and some values, finds the
+    corresponding value of the same weekday and time. This method is mainly useful for Canary
+    Network, during which profiles get recycled every week. Therefore in order to find the
+    value of a profile that corresponds to any requested time, the requested time slot is
+    mapped on the week that the profile includes, and returns the value of the profile on the
+    same weekday and on the same time
+    @param indict: profile dict (keys are datetimes, values are arbitrary objects, but usually
+                   floats) that contains data for one week that will be used as reference for
+                   the requested time_slots
+    @param time_slot: DateTime value that represents the requested time slot
+    @param ignore_not_found: Boolean parameter that controls whether an error log will be reported
+                             if the time_slot cannot be found in the original dict
+    @return: Profile value for the requested time slot
+    """
     if GlobalConfig.IS_CANARY_NETWORK:
         start_time = list(indict.keys())[0]
         add_days = time_slot.weekday() - start_time.weekday()
@@ -96,7 +128,17 @@ def find_object_of_same_weekday_and_time(indict, time_slot, ignore_not_found=Fal
         return indict[time_slot]
 
 
-def wait_until_timeout_blocking(functor, timeout=10, polling_period=0.01):
+def wait_until_timeout_blocking(functor: Callable, timeout: int = 10, polling_period: int = 0.01):
+    """
+    Sleeps until the timeout value, or until functor returns a value that is evaluated to True.
+    The operation is blocking/poll based.
+    @param functor: Function without arguments that will be called consecutive times expecting
+                    to return something that will not be evaluated by 'if not'
+    @param timeout: Timeout value after which an assertion will be raised, if the functor does not
+                    return the expected value
+    @param polling_period: How frequent is the functor evaluated
+    @return: None
+    """
     current_time = 0.0
     while not functor() and current_time < timeout:
         start_time = time.time()
