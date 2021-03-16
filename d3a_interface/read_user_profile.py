@@ -27,10 +27,14 @@ from d3a_interface.constants_limits import TIME_FORMAT, DATE_TIME_FORMAT, Global
     DATE_TIME_FORMAT_SECONDS, TIME_ZONE
 from d3a_interface.utils import convert_kW_to_kWh, return_ordered_dict, generate_market_slot_list, \
     find_object_of_same_weekday_and_time
+from d3a_interface.exceptions import D3AReadProfileException
 
 """
 Exposes mixins that can be used from strategy classes.
 """
+
+
+DATE_TIME_FORMAT_SPACED = f"YYYY-MM-DD HH:mm:ss"
 
 
 class InputProfileTypes(Enum):
@@ -45,13 +49,13 @@ def _str_to_datetime(time_str, time_format) -> DateTime:
     :return: DateTime
     """
     time = from_format(time_str, time_format, tz=TIME_ZONE)
-    if time_format == DATE_TIME_FORMAT or time_format == DATE_TIME_FORMAT_SECONDS:
+    if time_format in [DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_FORMAT_SPACED]:
         return time
     elif time_format == TIME_FORMAT:
         return GlobalConfig.start_date.add(
             hours=time.hour, minutes=time.minute, seconds=time.second)
     else:
-        raise ValueError("Provided time_format invalid.")
+        raise D3AReadProfileException("Provided time_format invalid.")
 
 
 def default_profile_dict(val=None) -> Dict[DateTime, int]:
@@ -84,26 +88,32 @@ def _remove_header(profile_dict: Dict) -> Dict:
     return out_dict
 
 
+def _eval_single_format(time_dict, time_format):
+    try:
+        [from_format(str(ti), time_format) for ti in time_dict.keys()]
+        return time_format
+    except ValueError:
+        return None
+
+
 def _eval_time_format(time_dict: Dict) -> str:
     """
     Evaluates which time format the provided dictionary has, also checks if the time-format is
     consistent for each time_slot
     :return: TIME_FORMAT or DATE_TIME_FORMAT or DATE_TIME_FORMAT_SECONDS
     """
-    try:
-        [from_format(str(ti), TIME_FORMAT) for ti in time_dict.keys()]
-        return TIME_FORMAT
-    except ValueError:
-        try:
-            [from_format(str(ti), DATE_TIME_FORMAT) for ti in time_dict.keys()]
-            return DATE_TIME_FORMAT
-        except ValueError:
-            try:
-                [from_format(str(ti), DATE_TIME_FORMAT_SECONDS) for ti in time_dict.keys()]
-                return DATE_TIME_FORMAT_SECONDS
-            except ValueError:
-                raise Exception(f"Format of time-stamp is not one of ('{TIME_FORMAT}', "
-                                f"'{DATE_TIME_FORMAT}', '{DATE_TIME_FORMAT_SECONDS}')")
+    if time_format := _eval_single_format(time_dict, TIME_FORMAT):
+        return time_format
+    elif time_format := _eval_single_format(time_dict, DATE_TIME_FORMAT):
+        return time_format
+    elif time_format := _eval_single_format(time_dict, DATE_TIME_FORMAT_SECONDS):
+        return time_format
+    elif time_format := _eval_single_format(time_dict, DATE_TIME_FORMAT_SPACED):
+        return time_format
+    else:
+        raise D3AReadProfileException(
+            f"Format of time-stamp is not one of ('{TIME_FORMAT}', "
+            f"'{DATE_TIME_FORMAT}', '{DATE_TIME_FORMAT_SECONDS}')")
 
 
 def _readCSV(path: str) -> Dict:
@@ -118,7 +128,8 @@ def _readCSV(path: str) -> Dict:
         csv_rows = csv.reader(csv_file)
         for row in csv_rows:
             if len(row) == 0:
-                raise Exception(f"There must not be an empty line in the profile file {path}")
+                raise D3AReadProfileException(
+                    f"There must not be an empty line in the profile file {path}")
             if len(row) != 2:
                 row = row[0].split(";")
             try:
@@ -130,15 +141,7 @@ def _readCSV(path: str) -> Dict:
                 for time_str, value in profile_data.items())
 
 
-def _calculate_energy_from_power_profile(profile_data_W: Dict[DateTime, float],
-                                         slot_length: duration) -> Dict[DateTime, float]:
-    """
-    Calculates energy from power profile. Does not use numpy, calculates avg power for each
-    market slot and based on that calculates energy.
-    :param profile_data_W: Power profile in W
-    :param slot_length: slot length duration
-    :return: a mapping from time to energy values in kWh
-    """
+def _interpolate_profile_values_to_slot(profile_data_W, slot_length):
     input_time_list = list(profile_data_W.keys())
 
     # add one market slot in order to have another data point for integration
@@ -167,6 +170,20 @@ def _calculate_energy_from_power_profile(profile_data_W: Dict[DateTime, float],
         if first_index <= len(second_power_list_W):
             avg_power_kW.append(second_power_list_W[first_index] / 1000.)
 
+    return avg_power_kW, slot_time_list
+
+
+def _calculate_energy_from_power_profile(profile_data_W: Dict[DateTime, float],
+                                         slot_length: duration) -> Dict[DateTime, float]:
+    """
+    Calculates energy from power profile. Does not use numpy, calculates avg power for each
+    market slot and based on that calculates energy.
+    :param profile_data_W: Power profile in W
+    :param slot_length: slot length duration
+    :return: a mapping from time to energy values in kWh
+    """
+
+    avg_power_kW, slot_time_list = _interpolate_profile_values_to_slot(profile_data_W, slot_length)
     slot_energy_kWh = list(map(lambda x: convert_kW_to_kWh(x, slot_length), avg_power_kW))
 
     return {from_timestamp(slot_time_list[ii]): energy
@@ -174,15 +191,16 @@ def _calculate_energy_from_power_profile(profile_data_W: Dict[DateTime, float],
             }
 
 
-def _fill_gaps_in_profile(input_profile: Dict = None) -> Dict:
+def _fill_gaps_in_profile(input_profile: Dict = None, out_profile: Dict = None) -> Dict:
     """
     Fills time steps, where no value is provided, with the value value of the
     last available time step.
     :param input_profile: Dict[Datetime: float, int, tuple]
+    : param out_profile: dict with the same format as the input_profile that can be used
+                         to provide a default zero-value profile dict with the expected timestamps
+                         that need to be populated in the profile
     :return: continuous profile Dict[Datetime: float, int, tuple]
     """
-
-    out_profile = default_profile_dict()
 
     if isinstance(list(input_profile.values())[0], tuple):
         current_val = (0, 0)
@@ -252,7 +270,8 @@ def _read_from_different_sources_todict(input_profile: Any) -> Dict[DateTime, fl
             )
 
         else:
-            raise TypeError("Unsupported input type : " + str(list(input_profile.keys())[0]))
+            raise D3AReadProfileException(
+                "Unsupported input type : " + str(list(input_profile.keys())[0]))
 
     elif isinstance(input_profile, int) or \
             isinstance(input_profile, float) or \
@@ -261,7 +280,8 @@ def _read_from_different_sources_todict(input_profile: Any) -> Dict[DateTime, fl
         profile = default_profile_dict(val=input_profile)
 
     else:
-        raise TypeError(f"Unsupported input type: {str(input_profile)}")
+        raise D3AReadProfileException(
+            f"Unsupported input type: {str(input_profile)}")
 
     return profile
 
@@ -277,12 +297,13 @@ def _eval_time_period_consensus(input_profile: Dict):
                             - GlobalConfig.slot_length]
     if simulation_time_list[0] < input_time_list[0] or \
             simulation_time_list[-1] > input_time_list[-1]:
-        raise ValueError(f"Provided profile is not overlapping with simulation time period "
-                         f"(provided time period: {input_time_list[0].format(DATE_TIME_FORMAT)}, "
-                         f"{input_time_list[-1].format(DATE_TIME_FORMAT)}, "
-                         f"simulation time period: "
-                         f"{simulation_time_list[0].format(DATE_TIME_FORMAT)}, "
-                         f"{simulation_time_list[-1].format(DATE_TIME_FORMAT)})")
+        raise D3AReadProfileException(
+            f"Provided profile is not overlapping with simulation time period "
+            f"(provided time period: {input_time_list[0].format(DATE_TIME_FORMAT)}, "
+            f"{input_time_list[-1].format(DATE_TIME_FORMAT)}, "
+            f"simulation time period: "
+            f"{simulation_time_list[0].format(DATE_TIME_FORMAT)}, "
+            f"{simulation_time_list[-1].format(DATE_TIME_FORMAT)})")
 
 
 def time_str(hour, minute):
@@ -322,7 +343,8 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
             GlobalConfig.IS_CANARY_NETWORK:
         profile = copy_profile_to_multiple_days(profile)
     if profile is not None:
-        filled_profile = _fill_gaps_in_profile(profile)
+        zero_value_slot_profile = default_profile_dict()
+        filled_profile = _fill_gaps_in_profile(profile, zero_value_slot_profile)
         if not GlobalConfig.IS_CANARY_NETWORK:
             _eval_time_period_consensus(filled_profile)
 
@@ -330,6 +352,42 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
             return _calculate_energy_from_power_profile(filled_profile, GlobalConfig.slot_length)
         else:
             return filled_profile
+
+
+def _generate_slot_based_zero_values_dict_from_profile(profile, slot_length_mins=15):
+    profile_time_list = list(profile.keys())
+    end_time = profile_time_list[-1]
+    start_time = profile_time_list[0]
+
+    slot_length_seconds = slot_length_mins * 60
+
+    offset_seconds = start_time.timestamp() % slot_length_seconds
+    start_datetime = from_timestamp(start_time.timestamp() - offset_seconds)
+
+    profile_duration = end_time - start_datetime
+    return {
+        start_datetime + duration(minutes=slot_length_mins*i): 0.0
+        for i in range((int(profile_duration.total_minutes()) // slot_length_mins)+1)
+    }
+
+
+def read_profile_without_config(input_profile: Dict, slot_length_mins=15) -> Dict[DateTime, float]:
+    profile = _read_from_different_sources_todict(input_profile)
+    if profile is not None:
+        slot_based_profile = _generate_slot_based_zero_values_dict_from_profile(
+            profile, slot_length_mins
+        )
+        filled_profile = _fill_gaps_in_profile(profile, slot_based_profile)
+        profile_values, slots = _interpolate_profile_values_to_slot(
+            filled_profile, duration(minutes=slot_length_mins)
+        )
+        return {
+            from_timestamp(slots[ii]): energy
+            for ii, energy in enumerate(profile_values)
+        }
+    else:
+        raise D3AReadProfileException(
+            f"Profile file cannot be read successfully. Please reconfigure the file path.")
 
 
 def read_and_convert_identity_profile_to_float(profile):
