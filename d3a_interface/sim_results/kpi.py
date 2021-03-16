@@ -123,7 +123,8 @@ class KPIState:
         the InfiniteBus has consumed/demanded.
         """
         if trade['buyer_origin_id'] in self.buffer_list and \
-                trade['seller_origin_id'] in self.producer_list:
+                trade['seller_origin_id'] in self.producer_list \
+                and trade['seller_origin_id'] == trade['seller_id']:
             self.total_self_consumption_wh += trade['energy'] * 1000
             self.demanded_buffer_wh += trade['energy'] * 1000
 
