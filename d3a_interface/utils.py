@@ -380,7 +380,8 @@ def scenario_representation_traversal(sc_repr, parent=None):
         children = sc_repr["children"]
     elif hasattr(sc_repr, "children"):
         children = getattr(sc_repr, "children")
-    for child in children:
-        yield from scenario_representation_traversal(child, sc_repr)
+    if children is not None:
+        for child in children:
+            yield from scenario_representation_traversal(child, sc_repr)
 
     yield sc_repr, parent
