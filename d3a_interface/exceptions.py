@@ -31,3 +31,7 @@ class D3ASettingsException(D3AException):
 
 class D3ADeviceException(D3AException):
     pass
+
+
+class D3AReadProfileException(D3AException):
+    pass
