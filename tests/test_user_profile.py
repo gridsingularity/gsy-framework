@@ -19,7 +19,7 @@ import unittest
 from pendulum import datetime, duration
 from d3a_interface.unit_test_utils import assert_dicts_identical
 from d3a_interface.read_user_profile import _generate_slot_based_zero_values_dict_from_profile, \
-    _fill_gaps_in_profile, _interpolate_profile_values_to_slot, read_profile_for_player
+    _fill_gaps_in_profile, _interpolate_profile_values_to_slot, read_profile_without_config
 
 
 class TestReadUserProfile(unittest.TestCase):
@@ -82,7 +82,7 @@ class TestReadUserProfile(unittest.TestCase):
             datetime(2021, 2, 12, 0, 25, 0): 600.0,
             datetime(2021, 2, 12, 0, 30, 0): 100.0
         }
-        return_dict = read_profile_for_player(profile_dict)
+        return_dict = read_profile_without_config(profile_dict)
 
         assert len(return_dict.keys()) == 3
         assert_dicts_identical(return_dict, {
