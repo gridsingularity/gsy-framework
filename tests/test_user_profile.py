@@ -63,7 +63,8 @@ class TestReadUserProfile(unittest.TestCase):
             datetime(2021, 2, 12, 0, 30, 0): 100.0
         }
 
-        interp_profile, slot_times = _interpolate_profile_values_to_slot(profile_dict, duration(minutes=15))
+        interp_profile, slot_times = _interpolate_profile_values_to_slot(
+            profile_dict, duration(minutes=15))
         assert len(interp_profile) == 3
         assert slot_times[0] == datetime(2021, 2, 12, 0, 0, 0).timestamp()
         assert slot_times[1] == datetime(2021, 2, 12, 0, 15, 0).timestamp()

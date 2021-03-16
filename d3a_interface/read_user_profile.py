@@ -25,8 +25,8 @@ from typing import Dict
 
 from d3a_interface.constants_limits import TIME_FORMAT, DATE_TIME_FORMAT, GlobalConfig, \
     DATE_TIME_FORMAT_SECONDS, TIME_ZONE
-from d3a_interface.utils import convert_kW_to_kWh, return_ordered_dict, generate_market_slot_list, \
-    find_object_of_same_weekday_and_time
+from d3a_interface.utils import convert_kW_to_kWh, return_ordered_dict, \
+    generate_market_slot_list, find_object_of_same_weekday_and_time
 from d3a_interface.exceptions import D3AReadProfileException
 
 """
@@ -102,18 +102,15 @@ def _eval_time_format(time_dict: Dict) -> str:
     consistent for each time_slot
     :return: TIME_FORMAT or DATE_TIME_FORMAT or DATE_TIME_FORMAT_SECONDS
     """
-    if time_format := _eval_single_format(time_dict, TIME_FORMAT):
-        return time_format
-    elif time_format := _eval_single_format(time_dict, DATE_TIME_FORMAT):
-        return time_format
-    elif time_format := _eval_single_format(time_dict, DATE_TIME_FORMAT_SECONDS):
-        return time_format
-    elif time_format := _eval_single_format(time_dict, DATE_TIME_FORMAT_SPACED):
-        return time_format
-    else:
-        raise D3AReadProfileException(
-            f"Format of time-stamp is not one of ('{TIME_FORMAT}', "
-            f"'{DATE_TIME_FORMAT}', '{DATE_TIME_FORMAT_SECONDS}')")
+
+    for time_format in [TIME_FORMAT, DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS,
+                        DATE_TIME_FORMAT_SPACED]:
+        if _eval_single_format(time_dict, time_format):
+            return time_format
+
+    raise D3AReadProfileException(
+        f"Format of time-stamp is not one of ('{TIME_FORMAT}', "
+        f"'{DATE_TIME_FORMAT}', '{DATE_TIME_FORMAT_SECONDS}')")
 
 
 def _readCSV(path: str) -> Dict:
@@ -196,9 +193,9 @@ def _fill_gaps_in_profile(input_profile: Dict = None, out_profile: Dict = None) 
     Fills time steps, where no value is provided, with the value value of the
     last available time step.
     :param input_profile: Dict[Datetime: float, int, tuple]
-    : param out_profile: dict with the same format as the input_profile that can be used
-                         to provide a default zero-value profile dict with the expected timestamps
-                         that need to be populated in the profile
+    :param out_profile: dict with the same format as the input_profile that can be used
+                        to provide a default zero-value profile dict with the expected timestamps
+                        that need to be populated in the profile
     :return: continuous profile Dict[Datetime: float, int, tuple]
     """
 
