@@ -427,3 +427,12 @@ def scenario_representation_traversal(sc_repr, parent=None):
             yield from scenario_representation_traversal(child, sc_repr)
 
     yield sc_repr, parent
+
+
+def count_assets_in_representation(sc_repr: dict, asset_type: str) -> int:
+    """
+        Returns the number of asset_type in the sc_repr
+    """
+    assets = [area for area, _ in
+              scenario_representation_traversal(sc_repr) if area.get("type", "") == asset_type]
+    return len(assets)
