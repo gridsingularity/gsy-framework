@@ -1,6 +1,6 @@
 import unittest
 
-from d3a_interface.utils import count_assets_in_representation
+from d3a_interface.utils import count_assets_in_representation_by_type
 
 
 class TestUtils(unittest.TestCase):
@@ -27,5 +27,5 @@ class TestUtils(unittest.TestCase):
         assert all(type(obj) == tuple for obj in areas)
 
     def test_count_assets_in_representation(self):
-        assert count_assets_in_representation(self.scenario_repr, "Load") == 2
-        assert count_assets_in_representation(self.scenario_repr, "Storage") == 2
+        assert count_assets_in_representation_by_type(self.scenario_repr, "Load") == 2
+        assert count_assets_in_representation_by_type(self.scenario_repr, "Storage") == 2

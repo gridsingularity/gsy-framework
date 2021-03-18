@@ -429,7 +429,7 @@ def scenario_representation_traversal(sc_repr, parent=None):
     yield sc_repr, parent
 
 
-def count_assets_in_representation(sc_repr: dict, asset_type: str) -> int:
+def count_assets_in_representation_by_type(sc_repr: dict, asset_type: str) -> int:
     """
         Returns the number of asset_type in the sc_repr
     """
