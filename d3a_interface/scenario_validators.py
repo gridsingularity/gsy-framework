@@ -32,4 +32,4 @@ def validate_area_name(area_dict: dict):
     intersect = set(area_name).intersection(
         ConstSettings.GeneralSettings.AREA_NAME_RESTRICTED_CHARS)
     if intersect:
-        raise D3AAreaException('Area name cannot have special characters {intersect}.')
+        raise D3AAreaException(f'Area name cannot have special characters {intersect}.')
