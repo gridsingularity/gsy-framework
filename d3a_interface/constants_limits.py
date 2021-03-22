@@ -48,7 +48,7 @@ class ConstSettings:
         # Boolean flag which forces d3a to dispatch events via redis channels
         EVENT_DISPATCHING_VIA_REDIS = False
         # Restricted characters in area names
-        AREA_NAME_RESTRICTED_CHARS = {'/', '*'}
+        AREA_NAME_RESTRICTED_CHARS = ['/', '*']
         RATE_CHANGE_PER_UPDATE_LIMIT = RangeLimit(0, 1000)
         ENERGY_PROFILE_LIMIT = RangeLimit(0, sys.maxsize)
 
