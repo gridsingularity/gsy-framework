@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from jsonschema.validators import validate
 
 from d3a_interface.constants_limits import ConstSettings
+from d3a_interface.exceptions import D3AAreaException
 from d3a_interface.schemas import ScenarioSchemas
 
 
@@ -31,4 +32,4 @@ def validate_area_name(area_dict: dict):
     intersect = set(area_name).intersection(
         ConstSettings.GeneralSettings.AREA_NAME_RESTRICTED_CHARS)
     if intersect:
-        raise ValueError('Area name cannot have special characters {intersect}.')
+        raise D3AAreaException('Area name cannot have special characters {intersect}.')

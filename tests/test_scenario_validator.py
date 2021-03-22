@@ -20,6 +20,8 @@ import unittest
 from parameterized import parameterized
 import json
 from jsonschema import ValidationError
+
+from d3a_interface.exceptions import D3AAreaException
 from d3a_interface.scenario_validators import scenario_validator, validate_area_name
 
 
@@ -75,4 +77,4 @@ class TestValidateGlobalSettings(unittest.TestCase):
                    '{"name": "battery", "type": "Storage", "batteryCapacity": 1.2, "initialCharge": 90}, ' \
                    '{"name": "battery_plant","type": "Storage", "batteryCapacity": 1.2, "initialCapacity": 0.6}, ' \
                    '{"name": "Load", "type": "Load", "avgPowerW": 200} ]}'
-        self.assertRaises(ValueError, validate_area_name, json.loads(scenario))
+        self.assertRaises(D3AAreaException, validate_area_name, json.loads(scenario))
