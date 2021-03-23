@@ -20,5 +20,5 @@ from jsonschema.validators import validate
 from d3a_interface.schemas import ApiClientConfigSchema
 
 
-def api_simulation_config_validator(simulation_config):
+def validate_api_simulation_config(simulation_config):
     validate(instance=simulation_config, schema=ApiClientConfigSchema.simulation_config_schema)
