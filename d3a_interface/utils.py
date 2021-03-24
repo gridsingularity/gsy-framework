@@ -152,7 +152,7 @@ def key_in_dict_and_not_none(d, key):
 
 
 def key_in_dict_and_is_true(d, key):
-    return key in d and d[key] and d[key] is True
+    return key in d and d[key] is True
 
 
 def key_in_dict_and_not_none_and_not_str_type(d, key):
