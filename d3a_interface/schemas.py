@@ -220,8 +220,10 @@ class ApiClientConfigSchema:
                                     'name': {'type': 'string'},
                                     'type': {'type': 'string'},
                                     'uuid': {'type': 'string'},
-                                    'attributes': {'type': 'string'},
-                                    'registered': {'type': 'string'},
+                                    'attributes': {'anyOf': [{'type': 'string'},
+                                                             {'type': 'null'}]},
+                                    'registered': {'anyOf': [{'type': 'string'},
+                                                             {'type': 'null'}]},
                                     'aggregator_name': {'anyOf': [{'type': 'string'},
                                                                   {'type': 'null'}]},
                                     'children': {'anyOf': [{'type': 'array'}, {'type': 'null'}]}
