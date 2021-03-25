@@ -62,6 +62,14 @@ class ResultsHandler:
             v.update(area_dict, core_stats, current_market_slot)
         self._update_memory_utilization()
 
+    def update_from_repr(self, area_representation: Dict):
+        """
+        Can be added as an abstract method to the results_abc if needed
+        """
+        for key, value in self.results_mapping.items():
+            if hasattr(value, 'update_from_repr'):
+                value.update_from_repr(area_representation)
+
     def restore_area_results_state(self, config_tree, area_results_map, cumulative_grid_fees=None):
         if cumulative_grid_fees is not None:
             self.results_mapping["bills"].restore_cumulative_fees_whole_sim(cumulative_grid_fees)

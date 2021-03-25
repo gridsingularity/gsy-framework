@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 def is_load_node_type(area):
     return area['type'] in ["LoadHoursStrategy", "DefinedLoadStrategy",
                             "LoadHoursExternalStrategy", "LoadProfileExternalStrategy",
-                            "LoadForecastExternalStrategy"]
+                            "LoadForecastExternalStrategy", 'Load']
 
 
 def is_bulk_power_producer(area):
@@ -30,11 +30,11 @@ def is_bulk_power_producer(area):
 def is_pv_node_type(area):
     return area['type'] in ["PVStrategy", "PVUserProfileStrategy", "PVPredefinedStrategy",
                             "PVExternalStrategy", "PVUserProfileExternalStrategy",
-                            "PVPredefinedExternalStrategy", "PVForecastExternalStrategy"]
+                            "PVPredefinedExternalStrategy", "PVForecastExternalStrategy", 'PV']
 
 
 def is_finite_power_plant_node_type(area):
-    return area['type'] == "FinitePowerPlant"
+    return area['type'] in ['FinitePowerPlant', 'FiniteDieselGenerator']
 
 
 def is_producer_node_type(area):
@@ -43,7 +43,7 @@ def is_producer_node_type(area):
 
 
 def is_prosumer_node_type(area):
-    return area['type'] in ["StorageStrategy", "StorageExternalStrategy"]
+    return area['type'] in ["StorageStrategy", "StorageExternalStrategy", 'Storage']
 
 
 def is_buffer_node_type(area):
