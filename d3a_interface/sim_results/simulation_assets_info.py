@@ -18,7 +18,7 @@ class SimulationAssetsInfo(ResultsBaseClass):
     def merge_results_to_global(market_results: Dict, global_results: Dict, slot_list: List):
         pass
 
-    def update(self, area_result_dict, core_stats, current_market_slot):
+    def update(self, area_result_dict: Dict, core_stats: Dict, current_market_slot: str):
         updated_results_dict = {
             'number_of_load_type': 0,
             'total_energy_demand_kwh': 0,
@@ -65,4 +65,4 @@ class SimulationAssetsInfo(ResultsBaseClass):
         return self.assets_info
 
     def memory_allocation_size_kb(self):
-        return 0
+        return self._calculate_memory_allocated_by_objects([self.assets_info])
