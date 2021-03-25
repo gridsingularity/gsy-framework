@@ -18,16 +18,16 @@ class ResultsHandler:
         self.should_export_plots = should_export_plots
         self.bids_offers_trades = {}
         self.results_mapping = {
-            "bills": MarketEnergyBills(should_export_plots),
-            "kpi": KPI(),
-            "cumulative_net_energy_flow": CumulativeNetEnergyFlow(),
-            "price_energy_day": MarketPriceEnergyDay(should_export_plots),
-            "cumulative_bills": CumulativeBills(),
-            "cumulative_grid_trades": CumulativeGridTrades(),
-            "device_statistics": DeviceStatistics(should_export_plots),
-            "trade_profile": EnergyTradeProfile(should_export_plots),
-            "area_throughput": AreaThroughputStats(),
-            "market_summary": MarketSummaryInfo(should_export_plots),
+            'bills': MarketEnergyBills(should_export_plots),
+            'kpi': KPI(),
+            'cumulative_net_energy_flow': CumulativeNetEnergyFlow(),
+            'price_energy_day': MarketPriceEnergyDay(should_export_plots),
+            'cumulative_bills': CumulativeBills(),
+            'cumulative_grid_trades': CumulativeGridTrades(),
+            'device_statistics': DeviceStatistics(should_export_plots),
+            'trade_profile': EnergyTradeProfile(should_export_plots),
+            'area_throughput': AreaThroughputStats(),
+            'market_summary': MarketSummaryInfo(should_export_plots),
             'assets_info': SimulationAssetsInfo()
         }
         self._total_memory_utilization_kb = 0.0
