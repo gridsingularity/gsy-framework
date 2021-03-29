@@ -16,7 +16,9 @@ class SimulationAssetsInfo(ResultsBaseClass):
 
     @staticmethod
     def merge_results_to_global(market_results: Dict, global_results: Dict, slot_list: List):
-        pass
+        raise NotImplementedError(
+            "Assets Info endpoint supports only global results, "
+            "merge not supported.")
 
     def update(self, area_result_dict: Dict, core_stats: Dict, current_market_slot: str):
         updated_results_dict = {
@@ -42,7 +44,9 @@ class SimulationAssetsInfo(ResultsBaseClass):
             'number_of_storage_type': 0,
             'total_energy_capacity_kwh': 0,
             'number_of_power_plant_type': 0,
-            'max_power_plant_power_kw': 0
+            'max_power_plant_power_kw': 0,
+            'number_of_house_type': 0,
+            'avg_assets_per_house': 0
         }
         for area_dict, _ in scenario_representation_traversal(area_representation):
             if is_prosumer_node_type(area_dict):
@@ -53,10 +57,11 @@ class SimulationAssetsInfo(ResultsBaseClass):
                 updated_results_dict['number_of_power_plant_type'] += 1
                 updated_results_dict['max_power_plant_power_kw'] +=\
                     area_dict.get('max_available_power_kW', 0)
-            elif HomeRepresentationUtils.is_home_area(area_dict):  # WIP
-                updated_results_dict['number_of_house_type'] += 1
-        updated_results_dict['avg_assets_per_house'] = \
+
+        updated_results_dict['number_of_house_type'],\
+            updated_results_dict['avg_assets_per_house'] = \
             HomeRepresentationUtils.calculate_home_area_stats_from_repr_dict(area_representation)
+
         self.assets_info.update(updated_results_dict)
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
@@ -67,4 +72,4 @@ class SimulationAssetsInfo(ResultsBaseClass):
         return self.assets_info
 
     def memory_allocation_size_kb(self):
-        return self._calculate_memory_allocated_by_objects([self.assets_info,])
+        return self._calculate_memory_allocated_by_objects([self.assets_info, ])
