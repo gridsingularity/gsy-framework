@@ -29,8 +29,6 @@ class ConstSettings:
     class GeneralSettings:
         # Max energy price (market maker rate) in ct / kWh
         DEFAULT_MARKET_MAKER_RATE = 30  # 0.3 Eur
-        # Number of ticks, an offer needs to be able to travel to reach each part of the setup
-        MAX_OFFER_TRAVERSAL_LENGTH = 6
         # interval between offer/bid postings
         DEFAULT_UPDATE_INTERVAL = 1  # in minutes
         MIN_UPDATE_INTERVAL = 1  # in minutes
