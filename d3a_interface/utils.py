@@ -26,6 +26,7 @@ from functools import wraps, lru_cache
 from collections import OrderedDict
 from copy import copy
 from threading import Timer
+from statistics import mean
 from pkgutil import walk_packages
 from redis.exceptions import ConnectionError
 from pendulum import DateTime, from_format, from_timestamp, duration, today, datetime
@@ -427,3 +428,29 @@ def scenario_representation_traversal(sc_repr, parent=None):
             yield from scenario_representation_traversal(child, sc_repr)
 
     yield sc_repr, parent
+
+
+class HomeRepresentationUtils:
+    @staticmethod
+    def _is_home(representation):
+        home_devices = ["PV", "Storage", "Load", "MarketMaker"]
+        return all("type" in c and c["type"] in home_devices
+                   for c in representation["children"])
+
+    @classmethod
+    def is_home_area(cls, representation):
+        is_market_area = not key_in_dict_and_not_none(representation, "type") or \
+            representation["type"] == "Area"
+        has_home_devices = key_in_dict_and_not_none(representation, "children") and \
+            representation["children"] and \
+            cls._is_home(representation)
+        return is_market_area and has_home_devices
+
+    @classmethod
+    def calculate_home_area_stats_from_repr_dict(cls, representation):
+        devices_per_home = [
+            len(area["children"])
+            for area, _ in scenario_representation_traversal(representation)
+            if cls.is_home_area(area)
+        ]
+        return len(devices_per_home), mean(devices_per_home)
