@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from d3a_interface.sim_results import is_finite_power_plant_node_type, is_prosumer_node_type
 from d3a_interface.sim_results.results_abc import ResultsBaseClass
-from d3a_interface.utils import scenario_representation_traversal
+from d3a_interface.utils import scenario_representation_traversal, HomeRepresentationUtils
 
 
 class SimulationAssetsInfo(ResultsBaseClass):
@@ -53,9 +53,11 @@ class SimulationAssetsInfo(ResultsBaseClass):
                 updated_results_dict['number_of_power_plant_type'] += 1
                 updated_results_dict['max_power_plant_power_kw'] +=\
                     area_dict.get('max_available_power_kW', 0)
-            elif 'House':  # WIP
-                pass
-            self.assets_info.update(updated_results_dict)
+            elif HomeRepresentationUtils.is_home_area(area_dict):  # WIP
+                updated_results_dict['number_of_house_type'] += 1
+        updated_results_dict['avg_assets_per_house'] = \
+            HomeRepresentationUtils.calculate_home_area_stats_from_repr_dict(area_representation)
+        self.assets_info.update(updated_results_dict)
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         pass
@@ -65,4 +67,4 @@ class SimulationAssetsInfo(ResultsBaseClass):
         return self.assets_info
 
     def memory_allocation_size_kb(self):
-        return self._calculate_memory_allocated_by_objects([self.assets_info])
+        return self._calculate_memory_allocated_by_objects([self.assets_info,])

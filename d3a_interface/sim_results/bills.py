@@ -128,6 +128,9 @@ class CumulativeBills(ResultsBaseClass):
             self.cumulative_bills_results[area_dict['uuid']]["penalty_energy"] += penalty_energy
             self.cumulative_bills_results[area_dict['uuid']]["total"] += total
 
+    def update_from_repr(self, area_representation: Dict):
+        pass
+
     @staticmethod
     def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
         raise NotImplementedError(

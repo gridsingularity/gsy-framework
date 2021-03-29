@@ -31,6 +31,9 @@ class CumulativeNetEnergyFlow(ResultsBaseClass):
             return
         self._update_results(area_dict, core_stats, current_market_slot)
 
+    def update_from_repr(self, area_representation: Dict):
+        pass
+
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         area_uuid = area_dict["uuid"]
         # TODO: Restore the state only if it is a float. At the moment, the default value for

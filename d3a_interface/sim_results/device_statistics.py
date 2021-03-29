@@ -192,6 +192,9 @@ class DeviceStatistics(ResultsBaseClass):
                 area_result_dict, {}, self.current_stats_dict, core_stats,
                 current_market_slot)
 
+    def update_from_repr(self, area_representation: Dict):
+        pass
+
     @classmethod
     def gather_device_statistics(cls, area_dict: Dict, subdict: Dict,
                                  flat_result_dict: Dict,

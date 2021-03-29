@@ -50,6 +50,9 @@ class EnergyTradeProfile(ResultsBaseClass):
                     area_result_dict, core_stats, current_market_slot
                 )
 
+    def update_from_repr(self, area_representation: Dict):
+        pass
+
     def update_current_energy_trade_profile(self, area_result_dict, core_stats,
                                             current_market_slot):
         if current_market_slot is not None:

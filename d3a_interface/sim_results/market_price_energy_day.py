@@ -77,6 +77,9 @@ class MarketPriceEnergyDay(ResultsBaseClass):
         else:
             self.redis_output = price_energy_redis_output
 
+    def update_from_repr(self, area_representation: Dict):
+        pass
+
     def calculate_csv_output(self, area_dict, price_energy_redis_output):
         if not price_energy_redis_output.get(area_dict['uuid'], {}).get('price-energy-day', []):
             return
