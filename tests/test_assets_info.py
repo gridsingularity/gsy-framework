@@ -1,8 +1,6 @@
 import unittest
 from uuid import uuid4
-from d3a_interface.sim_results.bills import MarketEnergyBills
 from d3a_interface.sim_results.simulation_assets_info import SimulationAssetsInfo
-from d3a_interface.unit_test_utils import assert_dicts_identical
 
 
 class TestSimulationAssetsInfo(unittest.TestCase):
