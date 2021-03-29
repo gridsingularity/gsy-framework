@@ -49,8 +49,6 @@ class SimulationAssetsInfo(ResultsBaseClass):
             'avg_assets_per_house': 0
         }
         for area_dict, _ in scenario_representation_traversal(area_representation):
-            if not isinstance(area_dict, dict):
-                continue
             if is_prosumer_node_type(area_dict):
                 updated_results_dict['number_of_storage_type'] += 1
                 updated_results_dict['total_energy_capacity_kwh'] +=\
