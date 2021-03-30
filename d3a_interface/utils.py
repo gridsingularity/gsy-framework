@@ -453,4 +453,4 @@ class HomeRepresentationUtils:
             for area, _ in scenario_representation_traversal(representation)
             if cls.is_home_area(area)
         ]
-        return len(devices_per_home), mean(devices_per_home)
+        return len(devices_per_home), mean(devices_per_home) if devices_per_home else None
