@@ -149,6 +149,7 @@ def wait_until_timeout_blocking(functor: Callable, timeout: int = 10, polling_pe
 
 
 def key_in_dict_and_not_none(d, key):
+    print(f"The dict is {d}")
     return key in d and d[key] is not None
 
 
@@ -439,6 +440,7 @@ class HomeRepresentationUtils:
 
     @classmethod
     def is_home_area(cls, representation):
+        print(f"Representation {representation}")
         is_market_area = not key_in_dict_and_not_none(representation, "type") or \
             representation["type"] == "Area"
         has_home_devices = key_in_dict_and_not_none(representation, "children") and \
