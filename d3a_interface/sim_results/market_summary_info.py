@@ -36,9 +36,6 @@ class MarketSummaryInfo(ResultsBaseClass):
             return
         self._update_results(area_result_dict, core_stats, current_market_slot)
 
-    def update_from_repr(self, area_representation: Dict):
-        pass
-
     def _update_results(self, area_dict, core_stats, current_market_slot):
         if not key_in_dict_and_not_none(area_dict, 'children'):
             return

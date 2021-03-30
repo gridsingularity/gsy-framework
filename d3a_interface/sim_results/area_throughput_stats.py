@@ -35,9 +35,6 @@ class AreaThroughputStats(ResultsBaseClass):
         self.results_redis = {}
         self.update_results(area_result_dict, core_stats, current_market_slot)
 
-    def update_from_repr(self, area_representation: Dict):
-        pass
-
     def update_results(self, area_dict, core_stats, current_market_time_slot_str):
         area_throughput = core_stats.get(area_dict['uuid'], {}).get('area_throughput', {})
         imported_peak = round_floats_for_ui(area_throughput.get('imported_energy_kWh', 0.))

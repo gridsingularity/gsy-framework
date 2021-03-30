@@ -128,9 +128,6 @@ class CumulativeBills(ResultsBaseClass):
             self.cumulative_bills_results[area_dict['uuid']]["penalty_energy"] += penalty_energy
             self.cumulative_bills_results[area_dict['uuid']]["total"] += total
 
-    def update_from_repr(self, area_representation: Dict):
-        pass
-
     @staticmethod
     def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
         raise NotImplementedError(
@@ -314,9 +311,6 @@ class MarketEnergyBills(ResultsBaseClass):
         # Rounds the precision of the results to 3 decimal points, in order for the UI to report
         # them correctly.
         self.bills_redis_results = self._round_results_for_ui(deepcopy(bills))
-
-    def update_from_repr(self, area_representation: Dict):
-        pass
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         self.bills_redis_results[area_dict['uuid']] = last_known_state_data

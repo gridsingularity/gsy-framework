@@ -49,9 +49,6 @@ class CumulativeGridTrades(ResultsBaseClass):
         )
         self._restored = False
 
-    def update_from_repr(self, area_representation: Dict):
-        pass
-
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         self._restored = True
         if area_dict["uuid"] not in self.accumulated_trades:

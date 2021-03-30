@@ -230,9 +230,6 @@ class KPI(ResultsBaseClass):
             if len(child['children']) > 0:
                 self.update(child, core_stats, current_market_slot)
 
-    def update_from_repr(self, area_representation: Dict):
-        pass
-
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         if not last_known_state_data:
             return
