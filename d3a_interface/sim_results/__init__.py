@@ -43,7 +43,10 @@ def is_producer_node_type(area):
 
 
 def is_prosumer_node_type(area):
-    return area['type'] in ["StorageStrategy", "StorageExternalStrategy", 'Storage']
+    try:
+        return area['type'] in ["StorageStrategy", "StorageExternalStrategy", 'Storage']
+    except:
+        print(area)
 
 
 def is_buffer_node_type(area):
