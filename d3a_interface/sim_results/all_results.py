@@ -1,15 +1,18 @@
-from typing import Dict
 import logging
 from time import time
-from d3a_interface.sim_results.market_price_energy_day import MarketPriceEnergyDay
+
+from typing import Dict
+
 from d3a_interface.sim_results.area_throughput_stats import AreaThroughputStats
 from d3a_interface.sim_results.bills import MarketEnergyBills, CumulativeBills
+from d3a_interface.sim_results.cumulative_grid_trades import CumulativeGridTrades
+from d3a_interface.sim_results.cumulative_net_energy_flow import CumulativeNetEnergyFlow
 from d3a_interface.sim_results.device_statistics import DeviceStatistics
 from d3a_interface.sim_results.energy_trade_profile import EnergyTradeProfile
-from d3a_interface.sim_results.cumulative_grid_trades import CumulativeGridTrades
-from d3a_interface.sim_results.market_summary_info import MarketSummaryInfo
-from d3a_interface.sim_results.cumulative_net_energy_flow import CumulativeNetEnergyFlow
 from d3a_interface.sim_results.kpi import KPI
+from d3a_interface.sim_results.market_price_energy_day import MarketPriceEnergyDay
+from d3a_interface.sim_results.market_summary_info import MarketSummaryInfo
+from d3a_interface.sim_results.simulation_assets_info import SimulationAssetsInfo
 
 
 class ResultsHandler:
@@ -17,16 +20,17 @@ class ResultsHandler:
         self.should_export_plots = should_export_plots
         self.bids_offers_trades = {}
         self.results_mapping = {
-            "bills": MarketEnergyBills(should_export_plots),
-            "kpi": KPI(),
-            "cumulative_net_energy_flow": CumulativeNetEnergyFlow(),
-            "price_energy_day": MarketPriceEnergyDay(should_export_plots),
-            "cumulative_bills": CumulativeBills(),
-            "cumulative_grid_trades": CumulativeGridTrades(),
-            "device_statistics": DeviceStatistics(should_export_plots),
-            "trade_profile": EnergyTradeProfile(should_export_plots),
-            "area_throughput": AreaThroughputStats(),
-            "market_summary": MarketSummaryInfo(should_export_plots)
+            'bills': MarketEnergyBills(should_export_plots),
+            'kpi': KPI(),
+            'cumulative_net_energy_flow': CumulativeNetEnergyFlow(),
+            'price_energy_day': MarketPriceEnergyDay(should_export_plots),
+            'cumulative_bills': CumulativeBills(),
+            'cumulative_grid_trades': CumulativeGridTrades(),
+            'device_statistics': DeviceStatistics(should_export_plots),
+            'trade_profile': EnergyTradeProfile(should_export_plots),
+            'area_throughput': AreaThroughputStats(),
+            'market_summary': MarketSummaryInfo(should_export_plots),
+            'assets_info': SimulationAssetsInfo()
         }
         self._total_memory_utilization_kb = 0.0
 
@@ -56,9 +60,16 @@ class ResultsHandler:
         for area_uuid, area_result in core_stats.items():
             self.bids_offers_trades[area_uuid] = \
                 {k: area_result.get(k, []) for k in ('offers', 'bids', 'trades')}
-        for k, v in self.results_mapping.items():
-            v.update(area_dict, core_stats, current_market_slot)
+        for result_object in self.results_mapping.values():
+            result_object.update(area_dict, core_stats, current_market_slot)
         self._update_memory_utilization()
+
+    def update_from_repr(self, area_representation: Dict):
+        """
+        Can be added as an abstract method to the results_abc if needed
+        """
+        for result_object in self.results_mapping.values():
+            result_object.update_from_repr(area_representation)
 
     def restore_area_results_state(self, config_tree, area_results_map, cumulative_grid_fees=None):
         if cumulative_grid_fees is not None:

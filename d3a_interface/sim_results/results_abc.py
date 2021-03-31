@@ -35,6 +35,12 @@ class ResultsBaseClass(ABC):
         """
         pass
 
+    def update_from_repr(self, area_representation: Dict):
+        """
+        Updates the simulation results using area_representation data that arrive from the d3a-web
+        """
+        pass
+
     @abstractmethod
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         """
