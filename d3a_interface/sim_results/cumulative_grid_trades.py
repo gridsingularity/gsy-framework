@@ -206,11 +206,14 @@ class CumulativeGridTrades(ResultsBaseClass):
                     )
                 )
             if self._restored:
-                child_index = current_child_uuids.index(child['uuid'])
-                accumulated_trades[area['uuid']]['children'][child_index] = \
-                    CumulativeGridTrades._generate_accumulated_trades_child_dict(
-                        accumulated_trades, child
-                    )
+                try:
+                    child_index = current_child_uuids.index(child['uuid'])
+                    accumulated_trades[area['uuid']]['children'][child_index] = \
+                        CumulativeGridTrades._generate_accumulated_trades_child_dict(
+                            accumulated_trades, child
+                        )
+                except ValueError:
+                    pass
 
     def _accumulate_area_trades(self, area, parent, flattened_area_core_stats_dict,
                                 accumulated_trades):
