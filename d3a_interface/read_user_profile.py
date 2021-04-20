@@ -389,7 +389,7 @@ def read_profile_without_config(input_profile: Dict, slot_length_mins=15) -> Dic
 
 def read_and_convert_identity_profile_to_float(profile):
     try:
-        parsed_profile = ast.literal_eval(str(profile))
+        parsed_profile = ast.literal_eval(profile)
     except ValueError:
         parsed_profile = profile
     generated_profile = read_arbitrary_profile(InputProfileTypes.IDENTITY, parsed_profile)
