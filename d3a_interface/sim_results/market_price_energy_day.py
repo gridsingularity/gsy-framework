@@ -16,17 +16,25 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from collections import OrderedDict
-from statistics import mean
+from typing import Dict
+from copy import deepcopy
 
-from d3a_interface.utils import key_in_dict_and_not_none, round_floats_for_ui
+from d3a_interface.utils import round_floats_for_ui, \
+    convert_pendulum_to_str_in_dict, key_in_dict_and_not_none
+from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
-class MarketPriceEnergyDay:
+class MarketPriceEnergyDay(ResultsBaseClass):
     def __init__(self, should_export_plots):
         self._price_energy_day = {}
         self.csv_output = {}
         self.redis_output = {}
         self.should_export_plots = should_export_plots
+
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.csv_output, self.redis_output, self._price_energy_day
+        ])
 
     @classmethod
     def gather_trade_rates(cls, area_dict, core_stats, current_market_slot, price_lists):
@@ -55,7 +63,8 @@ class MarketPriceEnergyDay:
         price_lists[area_dict['uuid']][current_market_slot].extend(trade_rates)
 
     def update(self, area_result_dict=None, core_stats=None, current_market_slot=None):
-        if current_market_slot is None or area_result_dict is None or core_stats is None:
+        if not self._has_update_parameters(
+                area_result_dict, core_stats, current_market_slot):
             return
         current_price_lists = self.gather_trade_rates(
             area_result_dict, core_stats, current_market_slot, {}
@@ -94,7 +103,6 @@ class MarketPriceEnergyDay:
             redis_output[node_uuid]["price-energy-day"] = [
                 {
                     "time": timeslot,
-                    "av_price": round_floats_for_ui(mean(trades) if len(trades) > 0 else 0),
                     "min_price": round_floats_for_ui(min(trades) if len(trades) > 0 else 0),
                     "max_price": round_floats_for_ui(max(trades) if len(trades) > 0 else 0),
                 } for timeslot, trades in trade_rates.items()
@@ -105,3 +113,27 @@ class MarketPriceEnergyDay:
                 if key_in_dict_and_not_none(area_core_stats, 'grid_fee_constant') else None
 
             redis_output[node_uuid]["price-energy-day"][0].update({"grid_fee_constant": fee})
+
+    @staticmethod
+    def merge_results_to_global(market_pe: Dict, global_pe: Dict, *_):
+        if not global_pe:
+            global_pe = market_pe
+            return global_pe
+        for area_uuid in market_pe:
+            if area_uuid not in global_pe:
+                global_pe[area_uuid] = deepcopy(market_pe[area_uuid])
+            else:
+                global_pe[area_uuid]["price-energy-day"].extend(
+                    market_pe[area_uuid]["price-energy-day"])
+        return global_pe
+
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
+        pass
+
+    @property
+    def raw_results(self):
+        return self.csv_output
+
+    @property
+    def ui_formatted_results(self):
+        return convert_pendulum_to_str_in_dict(self.redis_output, {})

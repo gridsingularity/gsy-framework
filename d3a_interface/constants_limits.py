@@ -29,8 +29,6 @@ class ConstSettings:
     class GeneralSettings:
         # Max energy price (market maker rate) in ct / kWh
         DEFAULT_MARKET_MAKER_RATE = 30  # 0.3 Eur
-        # Number of ticks, an offer needs to be able to travel to reach each part of the setup
-        MAX_OFFER_TRAVERSAL_LENGTH = 6
         # interval between offer/bid postings
         DEFAULT_UPDATE_INTERVAL = 1  # in minutes
         MIN_UPDATE_INTERVAL = 1  # in minutes
@@ -47,7 +45,8 @@ class ConstSettings:
         RUN_REAL_TIME = False
         # Boolean flag which forces d3a to dispatch events via redis channels
         EVENT_DISPATCHING_VIA_REDIS = False
-
+        # Restricted characters in area names
+        AREA_NAME_RESTRICTED_CHARS = ['/', '*']
         RATE_CHANGE_PER_UPDATE_LIMIT = RangeLimit(0, 1000)
         ENERGY_PROFILE_LIMIT = RangeLimit(0, sys.maxsize)
 
@@ -200,6 +199,7 @@ class GlobalConfig:
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = str(ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
     POWER_FLOW = False
+    IS_CANARY_NETWORK = False
 
     # Default simulation settings d3a side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))
@@ -226,8 +226,10 @@ DATE_FORMAT = "YYYY-MM-DD"
 DATE_TIME_FORMAT = f"{DATE_FORMAT}T{TIME_FORMAT}"
 DATE_TIME_FORMAT_SECONDS = f"{DATE_FORMAT}T{TIME_FORMAT_SECONDS}"
 DATE_TIME_UI_FORMAT = "MMMM DD YYYY, HH:mm [h]"
+TIME_ZONE = 'UTC'
+CN_PROFILE_EXPANSION_DAYS = 7
 
-JWT_TOKEN_EXPIRY_IN_SECS = 3600
+JWT_TOKEN_EXPIRY_IN_SECS = 48 * 3600
 
 DEFAULT_PRECISION = 8
 FLOATING_POINT_TOLERANCE = 0.00001

@@ -16,16 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import ast
-
+from typing import Dict
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.sim_results import is_load_node_type, \
     is_producer_node_type, is_prosumer_node_type, is_buffer_node_type, area_sells_to_child, \
     child_buys_from_area, area_name_from_area_or_iaa_name
 from d3a_interface.utils import add_or_create_key, \
     make_iaa_name_from_dict, subtract_or_create_key, round_floats_for_ui
+from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
-class CumulativeGridTrades:
+class CumulativeGridTrades(ResultsBaseClass):
     def __init__(self):
         self.current_trades = {}
         self.current_balancing_trades = {}
@@ -33,16 +34,25 @@ class CumulativeGridTrades:
         self.accumulated_balancing_trades = {}
         self._restored = False
 
-    def update(self, area_dict, flattened_area_core_stats_dict):
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.current_trades, self.current_balancing_trades, self.accumulated_trades,
+            self.accumulated_balancing_trades
+        ])
+
+    def update(self, area_dict, core_stats, current_market_slot):
+        if not self._has_update_parameters(
+                area_dict, core_stats, current_market_slot):
+            return
         self.export_cumulative_grid_trades(
-            area_dict, flattened_area_core_stats_dict, self.accumulated_trades
+            area_dict, core_stats, self.accumulated_trades
         )
         self._restored = False
 
-    def restore_area_results_state(self, area_uuid, last_known_state_data):
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         self._restored = True
-        if area_uuid not in self.accumulated_trades:
-            self.accumulated_trades[area_uuid] = last_known_state_data
+        if area_dict["uuid"] not in self.accumulated_trades:
+            self.accumulated_trades[area_dict["uuid"]] = last_known_state_data
 
     def export_cumulative_grid_trades(self, area_dict, flattened_area_core_stats_dict,
                                       accumulated_trades_redis):
@@ -196,11 +206,14 @@ class CumulativeGridTrades:
                     )
                 )
             if self._restored:
-                child_index = current_child_uuids.index(child['uuid'])
-                accumulated_trades[area['uuid']]['children'][child_index] = \
-                    CumulativeGridTrades._generate_accumulated_trades_child_dict(
-                        accumulated_trades, child
-                    )
+                try:
+                    child_index = current_child_uuids.index(child['uuid'])
+                    accumulated_trades[area['uuid']]['children'][child_index] = \
+                        CumulativeGridTrades._generate_accumulated_trades_child_dict(
+                            accumulated_trades, child
+                        )
+                except ValueError:
+                    pass
 
     def _accumulate_area_trades(self, area, parent, flattened_area_core_stats_dict,
                                 accumulated_trades):
@@ -302,26 +315,14 @@ class CumulativeGridTrades:
         # Producer entries
         if abs(area_data["produced"]) > FLOATING_POINT_TOLERANCE:
             results["bars"].append(
-                {"energy": round_floats_for_ui(area_data["produced"]), "targetArea": child['name'],
-                 "energyLabel":
-                     f"{child['name']} sold "
-                     f"{str(round_floats_for_ui(abs(area_data['produced'])))} kWh",
-                 "priceLabel":
-                     f"{child['name']} earned "
-                     f"{str(round_floats_for_ui(area_data['earned']))} cents"}
+                {"energy": round_floats_for_ui(area_data["produced"]), "targetArea": child['name']}
             )
 
         # Consumer entries
         for producer, energy in area_data["consumedFrom"].items():
-            money = round_floats_for_ui(area_data["spentTo"][producer])
-            tag = "external sources" if producer == parent_name else producer
             results["bars"].append({
                 "energy": round_floats_for_ui(energy),
-                "targetArea": producer,
-                "energyLabel": f"{child['name']} bought "
-                               f"{str(round_floats_for_ui(energy))} kWh from {tag}",
-                "priceLabel": f"{child['name']} spent "
-                              f"{str(round_floats_for_ui(money))} cents on energy from {tag}",
+                "targetArea": producer
             })
 
         return results
@@ -342,24 +343,15 @@ class CumulativeGridTrades:
                 spent += round_floats_for_ui(area_data["spentToExternal"][k])
                 results["bars"].append({
                     "energy": incoming_energy,
-                    "targetArea": area_data['name'],
-                    "energyLabel": f"External sources sold "
-                                   f"{abs(round_floats_for_ui(incoming_energy))} kWh",
-                    "priceLabel": f"External sources "
-                                  f"earned {abs(round_floats_for_ui(spent))} cents"
-
+                    "targetArea": area_data['name']
                 })
 
         if "producedForExternal" in area_data:
             for k, v in area_data["producedForExternal"].items():
                 outgoing_energy = round_floats_for_ui(area_data["producedForExternal"][k])
-                earned = round_floats_for_ui(area_data["earnedFromExternal"][k])
                 results["bars"].append({
                     "energy": outgoing_energy,
-                    "targetArea": k,
-                    "energyLabel": f"External sources bought {abs(outgoing_energy)} kWh "
-                                   f"from {k}",
-                    "priceLabel": f"{area_data['name']} spent {earned} cents."
+                    "targetArea": k
                 })
         return results
 
@@ -393,3 +385,13 @@ class CumulativeGridTrades:
             results[area_uuid].append(CumulativeGridTrades._external_trade_entries(
                 area_uuid, accumulated_trades))
         return results
+
+    @staticmethod
+    def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
+        raise NotImplementedError(
+            "Cumulative grid trades endpoint supports only global results,"
+            " merge not supported.")
+
+    @property
+    def raw_results(self):
+        return self.accumulated_trades

@@ -1,0 +1,3 @@
+
+class ApiSimulationConfigException(Exception):
+    pass
