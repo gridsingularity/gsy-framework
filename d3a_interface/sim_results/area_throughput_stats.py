@@ -15,22 +15,25 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from typing import Dict
 from d3a_interface.utils import round_floats_for_ui, create_subdict_or_update
+from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
-class AreaThroughputStats:
+class AreaThroughputStats(ResultsBaseClass):
     def __init__(self):
         self.results = {}
         self.results_redis = {}
         self.exported_energy = {}
         self.imported_energy = {}
 
-    def update(self, area_dict, core_stats, current_market_time_slot_str):
-        if current_market_time_slot_str == "":
+    def update(self, area_result_dict=None, core_stats=None, current_market_slot=None):
+        if not self._has_update_parameters(
+                area_result_dict, core_stats, current_market_slot):
             return
         self.results = {}
         self.results_redis = {}
-        self.update_results(area_dict, core_stats, current_market_time_slot_str)
+        self.update_results(area_result_dict, core_stats, current_market_slot)
 
     def update_results(self, area_dict, core_stats, current_market_time_slot_str):
         area_throughput = core_stats.get(area_dict['uuid'], {}).get('area_throughput', {})
@@ -87,3 +90,31 @@ class AreaThroughputStats:
         for child in area_dict['children']:
             if child['type'] == "Area":
                 self.update_results(child, core_stats, current_market_time_slot_str)
+
+    @staticmethod
+    def merge_results_to_global(market_trade: Dict, global_trade: Dict, *_):
+        if not global_trade:
+            global_trade = market_trade
+            return global_trade
+        for area_uuid in market_trade:
+            if area_uuid not in global_trade or global_trade[area_uuid] == {}:
+                global_trade[area_uuid] = {}
+            for time_slot in market_trade[area_uuid]:
+                global_trade[area_uuid][time_slot] = market_trade[area_uuid][time_slot]
+        return global_trade
+
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
+        pass
+
+    @property
+    def raw_results(self):
+        return self.results
+
+    @property
+    def ui_formatted_results(self):
+        return self.results_redis
+
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.results, self.results_redis, self.imported_energy, self.exported_energy
+        ])

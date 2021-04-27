@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 def is_load_node_type(area):
     return area['type'] in ["LoadHoursStrategy", "DefinedLoadStrategy",
                             "LoadHoursExternalStrategy", "LoadProfileExternalStrategy",
-                            "LoadForecastExternalStrategy"]
+                            "LoadForecastExternalStrategy", 'Load']
 
 
 def is_bulk_power_producer(area):
@@ -30,11 +30,11 @@ def is_bulk_power_producer(area):
 def is_pv_node_type(area):
     return area['type'] in ["PVStrategy", "PVUserProfileStrategy", "PVPredefinedStrategy",
                             "PVExternalStrategy", "PVUserProfileExternalStrategy",
-                            "PVPredefinedExternalStrategy", "PVForecastExternalStrategy"]
+                            "PVPredefinedExternalStrategy", "PVForecastExternalStrategy", 'PV']
 
 
 def is_finite_power_plant_node_type(area):
-    return area['type'] == "FinitePowerPlant"
+    return area['type'] in ['FinitePowerPlant', 'FiniteDieselGenerator']
 
 
 def is_producer_node_type(area):
@@ -43,7 +43,7 @@ def is_producer_node_type(area):
 
 
 def is_prosumer_node_type(area):
-    return area['type'] in ["StorageStrategy", "StorageExternalStrategy"]
+    return area['type'] in ["StorageStrategy", "StorageExternalStrategy", 'Storage']
 
 
 def is_buffer_node_type(area):
@@ -73,6 +73,11 @@ def area_sells_to_child(trade, area_name, child_names):
 def child_buys_from_area(trade, area_name, child_names):
     return area_name_from_area_or_iaa_name(trade['buyer']) == \
         area_name and area_name_from_area_or_iaa_name(trade['seller']) in child_names
+
+
+def is_trade_external(trade, area_name, child_names):
+    return area_sells_to_child(trade, area_name, child_names) or \
+        child_buys_from_area(trade, area_name, child_names)
 
 
 def area_name_from_area_or_iaa_name(name):
