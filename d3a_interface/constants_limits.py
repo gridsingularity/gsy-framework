@@ -126,6 +126,10 @@ class ConstSettings:
         MAX_PANEL_OUTPUT_W = 160
         PV_PENALTY_RATE = 0
 
+    class HomeMeterSettings:
+        SELLING_RATE_RANGE = RateRange(30, 0)
+        BUYING_RATE_RANGE = RateRange(0, 35)
+
     class WindSettings:
         # This price should be just above the marginal costs for a Wind Power Plant - unit is cent
         FINAL_SELLING_RATE = 0
