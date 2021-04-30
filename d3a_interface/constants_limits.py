@@ -17,9 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import sys
-from datetime import date, datetime
-from pendulum import duration, instance
 from collections import namedtuple
+from datetime import date, datetime
+
+from pendulum import duration, instance
 
 RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
 RateRange = namedtuple('RateRange', ('initial', 'final'))
@@ -45,8 +46,6 @@ class ConstSettings:
         RUN_REAL_TIME = False
         # Boolean flag which forces d3a to dispatch events via redis channels
         EVENT_DISPATCHING_VIA_REDIS = False
-        # Restricted characters in area names
-        AREA_NAME_RESTRICTED_CHARS = ['/', '*']
         RATE_CHANGE_PER_UPDATE_LIMIT = RangeLimit(0, 1000)
         ENERGY_PROFILE_LIMIT = RangeLimit(0, sys.maxsize)
 
