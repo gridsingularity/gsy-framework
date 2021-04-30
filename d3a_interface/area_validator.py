@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.device_validator import validate_range_limit
 from d3a_interface.exceptions import D3AAreaException
-from d3a_interface.scenario_validators import validate_area_name
-from d3a_interface.utils import key_in_dict_and_not_none_and_greater_than_zero, \
-    key_in_dict_and_not_none_and_negative, key_in_dict_and_not_none
+from d3a_interface.utils import (
+    key_in_dict_and_not_none, key_in_dict_and_not_none_and_greater_than_zero,
+    key_in_dict_and_not_none_and_negative)
 
 
 GeneralSettings = ConstSettings.GeneralSettings
@@ -61,5 +61,3 @@ def validate_area(**kwargs):
     if key_in_dict_and_not_none_and_negative(kwargs, "export_capacity_kVA"):
         raise D3AAreaException({"misconfiguration": [f"export_capacity_kVA must be a "
                                                      f"positive value."]})
-    if key_in_dict_and_not_none(kwargs, 'name'):
-        validate_area_name({'name': kwargs['name']})
