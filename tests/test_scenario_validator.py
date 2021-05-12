@@ -16,13 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 # flake8: noqa
-import unittest
-from parameterized import parameterized
 import json
-from jsonschema import ValidationError
+import unittest
 
-from d3a_interface.exceptions import D3AAreaException
-from d3a_interface.scenario_validators import scenario_validator, validate_area_name
+from jsonschema import ValidationError
+from parameterized import parameterized
+
+from d3a_interface.scenario_validators import scenario_validator
 
 
 class TestValidateGlobalSettings(unittest.TestCase):
@@ -73,8 +73,3 @@ class TestValidateGlobalSettings(unittest.TestCase):
                    '{"name": "battery_plant","type": "Storage", "batteryCapacity": 1.2, "initialCapacity": 0.6}, ' \
                    '{"name": "Load", "type": "Load", "avgPowerW": 200} ]}'
         self.assertRaises(ValidationError, scenario_validator, json.loads(scenario))
-        scenario = '{"name": "my area/", "numberOfClones": 10, "children": [' \
-                   '{"name": "battery", "type": "Storage", "batteryCapacity": 1.2, "initialCharge": 90}, ' \
-                   '{"name": "battery_plant","type": "Storage", "batteryCapacity": 1.2, "initialCapacity": 0.6}, ' \
-                   '{"name": "Load", "type": "Load", "avgPowerW": 200} ]}'
-        self.assertRaises(D3AAreaException, validate_area_name, json.loads(scenario))

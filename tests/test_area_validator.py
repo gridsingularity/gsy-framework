@@ -31,7 +31,6 @@ class TestValidateAreaSettings(unittest.TestCase):
                                         grid_fee_constant=0))
         self.assertIsNone(validate_area(grid_fee_percentage=0,
                                         grid_fee_constant=1))
-        self.assertIsNone(validate_area(name='my area'))
         with self.assertRaises(D3ADeviceException):
             validate_area(grid_fee_percentage=-1)
         with self.assertRaises(D3ADeviceException):
@@ -44,5 +43,3 @@ class TestValidateAreaSettings(unittest.TestCase):
             validate_area(import_capacity_kVA=-1.0)
         with self.assertRaises(D3AAreaException):
             validate_area(export_capacity_kVA=-1.0)
-        with self.assertRaises(D3AAreaException):
-            validate_area(name='my area /')
