@@ -1,6 +1,6 @@
 from typing import Dict
 from statistics import mean
-from d3a_interface.utils import key_in_dict_and_not_none
+from d3a_interface.utils import key_in_dict_and_not_none, limit_float_precision
 from d3a_interface.sim_results.results_abc import ResultsBaseClass
 from d3a_interface.sim_results import is_trade_external
 
@@ -55,7 +55,7 @@ class MarketSummaryInfo(ResultsBaseClass):
                 external_traded_volume_kWh += trade["energy"]
 
         self._market_summary[area_dict["uuid"]] = {
-            "average_energy_rate": mean(price_list) if price_list else None,
+            "average_energy_rate": limit_float_precision(mean(price_list)) if price_list else None,
             "external_traded_volume": external_traded_volume_kWh,
             "traded_volume": volume_kWh,
             "timestamp": current_market_slot
