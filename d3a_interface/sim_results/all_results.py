@@ -71,9 +71,11 @@ class ResultsHandler:
         for result_object in self.results_mapping.values():
             result_object.update_from_repr(area_representation)
 
-    def restore_area_results_state(self, config_tree, area_results_map, cumulative_grid_fees=None):
+    def restore_area_results_state(self, config_tree, area_results_map, cumulative_grid_fees=None, assets_info=None):
         if cumulative_grid_fees is not None:
             self.results_mapping["bills"].restore_cumulative_fees_whole_sim(cumulative_grid_fees)
+        if assets_info is not None:
+            self.results_mapping["assets_info"].restore_assets_info(assets_info)
         if area_results_map.get(config_tree['uuid'], {}):
             area_results = area_results_map[config_tree['uuid']]
             for k, v in self.results_mapping.items():
