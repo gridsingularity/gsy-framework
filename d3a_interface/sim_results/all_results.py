@@ -71,7 +71,8 @@ class ResultsHandler:
         for result_object in self.results_mapping.values():
             result_object.update_from_repr(area_representation)
 
-    def restore_area_results_state(self, config_tree, area_results_map, cumulative_grid_fees=None, assets_info=None):
+    def restore_area_results_state(self, config_tree, area_results_map,
+                                   cumulative_grid_fees=None, assets_info=None):
         if cumulative_grid_fees is not None:
             self.results_mapping["bills"].restore_cumulative_fees_whole_sim(cumulative_grid_fees)
         if assets_info is not None:
