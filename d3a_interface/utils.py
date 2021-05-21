@@ -29,7 +29,7 @@ from threading import Timer
 from statistics import mean
 from pkgutil import walk_packages
 from redis.exceptions import ConnectionError
-from pendulum import DateTime, from_format, from_timestamp, duration, today, datetime
+from pendulum import DateTime, from_format, from_timestamp, duration, datetime
 from d3a_interface.constants_limits import DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, \
     DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION, GlobalConfig, TIME_ZONE, PROFILE_EXPANSION_DAYS
 
