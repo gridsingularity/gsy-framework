@@ -35,25 +35,25 @@ class DisabledKafkaConnection:
 class KafkaConnection:
     def __init__(self):
         if KAFKA_URL != DEFAULT_KAFKA_URL:
-            kwargs = {'bootstrap_servers': KAFKA_URL,
-                      'sasl_plain_username': KAFKA_USERNAME,
-                      'sasl_plain_password': KAFKA_PASSWORD,
-                      'security_protocol': KAFKA_COMMUNICATION_SECURITY_PROTOCOL,
-                      'ssl_context': create_kafka_new_ssl_context(),
-                      'sasl_mechanism': KAFKA_SASL_AUTH_MECHANISM,
-                      'api_version': KAFKA_API_VERSION,
-                      'retries': KAFKA_PUBLISH_RETRIES,
-                      'buffer_memory': KAFKA_BUFFER_MEMORY,
-                      'max_request_size': KAFKA_MAX_REQUEST_SIZE}
+            kwargs = {"bootstrap_servers": KAFKA_URL,
+                      "sasl_plain_username": KAFKA_USERNAME,
+                      "sasl_plain_password": KAFKA_PASSWORD,
+                      "security_protocol": KAFKA_COMMUNICATION_SECURITY_PROTOCOL,
+                      "ssl_context": create_kafka_new_ssl_context(),
+                      "sasl_mechanism": KAFKA_SASL_AUTH_MECHANISM,
+                      "api_version": KAFKA_API_VERSION,
+                      "retries": KAFKA_PUBLISH_RETRIES,
+                      "buffer_memory": KAFKA_BUFFER_MEMORY,
+                      "max_request_size": KAFKA_MAX_REQUEST_SIZE}
         else:
-            kwargs = {'bootstrap_servers': KAFKA_URL}
+            kwargs = {"bootstrap_servers": KAFKA_URL}
 
         self.producer = KafkaProducer(**kwargs)
 
     def publish(self, results, job_id):
-        results = json.dumps(results).encode('utf-8')
+        results = json.dumps(results).encode("utf-8")
         results = compress(results)
-        self.producer.send(KAFKA_TOPIC, value=results, key=job_id.encode('utf-8'))
+        self.producer.send(KAFKA_TOPIC, value=results, key=job_id.encode("utf-8"))
 
     @staticmethod
     def is_enabled():
