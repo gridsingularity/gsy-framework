@@ -1,5 +1,4 @@
 import json
-from abc import ABC, abstractmethod
 
 import logging
 from zlib import compress
@@ -24,16 +23,14 @@ def kafka_connection_factory():
         return DisabledKafkaConnection()
 
 
-class DisabledKafkaConnection(ABC):
+class DisabledKafkaConnection:
     def __init__(self):
         pass
 
-    @abstractmethod
     def publish(self, results, job_id):
         pass
 
     @staticmethod
-    @abstractmethod
     def is_enabled():
         return False
 
