@@ -11,6 +11,7 @@ from d3a_interface.kafka_communication import (
 
 KAFKA_MAX_MESSAGE_SIZE_PER_TOPIC = 64 * 1024 * 1024
 KAFKA_MAX_POLL_RECORDS = 10
+KAFKA_CONSUMER_TIMEOUT_MS = 50
 
 
 class KafkaConnection:
@@ -25,9 +26,11 @@ class KafkaConnection:
                       "api_version": KAFKA_API_VERSION,
                       "fetch_max_bytes": KAFKA_MAX_MESSAGE_SIZE_PER_TOPIC,
                       "max_partition_fetch_bytes": KAFKA_MAX_MESSAGE_SIZE_PER_TOPIC,
-                      "max_poll_records": KAFKA_MAX_POLL_RECORDS}
+                      "max_poll_records": KAFKA_MAX_POLL_RECORDS,
+                      "consumer_timeout_ms": KAFKA_CONSUMER_TIMEOUT_MS}
         else:
-            kwargs = {"bootstrap_servers": DEFAULT_KAFKA_URL}
+            kwargs = {"bootstrap_servers": DEFAULT_KAFKA_URL,
+                      "consumer_timeout_ms": KAFKA_CONSUMER_TIMEOUT_MS}
 
         self._consumer = KafkaConsumer(KAFKA_TOPIC, **kwargs)
         self._callback = callback
