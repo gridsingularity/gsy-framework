@@ -85,8 +85,10 @@ class RestCommunicationMixin:
 
     def _post_request(self, endpoint, data):
         endpoint = f"{endpoint}/"
-        return post_request(endpoint, data, self.jwt_token)
+        data["transaction_id"] = str(uuid.uuid4())
+        return data["transaction_id"], post_request(endpoint, data, self.jwt_token)
 
     def _get_request(self, endpoint, data):
         endpoint = f"{endpoint}"
-        return get_request(endpoint, data, self.jwt_token)
+        data["transaction_id"] = str(uuid.uuid4())
+        return data["transaction_id"], get_request(endpoint, data, self.jwt_token)
