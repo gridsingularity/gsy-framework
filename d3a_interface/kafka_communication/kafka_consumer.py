@@ -3,9 +3,11 @@ from zlib import decompress
 
 from kafka import KafkaConsumer
 
-from d3a_interface.kafka_communication import KAFKA_URL, DEFAULT_KAFKA_URL, KAFKA_USERNAME, \
-    KAFKA_PASSWORD, KAFKA_COMMUNICATION_SECURITY_PROTOCOL, KAFKA_SASL_AUTH_MECHANISM, \
-    KAFKA_API_VERSION, create_kafka_new_ssl_context, KAFKA_TOPIC
+from d3a_interface.kafka_communication import (
+    KAFKA_URL, DEFAULT_KAFKA_URL, KAFKA_USERNAME,
+    KAFKA_PASSWORD, KAFKA_COMMUNICATION_SECURITY_PROTOCOL,
+    KAFKA_SASL_AUTH_MECHANISM,
+    KAFKA_API_VERSION, create_kafka_new_ssl_context, KAFKA_TOPIC)
 
 KAFKA_MAX_MESSAGE_SIZE_PER_TOPIC = 64 * 1024 * 1024
 KAFKA_MAX_POLL_RECORDS = 10
