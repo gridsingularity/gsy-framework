@@ -54,10 +54,21 @@ class KafkaConnection(DisabledKafkaConnection):
 
         self.producer = KafkaProducer(**kwargs)
 
+    def _on_send_success(self, record_metadata):
+        logging.debug(f"Sent message successfully to "
+                      f"topic: {record_metadata.topic} "
+                      f"partition: {record_metadata.partition} "
+                      f"offset: {record_metadata.offset}")
+
+    def _on_send_error(self, exception):
+        logging.error('Send message to Kafka failed. ', exc_info=exception)
+
     def publish(self, results, job_id):
         results = json.dumps(results).encode("utf-8")
         results = compress(results)
-        self.producer.send(KAFKA_TOPIC, value=results, key=job_id.encode("utf-8"))
+        self.producer.send(KAFKA_TOPIC, value=results, key=job_id.encode("utf-8")).\
+            add_callback(self._on_send_success).add_errback(self._on_send_error)
+        self.producer.flush()
 
     @staticmethod
     def is_enabled():
