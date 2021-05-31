@@ -55,6 +55,11 @@ class HomeMeterValidator(DeviceValidator):
     """Validator class for Home Meter devices."""
 
     @classmethod
+    def validate(cls, **kwargs):
+        """Validate both rate and energy values of the device."""
+        super().validate()
+
+    @classmethod
     def validate_energy(cls, **kwargs):
         """Validate energy values of a Home Meter device. Currently not implemented."""
         pass
