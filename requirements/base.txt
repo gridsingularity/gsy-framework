@@ -13,6 +13,7 @@ distlib==0.3.1            # via virtualenv
 filelock==3.0.12          # via tox, virtualenv
 idna==2.10                # via requests
 jsonschema==3.2.0         # via -r requirements/base.ini
+kafka-python==2.0.2       # via -r requirements/base.ini
 packaging==20.7           # via tox
 pendulum==2.1.2           # via -r requirements/base.ini
 pip-tools==5.4.0          # via -r requirements/base.ini
@@ -23,13 +24,13 @@ pyrsistent==0.17.3        # via jsonschema
 python-dateutil==2.8.1    # via pendulum
 pytzdata==2020.1          # via pendulum
 redis==3.5.3              # via -r requirements/base.ini
-requests==2.25.0          # via -r requirements/base.in
+requests==2.25.0          # via -r requirements/base.ini
 six==1.15.0               # via jsonschema, pip-tools, python-dateutil, tox, virtualenv
 toml==0.10.2              # via tox
 tox==3.20.1               # via -r requirements/base.ini
 urllib3==1.26.4           # via requests
 virtualenv==20.2.2        # via tox
-websockets==8.1           # via -r requirements/base.in
+websockets==8.1           # via -r requirements/base.ini
 
 # The following packages are considered to be unsafe in a requirements file:
 pip==20.3.1               # via -r requirements/base.ini, pip-tools
