@@ -144,6 +144,7 @@ class ConstSettings:
         MARKET_TYPE_LIMIT = RangeLimit(1, 3)
         # Option 1 stands for PAB
         # Option 2 stands for PAC
+        # Option 3 stands for External Myco
         BID_OFFER_MATCH_TYPE = 1
 
         # Pay as clear offer and bid rate/energy aggregation algorithm
