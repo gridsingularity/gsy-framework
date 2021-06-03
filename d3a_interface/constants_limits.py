@@ -136,7 +136,6 @@ class ConstSettings:
         INITIAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
         FINAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
 
-
     class WindSettings:
         # This price should be just above the marginal costs for a Wind Power Plant - unit is cent
         FINAL_SELLING_RATE = 0

@@ -160,8 +160,8 @@ class HomeMeterValidator(DeviceValidator):
             raise D3ADeviceException(
                 {"misconfiguration": [
                     "initial_selling_rate/market_maker_rate should be greater than or equal to "
-                    "final_selling_rate. Please adapt the market_maker_rate of the configuration or "
-                    "the initial_selling_rate"]})
+                    "final_selling_rate. Please adapt the market_maker_rate of the configuration "
+                    "or the initial_selling_rate"]})
 
         if (
                 kwargs.get("fit_to_limit") is True
@@ -601,4 +601,3 @@ def validate_finite_diesel_generator(**kwargs):
 def validate_range_limit(initial_limit, value, final_limit, error_message):
     if not initial_limit <= value <= final_limit:
         raise D3ADeviceException(error_message)
-
