@@ -97,8 +97,7 @@ class HomeMeterValidator(DeviceValidator):
                 kwargs["initial_buying_rate"],
                 HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
 
-        if (
-                kwargs.get("initial_buying_rate") is not None
+        if (kwargs.get("initial_buying_rate") is not None
                 and kwargs.get("final_buying_rate") is not None
                 and kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
             raise D3ADeviceException({
@@ -119,8 +118,7 @@ class HomeMeterValidator(DeviceValidator):
                 kwargs["energy_rate_increase_per_update"],
                 GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
 
-        if (
-                kwargs.get("fit_to_limit") is True
+        if (kwargs.get("fit_to_limit") is True
                 and kwargs.get("energy_rate_increase_per_update") is not None):
             raise D3ADeviceException({
                 "misconfiguration": [
@@ -153,8 +151,7 @@ class HomeMeterValidator(DeviceValidator):
                 kwargs["initial_selling_rate"],
                 HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.max, error_message)
 
-        if (
-                kwargs.get("initial_selling_rate") is not None
+        if (kwargs.get("initial_selling_rate") is not None
                 and kwargs.get("final_selling_rate") is not None
                 and kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
             raise D3ADeviceException(
@@ -163,8 +160,7 @@ class HomeMeterValidator(DeviceValidator):
                     "final_selling_rate. Please adapt the market_maker_rate of the configuration "
                     "or the initial_selling_rate"]})
 
-        if (
-                kwargs.get("fit_to_limit") is True
+        if (kwargs.get("fit_to_limit") is True
                 and kwargs.get("energy_rate_decrease_per_update") is not None):
             raise D3ADeviceException({
                 "misconfiguration": [
