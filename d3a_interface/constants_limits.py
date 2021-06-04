@@ -22,6 +22,8 @@ from datetime import date, datetime
 
 from pendulum import duration, instance
 
+from d3a_interface.enums import BidOfferMatchAlgoEnum
+
 RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
 RateRange = namedtuple('RateRange', ('initial', 'final'))
 
@@ -142,10 +144,8 @@ class ConstSettings:
         # Option 2 stands for double sided market
         MARKET_TYPE = 1
         MARKET_TYPE_LIMIT = RangeLimit(1, 3)
-        # Option 1 stands for PAB
-        # Option 2 stands for PAC
-        # Option 3 stands for External Myco
-        BID_OFFER_MATCH_TYPE = 1
+
+        BID_OFFER_MATCH_TYPE = BidOfferMatchAlgoEnum.PAY_AS_BID.value
 
         # Pay as clear offer and bid rate/energy aggregation algorithm
         # Default value 1 stands for line sweep algorithm
