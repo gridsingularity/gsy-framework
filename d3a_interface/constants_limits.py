@@ -22,7 +22,7 @@ from datetime import date, datetime
 
 from pendulum import duration, instance
 
-from d3a_interface.enums import BidOfferMatchAlgoEnum
+from d3a_interface.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum
 
 RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
 RateRange = namedtuple('RateRange', ('initial', 'final'))
@@ -140,9 +140,7 @@ class ConstSettings:
         GRID_FEE_TYPE = 1
         VALID_FEE_TYPES = [1, 2]
         # Market type option
-        # Default value 1 stands for single sided market
-        # Option 2 stands for double sided market
-        MARKET_TYPE = 1
+        MARKET_TYPE = SpotMarketTypeEnum.ONE_SIDED.value
         MARKET_TYPE_LIMIT = RangeLimit(1, 3)
 
         BID_OFFER_MATCH_TYPE = BidOfferMatchAlgoEnum.PAY_AS_BID.value
