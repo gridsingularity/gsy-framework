@@ -55,7 +55,8 @@ class TestUtils(unittest.TestCase):
                     {"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20},
                 ],
                 "offers": [
-                    {"id": 4, "seller": "A", "energy_rate": 1 + FLOATING_POINT_TOLERANCE, "energy": 25},
+                    {"id": 4, "seller": "A", "energy_rate": 1 + FLOATING_POINT_TOLERANCE,
+                     "energy": 25},
                     {"id": 5, "seller": "B", "energy_rate": 5, "energy": 30},
                     {"id": 6, "seller": "C", "energy_rate": 2.4, "energy": 35},
                 ],
