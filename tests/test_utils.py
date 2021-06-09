@@ -2,7 +2,7 @@ import unittest
 
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.utils import (
-    HomeRepresentationUtils, perform_pay_as_bid_match, scenario_representation_traversal, 
+    HomeRepresentationUtils, perform_pay_as_bid_match, scenario_representation_traversal,
     sort_list_of_dicts_by_attribute)
 
 
