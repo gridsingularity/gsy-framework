@@ -16,12 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
+from unittest.mock import patch
 from uuid import uuid4
 
-from d3a_interface.device_validator import validate_load_device, validate_pv_device, \
-    validate_storage_device, validate_commercial_producer, validate_market_maker, \
-    validate_finite_diesel_generator, validate_infinite_bus
 from d3a_interface.constants_limits import ConstSettings
+from d3a_interface.device_validator import (
+    HomeMeterValidator, validate_load_device, validate_pv_device, validate_storage_device,
+    validate_commercial_producer, validate_market_maker, validate_finite_diesel_generator,
+    validate_infinite_bus)
 from d3a_interface.exceptions import D3ADeviceException
 
 GeneralSettings = ConstSettings.GeneralSettings
@@ -266,3 +268,49 @@ class TestValidateDeviceSettings(unittest.TestCase):
         self.assertIsNone(validate_finite_diesel_generator(energy_rate=100))
         with self.assertRaises(D3ADeviceException):
             validate_finite_diesel_generator(energy_rate=-1)
+
+
+class TestHomeMeterValidator(unittest.TestCase):
+    """Tests for the HomeMeterValidator class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Set up requirements for all individual tests."""
+        cls.validator = HomeMeterValidator
+
+    @patch.object(HomeMeterValidator, "validate_price")
+    @patch.object(HomeMeterValidator, "validate_energy")
+    def test_validate(self, validate_energy_mock, validate_price_mock):
+        """The validate method correctly calls the individual validation methods."""
+        self.validator.validate()
+        validate_price_mock.assert_called_once_with()
+        validate_energy_mock.assert_called_once_with()
+
+    @patch("d3a_interface.device_validator.validate_range_limit")
+    def test_validate_price_executes(self, validate_range_limit_mock):
+        """The validation is executed when suitable arguments are provided.
+
+        Note: this does not necessarily mean that the validation is successful, as it also depends
+        on the validate_range_limit method (which we are mocking here).
+        """
+        arguments = {
+            "initial_buying_rate": 10, "final_buying_rate": 13,
+            "energy_rate_increase_per_update": 1,
+            "initial_selling_rate": 13, "final_selling_rate": 10,
+            "energy_rate_decrease_per_update": 2
+        }
+        self.validator.validate_price(**arguments)
+        assert validate_range_limit_mock.call_count == 6
+
+    def test_validate_price_fails(self):
+        """The validation fails when incompatible arguments are provided."""
+        failing_arguments = [
+            {"initial_buying_rate": 15, "final_buying_rate": 13},
+            {"energy_rate_increase_per_update": 1, "fit_to_limit": True},
+            {"initial_selling_rate": 10, "final_selling_rate": 13},
+            {"energy_rate_decrease_per_update": 1, "fit_to_limit": True}
+        ]
+        for arguments in failing_arguments:
+            with self.subTest():
+                with self.assertRaises(D3ADeviceException):
+                    self.validator.validate_price(**arguments)
