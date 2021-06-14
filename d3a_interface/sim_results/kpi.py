@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import Dict
 from d3a_interface.utils import if_not_in_list_append
 from d3a_interface.sim_results import is_load_node_type, is_buffer_node_type, \
-    is_prosumer_node_type, is_producer_node_type
+    is_prosumer_node_type, is_producer_node_type, has_no_grand_child
 from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
@@ -29,6 +29,7 @@ class KPIState:
         self.areas_to_trace_list = list()
         self.ess_list = list()
         self.buffer_list = list()
+        self.house_list = list()
         self.total_energy_demanded_wh = 0
         self.demanded_buffer_wh = 0
         self.total_energy_produced_wh = 0
@@ -36,6 +37,8 @@ class KPIState:
         self.self_consumption_buffer_wh = 0
 
     def accumulate_devices(self, area_dict):
+        if has_no_grand_child(area_dict):
+            if_not_in_list_append(self.house_list, area_dict['uuid'])
         for child in area_dict['children']:
             if is_producer_node_type(child):
                 if_not_in_list_append(self.producer_list, child['uuid'])
@@ -145,11 +148,62 @@ class KPIState:
         self._accumulate_energy_trace(core_stats)
 
 
+class SavingKPI:
+    def __init__(self):
+        self.producer_list = list()
+        self.consumer_list = list()
+        self.ess_list = list()
+        self.buffer_list = list()
+        self.house_list = list()
+        self.fit_rev = {}
+        self.utility_bill = {}
+        self.d3a_bill = {}
+        self.saving_abs = {}
+        self.saving_per = {}
+
+    def calculate_saving_kpi(self, area_dict, core_stats, gf_alp):
+        for child in area_dict['children']:
+            if is_producer_node_type(child):
+                if_not_in_list_append(self.producer_list, child['uuid'])
+            elif is_load_node_type(child):
+                if_not_in_list_append(self.consumer_list, child['uuid'])
+            elif is_prosumer_node_type(child):
+                if_not_in_list_append(self.ess_list, child['uuid'])
+            elif is_buffer_node_type(child):
+                if_not_in_list_append(self.buffer_list, child['uuid'])
+
+        fir_excl_gf_alp = \
+            core_stats.get(area_dict['uuid'], {}).get('feed_in_tariff', 0.) - gf_alp
+        mmr_incl_gf_alp = \
+            core_stats.get(area_dict['uuid'], {}).get('market_maker_rate', 0.) + gf_alp
+        for trade in core_stats.get(area_dict['uuid'], {}).get('trades', []):
+            if trade['seller_origin_id'] in [self.producer_list, self.ess_list]:
+                self.fit_rev[area_dict['uuid']] = \
+                    self.fit_rev.get(area_dict['uuid'], 0.) + fir_excl_gf_alp * trade['energy']
+                self.d3a_bill[area_dict['uuid']] = \
+                    self.d3a_bill.get(area_dict['uuid'], 0.) + trade['rate'] * trade['energy']
+            if trade['buyer_origin_id'] in [self.consumer_list, self.ess_list]:
+                self.utility_bill[area_dict['uuid']] = \
+                    self.utility_bill.get(area_dict['uuid'], 0.) + \
+                    mmr_incl_gf_alp * trade['energy']
+                self.d3a_bill[area_dict['uuid']] = \
+                    self.d3a_bill.get(area_dict['uuid'], 0.) - \
+                    trade['rate'] * trade['energy']
+        self.saving_abs[area_dict['uuid']] = \
+            self.d3a_bill[area_dict['uuid']] - \
+            self.fit_rev[area_dict['uuid']] + \
+            self.utility_bill[area_dict['uuid']]
+        self.saving_per[area_dict['uuid']] = \
+            (self.saving_abs[area_dict['uuid']] / self.fit_rev[area_dict['uuid']]) * 100
+
+
 class KPI(ResultsBaseClass):
     def __init__(self):
         self.performance_indices = dict()
         self.performance_indices_redis = dict()
         self.state = {}
+        self.saving_state = {}
+        self.area_uuid_to_cum_fee_path = {}
 
     def memory_allocation_size_kb(self):
         return self._calculate_memory_allocated_by_objects([
@@ -162,6 +216,15 @@ class KPI(ResultsBaseClass):
     def area_performance_indices(self, area_dict, core_stats):
         if area_dict['uuid'] not in self.state:
             self.state[area_dict['uuid']] = KPIState()
+
+        # initialization of house saving state
+        if area_dict['uuid'] not in self.saving_state and \
+                has_no_grand_child(area_dict):
+            self.saving_state[area_dict['uuid']] = SavingKPI()
+        if area_dict['uuid'] in self.saving_state:
+            self.saving_state[area_dict['uuid']].calculate_saving_kpi(
+                area_dict, core_stats, self.area_uuid_to_cum_fee_path[area_dict['uuid']])
+
         self.state[area_dict['uuid']].accumulate_devices(area_dict)
 
         self.state[area_dict['uuid']].update_area_kpi(area_dict, core_stats)
@@ -219,8 +282,16 @@ class KPI(ResultsBaseClass):
                 }
 
     def update(self, area_dict, core_stats, current_market_slot):
+        print(f"KPI: ")
+        print(f"area_dict: {area_dict}")
+        print(f"core_stats: {core_stats}")
         if not self._has_update_parameters(area_dict, core_stats, current_market_slot):
             return
+
+        self.area_uuid_to_cum_fee_path[area_dict['uuid']] = \
+            self.area_uuid_to_cum_fee_path.get(area_dict['parent_uuid'], 0.) + \
+            core_stats.get(area_dict['uuid'], {}).get('const_fee_rate', 0.)
+
         self.performance_indices[area_dict['uuid']] = \
             self.area_performance_indices(area_dict, core_stats)
         self.performance_indices_redis[area_dict['uuid']] = \
