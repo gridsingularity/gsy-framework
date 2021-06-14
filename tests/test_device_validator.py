@@ -311,6 +311,6 @@ class TestHomeMeterValidator(unittest.TestCase):
             {"energy_rate_decrease_per_update": 1, "fit_to_limit": True}
         ]
         for arguments in failing_arguments:
-            with self.subTest():
+            with self.subTest(arguments=arguments):
                 with self.assertRaises(D3ADeviceException):
                     self.validator.validate_price(**arguments)
