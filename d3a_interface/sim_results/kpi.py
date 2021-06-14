@@ -150,6 +150,11 @@ class KPI(ResultsBaseClass):
         self.performance_indices = dict()
         self.performance_indices_redis = dict()
         self.state = {}
+        self.area_uuid_to_cum_fee_path = {}
+        self.fit_bill = {}
+        self.d3a_bill = {}
+        self.saving_abs = {}
+        self.saving_per = {}
 
     def memory_allocation_size_kb(self):
         return self._calculate_memory_allocated_by_objects([
@@ -219,8 +224,26 @@ class KPI(ResultsBaseClass):
                 }
 
     def update(self, area_dict, core_stats, current_market_slot):
+        print(f"KPI: ")
+        print(f"area_dict: {area_dict}")
+        print(f"core_stats: {core_stats}")
         if not self._has_update_parameters(area_dict, core_stats, current_market_slot):
             return
+        self.area_uuid_to_cum_fee_path[area_dict['uuid']] = \
+            self.area_uuid_to_cum_fee_path.get(area_dict['parent_uuid'], 0.) + \
+            core_stats.get(area_dict['uuid'], {}).get('const_fee_rate', 0.)
+        fir_incl_gf_alp = core_stats.get(area_dict['uuid'], {}).get('feed_in_tariff', 0.) + \
+                          self.area_uuid_to_cum_fee_path[area_dict['uuid']]
+        self.fit_bill[area_dict['uuid']] = \
+            sum([fir_incl_gf_alp * trade['energy']
+                 for trade in core_stats.get(area_dict['uuid'], {}).get('trades', [])])
+        self.d3a_bill[area_dict['uuid']] = \
+            sum([trade['rate'] * trade['energy']
+                 for trade in core_stats.get(area_dict['uuid'], {}).get('trades', [])])
+        self.saving_abs[area_dict['uuid']] = \
+            self.d3a_bill[area_dict['uuid']] - self.fit_bill[area_dict['uuid']]
+        self.saving_per[area_dict['uuid']] = \
+            (self.saving_abs[area_dict['uuid']] / self.fit_bill[area_dict['uuid']]) * 100
         self.performance_indices[area_dict['uuid']] = \
             self.area_performance_indices(area_dict, core_stats)
         self.performance_indices_redis[area_dict['uuid']] = \
