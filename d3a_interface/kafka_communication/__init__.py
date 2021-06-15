@@ -10,7 +10,7 @@ KAFKA_COMMUNICATION_SECURITY_PROTOCOL = \
 KAFKA_SASL_AUTH_MECHANISM = \
     environ.get("KAFKA_SASL_AUTH_MECHANISM", "SCRAM-SHA-512")
 KAFKA_API_VERSION = (0, 10)
-KAFKA_TOPIC = "d3a-results"
+KAFKA_RESULTS_TOPIC = environ.get("KAFKA_RESULTS_TOPIC", "d3a-results")
 
 
 def create_kafka_new_ssl_context():

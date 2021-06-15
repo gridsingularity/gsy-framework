@@ -8,7 +8,7 @@ from kafka import KafkaProducer
 from d3a_interface.kafka_communication import (
     KAFKA_URL, DEFAULT_KAFKA_URL, KAFKA_USERNAME, KAFKA_PASSWORD,
     KAFKA_COMMUNICATION_SECURITY_PROTOCOL, KAFKA_SASL_AUTH_MECHANISM, KAFKA_API_VERSION,
-    create_kafka_new_ssl_context, KAFKA_TOPIC)
+    create_kafka_new_ssl_context, KAFKA_RESULTS_TOPIC)
 
 KAFKA_PUBLISH_RETRIES = 5
 KAFKA_BUFFER_MEMORY_BYTES = 2048000000
@@ -66,7 +66,7 @@ class KafkaConnection(DisabledKafkaConnection):
     def publish(self, results, job_id):
         results = json.dumps(results).encode("utf-8")
         results = compress(results)
-        self.producer.send(KAFKA_TOPIC, value=results, key=job_id.encode("utf-8")).\
+        self.producer.send(KAFKA_RESULTS_TOPIC, value=results, key=job_id.encode("utf-8")).\
             add_callback(self._on_send_success).add_errback(self._on_send_error)
         self.producer.flush()
 
