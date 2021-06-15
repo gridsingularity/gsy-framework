@@ -62,7 +62,6 @@ class HomeMeterValidator(DeviceValidator):
     @classmethod
     def validate_energy(cls, **kwargs):
         """Validate energy values of a Home Meter device. Currently not implemented."""
-        pass
 
     @classmethod
     def validate_price(cls, **kwargs):
@@ -109,7 +108,7 @@ class HomeMeterValidator(DeviceValidator):
         if kwargs.get("energy_rate_increase_per_update") is not None:
             error_message = {
                 "misconfiguration": [
-                    f"energy_rate_increase_per_update should be in between "
+                    "energy_rate_increase_per_update should be in between "
                     f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
                     f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}."]}
 

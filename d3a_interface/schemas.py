@@ -39,7 +39,7 @@ class ScenarioSchemas:
                                         {'$ref': '#/definitions/area'},
                                         {'$ref': '#/definitions/pv'},
                                         {'$ref': '#/definitions/load'},
-                                        {'$ref': '#/definitions/home_meter'},
+                                        {"$ref": "#/definitions/home_meter"},
                                         {'$ref': '#/definitions/infinite_power_plant'},
                                         {'$ref': '#/definitions/finite_power_plant'},
                                         {'$ref': '#/definitions/storage'}
@@ -122,25 +122,25 @@ class ScenarioSchemas:
                                                      {'type': 'string'}]}
                 }
             },
-            'home_meter': {
-                'type': 'object',
-                'properties': {
-                    'name': {'type': 'string'},
-                    'type': {'enum': ['HomeMeter']},
-                    'number_of_clones': {'type': 'number'},
-                    'uuid': {'type': 'string'},
-                    'libraryUUID': {'anyOf': [{'type': 'string'}, {'type': 'null'}]},
-                    'initial_selling_rate': {'anyOf': [{'type': 'number'}, {'type': 'null'}]},
-                    'final_selling_rate': {'type': 'number'},
-                    'initial_buying_rate': {'type': 'number'},
-                    'final_buying_rate': {'anyOf': [{'type': 'number'}, {'type': 'null'}]},
-                    'fit_to_limit': {'type': 'boolean'},
-                    'update_interval': {'anyOf': [{'type': 'number'}, {'type': 'null'}]},
-                    'energy_rate_decrease_per_update': {'anyOf': [{'type': 'number'},
-                                                                  {'type': 'null'}]},
-                    'energy_rate_increase_per_update': {'anyOf': [{'type': 'number'},
-                                                                  {'type': 'null'}]},
-                    'use_market_maker_rate': {'type': 'boolean'}
+            "home_meter": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "type": {"enum": ["HomeMeter"]},
+                    "number_of_clones": {"type": "number"},
+                    "uuid": {"type": "string"},
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "final_selling_rate": {"type": "number"},
+                    "initial_buying_rate": {"type": "number"},
+                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "fit_to_limit": {"type": "boolean"},
+                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_rate_decrease_per_update": {"anyOf": [{"type": "number"},
+                                                                  {"type": "null"}]},
+                    "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
+                                                                  {"type": "null"}]},
+                    "use_market_maker_rate": {"type": "boolean"}
                 }
             },
             'infinite_power_plant': {
@@ -171,7 +171,7 @@ class ScenarioSchemas:
             {'$ref': '#/definitions/area'},
             {'$ref': '#/definitions/pv'},
             {'$ref': '#/definitions/load'},
-            {'$ref': '#/definitions/home_meter'},
+            {"$ref": "#/definitions/home_meter"},
             {'$ref': '#/definitions/infinite_power_plant'},
             {'$ref': '#/definitions/finite_power_plant'},
             {'$ref': '#/definitions/storage'}
