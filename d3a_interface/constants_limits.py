@@ -139,10 +139,12 @@ class ConstSettings:
         VALID_FEE_TYPES = [1, 2]
         # Market type option
         # Default value 1 stands for single sided market
-        # Option 2 stands for double sided pay as bid market
-        # Option 3 stands for double sided pay as clear market
+        # Option 2 stands for double sided market
         MARKET_TYPE = 1
         MARKET_TYPE_LIMIT = RangeLimit(1, 3)
+        # Option 1 stands for PAB
+        # Option 2 stands for PAC
+        BID_OFFER_MATCH_TYPE = 1
 
         # Pay as clear offer and bid rate/energy aggregation algorithm
         # Default value 1 stands for line sweep algorithm

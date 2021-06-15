@@ -23,9 +23,9 @@ class SimulationAssetsInfo(ResultsBaseClass):
     def update(self, area_result_dict: Dict, core_stats: Dict, current_market_slot: str):
         updated_results_dict = {
             'number_of_load_type': 0,
-            'total_energy_demand_kwh': 0,
+            'total_energy_demand_kwh': self.assets_info['total_energy_demand_kwh'],
             'number_of_pv_type': 0,
-            'total_energy_generated_kwh': 0
+            'total_energy_generated_kwh': self.assets_info['total_energy_generated_kwh']
         }
         for area_uuid, area_result in core_stats.items():
             if 'total_energy_demanded_wh' in area_result:
@@ -63,6 +63,10 @@ class SimulationAssetsInfo(ResultsBaseClass):
             HomeRepresentationUtils.calculate_home_area_stats_from_repr_dict(area_representation)
 
         self.assets_info.update(updated_results_dict)
+
+    def restore_assets_info(self, assets_info):
+        if assets_info:
+            self.assets_info = assets_info
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         pass
