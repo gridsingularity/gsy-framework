@@ -7,7 +7,7 @@ from d3a_interface.kafka_communication import (
     KAFKA_URL, DEFAULT_KAFKA_URL, KAFKA_USERNAME,
     KAFKA_PASSWORD, KAFKA_COMMUNICATION_SECURITY_PROTOCOL,
     KAFKA_SASL_AUTH_MECHANISM,
-    KAFKA_API_VERSION, create_kafka_new_ssl_context, KAFKA_TOPIC)
+    KAFKA_API_VERSION, create_kafka_new_ssl_context, KAFKA_RESULTS_TOPIC)
 
 KAFKA_MAX_MESSAGE_SIZE_PER_TOPIC = 64 * 1024 * 1024
 KAFKA_MAX_POLL_RECORDS = 10
@@ -32,7 +32,7 @@ class KafkaConnection:
             kwargs = {"bootstrap_servers": DEFAULT_KAFKA_URL,
                       "consumer_timeout_ms": KAFKA_CONSUMER_TIMEOUT_MS}
 
-        self._consumer = KafkaConsumer(KAFKA_TOPIC, **kwargs)
+        self._consumer = KafkaConsumer(KAFKA_RESULTS_TOPIC, **kwargs)
         self._callback = callback
 
     def execute_cycle(self):
