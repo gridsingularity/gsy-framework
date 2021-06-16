@@ -26,6 +26,9 @@ class ScenarioSchemas:
                     'type': {'anyOf': [{'enum': ['Area']}, {'enum': ['null']}]},
                     'name': {'type': 'string'},
                     'number_of_clones': {'type': 'number'},
+                    'const_fee_rate': {'type': 'number'},
+                    'feed_in_tariff': {'type': 'number'},
+                    'market_maker_rate': {'type': 'number'},
                     'grid_fee_percentage': {'anyOf': [{'type': 'number'}, {'type': 'null'}]},
                     'baseline_peak_energy_import_kWh':
                         {'anyOf': [{'type': 'number'}, {'type': 'null'}]},

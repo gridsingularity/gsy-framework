@@ -1,3 +1,4 @@
+
 """
 Copyright 2018 Grid Singularity
 This file is part of D3A.
@@ -179,7 +180,7 @@ class SavingKPI:
                 self.d3a_rev -= trade['rate'] * trade['energy']
         base_case_rev = self.fit_rev + self.utility_bill
         self.saving_abs = self.d3a_rev - base_case_rev
-        self.saving_per = (self.saving_abs / base_case_rev) * 100
+        self.saving_per = (self.saving_abs / base_case_rev) * 100 if base_case_rev != 0 else 0.
 
 
 class KPI(ResultsBaseClass):
@@ -243,8 +244,10 @@ class KPI(ResultsBaseClass):
             "total_energy_produced_wh": self.state[area_dict['uuid']].total_energy_produced_wh,
             "total_self_consumption_wh":
                 self.state[area_dict['uuid']].total_self_consumption_wh,
-            "saving_abs": self.saving_state[area_dict['uuid']].saving_abs,
-            "saving_per": self.saving_state[area_dict['uuid']].saving_per
+            "saving_abs": getattr(self.saving_state.get(area_dict['uuid'], None),
+                                  'saving_abs', None),
+            "saving_per": getattr(self.saving_state.get(area_dict['uuid'], None),
+                                  'saving_per', None)
         }
 
     def _kpi_ratio_to_percentage(self, area_name):
@@ -273,9 +276,9 @@ class KPI(ResultsBaseClass):
         if not self._has_update_parameters(area_dict, core_stats, current_market_slot):
             return
 
-        self.area_uuid_to_cum_fee_path[area_dict['uuid']] = \
-            self.area_uuid_to_cum_fee_path.get(area_dict['parent_uuid'], 0.) + \
-            core_stats.get(area_dict['uuid'], {}).get('const_fee_rate', 0.)
+        parent_fee = self.area_uuid_to_cum_fee_path.get(area_dict.get('parent_uuid', ''), 0.)
+        area_fee = core_stats.get(area_dict.get('uuid', ''), {}).get('const_fee_rate', 0.)
+        self.area_uuid_to_cum_fee_path[area_dict['uuid']] = parent_fee + area_fee
 
         self.performance_indices[area_dict['uuid']] = \
             self.area_performance_indices(area_dict, core_stats)
