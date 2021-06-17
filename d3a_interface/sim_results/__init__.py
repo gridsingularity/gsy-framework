@@ -54,7 +54,7 @@ def is_house_node_type(area):
     return get_unified_area_type(area) == "Area"
 
 
-def has_no_grand_child(area):
+def has_no_grand_children(area):
     for child in area.get('children', []):
         if child.get('children', []):
             return False

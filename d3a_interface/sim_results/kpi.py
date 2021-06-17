@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import Dict
 from d3a_interface.utils import if_not_in_list_append
 from d3a_interface.sim_results import is_load_node_type, is_buffer_node_type, \
-    is_prosumer_node_type, is_producer_node_type, has_no_grand_child
+    is_prosumer_node_type, is_producer_node_type, has_no_grand_children
 from d3a_interface.sim_results.results_abc import ResultsBaseClass
 
 
@@ -152,13 +152,19 @@ class SavingKPI:
         self.consumer_list = list()
         self.ess_list = list()
         self.house_list = list()
-        self.fit_rev = 0.
+        self.fit_revenue = 0.
         self.utility_bill = 0.
-        self.d3a_rev = 0.
-        self.saving_abs = 0.
-        self.saving_per = 0.
+        self.d3a_revenue = 0.
+        self.saving_absolute = 0.
+        self.saving_percentage = 0.
 
     def calculate_saving_kpi(self, area_dict, core_stats, gf_alp):
+        """
+        :param area_dict: contain nested area info
+        :param core_stats: contain area's raw/key statistics
+        :param gf_alp: grid_fee_along_the_path - cumulative grid fee from root to target area
+        :return:
+        """
         for child in area_dict['children']:
             if is_producer_node_type(child):
                 if_not_in_list_append(self.producer_list, child['uuid'])
@@ -167,20 +173,23 @@ class SavingKPI:
             elif is_prosumer_node_type(child):
                 if_not_in_list_append(self.ess_list, child['uuid'])
 
-        fir_excl_gf_alp = \
-            core_stats.get(area_dict['uuid'], {}).get('feed_in_tariff', 0.) - gf_alp
-        mmr_incl_gf_alp = \
-            core_stats.get(area_dict['uuid'], {}).get('market_maker_rate', 0.) + gf_alp
+        # fir_excl_gf_alp: feed-in tariff rate excluding grid fee along path
+        fir_excl_gf_alp = (core_stats.get(area_dict['uuid'], {}).get('feed_in_tariff', 0.) -
+                           gf_alp)
+        # mmr_incl_gf_alp: market maker rate include grid fee along path
+        mmr_incl_gf_alp = (core_stats.get(area_dict['uuid'], {}).get('market_maker_rate', 0.) +
+                           gf_alp)
         for trade in core_stats.get(area_dict['uuid'], {}).get('trades', []):
             if trade['seller_origin_id'] in [self.producer_list, self.ess_list]:
-                self.fit_rev += fir_excl_gf_alp * trade['energy']
-                self.d3a_rev += trade['rate'] * trade['energy']
+                self.fit_revenue += fir_excl_gf_alp * trade['energy']
+                self.d3a_revenue += trade['rate'] * trade['energy']
             if trade['buyer_origin_id'] in [self.consumer_list, self.ess_list]:
                 self.utility_bill += mmr_incl_gf_alp * trade['energy']
-                self.d3a_rev -= trade['rate'] * trade['energy']
-        base_case_rev = self.fit_rev + self.utility_bill
-        self.saving_abs = self.d3a_rev - base_case_rev
-        self.saving_per = (self.saving_abs / base_case_rev) * 100 if base_case_rev != 0 else 0.
+                self.d3a_revenue -= trade['rate'] * trade['energy']
+        base_case_revenue = self.fit_revenue + self.utility_bill
+        self.saving_absolute = self.d3a_revenue - base_case_revenue
+        self.saving_percentage = ((self.saving_absolute / base_case_revenue) * 100
+                                  if base_case_revenue != 0 else 0.)
 
 
 class KPI(ResultsBaseClass):
@@ -204,8 +213,7 @@ class KPI(ResultsBaseClass):
             self.state[area_dict['uuid']] = KPIState()
 
         # initialization of house saving state
-        if area_dict['uuid'] not in self.saving_state and \
-                has_no_grand_child(area_dict):
+        if area_dict['uuid'] not in self.saving_state and has_no_grand_children(area_dict):
             self.saving_state[area_dict['uuid']] = SavingKPI()
         if area_dict['uuid'] in self.saving_state:
             self.saving_state[area_dict['uuid']].calculate_saving_kpi(
@@ -214,28 +222,28 @@ class KPI(ResultsBaseClass):
         self.state[area_dict['uuid']].accumulate_devices(area_dict)
 
         self.state[area_dict['uuid']].update_area_kpi(area_dict, core_stats)
-        self.state[area_dict['uuid']].total_demand = \
-            self.state[area_dict['uuid']].total_energy_demanded_wh + \
-            self.state[area_dict['uuid']].demanded_buffer_wh
+        self.state[area_dict['uuid']].total_demand = (
+                self.state[area_dict['uuid']].total_energy_demanded_wh +
+                self.state[area_dict['uuid']].demanded_buffer_wh)
 
         # in case when the area doesn't have any load demand
         if self.state[area_dict['uuid']].total_demand <= 0:
             self_sufficiency = None
-        elif self.state[area_dict['uuid']].total_self_consumption_wh >= \
-                self.state[area_dict['uuid']].total_demand:
+        elif (self.state[area_dict['uuid']].total_self_consumption_wh >=
+              self.state[area_dict['uuid']].total_demand):
             self_sufficiency = 1.0
         else:
-            self_sufficiency = self.state[area_dict['uuid']].total_self_consumption_wh / \
-                               self.state[area_dict['uuid']].total_demand
+            self_sufficiency = (self.state[area_dict['uuid']].total_self_consumption_wh /
+                                self.state[area_dict['uuid']].total_demand)
 
         if self.state[area_dict['uuid']].total_energy_produced_wh <= 0:
             self_consumption = None
-        elif self.state[area_dict['uuid']].total_self_consumption_wh >= \
-                self.state[area_dict['uuid']].total_energy_produced_wh:
+        elif (self.state[area_dict['uuid']].total_self_consumption_wh >=
+              self.state[area_dict['uuid']].total_energy_produced_wh):
             self_consumption = 1.0
         else:
-            self_consumption = self.state[area_dict['uuid']].total_self_consumption_wh / \
-                               self.state[area_dict['uuid']].total_energy_produced_wh
+            self_consumption = (self.state[area_dict['uuid']].total_self_consumption_wh /
+                                self.state[area_dict['uuid']].total_energy_produced_wh)
         return {
             "self_sufficiency": self_sufficiency, "self_consumption": self_consumption,
             "total_energy_demanded_wh": self.state[area_dict['uuid']].total_demand,
@@ -244,17 +252,16 @@ class KPI(ResultsBaseClass):
             "total_energy_produced_wh": self.state[area_dict['uuid']].total_energy_produced_wh,
             "total_self_consumption_wh":
                 self.state[area_dict['uuid']].total_self_consumption_wh,
-            "saving_abs": getattr(self.saving_state.get(area_dict['uuid'], None),
-                                  'saving_abs', None),
-            "saving_per": getattr(self.saving_state.get(area_dict['uuid'], None),
-                                  'saving_per', None)
+            "saving_absolute": getattr(self.saving_state.get(area_dict['uuid'], None),
+                                       'saving_absolute', None),
+            "saving_percentage": getattr(self.saving_state.get(area_dict['uuid'], None),
+                                         'saving_percentage', None)
         }
 
     def _kpi_ratio_to_percentage(self, area_name):
         area_kpis = self.performance_indices[area_name]
         if area_kpis["self_sufficiency"] is not None:
-            self_sufficiency_percentage = \
-                area_kpis["self_sufficiency"] * 100
+            self_sufficiency_percentage = area_kpis["self_sufficiency"] * 100
         else:
             self_sufficiency_percentage = 0.0
         if area_kpis["self_consumption"] is not None:
