@@ -34,7 +34,6 @@ class DeviceValidator(metaclass=ABCMeta):
     """Interface for devices' validator classes."""
 
     @classmethod
-    @abstractmethod
     def validate(cls, **kwargs):
         """Validate both rate and energy values of the device."""
         cls.validate_price(**kwargs)
@@ -53,11 +52,6 @@ class DeviceValidator(metaclass=ABCMeta):
 
 class HomeMeterValidator(DeviceValidator):
     """Validator class for Home Meter devices."""
-
-    @classmethod
-    def validate(cls, **kwargs):
-        """Validate both rate and energy values of the device."""
-        super().validate()
 
     @classmethod
     def validate_energy(cls, **kwargs):
