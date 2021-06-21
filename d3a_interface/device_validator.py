@@ -36,12 +36,12 @@ class DeviceValidator(metaclass=ABCMeta):
     @classmethod
     def validate(cls, **kwargs):
         """Validate both rate and energy values of the device."""
-        cls.validate_price(**kwargs)
+        cls.validate_rate(**kwargs)
         cls.validate_energy(**kwargs)
 
     @classmethod
     @abstractmethod
-    def validate_price(cls, **kwargs):
+    def validate_rate(cls, **kwargs):
         """Validate the rate values of the device."""
 
     @classmethod
@@ -58,13 +58,13 @@ class HomeMeterValidator(DeviceValidator):
         """Validate energy values of a Home Meter device. Currently not implemented."""
 
     @classmethod
-    def validate_price(cls, **kwargs):
+    def validate_rate(cls, **kwargs):
         """Validate rates of a Home Meter device."""
-        cls._validate_home_meter_consumption_prices(**kwargs)
-        cls._validate_home_meter_production_prices(**kwargs)
+        cls._validate_home_meter_consumption_rates(**kwargs)
+        cls._validate_home_meter_production_rates(**kwargs)
 
     @staticmethod
-    def _validate_home_meter_consumption_prices(**kwargs):
+    def _validate_home_meter_consumption_rates(**kwargs):
         """Validate rates related to the consumption activity of the device."""
         if kwargs.get("final_buying_rate") is not None:
             error_message = {
@@ -118,7 +118,7 @@ class HomeMeterValidator(DeviceValidator):
                     "fit_to_limit & energy_rate_increase_per_update can't be set together."]})
 
     @staticmethod
-    def _validate_home_meter_production_prices(**kwargs):
+    def _validate_home_meter_production_rates(**kwargs):
         """Validate rates related to the production activity of the device."""
         if kwargs.get("final_selling_rate") is not None:
             error_message = {

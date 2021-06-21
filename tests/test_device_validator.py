@@ -278,7 +278,7 @@ class TestHomeMeterValidator(unittest.TestCase):
         """Set up requirements for all individual tests."""
         cls.validator = HomeMeterValidator
 
-    @patch.object(HomeMeterValidator, "validate_price")
+    @patch.object(HomeMeterValidator, "validate_rate")
     @patch.object(HomeMeterValidator, "validate_energy")
     def test_validate(self, validate_energy_mock, validate_price_mock):
         """The validate method correctly calls the individual validation methods."""
@@ -299,7 +299,7 @@ class TestHomeMeterValidator(unittest.TestCase):
             "initial_selling_rate": 13, "final_selling_rate": 10,
             "energy_rate_decrease_per_update": 2
         }
-        self.validator.validate_price(**arguments)
+        self.validator.validate_rate(**arguments)
         assert validate_range_limit_mock.call_count == 6
 
     def test_validate_price_fails(self):
@@ -313,4 +313,4 @@ class TestHomeMeterValidator(unittest.TestCase):
         for arguments in failing_arguments:
             with self.subTest(arguments=arguments):
                 with self.assertRaises(D3ADeviceException):
-                    self.validator.validate_price(**arguments)
+                    self.validator.validate_rate(**arguments)
