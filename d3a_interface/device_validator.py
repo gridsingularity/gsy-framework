@@ -97,7 +97,7 @@ class HomeMeterValidator(DeviceValidator):
                 "misconfiguration": [
                     "initial_buying_rate should be less than or equal to final_buying_rate/"
                     "market_maker_rate. Please adapt the market_maker_rate of the configuration "
-                    "or the initial_buying_rate"]})
+                    "or the initial_buying_rate."]})
 
         if kwargs.get("energy_rate_increase_per_update") is not None:
             error_message = {
@@ -151,7 +151,7 @@ class HomeMeterValidator(DeviceValidator):
                 {"misconfiguration": [
                     "initial_selling_rate/market_maker_rate should be greater than or equal to "
                     "final_selling_rate. Please adapt the market_maker_rate of the configuration "
-                    "or the initial_selling_rate"]})
+                    "or the initial_selling_rate."]})
 
         if (kwargs.get("fit_to_limit") is True
                 and kwargs.get("energy_rate_decrease_per_update") is not None):
@@ -243,11 +243,10 @@ def validate_load_device_price(**kwargs):
     if ("initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None) and \
             ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and \
             (kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
-        raise D3ADeviceException({"misconfiguration": [f"initial_buying_rate should be "
-                                                       f"less than or equal to final_buying_rate/"
-                                                       f"market_maker_rate. Please adapt the "
-                                                       f"market_maker_rate of the configuration "
-                                                       f"or the initial_buying_rate"]})
+        raise D3ADeviceException({"misconfiguration": [
+            "initial_buying_rate should be less than or equal to final_buying_rate/"
+            "market_maker_rate. Please adapt the market_maker_rate of the configuration "
+            "or the initial_buying_rate."]})
     if "energy_rate_increase_per_update" in kwargs and \
             kwargs["energy_rate_increase_per_update"] is not None:
         error_message = \
@@ -317,10 +316,10 @@ def validate_pv_device_price(**kwargs):
             ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None) and \
             (kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
         raise D3ADeviceException(
-            {"misconfiguration": [f"initial_selling_rate/market_maker_rate should be greater "
-                                  f"than or equal to final_selling_rate. Please adapt the "
-                                  f"market_maker_rate of the configuration or the "
-                                  f"initial_selling_rate"]})
+            {"misconfiguration": [
+                "initial_selling_rate/market_maker_rate should be greater than or equal to "
+                "final_selling_rate. Please adapt the market_maker_rate of the configuration or "
+                "the initial_selling_rate."]})
     if ("fit_to_limit" in kwargs and kwargs["fit_to_limit"] is True) and \
             ("energy_rate_decrease_per_update" in kwargs and
              kwargs["energy_rate_decrease_per_update"] is not None):
