@@ -55,8 +55,8 @@ def is_house_node_type(area):
 
 
 def has_no_grand_children(area):
-    for child in area.get('children', []):
-        if child.get('children', []):
+    for child in area.get("children", []):
+        if child.get("children", []):
             return False
     return True
 

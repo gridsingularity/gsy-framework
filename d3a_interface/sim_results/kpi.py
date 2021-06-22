@@ -1,4 +1,3 @@
-
 """
 Copyright 2018 Grid Singularity
 This file is part of D3A.
@@ -146,11 +145,10 @@ class KPIState:
         self._accumulate_energy_trace(core_stats)
 
 
-class SavingKPI:
+class SavingsKPI:
     def __init__(self):
-        self.producer_list = list()
-        self.consumer_list = list()
-        self.ess_list = list()
+        self.producer_ess_set = set()
+        self.consumer_ess_set = set()
         self.house_list = list()
         self.fit_revenue = 0.
         self.utility_bill = 0.
@@ -160,36 +158,50 @@ class SavingKPI:
 
     def calculate_saving_kpi(self, area_dict, core_stats, gf_alp):
         """
-        :param area_dict: contain nested area info
-        :param core_stats: contain area's raw/key statistics
-        :param gf_alp: grid_fee_along_the_path - cumulative grid fee from root to target area
-        :return:
+        Args:
+            area_dict: contain nested area info
+            core_stats: contain area's raw/key statistics
+            gf_alp: grid_fee_along_the_path - cumulative grid fee from root to target area
+
+        Returns:
         """
-        for child in area_dict['children']:
-            if is_producer_node_type(child):
-                if_not_in_list_append(self.producer_list, child['uuid'])
-            elif is_load_node_type(child):
-                if_not_in_list_append(self.consumer_list, child['uuid'])
-            elif is_prosumer_node_type(child):
-                if_not_in_list_append(self.ess_list, child['uuid'])
+        self.populate_area_type(area_dict)
 
         # fir_excl_gf_alp: feed-in tariff rate excluding grid fee along path
-        fir_excl_gf_alp = (core_stats.get(area_dict['uuid'], {}).get('feed_in_tariff', 0.) -
-                           gf_alp)
+        fir_excl_gf_alp = self.get_feed_in_tariff_rate_excluding_path_grid_fees(
+            core_stats.get(area_dict["uuid"], {}), gf_alp)
         # mmr_incl_gf_alp: market maker rate include grid fee along path
-        mmr_incl_gf_alp = (core_stats.get(area_dict['uuid'], {}).get('market_maker_rate', 0.) +
-                           gf_alp)
-        for trade in core_stats.get(area_dict['uuid'], {}).get('trades', []):
-            if trade['seller_origin_id'] in [self.producer_list, self.ess_list]:
-                self.fit_revenue += fir_excl_gf_alp * trade['energy']
-                self.d3a_revenue += trade['rate'] * trade['energy']
-            if trade['buyer_origin_id'] in [self.consumer_list, self.ess_list]:
-                self.utility_bill += mmr_incl_gf_alp * trade['energy']
-                self.d3a_revenue -= trade['rate'] * trade['energy']
+        mmr_incl_gf_alp = self.get_market_maker_rate_including_path_grid_fees(
+            core_stats.get(area_dict["uuid"], {}), gf_alp)
+        for trade in core_stats.get(area_dict["uuid"], {}).get("trades", []):
+            if trade["seller_origin_id"] in self.producer_ess_set:
+                self.fit_revenue += fir_excl_gf_alp * trade["energy"]
+                self.d3a_revenue += trade["offer"]["price"]
+            if trade["buyer_origin_id"] in self.consumer_ess_set:
+                self.utility_bill += mmr_incl_gf_alp * trade["energy"]
+                self.d3a_revenue -= trade["offer"]["price"]
         base_case_revenue = self.fit_revenue + self.utility_bill
         self.saving_absolute = self.d3a_revenue - base_case_revenue
         self.saving_percentage = ((self.saving_absolute / base_case_revenue) * 100
-                                  if base_case_revenue != 0 else 0.)
+                                  if base_case_revenue else 0.)
+
+    def populate_area_type(self, area_dict):
+        for child in area_dict["children"]:
+            if is_producer_node_type(child):
+                self.producer_ess_set.add(child["uuid"])
+            elif is_load_node_type(child):
+                self.consumer_ess_set.add(child["uuid"])
+            elif is_prosumer_node_type(child):
+                self.producer_ess_set.add(child["uuid"])
+                self.consumer_ess_set.add(child["uuid"])
+
+    @staticmethod
+    def get_feed_in_tariff_rate_excluding_path_grid_fees(area_core_stat, path_grid_fee):
+        return area_core_stat.get("feed_in_tariff", 0.) - path_grid_fee
+
+    @staticmethod
+    def get_market_maker_rate_including_path_grid_fees(area_core_stat, path_grid_fee):
+        return area_core_stat.get("market_maker_rate", 0.) + path_grid_fee
 
 
 class KPI(ResultsBaseClass):
@@ -214,7 +226,7 @@ class KPI(ResultsBaseClass):
 
         # initialization of house saving state
         if area_dict['uuid'] not in self.saving_state and has_no_grand_children(area_dict):
-            self.saving_state[area_dict['uuid']] = SavingKPI()
+            self.saving_state[area_dict['uuid']] = SavingsKPI()
         if area_dict['uuid'] in self.saving_state:
             self.saving_state[area_dict['uuid']].calculate_saving_kpi(
                 area_dict, core_stats, self.area_uuid_to_cum_fee_path[area_dict['uuid']])
