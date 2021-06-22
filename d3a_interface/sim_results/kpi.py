@@ -176,10 +176,10 @@ class SavingsKPI:
         for trade in core_stats.get(area_dict["uuid"], {}).get("trades", []):
             if trade["seller_origin_id"] in self.producer_ess_set:
                 self.fit_revenue += fir_excl_gf_alp * trade["energy"]
-                self.d3a_revenue += trade["offer"]["price"]
+                self.d3a_revenue += trade["price"]
             if trade["buyer_origin_id"] in self.consumer_ess_set:
                 self.utility_bill += mmr_incl_gf_alp * trade["energy"]
-                self.d3a_revenue -= trade["offer"]["price"]
+                self.d3a_revenue -= trade["price"]
         base_case_revenue = self.fit_revenue + self.utility_bill
         self.saving_absolute = self.d3a_revenue - base_case_revenue
         self.saving_percentage = ((self.saving_absolute / base_case_revenue) * 100
@@ -225,8 +225,9 @@ class KPI(ResultsBaseClass):
             self.state[area_dict['uuid']] = KPIState()
 
         # initialization of house saving state
-        if area_dict['uuid'] not in self.saving_state and has_no_grand_children(area_dict):
-            self.saving_state[area_dict['uuid']] = SavingsKPI()
+        if area_dict['uuid'] not in self.saving_state:
+            if has_no_grand_children(area_dict):
+                self.saving_state[area_dict['uuid']] = SavingsKPI()
         if area_dict['uuid'] in self.saving_state:
             self.saving_state[area_dict['uuid']].calculate_saving_kpi(
                 area_dict, core_stats, self.area_uuid_to_cum_fee_path[area_dict['uuid']])
