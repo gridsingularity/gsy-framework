@@ -1,5 +1,7 @@
-###### D3A INTERFACE   
+# D3A interface
 
-This is a common interface between d3a micro services.
+[![codecov](https://codecov.io/gh/gridsingularity/d3a-interface/branch/master/graph/badge.svg?token=2IGNQ2KGC5)](https://codecov.io/gh/gridsingularity/d3a-interface)
 
-It also holds Constants for both repositories
+This is a common interface between D3A micro services. 
+
+The repository also holds constants that need to be shared among multiple D3A repositories.
