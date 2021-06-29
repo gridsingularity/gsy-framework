@@ -152,6 +152,7 @@ class SavingsKPI:
         self.house_list = list()
         self.fit_revenue = 0.
         self.utility_bill = 0.
+        self.base_case_revenue = 0.
         self.d3a_revenue = 0.
         self.saving_absolute = 0.
         self.saving_percentage = 0.
@@ -180,10 +181,10 @@ class SavingsKPI:
             if trade["buyer_origin_id"] in self.consumer_ess_set:
                 self.utility_bill += mmr_incl_gf_alp * trade["energy"]
                 self.d3a_revenue -= trade["price"]
-        base_case_revenue = self.fit_revenue + self.utility_bill
-        self.saving_absolute = self.d3a_revenue - base_case_revenue
-        self.saving_percentage = ((self.saving_absolute / base_case_revenue) * 100
-                                  if base_case_revenue else 0.)
+        self.base_case_revenue = self.fit_revenue - self.utility_bill
+        self.saving_absolute = self.d3a_revenue - self.base_case_revenue
+        self.saving_percentage = ((self.saving_absolute / self.base_case_revenue) * 100
+                                  if self.base_case_revenue else 0.)
 
     def populate_area_type(self, area_dict):
         for child in area_dict["children"]:
@@ -265,6 +266,10 @@ class KPI(ResultsBaseClass):
             "total_energy_produced_wh": self.state[area_dict['uuid']].total_energy_produced_wh,
             "total_self_consumption_wh":
                 self.state[area_dict['uuid']].total_self_consumption_wh,
+            "base_case_revenue": getattr(self.saving_state.get(area_dict['uuid'], None),
+                                         'base_case_revenue', None),
+            "d3a_revenue": getattr(self.saving_state.get(area_dict['uuid'], None),
+                                   'd3a_revenue', None),
             "saving_absolute": getattr(self.saving_state.get(area_dict['uuid'], None),
                                        'saving_absolute', None),
             "saving_percentage": getattr(self.saving_state.get(area_dict['uuid'], None),
