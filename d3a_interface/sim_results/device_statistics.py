@@ -18,11 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Dict
 
-from d3a_interface.utils import create_or_update_subdict, limit_float_precision
-from d3a_interface.sim_results import is_load_node_type, is_pv_node_type, \
-    is_prosumer_node_type, is_bulk_power_producer, is_buffer_node_type, \
-    is_finite_power_plant_node_type
+from d3a_interface.sim_results import (
+    is_buffer_node_type, is_bulk_power_producer, is_finite_power_plant_node_type,
+    is_load_node_type, is_prosumer_node_type, is_pv_node_type)
 from d3a_interface.sim_results.results_abc import ResultsBaseClass
+from d3a_interface.utils import create_or_update_subdict, limit_float_precision
 
 FILL_VALUE = None
 
@@ -136,46 +136,36 @@ class DeviceStatistics(ResultsBaseClass):
             {current_market_slot: bought_traded_energy})
         cls._calc_min_max_from_sim_dict(subdict, bought_key_name)
 
+    @staticmethod
+    def _compute_key_name_for_node(area: Dict):
+        if is_pv_node_type(area):
+            return "pv_production_kWh"
+        if is_prosumer_node_type(area):
+            return "soc_history_%"
+        if is_load_node_type(area):
+            return "load_profile_kWh"
+        if area["type"] == "HomeMeterStrategy":
+            return "home_meter_profile_kWh"
+        if area["type"] == "FinitePowerPlant":
+            return "production_kWh"
+
+        return None
+
     @classmethod
-    def _pv_production_stats(cls, area_dict: Dict, subdict: Dict, core_stats=None,
-                             current_market_slot=None):
+    def _populate_area_stats(
+            cls, area_dict: Dict, subdict: Dict, core_stats=None, current_market_slot=None):
+        key_name = cls._compute_key_name_for_node(area_dict)
+        if not key_name:
+            return
+
         if core_stats is None:
             core_stats = {}
-        key_name = "pv_production_kWh"
         if core_stats[area_dict['uuid']] == {}:
             return
 
         create_or_update_subdict(
             subdict, key_name,
             {current_market_slot: core_stats[area_dict["uuid"]][key_name]})
-
-        cls._calc_min_max_from_sim_dict(subdict, key_name)
-
-    @classmethod
-    def _soc_stats(cls, area_dict: Dict, subdict: Dict, core_stats=None, current_market_slot=None):
-        if core_stats is None:
-            core_stats = {}
-        key_name = "soc_history_%"
-        if core_stats[area_dict['uuid']] == {}:
-            return
-        create_or_update_subdict(
-            subdict, key_name,
-            {current_market_slot: core_stats[area_dict["uuid"]][key_name]})
-
-        cls._calc_min_max_from_sim_dict(subdict, key_name)
-
-    @classmethod
-    def _load_profile_stats(cls, area_dict: Dict, subdict: Dict, core_stats=None,
-                            current_market_slot=None):
-        if core_stats is None:
-            core_stats = {}
-        key_name = "load_profile_kWh"
-        if core_stats[area_dict['uuid']] == {}:
-            return
-        create_or_update_subdict(
-            subdict, key_name,
-            {current_market_slot: core_stats[area_dict["uuid"]][key_name]}
-        )
 
         cls._calc_min_max_from_sim_dict(subdict, key_name)
 
@@ -221,21 +211,7 @@ class DeviceStatistics(ResultsBaseClass):
             cls._device_price_stats(area_dict, subdict, core_stats, current_market_slot)
             cls._device_energy_stats(area_dict, subdict, core_stats, current_market_slot)
 
-        if is_pv_node_type(area_dict):
-            cls._pv_production_stats(area_dict, subdict, core_stats, current_market_slot)
-
-        elif is_prosumer_node_type(area_dict):
-            cls._soc_stats(area_dict, subdict, core_stats, current_market_slot)
-
-        elif is_load_node_type(area_dict):
-            cls._load_profile_stats(area_dict, subdict, core_stats, current_market_slot)
-
-        elif area_dict['type'] == "FinitePowerPlant":
-            create_or_update_subdict(
-                subdict, "production_kWh",
-                {current_market_slot: core_stats[area_dict["uuid"]]["production_kWh"]}
-            )
-            cls._calc_min_max_from_sim_dict(subdict, "production_kWh")
+        cls._populate_area_stats(area_dict, subdict, core_stats, current_market_slot)
 
         flat_result_dict[area_dict["uuid"]] = subdict.copy()
 
