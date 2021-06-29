@@ -178,7 +178,8 @@ class SavingsKPI:
             if trade["seller_origin_id"] in self.producer_ess_set:
                 self.fit_revenue += fir_excl_gf_alp * trade["energy"]
                 self.d3a_revenue += trade["price"]
-            if trade["buyer_origin_id"] in self.consumer_ess_set:
+            if trade["buyer_origin_id"] in self.consumer_ess_set and \
+                    trade["seller_origin_id"] not in self.producer_ess_set:
                 self.utility_bill += mmr_incl_gf_alp * trade["energy"]
                 self.d3a_revenue -= trade["price"]
         self.base_case_revenue = self.fit_revenue - self.utility_bill
