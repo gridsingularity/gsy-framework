@@ -23,8 +23,8 @@ import pytest
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.validators import (
-    HomeMeterValidator, LoadValidator, validate_commercial_producer, validate_infinite_bus,
-    validate_market_maker, validate_pv_device, validate_storage_device,
+    HomeMeterValidator, LoadValidator, PVValidator, validate_commercial_producer,
+    validate_infinite_bus, validate_market_maker, validate_storage_device,
     validate_finite_diesel_generator)
 
 GeneralSettings = ConstSettings.GeneralSettings
@@ -93,7 +93,7 @@ class TestValidateDeviceSettings:
     ])
     def test_pv_device_setting_succeeds(valid_arguments):
         """The PV device validation succeeds when valid arguments are provided."""
-        assert validate_pv_device(**valid_arguments) is None
+        assert PVValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -111,7 +111,7 @@ class TestValidateDeviceSettings:
     def test_pv_device_setting_fails(failing_arguments):
         """The PV device validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_pv_device(**failing_arguments)
+            PVValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
