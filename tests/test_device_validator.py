@@ -259,28 +259,27 @@ class TestHomeMeterValidator:
         validate_energy_mock.assert_called_once_with()
 
     @staticmethod
-    @patch("d3a_interface.device_validator.validate_range_limit")
-    def test_validate_price_executes(validate_range_limit_mock):
-        """The validation is executed when suitable arguments are provided.
-
-        Note: this does not necessarily mean that the validation is successful, as it also depends
-        on the validate_range_limit method (which we are mocking here).
-        """
-        arguments = {
-            "initial_buying_rate": 10, "final_buying_rate": 13,
-            "energy_rate_increase_per_update": 1,
-            "initial_selling_rate": 13, "final_selling_rate": 10,
-            "energy_rate_decrease_per_update": 2
-        }
-        HomeMeterValidator.validate_rate(**arguments)
-        assert validate_range_limit_mock.call_count == 6
+    @pytest.mark.parametrize("valid_arguments", [
+        {"initial_buying_rate": 10, "final_buying_rate": 13, "energy_rate_increase_per_update": 1,
+         "initial_selling_rate": 13, "final_selling_rate": 10,
+         "energy_rate_decrease_per_update": 2},
+        {"fit_to_limit": False, "energy_rate_increase_per_update": 1,
+         "energy_rate_decrease_per_update": 1},
+        {"fit_to_limit": False, "energy_rate_decrease_per_update": 1,
+         "energy_rate_increase_per_update": 1},
+    ])
+    def test_validate_price_succeeds(valid_arguments):
+        """The validation succeeds when valid arguments are provided."""
+        assert HomeMeterValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
         {"initial_buying_rate": 15, "final_buying_rate": 13},
-        {"energy_rate_increase_per_update": 1, "fit_to_limit": True},
         {"initial_selling_rate": 10, "final_selling_rate": 13},
-        {"energy_rate_decrease_per_update": 1, "fit_to_limit": True}
+        {"fit_to_limit": True, "energy_rate_increase_per_update": 1},
+        {"fit_to_limit": True, "energy_rate_decrease_per_update": 1},
+        {"fit_to_limit": False, "energy_rate_increase_per_update": 1},
+        {"fit_to_limit": False, "energy_rate_decrease_per_update": 1},
     ])
     def test_validate_price_fails(failing_arguments):
         """The validation fails when incompatible arguments are provided."""

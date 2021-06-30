@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import ast
 from abc import ABCMeta, abstractmethod
+from typing import Optional
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
@@ -60,8 +61,33 @@ class HomeMeterValidator(DeviceValidator):
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate rates of a Home Meter device."""
+
+        cls._validate_fit_to_limit(
+            fit_to_limit=kwargs.get("fit_to_limit"),
+            energy_rate_increase_per_update=kwargs.get("energy_rate_increase_per_update"),
+            energy_rate_decrease_per_update=kwargs.get("energy_rate_decrease_per_update"))
         cls._validate_home_meter_consumption_rates(**kwargs)
         cls._validate_home_meter_production_rates(**kwargs)
+
+    @staticmethod
+    def _validate_fit_to_limit(
+            fit_to_limit: Optional[bool], energy_rate_increase_per_update: Optional[bool],
+            energy_rate_decrease_per_update: Optional[bool]):
+        if fit_to_limit is True and (
+                energy_rate_decrease_per_update is not None
+                or energy_rate_increase_per_update is not None):
+            raise D3ADeviceException({
+                "misconfiguration": [
+                    "fit_to_limit and energy_rate_increase/decrease_per_update can't be set "
+                    "together."]})
+
+        if fit_to_limit is False and (
+                energy_rate_increase_per_update is None
+                or energy_rate_decrease_per_update is None):
+            raise D3ADeviceException(
+                {"misconfiguration": [
+                    "energy_rate_increase/decrease_per_update must be set if fit_to_limit is "
+                    "False."]})
 
     @staticmethod
     def _validate_home_meter_consumption_rates(**kwargs):
@@ -111,12 +137,6 @@ class HomeMeterValidator(DeviceValidator):
                 kwargs["energy_rate_increase_per_update"],
                 GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
 
-        if (kwargs.get("fit_to_limit") is True
-                and kwargs.get("energy_rate_increase_per_update") is not None):
-            raise D3ADeviceException({
-                "misconfiguration": [
-                    "fit_to_limit & energy_rate_increase_per_update can't be set together."]})
-
     @staticmethod
     def _validate_home_meter_production_rates(**kwargs):
         """Validate rates related to the production activity of the device."""
@@ -152,12 +172,6 @@ class HomeMeterValidator(DeviceValidator):
                     "initial_selling_rate/market_maker_rate should be greater than or equal to "
                     "final_selling_rate. Please adapt the market_maker_rate of the configuration "
                     "or the initial_selling_rate."]})
-
-        if (kwargs.get("fit_to_limit") is True
-                and kwargs.get("energy_rate_decrease_per_update") is not None):
-            raise D3ADeviceException({
-                "misconfiguration": [
-                    "fit_to_limit & energy_rate_decrease_per_update can't be set together."]})
 
         if kwargs.get("energy_rate_decrease_per_update") is not None:
             error_message = {
