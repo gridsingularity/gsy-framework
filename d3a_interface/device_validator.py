@@ -25,19 +25,6 @@ from d3a_interface.validators.cep_validator import validate_commercial_producer
 CepSettings = ConstSettings.CommercialProducerSettings
 
 
-def validate_market_maker(**kwargs):
-    utils.validate_energy_rate(**kwargs)
-    if "energy_rate_profile" in kwargs and kwargs["energy_rate_profile"] is not None and \
-            ("energy_rate_profile_uuid" not in kwargs or
-             kwargs["energy_rate_profile_uuid"] is None):
-        raise D3ADeviceException(
-            {"misconfiguration": [f"energy_rate_profile must have a uuid."]})
-    if "grid_connected" in kwargs and kwargs["grid_connected"] is not None and \
-            not isinstance(kwargs["grid_connected"], bool):
-        raise D3ADeviceException(
-            {"misconfiguration": [f"grid_connected must be a boolean value."]})
-
-
 def validate_infinite_bus(**kwargs):
     validate_commercial_producer(**kwargs)
     if "energy_rate_profile" in kwargs and kwargs["energy_rate_profile"] is not None and \
