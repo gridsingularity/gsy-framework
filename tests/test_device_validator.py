@@ -86,6 +86,7 @@ class TestValidateDeviceSettings:
         {"initial_selling_rate": 0},
         {"initial_selling_rate": 11, "final_selling_rate": 10},
         {"fit_to_limit": False, "energy_rate_decrease_per_update": 2},
+        {"fit_to_limit": True, "energy_rate_decrease_per_update": None},
         {"energy_rate_decrease_per_update": 0},
         {"max_panel_power_W": 0},
         {"cloud_coverage": 4, "power_profile": ""}
@@ -101,6 +102,7 @@ class TestValidateDeviceSettings:
         {"initial_selling_rate": -20},
         {"initial_selling_rate": 10, "final_selling_rate": 11},
         {"fit_to_limit": True, "energy_rate_decrease_per_update": 2},
+        {"fit_to_limit": False, "energy_rate_decrease_per_update": None},
         {"energy_rate_decrease_per_update": -1},
         {"max_panel_power_W": -5},
         {"cloud_coverage": 3, "power_profile": ""},
