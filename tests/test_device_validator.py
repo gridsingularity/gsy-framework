@@ -51,10 +51,11 @@ class TestValidateDeviceSettings:
         {"hrs_of_day": [1, 2, 3, 5, 6, 10], "hrs_per_day": 6},
         {"energy_rate_increase_per_update": 0},
         {"fit_to_limit": False, "energy_rate_increase_per_update": 2},
+        {"fit_to_limit": True, "energy_rate_increase_per_update": None},
         {"daily_load_profile": VALID_LOAD_PROFILE}
     ])
     def test_load_device_setting_succeeds(valid_arguments):
-        """The PV device validation succeeds when valid arguments are provided."""
+        """The load device validation succeeds when valid arguments are provided."""
         assert validate_load_device(**valid_arguments) is None
 
     @staticmethod
@@ -67,13 +68,14 @@ class TestValidateDeviceSettings:
         {"hrs_of_day": [20, 21, 22, 23, 24, 25, 26]},
         {"hrs_of_day": [1, 2, 3, 4, 5, 6], "hrs_per_day": 10},
         {"energy_rate_increase_per_update": -1},
-        {"fit_to_limit": True, "energy_rate_increase_per_update": 2},
         {"avg_power_W": 100, "daily_load_profile": VALID_LOAD_PROFILE},
         {"hrs_per_day": 1, "daily_load_profile": VALID_LOAD_PROFILE},
-        {"hrs_of_day": [1, 2, 3, 4, 5, 6], "daily_load_profile": VALID_LOAD_PROFILE}
+        {"hrs_of_day": [1, 2, 3, 4, 5, 6], "daily_load_profile": VALID_LOAD_PROFILE},
+        {"fit_to_limit": True, "energy_rate_increase_per_update": 2},
+        {"fit_to_limit": False, "energy_rate_increase_per_update": None},
     ])
     def test_load_device_setting_fails(failing_arguments):
-        """The PV device validation fails when incompatible arguments are provided."""
+        """The load device validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
             validate_load_device(**failing_arguments)
 

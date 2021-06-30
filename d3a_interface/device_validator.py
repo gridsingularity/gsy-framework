@@ -271,12 +271,16 @@ def validate_load_device_price(**kwargs):
                              kwargs["energy_rate_increase_per_update"],
                              GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
 
-    if ("fit_to_limit" in kwargs and kwargs["fit_to_limit"] is True) and \
-            ("energy_rate_increase_per_update" in kwargs and
-             kwargs["energy_rate_increase_per_update"] is not None):
+    if (kwargs.get("fit_to_limit") is True
+            and kwargs.get("energy_rate_increase_per_update") is not None):
         raise D3ADeviceException(
-            {"misconfiguration": [f"fit_to_limit & energy_rate_increase_per_update "
-                                  f"can't be set together."]})
+            {"misconfiguration": [
+                "fit_to_limit & energy_rate_increase_per_update can't be set together."]})
+    if (kwargs.get("fit_to_limit") is False
+            and kwargs.get("energy_rate_increase_per_update") is None):
+        raise D3ADeviceException(
+            {"misconfiguration": [
+                "energy_rate_increase_per_update must be set if fit_to_limit is False."]})
 
 
 def validate_pv_device(**kwargs):
