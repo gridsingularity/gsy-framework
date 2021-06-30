@@ -23,9 +23,8 @@ import pytest
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.validators import (
-    HomeMeterValidator, LoadValidator, PVValidator, validate_commercial_producer,
-    validate_infinite_bus, validate_market_maker, validate_storage_device,
-    validate_finite_diesel_generator)
+    HomeMeterValidator, LoadValidator, PVValidator, StorageValidator, validate_commercial_producer,
+    validate_infinite_bus, validate_market_maker, validate_finite_diesel_generator)
 
 GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
@@ -136,7 +135,7 @@ class TestValidateDeviceSettings:
     ])
     def test_storage_device_setting_succeeds(valid_arguments):
         """The storage device validation succeeds when correct arguments are provided."""
-        assert validate_storage_device(**valid_arguments) is None
+        assert StorageValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -162,7 +161,7 @@ class TestValidateDeviceSettings:
     def test_storage_device_setting_fails(failing_arguments):
         """The storage validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_storage_device(**failing_arguments)
+            StorageValidator.validate(**failing_arguments)
 
     @staticmethod
     def test_commercial_producer_setting():

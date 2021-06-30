@@ -22,4 +22,4 @@ from d3a_interface.validators.infinite_bus_validator import validate_infinite_bu
 from d3a_interface.validators.load_validator import LoadValidator
 from d3a_interface.validators.market_maker_validator import validate_market_maker
 from d3a_interface.validators.pv_validator import PVValidator
-from d3a_interface.validators.storage_validator import validate_storage_device
+from d3a_interface.validators.storage_validator import StorageValidator
