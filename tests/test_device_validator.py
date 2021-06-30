@@ -125,8 +125,10 @@ class TestValidateDeviceSettings:
         {"final_buying_rate": 14, "final_selling_rate": 15},
         {"energy_rate_increase_per_update": 0.1},
         {"energy_rate_decrease_per_update": 0.1},
-        {"fit_to_limit": False, "energy_rate_increase_per_update": 3},
-        {"fit_to_limit": False, "energy_rate_decrease_per_update": 3}
+        {"fit_to_limit": False, "energy_rate_increase_per_update": 3,
+         "energy_rate_decrease_per_update": 3},
+        {"fit_to_limit": False, "energy_rate_decrease_per_update": 3,
+         "energy_rate_increase_per_update": 3}
     ])
     def test_storage_device_setting_succeeds(valid_arguments):
         """The storage device validation succeeds when correct arguments are provided."""
@@ -149,7 +151,9 @@ class TestValidateDeviceSettings:
         {"energy_rate_increase_per_update": -5},
         {"energy_rate_decrease_per_update": -3},
         {"fit_to_limit": True, "energy_rate_increase_per_update": 3},
-        {"fit_to_limit": True, "energy_rate_decrease_per_update": 3}
+        {"fit_to_limit": True, "energy_rate_decrease_per_update": 3},
+        {"fit_to_limit": False, "energy_rate_increase_per_update": 3},
+        {"fit_to_limit": False, "energy_rate_decrease_per_update": 3}
     ])
     def test_storage_device_setting_fails(failing_arguments):
         """The storage validation fails when incompatible arguments are provided."""
