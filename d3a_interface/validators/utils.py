@@ -13,13 +13,10 @@ the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this program. If
 not, see <http://www.gnu.org/licenses/>.
 """
-from d3a_interface.exceptions import D3ADeviceException
 import ast
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
-from d3a_interface.utils import key_in_dict_and_not_none, key_in_dict_and_not_none_and_not_str_type
-from d3a_interface.validators.utils import validate_range_limit
 
 CepSettings = ConstSettings.CommercialProducerSettings
 

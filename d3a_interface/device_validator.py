@@ -20,12 +20,9 @@ from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.utils import key_in_dict_and_not_none, key_in_dict_and_not_none_and_not_str_type
 from d3a_interface.validators import utils
+from d3a_interface.validators.cep_validator import validate_commercial_producer
 
 CepSettings = ConstSettings.CommercialProducerSettings
-
-
-def validate_commercial_producer(**kwargs):
-    utils.validate_energy_rate(**kwargs)
 
 
 def validate_market_maker(**kwargs):
