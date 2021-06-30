@@ -16,12 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import ast
-from abc import ABCMeta, abstractmethod
-from typing import Optional
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.utils import key_in_dict_and_not_none, key_in_dict_and_not_none_and_not_str_type
+from d3a_interface.validators.utils import validate_range_limit
 
 GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
@@ -29,161 +28,6 @@ PvSettings = ConstSettings.PVSettings
 HomeMeterSettings = ConstSettings.HomeMeterSettings
 StorageSettings = ConstSettings.StorageSettings
 CepSettings = ConstSettings.CommercialProducerSettings
-
-
-class DeviceValidator(metaclass=ABCMeta):
-    """Interface for devices' validator classes."""
-
-    @classmethod
-    def validate(cls, **kwargs):
-        """Validate both rate and energy values of the device."""
-        cls.validate_rate(**kwargs)
-        cls.validate_energy(**kwargs)
-
-    @classmethod
-    @abstractmethod
-    def validate_rate(cls, **kwargs):
-        """Validate the rate values of the device."""
-
-    @classmethod
-    @abstractmethod
-    def validate_energy(cls, **kwargs):
-        """Validate the energy values of the device."""
-
-
-class HomeMeterValidator(DeviceValidator):
-    """Validator class for Home Meter devices."""
-
-    @classmethod
-    def validate_energy(cls, **kwargs):
-        """Validate energy values of a Home Meter device. Currently not implemented."""
-
-    @classmethod
-    def validate_rate(cls, **kwargs):
-        """Validate rates of a Home Meter device."""
-
-        cls._validate_fit_to_limit(
-            fit_to_limit=kwargs.get("fit_to_limit"),
-            energy_rate_increase_per_update=kwargs.get("energy_rate_increase_per_update"),
-            energy_rate_decrease_per_update=kwargs.get("energy_rate_decrease_per_update"))
-        cls._validate_home_meter_consumption_rates(**kwargs)
-        cls._validate_home_meter_production_rates(**kwargs)
-
-    @staticmethod
-    def _validate_fit_to_limit(
-            fit_to_limit: Optional[bool], energy_rate_increase_per_update: Optional[bool],
-            energy_rate_decrease_per_update: Optional[bool]):
-        if fit_to_limit is True and (
-                energy_rate_decrease_per_update is not None
-                or energy_rate_increase_per_update is not None):
-            raise D3ADeviceException({
-                "misconfiguration": [
-                    "fit_to_limit and energy_rate_increase/decrease_per_update can't be set "
-                    "together."]})
-
-        if fit_to_limit is False and (
-                energy_rate_increase_per_update is None
-                or energy_rate_decrease_per_update is None):
-            raise D3ADeviceException(
-                {"misconfiguration": [
-                    "energy_rate_increase/decrease_per_update must be set if fit_to_limit is "
-                    "False."]})
-
-    @staticmethod
-    def _validate_home_meter_consumption_rates(**kwargs):
-        """Validate rates related to the consumption activity of the device."""
-        if kwargs.get("final_buying_rate") is not None:
-            error_message = {
-                "misconfiguration": [
-                    "final_buying_rate should be in between "
-                    f"{HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.min} & "
-                    f"{HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.max}."]}
-
-            validate_range_limit(
-                HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.min,
-                kwargs["final_buying_rate"],
-                HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.max, error_message)
-
-        if kwargs.get("initial_buying_rate") is not None:
-            error_message = {
-                "misconfiguration": [
-                    "initial_buying_rate should be in between "
-                    f"{HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.min} & "
-                    f"{HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.max}"]}
-
-            validate_range_limit(
-                HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.min,
-                kwargs["initial_buying_rate"],
-                HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
-
-        if (kwargs.get("initial_buying_rate") is not None
-                and kwargs.get("final_buying_rate") is not None
-                and kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
-            raise D3ADeviceException({
-                "misconfiguration": [
-                    "initial_buying_rate should be less than or equal to final_buying_rate/"
-                    "market_maker_rate. Please adapt the market_maker_rate of the configuration "
-                    "or the initial_buying_rate."]})
-
-        if kwargs.get("energy_rate_increase_per_update") is not None:
-            error_message = {
-                "misconfiguration": [
-                    "energy_rate_increase_per_update should be in between "
-                    f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
-                    f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}."]}
-
-            validate_range_limit(
-                GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
-                kwargs["energy_rate_increase_per_update"],
-                GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
-
-    @staticmethod
-    def _validate_home_meter_production_rates(**kwargs):
-        """Validate rates related to the production activity of the device."""
-        if kwargs.get("final_selling_rate") is not None:
-            error_message = {
-                "misconfiguration": [
-                    "final_selling_rate should be in between "
-                    f"{HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.min} & "
-                    f"{HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.max}"]}
-
-            validate_range_limit(
-                HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.min,
-                kwargs["final_selling_rate"],
-                HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.max, error_message)
-
-        if kwargs.get("initial_selling_rate") is not None:
-            error_message = {
-                "misconfiguration": [
-                    "initial_selling_rate should be in between "
-                    f"{HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.min} & "
-                    f"{HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.max}"]}
-
-            validate_range_limit(
-                HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.min,
-                kwargs["initial_selling_rate"],
-                HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.max, error_message)
-
-        if (kwargs.get("initial_selling_rate") is not None
-                and kwargs.get("final_selling_rate") is not None
-                and kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
-            raise D3ADeviceException(
-                {"misconfiguration": [
-                    "initial_selling_rate/market_maker_rate should be greater than or equal to "
-                    "final_selling_rate. Please adapt the market_maker_rate of the configuration "
-                    "or the initial_selling_rate."]})
-
-        if kwargs.get("energy_rate_decrease_per_update") is not None:
-            error_message = {
-                "misconfiguration": [
-                    "energy_rate_decrease_per_update should be in between "
-                    f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
-                    f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}"]}
-
-            validate_range_limit(
-                GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
-                kwargs["energy_rate_decrease_per_update"],
-                GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
 
 
 def validate_load_device(**kwargs):
@@ -613,8 +457,3 @@ def validate_finite_diesel_generator(**kwargs):
                                                            f"invalid type. "]})
 
     validate_commercial_producer(**kwargs)
-
-
-def validate_range_limit(initial_limit, value, final_limit, error_message):
-    if not initial_limit <= value <= final_limit:
-        raise D3ADeviceException(error_message)
