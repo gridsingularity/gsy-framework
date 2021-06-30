@@ -22,14 +22,9 @@ import pytest
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
-from d3a_interface.validators.cep_validator import validate_commercial_producer
-from d3a_interface.validators.home_meter_validator import HomeMeterValidator
-from d3a_interface.validators.infinite_bus_validator import validate_infinite_bus
-from d3a_interface.validators.load_validator import validate_load_device
-from d3a_interface.validators.market_maker_validator import validate_market_maker
-from d3a_interface.validators.pv_validator import validate_pv_device
-from d3a_interface.validators.storage_validator import validate_storage_device
-from d3a_interface.validators.finite_diesel_generator_validator import (
+from d3a_interface.validators import (
+    HomeMeterValidator, validate_commercial_producer, validate_infinite_bus, validate_load_device,
+    validate_market_maker, validate_pv_device, validate_storage_device,
     validate_finite_diesel_generator)
 
 GeneralSettings = ConstSettings.GeneralSettings
