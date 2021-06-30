@@ -30,7 +30,7 @@ def validate_range_limit(initial_limit, value, final_limit, error_message):
 def validate_energy_rate(**kwargs):
     if "energy_rate" in kwargs and kwargs["energy_rate"] is not None:
         if isinstance(kwargs["energy_rate"], (float, int)):
-            _validate_rate(kwargs["energy_rate"])
+            validate_rate(kwargs["energy_rate"])
         elif isinstance(kwargs["energy_rate"], str):
             _validate_rate_profile(ast.literal_eval(kwargs["energy_rate"]))
         elif isinstance(kwargs["energy_rate"], dict):
@@ -39,7 +39,7 @@ def validate_energy_rate(**kwargs):
             raise D3ADeviceException({"misconfiguration": [f"energy_rate has an invalid type."]})
 
 
-def _validate_rate(energy_rate):
+def validate_rate(energy_rate):
     error_message = \
         {"misconfiguration": [f"energy_rate should be in between "
                               f"{CepSettings.ENERGY_RATE_LIMIT.min} & "
