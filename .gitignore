@@ -4,6 +4,7 @@
 # Coverage reports
 .coverage
 coverage.xml
+.coverage*
 
 # pyenv
 .python-version
