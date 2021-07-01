@@ -22,3 +22,14 @@ from d3a_interface.validators.load_validator import LoadValidator
 from d3a_interface.validators.market_maker_validator import MarketMakerValidator
 from d3a_interface.validators.pv_validator import PVValidator
 from d3a_interface.validators.storage_validator import StorageValidator
+
+# Explicitly declare the names of the module's public API
+__all__ = [
+    "CommercialProducerValidator",
+    "FiniteDieselGeneratorValidator",
+    "HomeMeterValidator",
+    "InfiniteBusValidator",
+    "LoadValidator",
+    "MarketMakerValidator",
+    "PVValidator",
+    "StorageValidator"]
