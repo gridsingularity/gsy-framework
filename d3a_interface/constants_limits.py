@@ -22,6 +22,8 @@ from datetime import date, datetime
 
 from pendulum import duration, instance
 
+from d3a_interface.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum
+
 RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
 RateRange = namedtuple('RateRange', ('initial', 'final'))
 
@@ -126,6 +128,16 @@ class ConstSettings:
         MAX_PANEL_OUTPUT_W = 160
         PV_PENALTY_RATE = 0
 
+    class HomeMeterSettings:
+        # Production constants
+        SELLING_RATE_RANGE = RateRange(30, 0)
+        INITIAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
+        FINAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
+        # Consumption constants
+        BUYING_RATE_RANGE = RateRange(0, 35)
+        INITIAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
+        FINAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
+
     class WindSettings:
         # This price should be just above the marginal costs for a Wind Power Plant - unit is cent
         FINAL_SELLING_RATE = 0
@@ -138,13 +150,10 @@ class ConstSettings:
         GRID_FEE_TYPE = 1
         VALID_FEE_TYPES = [1, 2]
         # Market type option
-        # Default value 1 stands for single sided market
-        # Option 2 stands for double sided market
-        MARKET_TYPE = 1
+        MARKET_TYPE = SpotMarketTypeEnum.ONE_SIDED.value
         MARKET_TYPE_LIMIT = RangeLimit(1, 3)
-        # Option 1 stands for PAB
-        # Option 2 stands for PAC
-        BID_OFFER_MATCH_TYPE = 1
+
+        BID_OFFER_MATCH_TYPE = BidOfferMatchAlgoEnum.PAY_AS_BID.value
 
         # Pay as clear offer and bid rate/energy aggregation algorithm
         # Default value 1 stands for line sweep algorithm
