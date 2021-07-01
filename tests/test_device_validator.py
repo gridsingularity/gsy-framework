@@ -24,7 +24,7 @@ from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.validators import (
     HomeMeterValidator, LoadValidator, PVValidator, StorageValidator, CommercialProducerValidator,
-    validate_infinite_bus, MarketMakerValidator, FiniteDieselGeneratorValidator)
+    InfiniteBusValidator, MarketMakerValidator, FiniteDieselGeneratorValidator)
 
 GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
@@ -213,7 +213,7 @@ class TestValidateDeviceSettings:
     ])
     def test_infinite_bus_setting_succeeds(valid_arguments):
         """The infinite bus validation succeeds when correct arguments are provided."""
-        assert validate_infinite_bus(**valid_arguments) is None
+        assert InfiniteBusValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -227,7 +227,7 @@ class TestValidateDeviceSettings:
     def test_infinite_bus_setting_fails(failing_arguments):
         """The infinite bus validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_infinite_bus(**failing_arguments)
+            InfiniteBusValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [

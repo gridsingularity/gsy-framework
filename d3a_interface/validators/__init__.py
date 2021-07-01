@@ -17,7 +17,7 @@ from d3a_interface.validators.cep_validator import CommercialProducerValidator
 from d3a_interface.validators.finite_diesel_generator_validator import (
     FiniteDieselGeneratorValidator)
 from d3a_interface.validators.home_meter_validator import HomeMeterValidator
-from d3a_interface.validators.infinite_bus_validator import validate_infinite_bus
+from d3a_interface.validators.infinite_bus_validator import InfiniteBusValidator
 from d3a_interface.validators.load_validator import LoadValidator
 from d3a_interface.validators.market_maker_validator import MarketMakerValidator
 from d3a_interface.validators.pv_validator import PVValidator
