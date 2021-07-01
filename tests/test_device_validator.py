@@ -24,7 +24,7 @@ from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.validators import (
     HomeMeterValidator, LoadValidator, PVValidator, StorageValidator, validate_commercial_producer,
-    validate_infinite_bus, validate_market_maker, validate_finite_diesel_generator)
+    validate_infinite_bus, MarketMakerValidator, validate_finite_diesel_generator)
 
 GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
@@ -185,7 +185,7 @@ class TestValidateDeviceSettings:
     ])
     def test_market_maker_setting_succeeds(valid_arguments):
         """The market maker validation succeeds when correct arguments are provided."""
-        assert validate_market_maker(**valid_arguments) is None
+        assert MarketMakerValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -198,7 +198,7 @@ class TestValidateDeviceSettings:
     def test_market_maker_setting_fails(failing_arguments):
         """The market maker validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_market_maker(**failing_arguments)
+            MarketMakerValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
