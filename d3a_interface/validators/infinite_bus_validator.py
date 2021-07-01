@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with thi
 not, see <http://www.gnu.org/licenses/>.
 """
 from d3a_interface.exceptions import D3ADeviceException
-from d3a_interface.utils import key_in_dict_and_not_none, key_in_dict_and_not_none_and_not_str_type
+from d3a_interface.utils import key_in_dict_and_not_none_and_not_str_type
 from d3a_interface.validators import utils
 from d3a_interface.validators.cep_validator import CommercialProducerValidator
 
@@ -26,20 +26,18 @@ class InfiniteBusValidator(CommercialProducerValidator):
     def validate(cls, **kwargs):
         """Validate the parameters of the device."""
         super().validate(**kwargs)
-        if "energy_rate_profile" in kwargs and kwargs["energy_rate_profile"] is not None and \
-                ("energy_rate_profile_uuid" not in kwargs or
-                 kwargs["energy_rate_profile_uuid"] is None):
+        if (kwargs.get("energy_rate_profile") is not None
+                and kwargs.get("energy_rate_profile_uuid") is None):
             raise D3ADeviceException(
                 {"misconfiguration": ["energy_rate_profile must have a uuid."]})
         if key_in_dict_and_not_none_and_not_str_type(kwargs, "energy_rate_profile_uuid"):
             raise D3ADeviceException(
                 {"misconfiguration": ["energy_rate_profile_uuid must have a string type."]})
 
-        if key_in_dict_and_not_none(kwargs, "energy_buy_rate"):
+        if kwargs.get("energy_buy_rate") is not None:
             utils.validate_rate(kwargs["energy_buy_rate"])
-        if key_in_dict_and_not_none(kwargs, "buying_rate_profile") and \
-                ("buying_rate_profile_uuid" not in kwargs or
-                 kwargs["buying_rate_profile_uuid"] is None):
+        if kwargs.get("buying_rate_profile") is not None and (
+                kwargs.get("buying_rate_profile_uuid") is None):
             raise D3ADeviceException(
                 {"misconfiguration": ["buying_rate_profile must have a uuid."]})
         if key_in_dict_and_not_none_and_not_str_type(kwargs, "buying_rate_profile_uuid"):
