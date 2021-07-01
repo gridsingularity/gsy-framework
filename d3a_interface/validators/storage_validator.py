@@ -16,20 +16,21 @@ not, see <http://www.gnu.org/licenses/>.
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.utils import key_in_dict_and_not_none
-from d3a_interface.validators import DeviceValidator
+from d3a_interface.validators import BaseValidator
 from d3a_interface.validators.utils import validate_range_limit
 
 GeneralSettings = ConstSettings.GeneralSettings
 StorageSettings = ConstSettings.StorageSettings
 
 
-class StorageValidator(DeviceValidator):
+class StorageValidator(BaseValidator):
     """Validator class for Storage devices."""
 
     @classmethod
     def validate(cls, **kwargs):
-        """Validate rates, energy values and the loss function of the device."""
-        super().validate(**kwargs)
+        """Validate energy and rate values and the loss function configuration of the device."""
+        cls.validate_energy(**kwargs)
+        cls.validate_rate(**kwargs)
         cls._validate_loss_function(**kwargs)
 
     @classmethod

@@ -16,21 +16,14 @@ not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
 
 
-class DeviceValidator(metaclass=ABCMeta):
+class BaseValidator(metaclass=ABCMeta):
     """Interface for devices' validator classes."""
 
     @classmethod
+    @abstractmethod
     def validate(cls, **kwargs):
-        """Validate both rate and energy values of the device."""
-        cls.validate_rate(**kwargs)
-        cls.validate_energy(**kwargs)
+        """Validate the device parameters passed as keyword arguments.
 
-    @classmethod
-    @abstractmethod
-    def validate_rate(cls, **kwargs):
-        """Validate the rate values of the device."""
-
-    @classmethod
-    @abstractmethod
-    def validate_energy(cls, **kwargs):
-        """Validate the energy values of the device."""
+        Raises:
+            D3ADeviceException
+        """

@@ -15,15 +15,21 @@ not, see <http://www.gnu.org/licenses/>.
 """
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
-from d3a_interface.validators import DeviceValidator
+from d3a_interface.validators import BaseValidator
 from d3a_interface.validators.utils import validate_range_limit
 
 GeneralSettings = ConstSettings.GeneralSettings
 PvSettings = ConstSettings.PVSettings
 
 
-class PVValidator(DeviceValidator):
+class PVValidator(BaseValidator):
     """Validator class for PV devices."""
+
+    @classmethod
+    def validate(cls, **kwargs):
+        """Validate the energy and rate values of the device."""
+        cls.validate_energy(**kwargs)
+        cls.validate_rate(**kwargs)
 
     @classmethod
     def validate_energy(cls, **kwargs):

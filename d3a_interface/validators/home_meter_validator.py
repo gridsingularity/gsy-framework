@@ -17,24 +17,24 @@ from typing import Optional
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
-from d3a_interface.validators.device_validator import DeviceValidator
+from d3a_interface.validators.base_validator import BaseValidator
 from d3a_interface.validators.utils import validate_range_limit
 
 GeneralSettings = ConstSettings.GeneralSettings
 HomeMeterSettings = ConstSettings.HomeMeterSettings
 
 
-class HomeMeterValidator(DeviceValidator):
+class HomeMeterValidator(BaseValidator):
     """Validator class for Home Meter devices."""
 
     @classmethod
-    def validate_energy(cls, **kwargs):
-        """Validate energy values of a Home Meter device. Currently not implemented."""
+    def validate(cls, **kwargs):
+        """Validate the rate values of the device."""
+        cls.validate_rate(**kwargs)
 
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate rates of a Home Meter device."""
-
         cls._validate_fit_to_limit(
             fit_to_limit=kwargs.get("fit_to_limit"),
             energy_rate_increase_per_update=kwargs.get("energy_rate_increase_per_update"),

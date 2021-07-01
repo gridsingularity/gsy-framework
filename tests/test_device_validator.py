@@ -254,12 +254,10 @@ class TestHomeMeterValidator:
 
     @staticmethod
     @patch.object(HomeMeterValidator, "validate_rate")
-    @patch.object(HomeMeterValidator, "validate_energy")
-    def test_validate(validate_energy_mock, validate_price_mock):
+    def test_validate(validate_price_mock):
         """The validate method correctly calls the individual validation methods."""
         HomeMeterValidator.validate()
         validate_price_mock.assert_called_once_with()
-        validate_energy_mock.assert_called_once_with()
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
