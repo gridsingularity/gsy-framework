@@ -16,13 +16,12 @@ not, see <http://www.gnu.org/licenses/>.
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.validators import utils
-from d3a_interface.validators.base_validator import BaseValidator
 from d3a_interface.validators.cep_validator import CommercialProducerValidator
 
 CepSettings = ConstSettings.CommercialProducerSettings
 
 
-class FiniteDieselGeneratorValidator(BaseValidator):
+class FiniteDieselGeneratorValidator(CommercialProducerValidator):
     """Validator class for Finite Diesel Generators."""
 
     @classmethod
@@ -52,4 +51,4 @@ class FiniteDieselGeneratorValidator(BaseValidator):
                 raise D3ADeviceException({
                     "misconfiguration": ["max_available_power_kW has an invalid type."]})
 
-        validate_commercial_producer(**kwargs)
+        super().validate(**kwargs)

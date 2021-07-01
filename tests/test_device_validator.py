@@ -23,7 +23,7 @@ import pytest
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.validators import (
-    HomeMeterValidator, LoadValidator, PVValidator, StorageValidator, validate_commercial_producer,
+    HomeMeterValidator, LoadValidator, PVValidator, StorageValidator, CommercialProducerValidator,
     validate_infinite_bus, MarketMakerValidator, FiniteDieselGeneratorValidator)
 
 GeneralSettings = ConstSettings.GeneralSettings
@@ -166,13 +166,13 @@ class TestValidateDeviceSettings:
     @staticmethod
     def test_commercial_producer_setting():
         """The commercial producer validation succeeds when correct arguments are provided."""
-        assert validate_commercial_producer(energy_rate=10) is None
+        assert CommercialProducerValidator.validate(energy_rate=10) is None
 
     @staticmethod
     def test_commercial_producer_setting_fails():
         """The commercial producer validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_commercial_producer(energy_rate=-5)
+            CommercialProducerValidator.validate(energy_rate=-5)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
