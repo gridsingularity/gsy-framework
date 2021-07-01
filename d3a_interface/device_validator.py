@@ -73,7 +73,7 @@ class HomeMeterValidator(DeviceValidator):
     def _validate_fit_to_limit(
             fit_to_limit: Optional[bool], energy_rate_increase_per_update: Optional[bool],
             energy_rate_decrease_per_update: Optional[bool]):
-        if fit_to_limit is True and (
+        if fit_to_limit and (
                 energy_rate_decrease_per_update is not None
                 or energy_rate_increase_per_update is not None):
             raise D3ADeviceException({
