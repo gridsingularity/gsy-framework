@@ -16,7 +16,7 @@ not, see <http://www.gnu.org/licenses/>.
 from d3a_interface.validators.cep_validator import validate_commercial_producer
 from d3a_interface.validators.base_validator import BaseValidator
 from d3a_interface.validators.finite_diesel_generator_validator import (
-    validate_finite_diesel_generator)
+    FiniteDieselGeneratorValidator)
 from d3a_interface.validators.home_meter_validator import HomeMeterValidator
 from d3a_interface.validators.infinite_bus_validator import validate_infinite_bus
 from d3a_interface.validators.load_validator import LoadValidator

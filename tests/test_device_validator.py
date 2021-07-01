@@ -24,7 +24,7 @@ from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.validators import (
     HomeMeterValidator, LoadValidator, PVValidator, StorageValidator, validate_commercial_producer,
-    validate_infinite_bus, MarketMakerValidator, validate_finite_diesel_generator)
+    validate_infinite_bus, MarketMakerValidator, FiniteDieselGeneratorValidator)
 
 GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
@@ -237,7 +237,7 @@ class TestValidateDeviceSettings:
     ])
     def test_finite_diesel_generator_succeeds(valid_arguments):
         """The FiniteDiesel validation succeeds when correct arguments are provided."""
-        assert validate_finite_diesel_generator(**valid_arguments) is None
+        assert FiniteDieselGeneratorValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -246,7 +246,7 @@ class TestValidateDeviceSettings:
     def test_finite_diesel_generator_fails(failing_arguments):
         """The FiniteDiesel validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_finite_diesel_generator(**failing_arguments)
+            FiniteDieselGeneratorValidator.validate(**failing_arguments)
 
 
 class TestHomeMeterValidator:

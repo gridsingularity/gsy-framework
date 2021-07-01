@@ -15,35 +15,41 @@ not, see <http://www.gnu.org/licenses/>.
 """
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
+from d3a_interface.validators import BaseValidator
 from d3a_interface.validators import utils
 from d3a_interface.validators.cep_validator import validate_commercial_producer
 
 CepSettings = ConstSettings.CommercialProducerSettings
 
 
-def validate_finite_diesel_generator(**kwargs):
-    if "max_available_power_kW" in kwargs and kwargs["max_available_power_kW"] is not None:
-        if isinstance(kwargs["max_available_power_kW"], (int, float)):
-            error_message = \
-                {"misconfiguration": ["max_available_power_kW should be in between "
-                                      f"{CepSettings.MAX_POWER_KW_LIMIT.min} & "
-                                      f"{CepSettings.MAX_POWER_KW_LIMIT.max}."]}
-            utils.validate_range_limit(
-                CepSettings.MAX_POWER_KW_LIMIT.min,
-                kwargs["max_available_power_kW"],
-                CepSettings.MAX_POWER_KW_LIMIT.max,
-                error_message)
-        elif isinstance(kwargs["max_available_power_kW"], dict):
-            error_message = \
-                {"misconfiguration": ["max_available_power_kW should be in between "
-                                      f"{CepSettings.MAX_POWER_KW_LIMIT.min} & "
-                                      f"{CepSettings.MAX_POWER_KW_LIMIT.max}."]}
-            for _, value in kwargs["max_available_power_kW"].items():
-                utils.validate_range_limit(
-                    CepSettings.MAX_POWER_KW_LIMIT.min, value,
-                    CepSettings.MAX_POWER_KW_LIMIT.max, error_message)
-        else:
-            raise D3ADeviceException({
-                "misconfiguration": ["max_available_power_kW has an invalid type. "]})
+class FiniteDieselGeneratorValidator(BaseValidator):
+    """Validator class for Finite Diesel Generators."""
 
-    validate_commercial_producer(**kwargs)
+    @classmethod
+    def validate(cls, **kwargs):
+        """Validate the parameters of the device."""
+        if kwargs.get("max_available_power_kW") is not None:
+            if isinstance(kwargs["max_available_power_kW"], (int, float)):
+                error_message = {
+                    "misconfiguration": ["max_available_power_kW should be in between "
+                                         f"{CepSettings.MAX_POWER_KW_LIMIT.min} & "
+                                         f"{CepSettings.MAX_POWER_KW_LIMIT.max}."]}
+                utils.validate_range_limit(
+                    CepSettings.MAX_POWER_KW_LIMIT.min,
+                    kwargs["max_available_power_kW"],
+                    CepSettings.MAX_POWER_KW_LIMIT.max,
+                    error_message)
+            elif isinstance(kwargs["max_available_power_kW"], dict):
+                error_message = {
+                    "misconfiguration": ["max_available_power_kW should be in between "
+                                         f"{CepSettings.MAX_POWER_KW_LIMIT.min} & "
+                                         f"{CepSettings.MAX_POWER_KW_LIMIT.max}."]}
+                for value in kwargs["max_available_power_kW"].values():
+                    utils.validate_range_limit(
+                        CepSettings.MAX_POWER_KW_LIMIT.min, value,
+                        CepSettings.MAX_POWER_KW_LIMIT.max, error_message)
+            else:
+                raise D3ADeviceException({
+                    "misconfiguration": ["max_available_power_kW has an invalid type."]})
+
+        validate_commercial_producer(**kwargs)
