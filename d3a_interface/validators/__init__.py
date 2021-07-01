@@ -13,8 +13,7 @@ the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this program. If
 not, see <http://www.gnu.org/licenses/>.
 """
-from d3a_interface.validators.cep_validator import validate_commercial_producer
-from d3a_interface.validators.base_validator import BaseValidator
+from d3a_interface.validators.cep_validator import CommercialProducerValidator
 from d3a_interface.validators.finite_diesel_generator_validator import (
     FiniteDieselGeneratorValidator)
 from d3a_interface.validators.home_meter_validator import HomeMeterValidator

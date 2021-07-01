@@ -14,8 +14,8 @@ You should have received a copy of the GNU General Public License along with thi
 not, see <http://www.gnu.org/licenses/>.
 """
 from d3a_interface.exceptions import D3ADeviceException
-from d3a_interface.validators import BaseValidator
 from d3a_interface.validators import utils
+from d3a_interface.validators.base_validator import BaseValidator
 
 
 class MarketMakerValidator(BaseValidator):

@@ -16,7 +16,7 @@ not, see <http://www.gnu.org/licenses/>.
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.utils import key_in_dict_and_not_none
-from d3a_interface.validators import BaseValidator
+from d3a_interface.validators.base_validator import BaseValidator
 from d3a_interface.validators.utils import validate_range_limit
 
 GeneralSettings = ConstSettings.GeneralSettings

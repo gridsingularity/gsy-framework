@@ -15,9 +15,9 @@ not, see <http://www.gnu.org/licenses/>.
 """
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
-from d3a_interface.validators import BaseValidator
 from d3a_interface.validators import utils
-from d3a_interface.validators.cep_validator import validate_commercial_producer
+from d3a_interface.validators.base_validator import BaseValidator
+from d3a_interface.validators.cep_validator import CommercialProducerValidator
 
 CepSettings = ConstSettings.CommercialProducerSettings
 
