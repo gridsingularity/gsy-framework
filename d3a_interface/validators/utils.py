@@ -21,39 +21,42 @@ from d3a_interface.exceptions import D3ADeviceException
 CepSettings = ConstSettings.CommercialProducerSettings
 
 
-# TODO: put this in the base class? Better: create a RangeLimitValidator class
 def validate_range_limit(initial_limit, value, final_limit, error_message):
+    """Check that the provided arguments form a valid range."""
     if not initial_limit <= value <= final_limit:
         raise D3ADeviceException(error_message)
 
 
 def validate_energy_rate(**kwargs):
-    if "energy_rate" in kwargs and kwargs["energy_rate"] is not None:
-        if isinstance(kwargs["energy_rate"], (float, int)):
-            validate_rate(kwargs["energy_rate"])
-        elif isinstance(kwargs["energy_rate"], str):
-            _validate_rate_profile(ast.literal_eval(kwargs["energy_rate"]))
-        elif isinstance(kwargs["energy_rate"], dict):
-            _validate_rate_profile(kwargs["energy_rate"])
-        else:
-            raise D3ADeviceException({"misconfiguration": [f"energy_rate has an invalid type."]})
+    """Check that the provided energy rate is valid."""
+    energy_rate = kwargs.get("energy_rate")
+    if energy_rate is None:
+        return
+
+    if isinstance(energy_rate, (float, int)):
+        validate_rate(energy_rate)
+    elif isinstance(energy_rate, str):
+        _validate_rate_profile(ast.literal_eval(energy_rate))
+    elif isinstance(energy_rate, dict):
+        _validate_rate_profile(energy_rate)
+    else:
+        raise D3ADeviceException({"misconfiguration": ["energy_rate has an invalid type."]})
 
 
 def validate_rate(energy_rate):
-    error_message = \
-        {"misconfiguration": [f"energy_rate should be in between "
-                              f"{CepSettings.ENERGY_RATE_LIMIT.min} & "
-                              f"{CepSettings.ENERGY_RATE_LIMIT.max}."]}
+    """Check that the provided energy rate for Commercial Energy Producer is valid."""
+    error_message = {"misconfiguration": [
+        "energy_rate should be in between "
+        f"{CepSettings.ENERGY_RATE_LIMIT.min} & {CepSettings.ENERGY_RATE_LIMIT.max}."]}
     validate_range_limit(CepSettings.ENERGY_RATE_LIMIT.min, energy_rate,
                          CepSettings.ENERGY_RATE_LIMIT.max, error_message)
 
 
 def _validate_rate_profile(energy_rate_profile):
     for date, value in energy_rate_profile.items():
-        value = float(value) if type(value) == str else value
-        error_message = \
-            {"misconfiguration": [f"energy_rate should at time: {date} be in between "
-                                  f"{CepSettings.ENERGY_RATE_LIMIT.min} & "
-                                  f"{CepSettings.ENERGY_RATE_LIMIT.max}."]}
+        value = float(value) if isinstance(value, str) else value
+        error_message = {"misconfiguration": [
+            f"energy_rate should at time: {date} be in between "
+            f"{CepSettings.ENERGY_RATE_LIMIT.min} & {CepSettings.ENERGY_RATE_LIMIT.max}."]}
         validate_range_limit(CepSettings.ENERGY_RATE_LIMIT.min, value,
                              CepSettings.ENERGY_RATE_LIMIT.max, error_message)
