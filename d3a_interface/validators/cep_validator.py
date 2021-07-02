@@ -13,8 +13,14 @@ the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this program. If
 not, see <http://www.gnu.org/licenses/>.
 """
+from d3a_interface.validators.base_validator import BaseValidator
 from d3a_interface.validators import utils
 
 
-def validate_commercial_producer(**kwargs):
-    utils.validate_energy_rate(**kwargs)
+class CommercialProducerValidator(BaseValidator):
+    """Validator class for Commercial Producers."""
+
+    @classmethod
+    def validate(cls, **kwargs):
+        """Validate the parameters of the device."""
+        utils.validate_energy_rate(**kwargs)

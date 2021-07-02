@@ -23,9 +23,8 @@ import pytest
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.validators import (
-    HomeMeterValidator, validate_commercial_producer, validate_infinite_bus, validate_load_device,
-    validate_market_maker, validate_pv_device, validate_storage_device,
-    validate_finite_diesel_generator)
+    HomeMeterValidator, LoadValidator, PVValidator, StorageValidator, CommercialProducerValidator,
+    InfiniteBusValidator, MarketMakerValidator, FiniteDieselGeneratorValidator)
 
 GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
@@ -56,7 +55,7 @@ class TestValidateDeviceSettings:
     ])
     def test_load_device_setting_succeeds(valid_arguments):
         """The load device validation succeeds when valid arguments are provided."""
-        assert validate_load_device(**valid_arguments) is None
+        assert LoadValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -77,7 +76,7 @@ class TestValidateDeviceSettings:
     def test_load_device_setting_fails(failing_arguments):
         """The load device validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_load_device(**failing_arguments)
+            LoadValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
@@ -93,7 +92,7 @@ class TestValidateDeviceSettings:
     ])
     def test_pv_device_setting_succeeds(valid_arguments):
         """The PV device validation succeeds when valid arguments are provided."""
-        assert validate_pv_device(**valid_arguments) is None
+        assert PVValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -111,7 +110,7 @@ class TestValidateDeviceSettings:
     def test_pv_device_setting_fails(failing_arguments):
         """The PV device validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_pv_device(**failing_arguments)
+            PVValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
@@ -136,7 +135,7 @@ class TestValidateDeviceSettings:
     ])
     def test_storage_device_setting_succeeds(valid_arguments):
         """The storage device validation succeeds when correct arguments are provided."""
-        assert validate_storage_device(**valid_arguments) is None
+        assert StorageValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -162,18 +161,18 @@ class TestValidateDeviceSettings:
     def test_storage_device_setting_fails(failing_arguments):
         """The storage validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_storage_device(**failing_arguments)
+            StorageValidator.validate(**failing_arguments)
 
     @staticmethod
     def test_commercial_producer_setting():
         """The commercial producer validation succeeds when correct arguments are provided."""
-        assert validate_commercial_producer(energy_rate=10) is None
+        assert CommercialProducerValidator.validate(energy_rate=10) is None
 
     @staticmethod
     def test_commercial_producer_setting_fails():
         """The commercial producer validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_commercial_producer(energy_rate=-5)
+            CommercialProducerValidator.validate(energy_rate=-5)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
@@ -186,7 +185,7 @@ class TestValidateDeviceSettings:
     ])
     def test_market_maker_setting_succeeds(valid_arguments):
         """The market maker validation succeeds when correct arguments are provided."""
-        assert validate_market_maker(**valid_arguments) is None
+        assert MarketMakerValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -199,7 +198,7 @@ class TestValidateDeviceSettings:
     def test_market_maker_setting_fails(failing_arguments):
         """The market maker validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_market_maker(**failing_arguments)
+            MarketMakerValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
@@ -214,7 +213,7 @@ class TestValidateDeviceSettings:
     ])
     def test_infinite_bus_setting_succeeds(valid_arguments):
         """The infinite bus validation succeeds when correct arguments are provided."""
-        assert validate_infinite_bus(**valid_arguments) is None
+        assert InfiniteBusValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -228,7 +227,7 @@ class TestValidateDeviceSettings:
     def test_infinite_bus_setting_fails(failing_arguments):
         """The infinite bus validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_infinite_bus(**failing_arguments)
+            InfiniteBusValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
@@ -238,7 +237,7 @@ class TestValidateDeviceSettings:
     ])
     def test_finite_diesel_generator_succeeds(valid_arguments):
         """The FiniteDiesel validation succeeds when correct arguments are provided."""
-        assert validate_finite_diesel_generator(**valid_arguments) is None
+        assert FiniteDieselGeneratorValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -247,7 +246,7 @@ class TestValidateDeviceSettings:
     def test_finite_diesel_generator_fails(failing_arguments):
         """The FiniteDiesel validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_finite_diesel_generator(**failing_arguments)
+            FiniteDieselGeneratorValidator.validate(**failing_arguments)
 
 
 class TestHomeMeterValidator:
@@ -255,12 +254,10 @@ class TestHomeMeterValidator:
 
     @staticmethod
     @patch.object(HomeMeterValidator, "validate_rate")
-    @patch.object(HomeMeterValidator, "validate_energy")
-    def test_validate(validate_energy_mock, validate_price_mock):
+    def test_validate(validate_price_mock):
         """The validate method correctly calls the individual validation methods."""
         HomeMeterValidator.validate()
         validate_price_mock.assert_called_once_with()
-        validate_energy_mock.assert_called_once_with()
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [

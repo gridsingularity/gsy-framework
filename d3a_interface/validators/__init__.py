@@ -13,13 +13,23 @@ the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this program. If
 not, see <http://www.gnu.org/licenses/>.
 """
-from d3a_interface.validators.cep_validator import validate_commercial_producer
-from d3a_interface.validators.device_validator import DeviceValidator
+from d3a_interface.validators.cep_validator import CommercialProducerValidator
 from d3a_interface.validators.finite_diesel_generator_validator import (
-    validate_finite_diesel_generator)
+    FiniteDieselGeneratorValidator)
 from d3a_interface.validators.home_meter_validator import HomeMeterValidator
-from d3a_interface.validators.infinite_bus_validator import validate_infinite_bus
-from d3a_interface.validators.load_validator import validate_load_device
-from d3a_interface.validators.market_maker_validator import validate_market_maker
-from d3a_interface.validators.pv_validator import validate_pv_device
-from d3a_interface.validators.storage_validator import validate_storage_device
+from d3a_interface.validators.infinite_bus_validator import InfiniteBusValidator
+from d3a_interface.validators.load_validator import LoadValidator
+from d3a_interface.validators.market_maker_validator import MarketMakerValidator
+from d3a_interface.validators.pv_validator import PVValidator
+from d3a_interface.validators.storage_validator import StorageValidator
+
+# Explicitly declare the names of the module's public API
+__all__ = [
+    "CommercialProducerValidator",
+    "FiniteDieselGeneratorValidator",
+    "HomeMeterValidator",
+    "InfiniteBusValidator",
+    "LoadValidator",
+    "MarketMakerValidator",
+    "PVValidator",
+    "StorageValidator"]
