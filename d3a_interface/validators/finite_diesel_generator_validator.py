@@ -27,28 +27,30 @@ class FiniteDieselGeneratorValidator(CommercialProducerValidator):
     @classmethod
     def validate(cls, **kwargs):
         """Validate the parameters of the device."""
-        if kwargs.get("max_available_power_kW") is not None:
-            if isinstance(kwargs["max_available_power_kW"], (int, float)):
-                error_message = {
-                    "misconfiguration": ["max_available_power_kW should be in between "
-                                         f"{CepSettings.MAX_POWER_KW_LIMIT.min} & "
-                                         f"{CepSettings.MAX_POWER_KW_LIMIT.max}."]}
+        if kwargs.get("max_available_power_kW") is None:
+            return
+
+        if isinstance(kwargs["max_available_power_kW"], (int, float)):
+            error_message = {
+                "misconfiguration": ["max_available_power_kW should be in between "
+                                     f"{CepSettings.MAX_POWER_KW_LIMIT.min} & "
+                                     f"{CepSettings.MAX_POWER_KW_LIMIT.max}."]}
+            utils.validate_range_limit(
+                CepSettings.MAX_POWER_KW_LIMIT.min,
+                kwargs["max_available_power_kW"],
+                CepSettings.MAX_POWER_KW_LIMIT.max,
+                error_message)
+        elif isinstance(kwargs["max_available_power_kW"], dict):
+            error_message = {
+                "misconfiguration": ["max_available_power_kW should be in between "
+                                     f"{CepSettings.MAX_POWER_KW_LIMIT.min} & "
+                                     f"{CepSettings.MAX_POWER_KW_LIMIT.max}."]}
+            for value in kwargs["max_available_power_kW"].values():
                 utils.validate_range_limit(
-                    CepSettings.MAX_POWER_KW_LIMIT.min,
-                    kwargs["max_available_power_kW"],
-                    CepSettings.MAX_POWER_KW_LIMIT.max,
-                    error_message)
-            elif isinstance(kwargs["max_available_power_kW"], dict):
-                error_message = {
-                    "misconfiguration": ["max_available_power_kW should be in between "
-                                         f"{CepSettings.MAX_POWER_KW_LIMIT.min} & "
-                                         f"{CepSettings.MAX_POWER_KW_LIMIT.max}."]}
-                for value in kwargs["max_available_power_kW"].values():
-                    utils.validate_range_limit(
-                        CepSettings.MAX_POWER_KW_LIMIT.min, value,
-                        CepSettings.MAX_POWER_KW_LIMIT.max, error_message)
-            else:
-                raise D3ADeviceException({
-                    "misconfiguration": ["max_available_power_kW has an invalid type."]})
+                    CepSettings.MAX_POWER_KW_LIMIT.min, value,
+                    CepSettings.MAX_POWER_KW_LIMIT.max, error_message)
+        else:
+            raise D3ADeviceException({
+                "misconfiguration": ["max_available_power_kW has an invalid type."]})
 
         super().validate(**kwargs)

@@ -34,41 +34,42 @@ class PVValidator(BaseValidator):
     @classmethod
     def validate_energy(cls, **kwargs):
         """Validate energy values of the device."""
-        if "panel_count" in kwargs and kwargs["panel_count"] is not None:
-            error_message = \
-                {"misconfiguration": [f"PV panel count should be in between "
-                                      f"{PvSettings.PANEL_COUNT_LIMIT.min} & "
-                                      f"{PvSettings.PANEL_COUNT_LIMIT.max}"]}
+        if kwargs.get("panel_count") is not None:
+            error_message = {
+                "misconfiguration": ["PV panel count should be in between "
+                                     f"{PvSettings.PANEL_COUNT_LIMIT.min} & "
+                                     f"{PvSettings.PANEL_COUNT_LIMIT.max}"]}
             validate_range_limit(PvSettings.PANEL_COUNT_LIMIT.min,
                                  kwargs["panel_count"],
                                  PvSettings.PANEL_COUNT_LIMIT.max, error_message)
-        if "max_panel_power_W" in kwargs and kwargs["max_panel_power_W"] is not None:
-            error_message = \
-                {"misconfiguration": [f"max_panel_power_W should be in between "
-                                      f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min} & "
-                                      f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max}"]}
+
+        if kwargs.get("max_panel_power_W") is not None:
+            error_message = {
+                "misconfiguration": ["max_panel_power_W should be in between "
+                                     f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min} & "
+                                     f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max}"]}
             validate_range_limit(PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min,
                                  kwargs["max_panel_power_W"],
                                  PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max, error_message)
-        if "cloud_coverage" in kwargs and kwargs["cloud_coverage"] is not None:
-            if (kwargs["cloud_coverage"] != 4) and \
-                    ("power_profile" in kwargs and kwargs["power_profile"] is not None):
+
+        if kwargs.get("cloud_coverage") is not None:
+            if kwargs["cloud_coverage"] != 4 and kwargs.get("power_profile") is not None:
                 raise D3ADeviceException(
-                    {"misconfiguration": [f"cloud_coverage (if values 0-3) & "
-                                          f"power_profile can't be set together."]})
+                    {"misconfiguration": [
+                        "cloud_coverage (if values 0-3) & power_profile can't be set together."]})
 
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate rates of the device."""
-        if "final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None:
-            error_message = {"misconfiguration": [f"final_selling_rate should be in between "
+        if kwargs.get("final_selling_rate") is not None:
+            error_message = {"misconfiguration": ["final_selling_rate should be in between "
                                                   f"{PvSettings.FINAL_SELLING_RATE_LIMIT.min} & "
                                                   f"{PvSettings.FINAL_SELLING_RATE_LIMIT.max}"]}
             validate_range_limit(PvSettings.FINAL_SELLING_RATE_LIMIT.min,
                                  kwargs["final_selling_rate"],
                                  PvSettings.FINAL_SELLING_RATE_LIMIT.max, error_message)
 
-        if "initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None:
+        if kwargs.get("initial_selling_rate") is not None:
             error_message = {"misconfiguration": ["initial_selling_rate should be in between "
                                                   f"{PvSettings.INITIAL_SELLING_RATE_LIMIT.min} & "
                                                   f"{PvSettings.INITIAL_SELLING_RATE_LIMIT.max}"]}
@@ -76,9 +77,9 @@ class PVValidator(BaseValidator):
                                  kwargs["initial_selling_rate"],
                                  PvSettings.INITIAL_SELLING_RATE_LIMIT.max, error_message)
 
-        if ("initial_selling_rate" in kwargs and kwargs["initial_selling_rate"] is not None) and \
-                ("final_selling_rate" in kwargs and kwargs["final_selling_rate"] is not None) and \
-                (kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
+        if (kwargs.get("initial_selling_rate") is not None
+                and kwargs.get("final_selling_rate") is not None
+                and kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
             raise D3ADeviceException(
                 {"misconfiguration": [
                     "initial_selling_rate/market_maker_rate should be greater than or equal to "
@@ -96,12 +97,11 @@ class PVValidator(BaseValidator):
                 {"misconfiguration": [
                     "energy_rate_decrease_per_update must be set if fit_to_limit is False."]})
 
-        if "energy_rate_decrease_per_update" in kwargs and \
-                kwargs["energy_rate_decrease_per_update"] is not None:
-            error_message = \
-                {"misconfiguration": [f"energy_rate_decrease_per_update should be in between "
-                                      f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
-                                      f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}"]}
+        if kwargs.get("energy_rate_decrease_per_update") is not None:
+            error_message = {
+                "misconfiguration": ["energy_rate_decrease_per_update should be in between "
+                                     f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
+                                     f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}"]}
             validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                                  kwargs["energy_rate_decrease_per_update"],
                                  GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)

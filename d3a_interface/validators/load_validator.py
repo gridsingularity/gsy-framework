@@ -34,83 +34,87 @@ class LoadValidator(BaseValidator):
     @classmethod
     def validate_energy(cls, **kwargs):
         """Validate energy values of the device."""
-        if "avg_power_W" in kwargs and kwargs["avg_power_W"] is not None:
-            error_message = {"misconfiguration": [f"avg_power_W should be in between "
+        if kwargs.get("avg_power_W") is not None:
+            error_message = {"misconfiguration": ["avg_power_W should be in between "
                                                   f"{LoadSettings.AVG_POWER_LIMIT.min} & "
                                                   f"{LoadSettings.AVG_POWER_LIMIT.max}."]}
             validate_range_limit(LoadSettings.AVG_POWER_LIMIT.min,
                                  kwargs["avg_power_W"],
                                  LoadSettings.AVG_POWER_LIMIT.max, error_message)
 
-        if (("avg_power_W" in kwargs and kwargs["avg_power_W"] is not None) or
-            ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) or
-            ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None)) \
-                and ("daily_load_profile" in kwargs and kwargs["daily_load_profile"] is not None):
+        if ((kwargs.get("avg_power_W") is not None
+                or kwargs.get("hrs_per_day") is not None
+                or kwargs.get("hrs_of_day") is not None)
+                and kwargs.get("daily_load_profile") is not None):
             raise D3ADeviceException(
-                {"misconfiguration": [f"daily_load_profile shouldn't be set with "
-                                      f"avg_power_W, hrs_per_day & hrs_of_day."]})
-        if "hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None:
-            error_message = {"misconfiguration": [f"hrs_per_day should be in between "
+                {"misconfiguration": ["daily_load_profile shouldn't be set with "
+                                      "avg_power_W, hrs_per_day & hrs_of_day."]})
+
+        if kwargs.get("hrs_per_day") is not None:
+            error_message = {"misconfiguration": ["hrs_per_day should be in between "
                                                   f"{LoadSettings.HOURS_LIMIT.min} & "
                                                   f"{LoadSettings.HOURS_LIMIT.max}."]}
             validate_range_limit(LoadSettings.HOURS_LIMIT.min,
                                  kwargs["hrs_per_day"],
                                  LoadSettings.HOURS_LIMIT.max, error_message)
-        if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
-                any([not LoadSettings.HOURS_LIMIT.min <= h <= LoadSettings.HOURS_LIMIT.max
-                     for h in kwargs["hrs_of_day"]]):
+
+        if kwargs.get("hrs_of_day") is not None and any(
+                not LoadSettings.HOURS_LIMIT.min <= h <= LoadSettings.HOURS_LIMIT.max
+                for h in kwargs["hrs_of_day"]):
             raise D3ADeviceException(
-                {"misconfiguration": [f"hrs_of_day should be less between "
+                {"misconfiguration": ["hrs_of_day should be less between "
                                       f"{LoadSettings.HOURS_LIMIT.min} & "
                                       f"{LoadSettings.HOURS_LIMIT.max}."]})
-        if ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None) and \
-                ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) and \
-                (len(kwargs["hrs_of_day"]) < kwargs["hrs_per_day"]):
-            raise D3ADeviceException(
-                {"misconfiguration": [f"length of hrs_of_day list should be "
-                                      f"greater than or equal hrs_per_day."]})
 
-        if (("avg_power_W" in kwargs and kwargs["avg_power_W"] is not None) or
-            ("hrs_per_day" in kwargs and kwargs["hrs_per_day"] is not None) or
-            ("hrs_of_day" in kwargs and kwargs["hrs_of_day"] is not None)) and \
-                ("daily_load_profile" in kwargs and kwargs["daily_load_profile"] is not None):
+        if (kwargs.get("hrs_of_day") is not None and kwargs.get("hrs_per_day") is not None
+                and (len(kwargs["hrs_of_day"]) < kwargs["hrs_per_day"])):
             raise D3ADeviceException(
                 {"misconfiguration": [
-                    f"daily_load_profile and all or one [hrs_per_day, hrs_of_day, "
-                    f"avg_power_W] can't be set together."]})
+                    "length of hrs_of_day list should be greater than or equal hrs_per_day."]})
+
+        if (
+                kwargs.get("avg_power_W") is not None
+                or kwargs.get("hrs_per_day") is not None
+                or kwargs.get("hrs_of_day") is not None
+                ) and kwargs.get("daily_load_profile") is not None:
+            raise D3ADeviceException(
+                {"misconfiguration": [
+                    "daily_load_profile and all or one [hrs_per_day, hrs_of_day, avg_power_W] "
+                    "can't be set together."]})
 
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate rates of the device."""
-        if "final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None:
-            error_message = {"misconfiguration": [f"final_buying_rate should be in between "
+        if kwargs.get("final_buying_rate") is not None:
+            error_message = {"misconfiguration": ["final_buying_rate should be in between "
                                                   f"{LoadSettings.FINAL_BUYING_RATE_LIMIT.min} & "
                                                   f"{LoadSettings.FINAL_BUYING_RATE_LIMIT.max}."]}
             validate_range_limit(LoadSettings.FINAL_BUYING_RATE_LIMIT.min,
                                  kwargs["final_buying_rate"],
                                  LoadSettings.FINAL_BUYING_RATE_LIMIT.max, error_message)
-        if "initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None:
-            error_message = \
-                {"misconfiguration": [f"initial_buying_rate should be in between "
-                                      f"{LoadSettings.INITIAL_BUYING_RATE_LIMIT.min} & "
-                                      f"{LoadSettings.INITIAL_BUYING_RATE_LIMIT.max}"]}
+
+        if kwargs.get("initial_buying_rate") is not None:
+            error_message = {"misconfiguration": [
+                "initial_buying_rate should be in between "
+                f"{LoadSettings.INITIAL_BUYING_RATE_LIMIT.min} & "
+                f"{LoadSettings.INITIAL_BUYING_RATE_LIMIT.max}"]}
             validate_range_limit(LoadSettings.INITIAL_BUYING_RATE_LIMIT.min,
                                  kwargs["initial_buying_rate"],
                                  LoadSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
 
-        if ("initial_buying_rate" in kwargs and kwargs["initial_buying_rate"] is not None) and \
-                ("final_buying_rate" in kwargs and kwargs["final_buying_rate"] is not None) and \
-                (kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
+        if (kwargs.get("initial_buying_rate") is not None
+                and kwargs.get("final_buying_rate") is not None
+                and kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
             raise D3ADeviceException({"misconfiguration": [
                 "initial_buying_rate should be less than or equal to final_buying_rate/"
                 "market_maker_rate. Please adapt the market_maker_rate of the configuration "
                 "or the initial_buying_rate."]})
-        if "energy_rate_increase_per_update" in kwargs and \
-                kwargs["energy_rate_increase_per_update"] is not None:
-            error_message = \
-                {"misconfiguration": [f"energy_rate_increase_per_update should be in between "
-                                      f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
-                                      f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}."]}
+
+        if kwargs.get("energy_rate_increase_per_update") is not None:
+            error_message = {"misconfiguration": [
+                "energy_rate_increase_per_update should be in between "
+                f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
+                f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}."]}
             validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                                  kwargs["energy_rate_increase_per_update"],
                                  GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)

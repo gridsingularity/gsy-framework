@@ -54,7 +54,7 @@ def validate_rate(energy_rate):
 
 def _validate_rate_profile(energy_rate_profile):
     for date, value in energy_rate_profile.items():
-        value = float(value) if isinstance(value, str) else value
+        value = float(value)
         error_message = {"misconfiguration": [
             f"energy_rate should at time: {date} be in between "
             f"{CepSettings.ENERGY_RATE_LIMIT.min} & {CepSettings.ENERGY_RATE_LIMIT.max}."]}
