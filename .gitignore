@@ -3,6 +3,7 @@
 
 # Coverage reports
 .coverage
+.coverage.*
 coverage.xml
 
 # pyenv
