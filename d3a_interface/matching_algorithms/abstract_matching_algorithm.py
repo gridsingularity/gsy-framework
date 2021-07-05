@@ -6,11 +6,11 @@ class AbstractMatchingAlgorithm(ABC):
 
     @classmethod
     @abstractmethod
-    def get_matches_recommendations(cls, bids_offers: Dict) -> List:
+    def get_matches_recommendations(cls, matching_data: Dict) -> List:
         """Calculate and return matches recommendations
 
         Args:
-            bids_offers: dict {market_uuid: {"offers": [...], "bids": [...]}, }
+            matching_data: {market_uuid: {"offers": [...], "bids": [...], "current_time":"",...}}
 
         Returns: List[BidOfferMatch.serializable_dict()]
         """

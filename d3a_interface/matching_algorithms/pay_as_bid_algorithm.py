@@ -16,9 +16,9 @@ class PayAsBidMatchingAlgorithm(AbstractMatchingAlgorithm):
     """
 
     @classmethod
-    def get_matches_recommendations(cls, bids_offers: Dict) -> List:
+    def get_matches_recommendations(cls, matching_data: Dict) -> List:
         bid_offer_pairs = []
-        for market_id, data in bids_offers.items():
+        for market_id, data in matching_data.items():
             bids = data.get("bids")
             offers = data.get("offers")
             # Sorted bids in descending order
