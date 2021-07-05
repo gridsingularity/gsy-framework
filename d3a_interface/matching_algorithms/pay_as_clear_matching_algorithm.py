@@ -177,7 +177,7 @@ class PayAsClearMatchingAlgorithm(AbstractMatchingAlgorithm):
                     # Save the matching
                     bid_offer_matches.append(
                         BidOfferMatch(market_id=market_id, bid=bid, selected_energy=bid_energy,
-                                      offer=offer, trade_rate=clearing_rate)
+                                      offer=offer, trade_rate=clearing_rate).serializable_dict()
                     )
                     # Update total clearing energy
                     clearing_energy -= bid_energy
@@ -188,7 +188,7 @@ class PayAsClearMatchingAlgorithm(AbstractMatchingAlgorithm):
                     # Save the matching offer to accept later
                     bid_offer_matches.append(
                         BidOfferMatch(market_id=market_id, bid=bid, selected_energy=offer_energy,
-                                      offer=offer, trade_rate=clearing_rate)
+                                      offer=offer, trade_rate=clearing_rate).serializable_dict()
                     )
                     # Subtract the offer energy from the bid, in order to not be taken into account
                     # from following matches
