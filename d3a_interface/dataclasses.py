@@ -1,12 +1,13 @@
 from dataclasses import dataclass, field
+from typing import Dict
 
 
 @dataclass
 class BidOfferMatch:
     market_id: str
-    bid: dict
+    bid: Dict
     selected_energy: float
-    offer: dict
+    offer: Dict
     trade_rate: float
 
     def serializable_dict(self):
@@ -33,9 +34,9 @@ class Clearing:
 
 @dataclass
 class MarketClearingState:
-    cumulative_offers: dict = field(default_factory=dict)
-    cumulative_bids: dict = field(default_factory=dict)
-    clearing: dict = field(default_factory=dict)
+    cumulative_offers: Dict = field(default_factory=dict)
+    cumulative_bids: Dict = field(default_factory=dict)
+    clearing: Dict = field(default_factory=dict)
 
     @classmethod
     def _csv_fields(cls):
