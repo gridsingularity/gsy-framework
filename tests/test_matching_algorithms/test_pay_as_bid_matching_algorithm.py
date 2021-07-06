@@ -1,5 +1,6 @@
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
-from d3a_interface.matching_algorithms.pay_as_bid_matching_algorithm import PayAsBidMatchingAlgorithm
+from d3a_interface.matching_algorithms.pay_as_bid_matching_algorithm import (
+    PayAsBidMatchingAlgorithm)
 
 
 class TestPayAsBidMatchingAlgorithm:
