@@ -50,15 +50,11 @@ def is_buffer_node_type(area):
     return area['type'] == "InfiniteBusStrategy"
 
 
-def is_house_node_type(area):
-    return get_unified_area_type(area) == "Area"
-
-
-def has_no_grand_children(area):
+def has_grand_children(area):
     for child in area.get("children", []):
         if child.get("children", []):
-            return False
-    return True
+            return True
+    return False
 
 
 def get_unified_area_type(area):

@@ -12,7 +12,7 @@ class TestSavingsKPI(TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_correct_classification_of_area_type(self):
+    def test_populate_consumer_producer_sets_are_correct(self):
         self.pv_uuid = str(uuid4())
         self.load_uuid = str(uuid4())
         self.ess_uuid = str(uuid4())
@@ -25,6 +25,6 @@ class TestSavingsKPI(TestCase):
                  {"name": "storage1", "uuid": self.ess_uuid, "type": "StorageExternalStrategy"}
              ]
            }
-        self.savings_kpi.populate_area_type(test_area)
+        self.savings_kpi.populate_consumer_producer_sets(test_area)
         assert self.savings_kpi.producer_ess_set == {self.pv_uuid, self.ess_uuid}
         assert self.savings_kpi.consumer_ess_set == {self.load_uuid, self.ess_uuid}
