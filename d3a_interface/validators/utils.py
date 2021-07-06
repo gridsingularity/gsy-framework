@@ -14,11 +14,37 @@ You should have received a copy of the GNU General Public License along with thi
 not, see <http://www.gnu.org/licenses/>.
 """
 import ast
+from typing import Optional
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 
 CepSettings = ConstSettings.CommercialProducerSettings
+
+
+def validate_fit_to_limit(
+        fit_to_limit: Optional[bool], energy_rate_increase_per_update: Optional[bool],
+        energy_rate_decrease_per_update: Optional[bool]):
+    """Check that fit_to_limit is correct when both energy rates changes are allowed.
+
+    Important: don't use this method to validate devices that only accept one rate (e.g. Load and
+    PV devices).
+    """
+    if fit_to_limit is True and (
+            energy_rate_decrease_per_update is not None
+            or energy_rate_increase_per_update is not None):
+        raise D3ADeviceException({
+            "misconfiguration": [
+                "fit_to_limit and energy_rate_increase/decrease_per_update can't be set "
+                "together."]})
+
+    if fit_to_limit is False and (
+            energy_rate_increase_per_update is None
+            or energy_rate_decrease_per_update is None):
+        raise D3ADeviceException(
+            {"misconfiguration": [
+                "energy_rate_increase/decrease_per_update must be set if fit_to_limit is "
+                "False."]})
 
 
 def validate_range_limit(initial_limit, value, final_limit, error_message):

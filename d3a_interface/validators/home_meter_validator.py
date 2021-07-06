@@ -13,12 +13,10 @@ the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this program. If
 not, see <http://www.gnu.org/licenses/>.
 """
-from typing import Optional
-
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
+from d3a_interface.validators import utils
 from d3a_interface.validators.base_validator import BaseValidator
-from d3a_interface.validators.utils import validate_range_limit
 
 GeneralSettings = ConstSettings.GeneralSettings
 HomeMeterSettings = ConstSettings.HomeMeterSettings
@@ -35,32 +33,12 @@ class HomeMeterValidator(BaseValidator):
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate rates of a Home Meter device."""
-        cls._validate_fit_to_limit(
+        utils.validate_fit_to_limit(
             fit_to_limit=kwargs.get("fit_to_limit"),
             energy_rate_increase_per_update=kwargs.get("energy_rate_increase_per_update"),
             energy_rate_decrease_per_update=kwargs.get("energy_rate_decrease_per_update"))
         cls._validate_home_meter_consumption_rates(**kwargs)
         cls._validate_home_meter_production_rates(**kwargs)
-
-    @staticmethod
-    def _validate_fit_to_limit(
-            fit_to_limit: Optional[bool], energy_rate_increase_per_update: Optional[bool],
-            energy_rate_decrease_per_update: Optional[bool]):
-        if fit_to_limit is True and (
-                energy_rate_decrease_per_update is not None
-                or energy_rate_increase_per_update is not None):
-            raise D3ADeviceException({
-                "misconfiguration": [
-                    "fit_to_limit and energy_rate_increase/decrease_per_update can't be set "
-                    "together."]})
-
-        if fit_to_limit is False and (
-                energy_rate_increase_per_update is None
-                or energy_rate_decrease_per_update is None):
-            raise D3ADeviceException(
-                {"misconfiguration": [
-                    "energy_rate_increase/decrease_per_update must be set if fit_to_limit is "
-                    "False."]})
 
     @staticmethod
     def _validate_home_meter_consumption_rates(**kwargs):
@@ -72,7 +50,7 @@ class HomeMeterValidator(BaseValidator):
                     f"{HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.min} & "
                     f"{HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.max}."]}
 
-            validate_range_limit(
+            utils.validate_range_limit(
                 HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.min,
                 kwargs["final_buying_rate"],
                 HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.max, error_message)
@@ -84,7 +62,7 @@ class HomeMeterValidator(BaseValidator):
                     f"{HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.min} & "
                     f"{HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.max}"]}
 
-            validate_range_limit(
+            utils.validate_range_limit(
                 HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.min,
                 kwargs["initial_buying_rate"],
                 HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
@@ -105,7 +83,7 @@ class HomeMeterValidator(BaseValidator):
                     f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
                     f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}."]}
 
-            validate_range_limit(
+            utils.validate_range_limit(
                 GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                 kwargs["energy_rate_increase_per_update"],
                 GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
@@ -120,7 +98,7 @@ class HomeMeterValidator(BaseValidator):
                     f"{HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.min} & "
                     f"{HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.max}"]}
 
-            validate_range_limit(
+            utils.validate_range_limit(
                 HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.min,
                 kwargs["final_selling_rate"],
                 HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.max, error_message)
@@ -132,7 +110,7 @@ class HomeMeterValidator(BaseValidator):
                     f"{HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.min} & "
                     f"{HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.max}"]}
 
-            validate_range_limit(
+            utils.validate_range_limit(
                 HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.min,
                 kwargs["initial_selling_rate"],
                 HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.max, error_message)
@@ -153,7 +131,7 @@ class HomeMeterValidator(BaseValidator):
                     f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
                     f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}"]}
 
-            validate_range_limit(
+            utils.validate_range_limit(
                 GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                 kwargs["energy_rate_decrease_per_update"],
                 GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)

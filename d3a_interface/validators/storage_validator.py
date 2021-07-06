@@ -15,8 +15,8 @@ not, see <http://www.gnu.org/licenses/>.
 """
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
+from d3a_interface.validators import utils
 from d3a_interface.validators.base_validator import BaseValidator
-from d3a_interface.validators.utils import validate_range_limit
 
 GeneralSettings = ConstSettings.GeneralSettings
 StorageSettings = ConstSettings.StorageSettings
@@ -40,18 +40,20 @@ class StorageValidator(BaseValidator):
                 "initial_soc should be in between "
                 f"{StorageSettings.INITIAL_CHARGE_LIMIT.min} & "
                 f"{StorageSettings.INITIAL_CHARGE_LIMIT.max}."]}
-            validate_range_limit(StorageSettings.INITIAL_CHARGE_LIMIT.min,
-                                 kwargs["initial_soc"],
-                                 StorageSettings.INITIAL_CHARGE_LIMIT.max, error_message)
+            utils.validate_range_limit(
+                StorageSettings.INITIAL_CHARGE_LIMIT.min,
+                kwargs["initial_soc"],
+                StorageSettings.INITIAL_CHARGE_LIMIT.max, error_message)
 
         if kwargs.get("min_allowed_soc") is not None:
             error_message = {"misconfiguration": [
                 "min_allowed_soc should be in between "
                 f"{StorageSettings.MIN_SOC_LIMIT.min} & "
                 f"{StorageSettings.MIN_SOC_LIMIT.max}."]}
-            validate_range_limit(StorageSettings.MIN_SOC_LIMIT.min,
-                                 kwargs["min_allowed_soc"],
-                                 StorageSettings.MIN_SOC_LIMIT.max, error_message)
+            utils.validate_range_limit(
+                StorageSettings.MIN_SOC_LIMIT.min,
+                kwargs["min_allowed_soc"],
+                StorageSettings.MIN_SOC_LIMIT.max, error_message)
 
         if (
                 kwargs.get("initial_soc") is not None and kwargs.get("min_allowed_soc") is not None
@@ -65,18 +67,20 @@ class StorageValidator(BaseValidator):
                 "battery_capacity_kWh should be in between "
                 f"{StorageSettings.CAPACITY_LIMIT.min} & "
                 f"{StorageSettings.CAPACITY_LIMIT.max}."]}
-            validate_range_limit(StorageSettings.CAPACITY_LIMIT.min,
-                                 kwargs["battery_capacity_kWh"],
-                                 StorageSettings.CAPACITY_LIMIT.max, error_message)
+            utils.validate_range_limit(
+                StorageSettings.CAPACITY_LIMIT.min,
+                kwargs["battery_capacity_kWh"],
+                StorageSettings.CAPACITY_LIMIT.max, error_message)
 
         if kwargs.get("max_abs_battery_power_kW") is not None:
             error_message = {"misconfiguration": [
                 "max_abs_battery_power_kW should be in between "
                 f"{StorageSettings.MAX_ABS_POWER_RANGE.initial} & "
                 f"{StorageSettings.MAX_ABS_POWER_RANGE.final}."]}
-            validate_range_limit(StorageSettings.MAX_ABS_POWER_RANGE.initial,
-                                 kwargs["max_abs_battery_power_kW"],
-                                 StorageSettings.MAX_ABS_POWER_RANGE.final, error_message)
+            utils.validate_range_limit(
+                StorageSettings.MAX_ABS_POWER_RANGE.initial,
+                kwargs["max_abs_battery_power_kW"],
+                StorageSettings.MAX_ABS_POWER_RANGE.final, error_message)
 
     @classmethod
     def validate_rate(cls, **kwargs):
@@ -86,18 +90,20 @@ class StorageValidator(BaseValidator):
                 "initial_selling_rate should be in between "
                 f"{StorageSettings.INITIAL_SELLING_RATE_LIMIT.min} & "
                 f"{StorageSettings.INITIAL_SELLING_RATE_LIMIT.max}."]}
-            validate_range_limit(StorageSettings.INITIAL_SELLING_RATE_LIMIT.min,
-                                 kwargs["initial_selling_rate"],
-                                 StorageSettings.INITIAL_SELLING_RATE_LIMIT.max, error_message)
+            utils.validate_range_limit(
+                StorageSettings.INITIAL_SELLING_RATE_LIMIT.min,
+                kwargs["initial_selling_rate"],
+                StorageSettings.INITIAL_SELLING_RATE_LIMIT.max, error_message)
 
         if kwargs.get("final_selling_rate") is not None:
             error_message = {"misconfiguration": [
                 "final_selling_rate should be in between "
                 f"{StorageSettings.FINAL_SELLING_RATE_LIMIT.min} & "
                 f"{StorageSettings.FINAL_SELLING_RATE_LIMIT.max}."]}
-            validate_range_limit(StorageSettings.FINAL_SELLING_RATE_LIMIT.min,
-                                 kwargs["final_selling_rate"],
-                                 StorageSettings.FINAL_SELLING_RATE_LIMIT.max, error_message)
+            utils.validate_range_limit(
+                StorageSettings.FINAL_SELLING_RATE_LIMIT.min,
+                kwargs["final_selling_rate"],
+                StorageSettings.FINAL_SELLING_RATE_LIMIT.max, error_message)
 
         if (
                 kwargs.get("initial_selling_rate") is not None
@@ -112,18 +118,20 @@ class StorageValidator(BaseValidator):
                 "initial_buying_rate should be in between "
                 f"{StorageSettings.INITIAL_BUYING_RATE_LIMIT.min} & "
                 f"{StorageSettings.INITIAL_BUYING_RATE_LIMIT.max}."]}
-            validate_range_limit(StorageSettings.INITIAL_BUYING_RATE_LIMIT.min,
-                                 kwargs["initial_buying_rate"],
-                                 StorageSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
+            utils.validate_range_limit(
+                StorageSettings.INITIAL_BUYING_RATE_LIMIT.min,
+                kwargs["initial_buying_rate"],
+                StorageSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
 
         if kwargs.get("final_buying_rate") is not None:
             error_message = {"misconfiguration": [
                 "final_buying_rate should be in between "
                 f"{StorageSettings.FINAL_BUYING_RATE_LIMIT.min} & "
                 f"{StorageSettings.FINAL_BUYING_RATE_LIMIT.max}."]}
-            validate_range_limit(StorageSettings.FINAL_BUYING_RATE_LIMIT.min,
-                                 kwargs["final_buying_rate"],
-                                 StorageSettings.FINAL_BUYING_RATE_LIMIT.max, error_message)
+            utils.validate_range_limit(
+                StorageSettings.FINAL_BUYING_RATE_LIMIT.min,
+                kwargs["final_buying_rate"],
+                StorageSettings.FINAL_BUYING_RATE_LIMIT.max, error_message)
 
         if (
                 kwargs.get("initial_buying_rate") is not None
@@ -146,31 +154,25 @@ class StorageValidator(BaseValidator):
                 "energy_rate_increase_per_update should be in between "
                 f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
                 f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}."]}
-            validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
-                                 kwargs["energy_rate_increase_per_update"],
-                                 GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
+            utils.validate_range_limit(
+                GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
+                kwargs["energy_rate_increase_per_update"],
+                GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
 
         if kwargs.get("energy_rate_decrease_per_update") is not None:
             error_message = {"misconfiguration": [
                 "energy_rate_decrease_per_update should be in between "
                 f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min} & "
                 f"{GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max}."]}
-            validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
-                                 kwargs["energy_rate_decrease_per_update"],
-                                 GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
+            utils.validate_range_limit(
+                GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
+                kwargs["energy_rate_decrease_per_update"],
+                GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
 
-        if kwargs.get("fit_to_limit") is True and (
-                kwargs.get("energy_rate_increase_per_update") is not None
-                or kwargs.get("energy_rate_decrease_per_update") is not None):
-            raise D3ADeviceException(
-                {"misconfiguration": ["fit_to_limit & energy_rate_increase/decrease_per_update "
-                                      "can't be set together."]})
-        if kwargs.get("fit_to_limit") is False and (
-                kwargs.get("energy_rate_increase_per_update") is None
-                or kwargs.get("energy_rate_decrease_per_update") is None):
-            raise D3ADeviceException(
-                {"misconfiguration": ["energy_rate_increase/decrease_per_update must be set if "
-                                      "fit_to_limit is False."]})
+        utils.validate_fit_to_limit(
+            fit_to_limit=kwargs.get("fit_to_limit"),
+            energy_rate_increase_per_update=kwargs.get("energy_rate_increase_per_update"),
+            energy_rate_decrease_per_update=kwargs.get("energy_rate_decrease_per_update"))
 
     @staticmethod
     def _validate_loss_function(**kwargs):
@@ -181,7 +183,7 @@ class StorageValidator(BaseValidator):
             "loss_function should either be "
             f"{StorageSettings.LOSS_FUNCTION_LIMIT.min} or "
             f"{StorageSettings.LOSS_FUNCTION_LIMIT.max}."]}
-        validate_range_limit(
+        utils.validate_range_limit(
             StorageSettings.LOSS_FUNCTION_LIMIT.min, kwargs["loss_function"],
             StorageSettings.LOSS_FUNCTION_LIMIT.max, error_message)
 
@@ -194,7 +196,7 @@ class StorageValidator(BaseValidator):
                     "loss_per_hour should be in between "
                     f"{StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.min} & "
                     f"{StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.max}."]}
-            validate_range_limit(
+            utils.validate_range_limit(
                 StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.min,
                 kwargs["loss_per_hour"],
                 StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.max,
@@ -205,7 +207,7 @@ class StorageValidator(BaseValidator):
                     "loss_per_hour should be in between "
                     f"{StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.min} & "
                     f"{StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.max}."]}
-            validate_range_limit(
+            utils.validate_range_limit(
                 StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.min,
                 kwargs["loss_per_hour"],
                 StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.max,
