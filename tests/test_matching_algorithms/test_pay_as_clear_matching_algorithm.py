@@ -61,7 +61,7 @@ class TestPayAsClearMatchingAlgorithm:
                 Bid(f"bid_id{index}", pendulum.now(), index, energy, "Buyer")._asdict())
             offers_list.append(
                 Offer(f"offer_id{index}", pendulum.now(), index, energy, "Seller")._asdict())
-        matches = PayAsClearMatchingAlgorithm._create_bid_offer_matches(
+        matches = PayAsClearMatchingAlgorithm()._create_bid_offer_matches(
             (1, clearing_energy), offers_list, bids_list, market_id=""
         )
         assert len(matches) == 5
@@ -80,7 +80,7 @@ class TestPayAsClearMatchingAlgorithm:
         for index in range(1, 6):
             offers_list.append(
                 Offer(f"offer_id{index}", pendulum.now(), index, index, "Seller")._asdict())
-        matches = PayAsClearMatchingAlgorithm._create_bid_offer_matches(
+        matches = PayAsClearMatchingAlgorithm()._create_bid_offer_matches(
             (1, 15), offers_list, bids_list, market_id="")
 
         assert len(matches) == 7
@@ -105,7 +105,7 @@ class TestPayAsClearMatchingAlgorithm:
             Offer("offer_id3", pendulum.now(), 3, 3, "S")._asdict(),
         ]
 
-        matches = PayAsClearMatchingAlgorithm._create_bid_offer_matches(
+        matches = PayAsClearMatchingAlgorithm()._create_bid_offer_matches(
             (1, 15), offer_list, bid_list, market_id="")
 
         self.validate_matching(matches[0], 1, "offer_id1", "bid_id1")
@@ -129,7 +129,7 @@ class TestPayAsClearMatchingAlgorithm:
             Offer("offer_id3", pendulum.now(), 13, 13, "S")._asdict(),
         ]
 
-        matches = PayAsClearMatchingAlgorithm._create_bid_offer_matches(
+        matches = PayAsClearMatchingAlgorithm()._create_bid_offer_matches(
             (1, 15), offer_list, bid_list, market_id="")
 
         assert len(matches) == 7
@@ -154,7 +154,7 @@ class TestPayAsClearMatchingAlgorithm:
             Offer("offer_id3", pendulum.now(), 5003, 5003, "S")._asdict(),
         ]
 
-        matches = PayAsClearMatchingAlgorithm._create_bid_offer_matches(
+        matches = PayAsClearMatchingAlgorithm()._create_bid_offer_matches(
             (1, 15), offer_list, bid_list, market_id="")
 
         assert len(matches) == 7
@@ -177,7 +177,7 @@ class TestPayAsClearMatchingAlgorithm:
             Offer("offer_id1", pendulum.now(), 8, 800000000, "S")._asdict()
         ]
 
-        matches = PayAsClearMatchingAlgorithm._create_bid_offer_matches(
+        matches = PayAsClearMatchingAlgorithm()._create_bid_offer_matches(
             (1, 15), offer_list, bid_list, market_id="")
 
         assert len(matches) == 5
@@ -198,7 +198,7 @@ class TestPayAsClearMatchingAlgorithm:
                 Offer(f"offer_id{index}", pendulum.now(), index, index, "Seller")._asdict()
             )
 
-        matches = PayAsClearMatchingAlgorithm._create_bid_offer_matches(
+        matches = PayAsClearMatchingAlgorithm()._create_bid_offer_matches(
             (1, 15), offers_list, bids_list, market_id="")
 
         assert len(matches) == 5
@@ -236,7 +236,7 @@ class TestPayAsClearMatchingAlgorithm:
                 ],
             }
         }
-        trades = PayAsClearMatchingAlgorithm.get_matches_recommendations(data)
+        trades = PayAsClearMatchingAlgorithm().get_matches_recommendations(data)
         expected_trades = [{"market_id": "market1",
                             "bid": {"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20},
                             "offer": {"id": 4, "seller": "A", "energy_rate": 1.00001,
