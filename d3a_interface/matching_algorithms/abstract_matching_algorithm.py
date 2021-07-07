@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List
 
 
-class AbstractMatchingAlgorithm(ABC):
+class BaseMatchingAlgorithm(ABC):
 
     @classmethod
     @abstractmethod

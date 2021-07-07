@@ -24,7 +24,7 @@ from typing import List, Dict, Tuple
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.dataclasses import MarketClearingState, Clearing, BidOfferMatch
-from d3a_interface.matching_algorithms.abstract_matching_algorithm import AbstractMatchingAlgorithm
+from d3a_interface.matching_algorithms.abstract_matching_algorithm import BaseMatchingAlgorithm
 from d3a_interface.utils import sort_list_of_dicts_by_attribute, add_or_create_key
 
 log = getLogger(__name__)
@@ -32,7 +32,7 @@ log = getLogger(__name__)
 MATCH_FLOATING_POINT_TOLERANCE = 1e-8
 
 
-class PayAsClearMatchingAlgorithm(AbstractMatchingAlgorithm):
+class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
     """Perform pay as clear matching algorithm.
 
     bids and offers are aggregated and cleared in a specified clearing interval.
