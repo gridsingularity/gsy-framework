@@ -164,7 +164,6 @@ class SavingsKPI:
             core_stats: contain area"s raw/key statistics
             gf_alp: grid_fee_along_the_path - cumulative grid fee from root to target area
 
-        Returns:
         """
         self.populate_consumer_producer_sets(area_dict)
 
@@ -206,7 +205,7 @@ class SavingsKPI:
         return area_core_stat.get("market_maker_rate", 0.) + path_grid_fee
 
     def to_dict(self):
-        return {"base_case_revenue": self.base_case_cost,
+        return {"base_case_cost": self.base_case_cost,
                 "d3a_cost": self.d3a_cost,
                 "saving_absolute": self.saving_absolute,
                 "saving_percentage": self.saving_percentage}
@@ -296,7 +295,11 @@ class KPI(ResultsBaseClass):
                 "demanded_buffer_wh": area_kpis["demanded_buffer_wh"],
                 "self_consumption_buffer_wh": area_kpis["self_consumption_buffer_wh"],
                 "total_energy_produced_wh": area_kpis["total_energy_produced_wh"],
-                "total_self_consumption_wh": area_kpis["total_self_consumption_wh"]
+                "total_self_consumption_wh": area_kpis["total_self_consumption_wh"],
+                "base_case_cost": area_kpis.get("base_case_cost"),
+                "d3a_cost": area_kpis.get("d3a_cost"),
+                "saving_absolute": area_kpis.get("saving_absolute"),
+                "saving_percentage": area_kpis.get("saving_percentage")
                 }
 
     def update(self, area_dict, core_stats, current_market_slot):
