@@ -152,8 +152,8 @@ class SavingsKPI:
         self.consumer_ess_set = set()  # keeps set of house's consuming/ess devices
         self.fit_revenue = 0.  # revenue achieved by producing selling energy via FIT scheme
         self.utility_bill = 0.  # cost of energy purchase from energy supplier
-        self.base_case_revenue = 0.  # standard revenue of a house participating in FIT scheme
-        self.d3a_revenue = 0.  # standard revenue of a house participating in D3A
+        self.base_case_cost = 0.  # standard cost of a house participating in FIT scheme
+        self.d3a_cost = 0.  # standard cost of a house participating in D3A
         self.saving_absolute = 0.  # savings achieved by a house via participating in D3A
         self.saving_percentage = 0.  # savings in percentage wrt FIT via participating in D3A
 
@@ -177,15 +177,15 @@ class SavingsKPI:
         for trade in core_stats.get(area_dict["uuid"], {}).get("trades", []):
             if trade["seller_origin_id"] in self.producer_ess_set:
                 self.fit_revenue += fir_excl_gf_alp * trade["energy"]
-                self.d3a_revenue += trade["price"]
+                self.d3a_cost -= trade["price"]
             if trade["buyer_origin_id"] in self.consumer_ess_set and \
                     trade["seller_origin_id"] not in self.producer_ess_set:
                 self.utility_bill += mmr_incl_gf_alp * trade["energy"]
-                self.d3a_revenue -= trade["price"]
-        self.base_case_revenue = self.fit_revenue - self.utility_bill
-        self.saving_absolute = self.d3a_revenue - self.base_case_revenue
-        self.saving_percentage = ((self.saving_absolute / self.base_case_revenue) * 100
-                                  if self.base_case_revenue else 0.)
+                self.d3a_cost += trade["price"]
+        self.base_case_cost = self.utility_bill - self.fit_revenue
+        self.saving_absolute = self.base_case_cost - self.d3a_cost
+        self.saving_percentage = ((self.saving_absolute / self.base_case_cost) * 100
+                                  if self.base_case_cost else 0.)
 
     def populate_consumer_producer_sets(self, area_dict):
         for child in area_dict["children"]:
@@ -206,8 +206,8 @@ class SavingsKPI:
         return area_core_stat.get("market_maker_rate", 0.) + path_grid_fee
 
     def to_dict(self):
-        return {"base_case_revenue": self.base_case_revenue,
-                "d3a_revenue": self.d3a_revenue,
+        return {"base_case_revenue": self.base_case_cost,
+                "d3a_cost": self.d3a_cost,
                 "saving_absolute": self.saving_absolute,
                 "saving_percentage": self.saving_percentage}
 
