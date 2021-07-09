@@ -21,11 +21,10 @@ from uuid import uuid4
 import pytest
 
 from d3a_interface.constants_limits import ConstSettings
-from d3a_interface.device_validator import (
-    HomeMeterValidator, validate_load_device, validate_pv_device, validate_storage_device,
-    validate_commercial_producer, validate_market_maker, validate_finite_diesel_generator,
-    validate_infinite_bus)
 from d3a_interface.exceptions import D3ADeviceException
+from d3a_interface.validators import (
+    HomeMeterValidator, LoadValidator, PVValidator, StorageValidator, CommercialProducerValidator,
+    InfiniteBusValidator, MarketMakerValidator, FiniteDieselGeneratorValidator)
 
 GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
@@ -51,11 +50,12 @@ class TestValidateDeviceSettings:
         {"hrs_of_day": [1, 2, 3, 5, 6, 10], "hrs_per_day": 6},
         {"energy_rate_increase_per_update": 0},
         {"fit_to_limit": False, "energy_rate_increase_per_update": 2},
+        {"fit_to_limit": True, "energy_rate_increase_per_update": None},
         {"daily_load_profile": VALID_LOAD_PROFILE}
     ])
     def test_load_device_setting_succeeds(valid_arguments):
-        """The PV device validation succeeds when valid arguments are provided."""
-        assert validate_load_device(**valid_arguments) is None
+        """The load device validation succeeds when valid arguments are provided."""
+        assert LoadValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -67,15 +67,16 @@ class TestValidateDeviceSettings:
         {"hrs_of_day": [20, 21, 22, 23, 24, 25, 26]},
         {"hrs_of_day": [1, 2, 3, 4, 5, 6], "hrs_per_day": 10},
         {"energy_rate_increase_per_update": -1},
-        {"fit_to_limit": True, "energy_rate_increase_per_update": 2},
         {"avg_power_W": 100, "daily_load_profile": VALID_LOAD_PROFILE},
         {"hrs_per_day": 1, "daily_load_profile": VALID_LOAD_PROFILE},
-        {"hrs_of_day": [1, 2, 3, 4, 5, 6], "daily_load_profile": VALID_LOAD_PROFILE}
+        {"hrs_of_day": [1, 2, 3, 4, 5, 6], "daily_load_profile": VALID_LOAD_PROFILE},
+        {"fit_to_limit": True, "energy_rate_increase_per_update": 2},
+        {"fit_to_limit": False, "energy_rate_increase_per_update": None},
     ])
     def test_load_device_setting_fails(failing_arguments):
-        """The PV device validation fails when incompatible arguments are provided."""
+        """The load device validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_load_device(**failing_arguments)
+            LoadValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
@@ -84,13 +85,14 @@ class TestValidateDeviceSettings:
         {"initial_selling_rate": 0},
         {"initial_selling_rate": 11, "final_selling_rate": 10},
         {"fit_to_limit": False, "energy_rate_decrease_per_update": 2},
+        {"fit_to_limit": True, "energy_rate_decrease_per_update": None},
         {"energy_rate_decrease_per_update": 0},
         {"max_panel_power_W": 0},
         {"cloud_coverage": 4, "power_profile": ""}
     ])
     def test_pv_device_setting_succeeds(valid_arguments):
         """The PV device validation succeeds when valid arguments are provided."""
-        assert validate_pv_device(**valid_arguments) is None
+        assert PVValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -99,6 +101,7 @@ class TestValidateDeviceSettings:
         {"initial_selling_rate": -20},
         {"initial_selling_rate": 10, "final_selling_rate": 11},
         {"fit_to_limit": True, "energy_rate_decrease_per_update": 2},
+        {"fit_to_limit": False, "energy_rate_decrease_per_update": None},
         {"energy_rate_decrease_per_update": -1},
         {"max_panel_power_W": -5},
         {"cloud_coverage": 3, "power_profile": ""},
@@ -107,7 +110,7 @@ class TestValidateDeviceSettings:
     def test_pv_device_setting_fails(failing_arguments):
         """The PV device validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_pv_device(**failing_arguments)
+            PVValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
@@ -125,12 +128,16 @@ class TestValidateDeviceSettings:
         {"final_buying_rate": 14, "final_selling_rate": 15},
         {"energy_rate_increase_per_update": 0.1},
         {"energy_rate_decrease_per_update": 0.1},
-        {"fit_to_limit": False, "energy_rate_increase_per_update": 3},
-        {"fit_to_limit": False, "energy_rate_decrease_per_update": 3}
+        {"fit_to_limit": False, "energy_rate_increase_per_update": 3,
+         "energy_rate_decrease_per_update": 3},
+        {"fit_to_limit": False, "energy_rate_decrease_per_update": 3,
+         "energy_rate_increase_per_update": 3},
+        {"loss_function": 1, "loss_per_hour": 1},
+        {"loss_function": 2, "loss_per_hour": 300},
     ])
     def test_storage_device_setting_succeeds(valid_arguments):
         """The storage device validation succeeds when correct arguments are provided."""
-        assert validate_storage_device(**valid_arguments) is None
+        assert StorageValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -149,23 +156,29 @@ class TestValidateDeviceSettings:
         {"energy_rate_increase_per_update": -5},
         {"energy_rate_decrease_per_update": -3},
         {"fit_to_limit": True, "energy_rate_increase_per_update": 3},
-        {"fit_to_limit": True, "energy_rate_decrease_per_update": 3}
+        {"fit_to_limit": True, "energy_rate_decrease_per_update": 3},
+        {"fit_to_limit": False, "energy_rate_increase_per_update": 3},
+        {"fit_to_limit": False, "energy_rate_decrease_per_update": 3},
+        {"loss_function": 1, "loss_per_hour": 2},
+        {"loss_function": 1, "loss_per_hour": -1},
+        {"loss_function": 2, "loss_per_hour": 10001},
+        {"loss_function": 2, "loss_per_hour": -1},
     ])
     def test_storage_device_setting_fails(failing_arguments):
         """The storage validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_storage_device(**failing_arguments)
+            StorageValidator.validate(**failing_arguments)
 
     @staticmethod
     def test_commercial_producer_setting():
         """The commercial producer validation succeeds when correct arguments are provided."""
-        assert validate_commercial_producer(energy_rate=10) is None
+        assert CommercialProducerValidator.validate(energy_rate=10) is None
 
     @staticmethod
     def test_commercial_producer_setting_fails():
         """The commercial producer validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_commercial_producer(energy_rate=-5)
+            CommercialProducerValidator.validate(energy_rate=-5)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
@@ -178,7 +191,7 @@ class TestValidateDeviceSettings:
     ])
     def test_market_maker_setting_succeeds(valid_arguments):
         """The market maker validation succeeds when correct arguments are provided."""
-        assert validate_market_maker(**valid_arguments) is None
+        assert MarketMakerValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -191,7 +204,7 @@ class TestValidateDeviceSettings:
     def test_market_maker_setting_fails(failing_arguments):
         """The market maker validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_market_maker(**failing_arguments)
+            MarketMakerValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
@@ -206,7 +219,7 @@ class TestValidateDeviceSettings:
     ])
     def test_infinite_bus_setting_succeeds(valid_arguments):
         """The infinite bus validation succeeds when correct arguments are provided."""
-        assert validate_infinite_bus(**valid_arguments) is None
+        assert InfiniteBusValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -220,7 +233,7 @@ class TestValidateDeviceSettings:
     def test_infinite_bus_setting_fails(failing_arguments):
         """The infinite bus validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_infinite_bus(**failing_arguments)
+            InfiniteBusValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
@@ -230,7 +243,7 @@ class TestValidateDeviceSettings:
     ])
     def test_finite_diesel_generator_succeeds(valid_arguments):
         """The FiniteDiesel validation succeeds when correct arguments are provided."""
-        assert validate_finite_diesel_generator(**valid_arguments) is None
+        assert FiniteDieselGeneratorValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -239,7 +252,7 @@ class TestValidateDeviceSettings:
     def test_finite_diesel_generator_fails(failing_arguments):
         """The FiniteDiesel validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            validate_finite_diesel_generator(**failing_arguments)
+            FiniteDieselGeneratorValidator.validate(**failing_arguments)
 
 
 class TestHomeMeterValidator:
@@ -247,36 +260,33 @@ class TestHomeMeterValidator:
 
     @staticmethod
     @patch.object(HomeMeterValidator, "validate_rate")
-    @patch.object(HomeMeterValidator, "validate_energy")
-    def test_validate(validate_energy_mock, validate_price_mock):
+    def test_validate(validate_price_mock):
         """The validate method correctly calls the individual validation methods."""
         HomeMeterValidator.validate()
         validate_price_mock.assert_called_once_with()
-        validate_energy_mock.assert_called_once_with()
 
     @staticmethod
-    @patch("d3a_interface.device_validator.validate_range_limit")
-    def test_validate_price_executes(validate_range_limit_mock):
-        """The validation is executed when suitable arguments are provided.
-
-        Note: this does not necessarily mean that the validation is successful, as it also depends
-        on the validate_range_limit method (which we are mocking here).
-        """
-        arguments = {
-            "initial_buying_rate": 10, "final_buying_rate": 13,
-            "energy_rate_increase_per_update": 1,
-            "initial_selling_rate": 13, "final_selling_rate": 10,
-            "energy_rate_decrease_per_update": 2
-        }
-        HomeMeterValidator.validate_rate(**arguments)
-        assert validate_range_limit_mock.call_count == 6
+    @pytest.mark.parametrize("valid_arguments", [
+        {"initial_buying_rate": 10, "final_buying_rate": 13, "energy_rate_increase_per_update": 1,
+         "initial_selling_rate": 13, "final_selling_rate": 10,
+         "energy_rate_decrease_per_update": 2},
+        {"fit_to_limit": False, "energy_rate_increase_per_update": 1,
+         "energy_rate_decrease_per_update": 1},
+        {"fit_to_limit": False, "energy_rate_decrease_per_update": 1,
+         "energy_rate_increase_per_update": 1},
+    ])
+    def test_validate_price_succeeds(valid_arguments):
+        """The validation succeeds when valid arguments are provided."""
+        assert HomeMeterValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
         {"initial_buying_rate": 15, "final_buying_rate": 13},
-        {"energy_rate_increase_per_update": 1, "fit_to_limit": True},
         {"initial_selling_rate": 10, "final_selling_rate": 13},
-        {"energy_rate_decrease_per_update": 1, "fit_to_limit": True}
+        {"fit_to_limit": True, "energy_rate_increase_per_update": 1},
+        {"fit_to_limit": True, "energy_rate_decrease_per_update": 1},
+        {"fit_to_limit": False, "energy_rate_increase_per_update": 1},
+        {"fit_to_limit": False, "energy_rate_decrease_per_update": 1},
     ])
     def test_validate_price_fails(failing_arguments):
         """The validation fails when incompatible arguments are provided."""
