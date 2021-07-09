@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.dataclasses import BidOfferMatch
-from d3a_interface.matching_algorithms.abstract_matching_algorithm import BaseMatchingAlgorithm
+from d3a_interface.matching_algorithms import BaseMatchingAlgorithm
 from d3a_interface.utils import sort_list_of_dicts_by_attribute
 
 
