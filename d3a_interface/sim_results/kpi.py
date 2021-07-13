@@ -217,7 +217,10 @@ class KPI(ResultsBaseClass):
         self.performance_indices_redis = dict()
         self.state = {}
         self.savings_state = {}  # keeps initialized savings kpi object for individual area
-        self.area_uuid_to_cum_fee_path = {}  # keeps track of grid fee from root to target area
+
+        # mapping of area_uuid and the corresponding cumulative grid-free along the path
+        # from root-area to the target-area
+        self.area_uuid_cum_grid_fee_mapping = {}
 
     def memory_allocation_size_kb(self):
         return self._calculate_memory_allocated_by_objects([
@@ -237,7 +240,7 @@ class KPI(ResultsBaseClass):
                 self.savings_state[area_dict["uuid"]] = SavingsKPI()
         if area_dict["uuid"] in self.savings_state:
             self.savings_state[area_dict["uuid"]].calculate_savings_kpi(
-                area_dict, core_stats, self.area_uuid_to_cum_fee_path[area_dict["uuid"]])
+                area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
 
         self.state[area_dict["uuid"]].accumulate_devices(area_dict)
 
@@ -306,10 +309,8 @@ class KPI(ResultsBaseClass):
         if not self._has_update_parameters(area_dict, core_stats, current_market_slot):
             return
 
-        parent_fee = self.area_uuid_to_cum_fee_path.get(area_dict.get("parent_uuid", None), 0.)
-        area_fee = core_stats.get(area_dict.get("uuid", None), {}).get("const_fee_rate", 0.)
-        self.area_uuid_to_cum_fee_path[area_dict["uuid"]] = parent_fee + area_fee
-
+        self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]] = (
+            self._accumulate_root_to_target_area_grid_fee(area_dict, core_stats))
         self.performance_indices[area_dict["uuid"]] = self.area_performance_indices(
             area_dict, core_stats)
         self.performance_indices_redis[area_dict["uuid"]] = self._kpi_ratio_to_percentage(
@@ -318,6 +319,12 @@ class KPI(ResultsBaseClass):
         for child in area_dict["children"]:
             if len(child["children"]) > 0:
                 self.update(child, core_stats, current_market_slot)
+
+    def _accumulate_root_to_target_area_grid_fee(self, area_dict, core_stats):
+        parent_fee = self.area_uuid_cum_grid_fee_mapping.get(
+            area_dict.get("parent_uuid", None), 0.)
+        area_fee = core_stats.get(area_dict.get("uuid", None), {}).get("const_fee_rate", 0.)
+        return parent_fee + area_fee
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         if not last_known_state_data:
