@@ -220,7 +220,7 @@ class SavingsKPI:
         Args:
             area_core_stat: It contains the respective area's core statistics
             path_grid_fee: Cumulative fee from root to target area
-        Returns: feed-in tariff including accumulated grid fee from root to target area
+        Returns: market_maker_rate including accumulated grid fee from root to target area
         """
         return area_core_stat.get("market_maker_rate", 0.) + path_grid_fee
 
