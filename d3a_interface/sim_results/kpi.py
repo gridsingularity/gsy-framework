@@ -147,6 +147,7 @@ class KPIState:
 
 
 class SavingsKPI:
+    """Responsible for generating comparative savings from feed-in tariff vs D3A"""
     def __init__(self):
         self.producer_ess_set = set()  # keeps set of house's producing/ess devices
         self.consumer_ess_set = set()  # keeps set of house's consuming/ess devices
@@ -187,6 +188,11 @@ class SavingsKPI:
                                   if self.base_case_cost else 0.)
 
     def populate_consumer_producer_sets(self, area_dict):
+        """
+        Responsible for devices' classification
+        Args:
+            area_dict: It contains the respective area's core info
+        """
         for child in area_dict["children"]:
             if is_producer_node_type(child):
                 self.producer_ess_set.add(child["uuid"])
@@ -198,13 +204,28 @@ class SavingsKPI:
 
     @staticmethod
     def get_feed_in_tariff_rate_excluding_path_grid_fees(area_core_stat, path_grid_fee):
+        """
+        Args:
+            area_core_stat: It contains the respective area's core statistics
+            path_grid_fee: Cumulative fee from root to target area
+        Returns: feed-in tariff excluding accumulated grid fee from root to target area
+        """
         return area_core_stat.get("feed_in_tariff", 0.) - path_grid_fee
 
     @staticmethod
     def get_market_maker_rate_including_path_grid_fees(area_core_stat, path_grid_fee):
+        """
+        Args:
+            area_core_stat: It contains the respective area's core statistics
+            path_grid_fee: Cumulative fee from root to target area
+        Returns: feed-in tariff including accumulated grid fee from root to target area
+        """
         return area_core_stat.get("market_maker_rate", 0.) + path_grid_fee
 
     def to_dict(self):
+        """
+        Returns: key calculated parameters in dict type
+        """
         return {"base_case_cost": self.base_case_cost,
                 "d3a_cost": self.d3a_cost,
                 "saving_absolute": self.saving_absolute,
