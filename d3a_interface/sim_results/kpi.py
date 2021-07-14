@@ -158,7 +158,7 @@ class SavingsKPI:
         self.saving_absolute = 0.  # savings achieved by a house via participating in D3A
         self.saving_percentage = 0.  # savings in percentage wrt FIT via participating in D3A
 
-    def calculate_savings_kpi(self, area_dict, core_stats, gf_alp):
+    def calculate_savings_kpi(self, area_dict: dict, core_stats: dict, gf_alp: float):
         """Calculates the referenced saving from feed-in tariff based participation vs D3A
         Args:
             area_dict: contain nested area info
@@ -187,7 +187,7 @@ class SavingsKPI:
         self.saving_percentage = ((self.saving_absolute / self.base_case_cost) * 100
                                   if self.base_case_cost else 0.)
 
-    def populate_consumer_producer_sets(self, area_dict):
+    def populate_consumer_producer_sets(self, area_dict: dict):
         """
         Responsible for devices' classification
         Args:
@@ -203,7 +203,8 @@ class SavingsKPI:
                 self.consumer_ess_set.add(child["uuid"])
 
     @staticmethod
-    def get_feed_in_tariff_rate_excluding_path_grid_fees(area_core_stat, path_grid_fee):
+    def get_feed_in_tariff_rate_excluding_path_grid_fees(
+            area_core_stat: dict, path_grid_fee: float):
         """
         Args:
             area_core_stat: It contains the respective area's core statistics
@@ -213,7 +214,8 @@ class SavingsKPI:
         return area_core_stat.get("feed_in_tariff", 0.) - path_grid_fee
 
     @staticmethod
-    def get_market_maker_rate_including_path_grid_fees(area_core_stat, path_grid_fee):
+    def get_market_maker_rate_including_path_grid_fees(
+            area_core_stat: dict, path_grid_fee: float):
         """
         Args:
             area_core_stat: It contains the respective area's core statistics
