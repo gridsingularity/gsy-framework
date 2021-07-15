@@ -211,6 +211,7 @@ class GlobalConfig:
     MARKET_MAKER_RATE = str(ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
     POWER_FLOW = False
     IS_CANARY_NETWORK = False
+    FEED_IN_TARIFF = 20
 
     # Default simulation settings d3a side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))
