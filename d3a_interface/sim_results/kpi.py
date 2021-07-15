@@ -162,7 +162,7 @@ class SavingsKPI:
         """Calculates the referenced saving from feed-in tariff based participation vs D3A
         Args:
             area_dict: contain nested area info
-            core_stats: contain area"s raw/key statistics
+            core_stats: contain area's raw/key statistics
             gf_alp: grid_fee_along_the_path - cumulative grid fee from root to target area
 
         """
@@ -189,7 +189,7 @@ class SavingsKPI:
 
     def populate_consumer_producer_sets(self, area_dict: dict):
         """
-        Responsible for devices' classification
+        Populate sets of device classes.
         Args:
             area_dict: It contains the respective area's core info
         """
