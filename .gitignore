@@ -1,6 +1,10 @@
 .idea
 .tox
-.coverage*
+
+# Coverage reports
+.coverage
+.coverage.*
+coverage.xml
 
 # pyenv
 .python-version

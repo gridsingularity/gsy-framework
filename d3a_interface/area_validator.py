@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from d3a_interface.constants_limits import ConstSettings
-from d3a_interface.device_validator import validate_range_limit
+from d3a_interface.validators.utils import validate_range_limit
 from d3a_interface.exceptions import D3AAreaException
 from d3a_interface.utils import (
     key_in_dict_and_not_none, key_in_dict_and_not_none_and_greater_than_zero,
