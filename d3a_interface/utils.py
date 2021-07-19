@@ -479,6 +479,6 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict],
 
     else:
         # Sorted bids in ascending order
-        return list(sorted(
+        return sorted(
             input_list,
-            key=lambda obj: obj.get(attribute)))
+            key=lambda obj: obj.get(attribute))
