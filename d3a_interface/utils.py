@@ -471,7 +471,14 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict],
     Returns: List[Dict]
 
     """
+    if reverse_order:
+        # Sorted bids in descending order
+        return list(reversed(sorted(
+            input_list,
+            key=lambda obj: obj.get(attribute))))
 
-    return sorted(input_list,
-                  key=lambda obj: obj.get(attribute),
-                  reverse=reverse_order)
+    else:
+        # Sorted bids in ascending order
+        return list(sorted(
+            input_list,
+            key=lambda obj: obj.get(attribute)))
