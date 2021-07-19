@@ -5,6 +5,7 @@
 .coverage
 .coverage.*
 coverage.xml
+.coverage*
 
 # pyenv
 .python-version
