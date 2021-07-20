@@ -11,6 +11,7 @@ KAFKA_SASL_AUTH_MECHANISM = \
     environ.get("KAFKA_SASL_AUTH_MECHANISM", "SCRAM-SHA-512")
 KAFKA_API_VERSION = (0, 10)
 KAFKA_RESULTS_TOPIC = environ.get("KAFKA_RESULTS_TOPIC", "d3a-results")
+KAFKA_RESULTS_GROUP_ID = environ.get("KAFKA_RESULTS_GROUP_ID", "d3a-results-group")
 
 
 def create_kafka_new_ssl_context():
