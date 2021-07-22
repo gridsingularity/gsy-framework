@@ -37,7 +37,7 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
                         selected_energy = min(bid.get("energy"), offer.get("energy"))
                         bid_offer_pairs.append(
                             BidOfferMatch(market_id=market_id,
-                                          bid=bid, offer=offer,
+                                          bids=[bid], offers=[offer],
                                           selected_energy=selected_energy,
                                           trade_rate=bid.get("energy_rate")).serializable_dict())
                         break
