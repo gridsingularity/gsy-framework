@@ -42,6 +42,8 @@ class TestPayAsClearMatchingAlgorithm:
             AssertionError
         """
         assert matching["selected_energy"] == matched_energy
+        assert len(matching["offers"]) == 1
+        assert len(matching["bids"]) == 1
         assert matching["offers"][0]["id"] == offer_id
         assert matching["bids"][0]["id"] == bid_id
 
