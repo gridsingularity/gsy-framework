@@ -118,14 +118,14 @@ class ConstSettings:
         PANEL_COUNT_LIMIT = RangeLimit(1, 10000)
         FINAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
         INITIAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
-        MAX_PANEL_OUTPUT_W_LIMIT = RangeLimit(0, sys.maxsize)
+        MAX_CAPACITY_KW_LIMIT = RangeLimit(0, sys.maxsize)
         SELLING_RATE_RANGE = RateRange(30, 0)
         # Applies to the predefined PV strategy, where a PV profile is selected out of 3 predefined
         # ones. Available values 0: sunny, 1: partial cloudy, 2: cloudy, 3: Gaussian
         DEFAULT_POWER_PROFILE = 0
         CLOUD_COVERAGE_LIMIT = RangeLimit(0, 4)
-        # Applies to gaussian PVStrategy, controls the max panel output in Watts.
-        MAX_PANEL_OUTPUT_W = 160
+        # Power rating for PVs (Gaussian and Predefined)
+        MAX_CAPACITY_KW = 5
         PV_PENALTY_RATE = 0
 
     class HomeMeterSettings:

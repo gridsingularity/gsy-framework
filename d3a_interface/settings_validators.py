@@ -66,12 +66,12 @@ def validate_global_settings(settings_dict):
                                    f"(lower than slot length of {slot_length.minutes} min")
     if "market_count" in settings_dict and not 1 <= settings_dict["market_count"]:
         raise D3ASettingsException("Market count must be greater than 0.")
-    if "max_panel_power_W" in settings_dict and not \
-            ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[0] \
-            <= settings_dict["max_panel_power_W"] \
-            <= ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[1]:
-        raise D3ASettingsException(f'Invalid value for max_panel_power_W '
-                                   f'({settings_dict["max_panel_power_W"]}).')
+    if "capacity_kW" in settings_dict and not \
+            ConstSettings.PVSettings.MAX_CAPACITY_KW_LIMIT[0] \
+            <= settings_dict["capacity_kW"] \
+            <= ConstSettings.PVSettings.MAX_CAPACITY_KW_LIMIT[1]:
+        raise D3ASettingsException(f'Invalid value for capacity_kW '
+                                   f'({settings_dict["capacity_kW"]}).')
     if "grid_fee_type" in settings_dict and \
             int(settings_dict["grid_fee_type"]) not in ConstSettings.IAASettings.VALID_FEE_TYPES:
         raise D3ASettingsException(f'Invalid value for grid_fee_type '
