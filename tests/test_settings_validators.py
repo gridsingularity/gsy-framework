@@ -77,10 +77,10 @@ class TestValidateGlobalSettings(unittest.TestCase):
     def test_wrong_capacity_kW(self):
         self.assertRaises(D3ASettingsException, validate_global_settings,
                           {"capacity_kW":
-                           ConstSettings.PVSettings.MAX_CAPACITY_KW_LIMIT[0] - 1})
+                           ConstSettings.PVSettings.CAPACITY_KW_LIMIT[0] - 1})
         self.assertRaises(D3ASettingsException, validate_global_settings,
                           {"capacity_kW":
-                           ConstSettings.PVSettings.MAX_CAPACITY_KW_LIMIT[1] + 1})
+                           ConstSettings.PVSettings.CAPACITY_KW_LIMIT[1] + 1})
 
     def test_wrong_grid_fee_type(self):
         validate_global_settings({"grid_fee_type": 1})

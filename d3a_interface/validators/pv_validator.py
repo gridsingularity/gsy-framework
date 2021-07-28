@@ -46,11 +46,20 @@ class PVValidator(BaseValidator):
         if kwargs.get("capacity_kW") is not None:
             error_message = {
                 "misconfiguration": ["capacity_kW should be in between "
-                                     f"{PvSettings.MAX_CAPACITY_KW_LIMIT.min} & "
-                                     f"{PvSettings.MAX_CAPACITY_KW_LIMIT.max}"]}
-            validate_range_limit(PvSettings.MAX_CAPACITY_KW_LIMIT.min,
+                                     f"{PvSettings.CAPACITY_KW_LIMIT.min} & "
+                                     f"{PvSettings.CAPACITY_KW_LIMIT.max}"]}
+            validate_range_limit(PvSettings.CAPACITY_KW_LIMIT.min,
                                  kwargs["capacity_kW"],
-                                 PvSettings.MAX_CAPACITY_KW_LIMIT.max, error_message)
+                                 PvSettings.CAPACITY_KW_LIMIT.max, error_message)
+
+        if kwargs.get("max_panel_power_W") is not None:  # deprecated
+            error_message = {
+                "misconfiguration": ["max_panel_power_W should be in between "
+                                     f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min} & "
+                                     f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max}"]}
+            validate_range_limit(PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min,
+                                 kwargs["max_panel_power_W"],
+                                 PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max, error_message)
 
         if kwargs.get("cloud_coverage") is not None:
             if kwargs["cloud_coverage"] != 4 and kwargs.get("power_profile") is not None:
