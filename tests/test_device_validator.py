@@ -88,6 +88,7 @@ class TestValidateDeviceSettings:
         {"fit_to_limit": True, "energy_rate_decrease_per_update": None},
         {"energy_rate_decrease_per_update": 0},
         {"capacity_kW": 0},
+        {"max_panel_power_W": 0},
         {"cloud_coverage": 4, "power_profile": ""}
     ])
     def test_pv_device_setting_succeeds(valid_arguments):
@@ -104,6 +105,7 @@ class TestValidateDeviceSettings:
         {"fit_to_limit": False, "energy_rate_decrease_per_update": None},
         {"energy_rate_decrease_per_update": -1},
         {"capacity_kW": -5},
+        {"max_panel_power_W": -5},
         {"cloud_coverage": 3, "power_profile": ""},
         {"cloud_coverage": 2, "power_profile": ""}
     ])
