@@ -6,6 +6,9 @@ from d3a_interface.utils import scenario_representation_traversal, HomeRepresent
 
 
 class SimulationAssetsInfo(ResultsBaseClass):
+    """
+    Deals with accumulation of asset specific general stats.
+    """
     FIELDS = ["number_of_house_type", "avg_assets_per_house", "number_of_load_type",
               "total_energy_demand_kwh", "number_of_pv_type", "total_energy_generated_kwh",
               "number_of_storage_type", "total_energy_capacity_kwh", "number_of_power_plant_type",
@@ -59,9 +62,9 @@ class SimulationAssetsInfo(ResultsBaseClass):
                 updated_results_dict["max_power_plant_power_kw"] +=\
                     area_dict.get("max_available_power_kW", 0)
 
-        updated_results_dict["number_of_house_type"],\
-            updated_results_dict["avg_assets_per_house"] = \
-            HomeRepresentationUtils.calculate_home_area_stats_from_repr_dict(area_representation)
+        (updated_results_dict["number_of_house_type"],
+            updated_results_dict["avg_assets_per_house"]) = (
+            HomeRepresentationUtils.calculate_home_area_stats_from_repr_dict(area_representation))
 
         self.assets_info.update(updated_results_dict)
 
