@@ -31,11 +31,13 @@ class TestSimulationAssetsInfo(unittest.TestCase):
             }
         }
         self.assets_info.update({}, core_stats, "")
+        self.assets_info.update({}, core_stats, "")
+        # total_energy_demanded_wh is already accumulated value
         expected_res = {
                         "number_of_load_type": 3,
                         "number_of_pv_type": 2,
                         "total_energy_demand_kwh": 0.06,
-                        "total_energy_generated_kwh": 25
+                        "total_energy_generated_kwh": 50
                         }
         actual_res = {key: self.assets_info.raw_results[key] for key in expected_res.keys()}
         assert expected_res == actual_res

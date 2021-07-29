@@ -21,9 +21,10 @@ class SimulationAssetsInfo(ResultsBaseClass):
             "merge not supported.")
 
     def update(self, area_result_dict: Dict, core_stats: Dict, current_market_slot: str):
+        # total_energy_demanded_wh is already accumulated value and should only be replaced
         updated_results_dict = {
             'number_of_load_type': 0,
-            'total_energy_demand_kwh': self.assets_info['total_energy_demand_kwh'],
+            'total_energy_demand_kwh': 0,
             'number_of_pv_type': 0,
             'total_energy_generated_kwh': self.assets_info['total_energy_generated_kwh']
         }
