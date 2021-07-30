@@ -30,15 +30,26 @@ class TestSimulationAssetsInfo(unittest.TestCase):
                 "pv_production_kWh": 15,
             }
         }
+        # Update the assets info for the first time
         self.assets_info.update({}, core_stats, "")
-        self.assets_info.update({}, core_stats, "")
-        # total_energy_demanded_wh is already accumulated value
         expected_res = {
-                        "number_of_load_type": 3,
-                        "number_of_pv_type": 2,
-                        "total_energy_demand_kwh": 0.06,
-                        "total_energy_generated_kwh": 50
-                        }
+            "number_of_load_type": 3,
+            "number_of_pv_type": 2,
+            "total_energy_demand_kwh": 0.06,
+            "total_energy_generated_kwh": 25
+        }
+        actual_res = {key: self.assets_info.raw_results[key] for key in expected_res.keys()}
+        assert expected_res == actual_res
+
+        # Update the assets info for the second time in order to see that total_energy_demand_kwh
+        # is not but total_energy_generated_kwh is accumulated:
+        self.assets_info.update({}, core_stats, "")
+        expected_res = {
+            "number_of_load_type": 3,
+            "number_of_pv_type": 2,
+            "total_energy_demand_kwh": 0.06,
+            "total_energy_generated_kwh": 50
+        }
         actual_res = {key: self.assets_info.raw_results[key] for key in expected_res.keys()}
         assert expected_res == actual_res
 
