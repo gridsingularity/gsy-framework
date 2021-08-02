@@ -194,8 +194,11 @@ def str_to_pendulum_datetime(input_str):
                     try:
                         pendulum_time = from_format(input_str, TIME_FORMAT_SECONDS)
                     except ValueError:
-                        raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}', "
-                                        f"'{DATE_TIME_FORMAT_SECONDS}')")
+                        raise Exception(f"Format is not one of ('{TIME_FORMAT}', "
+                                        f"'{DATE_TIME_FORMAT}', "
+                                        f"'{DATE_TIME_FORMAT_SECONDS}', "
+                                        f"'{TIME_FORMAT_HOURS}', "
+                                        f"'{TIME_FORMAT_SECONDS}')")
     return pendulum_time
 
 
