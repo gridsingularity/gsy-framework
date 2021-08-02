@@ -34,7 +34,8 @@ from redis.exceptions import ConnectionError
 
 from d3a_interface.constants_limits import (DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT,
                                             DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION,
-                                            GlobalConfig, TIME_ZONE, PROFILE_EXPANSION_DAYS)
+                                            GlobalConfig, TIME_ZONE, PROFILE_EXPANSION_DAYS,
+                                            TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS)
 
 
 def convert_datetime_to_str_in_list(in_list: List, ui_format: bool = False):
@@ -187,8 +188,14 @@ def str_to_pendulum_datetime(input_str):
             try:
                 pendulum_time = from_format(input_str, DATE_TIME_FORMAT_SECONDS)
             except ValueError:
-                raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}', "
-                                f"'{DATE_TIME_FORMAT_SECONDS}')")
+                try:
+                    pendulum_time = from_format(input_str, TIME_FORMAT_HOURS)
+                except ValueError:
+                    try:
+                        pendulum_time = from_format(input_str, TIME_FORMAT_SECONDS)
+                    except ValueError:
+                        raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}', "
+                                        f"'{DATE_TIME_FORMAT_SECONDS}')")
     return pendulum_time
 
 

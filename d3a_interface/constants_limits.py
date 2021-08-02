@@ -231,6 +231,7 @@ class HeartBeat:
     TOLERANCE = 16  # in secs
 
 
+TIME_FORMAT_HOURS = "HH"
 TIME_FORMAT = "HH:mm"
 TIME_FORMAT_SECONDS = "HH:mm:ss"
 DATE_FORMAT = "YYYY-MM-DD"
