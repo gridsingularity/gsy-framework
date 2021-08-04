@@ -1,20 +1,20 @@
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, List
 
 
 @dataclass
 class BidOfferMatch:
     market_id: str
-    bid: Dict
+    bids: List[Dict]
     selected_energy: float
-    offer: Dict
+    offers: List[Dict]
     trade_rate: float
 
     def serializable_dict(self):
         return {
             "market_id": self.market_id,
-            "bid": self.bid,
-            "offer": self.offer,
+            "bids": self.bids,
+            "offers": self.offers,
             "selected_energy": self.selected_energy,
             "trade_rate": self.trade_rate
         }
