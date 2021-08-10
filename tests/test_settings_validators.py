@@ -64,23 +64,27 @@ class TestValidateGlobalSettings(unittest.TestCase):
 
     def test_wrong_spot_market_type(self):
         self.assertRaises(D3ASettingsException, validate_global_settings,
-                          {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT[0] - 1})
+                          {"spot_market_type":
+                               ConstSettings.IAASettings.MARKET_TYPE_LIMIT.min - 1})
         self.assertRaises(D3ASettingsException, validate_global_settings,
-                          {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT[1] + 1})
+                          {"spot_market_type":
+                               ConstSettings.IAASettings.MARKET_TYPE_LIMIT.max + 1})
 
     def test_wrong_cloud_coverage(self):
         self.assertRaises(D3ASettingsException, validate_global_settings,
-                          {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[0] - 1})
+                          {"cloud_coverage":
+                               ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.min - 1})
         self.assertRaises(D3ASettingsException, validate_global_settings,
-                          {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[1] + 1})
+                          {"cloud_coverage":
+                               ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.max + 1})
 
     def test_wrong_capacity_kW(self):
         self.assertRaises(D3ASettingsException, validate_global_settings,
                           {"capacity_kW":
-                           ConstSettings.PVSettings.CAPACITY_KW_LIMIT[0] - 1})
+                           ConstSettings.PVSettings.CAPACITY_KW_LIMIT.min - 1})
         self.assertRaises(D3ASettingsException, validate_global_settings,
                           {"capacity_kW":
-                           ConstSettings.PVSettings.CAPACITY_KW_LIMIT[1] + 1})
+                           ConstSettings.PVSettings.CAPACITY_KW_LIMIT.max + 1})
 
     def test_wrong_grid_fee_type(self):
         validate_global_settings({"grid_fee_type": 1})

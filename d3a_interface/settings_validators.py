@@ -52,15 +52,15 @@ def validate_global_settings(settings_dict):
                                        f"[{min_slot_length.in_minutes()} min, "
                                        f"{max_slot_length.in_minutes()} min])")
     if ("cloud_coverage" in settings_dict and
-        not (ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[0]
+        not (ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.min
              <= settings_dict["cloud_coverage"] <=
-             ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[1])):
+             ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.max)):
         raise D3ASettingsException(f"Invalid cloud coverage value "
                                    f"({settings_dict['cloud_coverage']}).")
     if ("spot_market_type" in settings_dict and
-            not ConstSettings.IAASettings.MARKET_TYPE_LIMIT[0]
+            not ConstSettings.IAASettings.MARKET_TYPE_LIMIT.min
             <= settings_dict["spot_market_type"] <=
-            ConstSettings.IAASettings.MARKET_TYPE_LIMIT[1]):
+            ConstSettings.IAASettings.MARKET_TYPE_LIMIT.max):
         raise D3ASettingsException(f"Invalid value ({settings_dict['spot_market_type']}) "
                                    f"for spot market type.")
     if "sim_duration" in settings_dict and not slot_length <= settings_dict["sim_duration"]:
@@ -69,9 +69,9 @@ def validate_global_settings(settings_dict):
     if "market_count" in settings_dict and not 1 <= settings_dict["market_count"]:
         raise D3ASettingsException("Market count must be greater than 0.")
     if ("capacity_kW" in settings_dict and not
-            ConstSettings.PVSettings.CAPACITY_KW_LIMIT[0]
+            ConstSettings.PVSettings.CAPACITY_KW_LIMIT.min
             <= settings_dict["capacity_kW"]
-            <= ConstSettings.PVSettings.CAPACITY_KW_LIMIT[1]):
+            <= ConstSettings.PVSettings.CAPACITY_KW_LIMIT.max):
         raise D3ASettingsException("Invalid value for capacity_kW "
                                    f"({settings_dict['capacity_kW']}).")
     if ("grid_fee_type" in settings_dict and
