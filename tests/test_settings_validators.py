@@ -65,18 +65,18 @@ class TestValidateGlobalSettings(unittest.TestCase):
     def test_wrong_spot_market_type(self):
         self.assertRaises(D3ASettingsException, validate_global_settings,
                           {"spot_market_type":
-                               ConstSettings.IAASettings.MARKET_TYPE_LIMIT.min - 1})
+                           ConstSettings.IAASettings.MARKET_TYPE_LIMIT.min - 1})
         self.assertRaises(D3ASettingsException, validate_global_settings,
                           {"spot_market_type":
-                               ConstSettings.IAASettings.MARKET_TYPE_LIMIT.max + 1})
+                           ConstSettings.IAASettings.MARKET_TYPE_LIMIT.max + 1})
 
     def test_wrong_cloud_coverage(self):
         self.assertRaises(D3ASettingsException, validate_global_settings,
                           {"cloud_coverage":
-                               ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.min - 1})
+                           ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.min - 1})
         self.assertRaises(D3ASettingsException, validate_global_settings,
                           {"cloud_coverage":
-                               ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.max + 1})
+                           ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.max + 1})
 
     def test_wrong_capacity_kW(self):
         self.assertRaises(D3ASettingsException, validate_global_settings,
