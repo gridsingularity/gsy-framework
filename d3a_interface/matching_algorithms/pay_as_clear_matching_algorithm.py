@@ -47,23 +47,31 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
         self.sorted_bids = []
         self.sorted_offers = []
 
+    def _update_state(self, current_time, clearing, cumulative_bids, cumulative_offers):
+        return {current_time: {"cumulative_bids": cumulative_bids,
+                               "cumulative_offers": cumulative_offers,
+                               "clearing": clearing}}
+
     def get_matches_recommendations(self, matching_data):
         for market_id, data in matching_data.items():
             bids = data.get("bids")
             offers = data.get("offers")
             current_time = data.get("current_time")
-            clearing = self.get_clearing_point(bids, offers, current_time)
+            clearing, cumulative_bids, cumulative_offers = self.get_clearing_point(
+                bids, offers, current_time)
             if clearing is None:
-                return []
+                return [], {}
 
             clearing_rate, clearing_energy = clearing
             if clearing_energy > 0:
                 log.info(f"Market Clearing Rate: {clearing_rate} "
                          f"||| Clearing Energy: {clearing_energy} ")
+            state = self._update_state(current_time, clearing, cumulative_bids,
+                                       cumulative_offers)
             matches = self._create_bid_offer_matches(
                 clearing, self.sorted_offers, self.sorted_bids, market_id
                 )
-            return matches
+            return matches, state
 
     @staticmethod
     def _discrete_point_curve(obj_list, round_functor):
@@ -122,10 +130,10 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
     def get_clearing_point(self, bids: List[Dict], offers: List[Dict], current_time):
         self.sorted_bids = sort_list_of_dicts_by_attribute(bids, "energy_rate", True)
         self.sorted_offers = sort_list_of_dicts_by_attribute(offers, "energy_rate")
-        clearing = None
+        clearing, cumulative_bids, cumulative_offers = None, None, None
 
         if len(self.sorted_bids) == 0 or len(self.sorted_offers) == 0:
-            return
+            return clearing, cumulative_bids, cumulative_offers
 
         if ConstSettings.IAASettings.PAY_AS_CLEAR_AGGREGATION_ALGORITHM == 1:
             cumulative_bids = self._accumulated_energy_per_rate(self.sorted_bids)
@@ -143,7 +151,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             clearing = self._get_clearing_point(max_rate)
         if clearing is not None:
             self.state.clearing[current_time] = clearing[0]
-        return clearing
+        return clearing, cumulative_bids, cumulative_offers
 
     def _populate_market_cumulative_offer_and_bid(self, cumulative_bids, cumulative_offers):
         max_rate = max(

@@ -32,7 +32,7 @@ class TestPayAsBidMatchingAlgorithm:
                 ],
             }
         }
-        trades = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
+        trades, _ = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
         expected_trades = [
             {"market_id": "market1",
              "bids": [{"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20}],
