@@ -41,4 +41,4 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
                                           selected_energy=selected_energy,
                                           trade_rate=bid.get("energy_rate")).serializable_dict())
                         break
-        return bid_offer_pairs, {}
+        return bid_offer_pairs

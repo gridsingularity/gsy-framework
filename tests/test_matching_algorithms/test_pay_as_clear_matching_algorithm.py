@@ -238,7 +238,7 @@ class TestPayAsClearMatchingAlgorithm:
                 ],
             }
         }
-        trades, _ = PayAsClearMatchingAlgorithm().get_matches_recommendations(data)
+        trades = PayAsClearMatchingAlgorithm().get_matches_recommendations(data)
         expected_trades = [{"market_id": "market1",
                             "bids": [{"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20}],
                             "offers": [{"id": 4, "seller": "A", "energy_rate": 1.00001,
