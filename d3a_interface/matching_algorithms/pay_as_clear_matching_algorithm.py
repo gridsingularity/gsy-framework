@@ -134,8 +134,6 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
         if ConstSettings.IAASettings.PAY_AS_CLEAR_AGGREGATION_ALGORITHM == 1:
             cumulative_bids = self._accumulated_energy_per_rate(self.sorted_bids)
             cumulative_offers = self._accumulated_energy_per_rate(self.sorted_offers)
-            # self.state.cumulative_bids = cumulative_bids
-            # self.state.cumulative_offers = cumulative_offers
             ascending_rate_bids = OrderedDict(reversed(list(cumulative_bids.items())))
             clearing = self._clearing_point_from_supply_demand_curve(
                 ascending_rate_bids, cumulative_offers)
