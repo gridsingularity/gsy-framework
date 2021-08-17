@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import math
 from logging import getLogger
 from collections import OrderedDict
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.dataclasses import MarketClearingState, Clearing, BidOfferMatch
@@ -52,8 +52,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             bids = data.get("bids")
             offers = data.get("offers")
             current_time = data.get("current_time")
-            clearing, cumulative_bids, cumulative_offers = self.get_clearing_point(
-                bids, offers, current_time)
+            clearing = self.get_clearing_point(bids, offers, current_time, market_id)
             if clearing is None:
                 return []
 
@@ -61,12 +60,8 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             if clearing_energy > 0:
                 log.info(f"Market Clearing Rate: {clearing_rate} "
                          f"||| Clearing Energy: {clearing_energy} ")
-                self.state.cumulative_bids[market_id] = {current_time: cumulative_bids}
-                self.state.cumulative_offers[market_id] = {current_time: cumulative_offers}
-                self.state.clearing[market_id] = {current_time: clearing}
             matches = self._create_bid_offer_matches(
-                clearing, self.sorted_offers, self.sorted_bids, market_id
-                )
+                self.sorted_offers, self.sorted_bids, market_id, current_time)
             return matches
 
     @staticmethod
@@ -123,13 +118,13 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             if len(clearing) > 0:
                 return clearing[-1].rate, clearing[-1].energy
 
-    def get_clearing_point(self, bids: List[Dict], offers: List[Dict], current_time):
+    def get_clearing_point(self, bids: List[Dict], offers: List[Dict], current_time, market_id):
         self.sorted_bids = sort_list_of_dicts_by_attribute(bids, "energy_rate", True)
         self.sorted_offers = sort_list_of_dicts_by_attribute(offers, "energy_rate")
         clearing, cumulative_bids, cumulative_offers = None, None, None
 
         if len(self.sorted_bids) == 0 or len(self.sorted_offers) == 0:
-            return clearing, cumulative_bids, cumulative_offers
+            return
 
         if ConstSettings.IAASettings.PAY_AS_CLEAR_AGGREGATION_ALGORITHM == 1:
             cumulative_bids = self._accumulated_energy_per_rate(self.sorted_bids)
@@ -143,7 +138,11 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             max_rate, cumulative_bids, cumulative_offers = \
                 self._populate_market_cumulative_offer_and_bid(cumulative_bids, cumulative_offers)
             clearing = self._get_clearing_point(max_rate, cumulative_bids, cumulative_offers)
-        return clearing, cumulative_bids, cumulative_offers
+        if clearing is not None:
+            self.state.cumulative_bids[market_id] = {current_time: cumulative_bids}
+            self.state.cumulative_offers[market_id] = {current_time: cumulative_offers}
+            self.state.clearing[market_id] = {current_time: clearing}
+        return clearing
 
     def _populate_market_cumulative_offer_and_bid(self, cumulative_bids, cumulative_offers):
         max_rate = max(
@@ -156,11 +155,9 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             cumulative_bids, max_rate, False)
         return max_rate, cumulative_bids, cumulative_offers
 
-    @staticmethod
-    def _create_bid_offer_matches(
-            clearing: Tuple[float, float],
-            offers: List[Dict], bids: List[Dict], market_id: str) -> List[Dict]:
-        clearing_rate, clearing_energy = clearing
+    def _create_bid_offer_matches(self, offers: List[Dict], bids: List[Dict], market_id: str,
+                                  current_time: str) -> List[Dict]:
+        clearing_rate, clearing_energy = self.state.clearing[market_id][current_time]
         # Return value, holds the bid-offer matches
         bid_offer_matches = []
         # Keeps track of the residual energy from offers that have been matched once,
