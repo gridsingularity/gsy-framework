@@ -128,7 +128,7 @@ class ConstSettings:
         MAX_PANEL_OUTPUT_W = 160
         PV_PENALTY_RATE = 0
 
-    class HomeMeterSettings:
+    class SmartMeterSettings:
         # Production constants
         SELLING_RATE_RANGE = RateRange(30, 0)
         INITIAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)

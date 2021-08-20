@@ -23,7 +23,7 @@ import pytest
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.exceptions import D3ADeviceException
 from d3a_interface.validators import (
-    HomeMeterValidator, LoadValidator, PVValidator, StorageValidator, CommercialProducerValidator,
+    SmartMeterValidator, LoadValidator, PVValidator, StorageValidator, CommercialProducerValidator,
     InfiniteBusValidator, MarketMakerValidator, FiniteDieselGeneratorValidator)
 
 GeneralSettings = ConstSettings.GeneralSettings
@@ -255,14 +255,14 @@ class TestValidateDeviceSettings:
             FiniteDieselGeneratorValidator.validate(**failing_arguments)
 
 
-class TestHomeMeterValidator:
-    """Tests for the HomeMeterValidator class."""
+class TestSmartMeterValidator:
+    """Tests for the SmartMeterValidator class."""
 
     @staticmethod
-    @patch.object(HomeMeterValidator, "validate_rate")
+    @patch.object(SmartMeterValidator, "validate_rate")
     def test_validate(validate_price_mock):
         """The validate method correctly calls the individual validation methods."""
-        HomeMeterValidator.validate()
+        SmartMeterValidator.validate()
         validate_price_mock.assert_called_once_with()
 
     @staticmethod
@@ -277,7 +277,7 @@ class TestHomeMeterValidator:
     ])
     def test_validate_price_succeeds(valid_arguments):
         """The validation succeeds when valid arguments are provided."""
-        assert HomeMeterValidator.validate(**valid_arguments) is None
+        assert SmartMeterValidator.validate(**valid_arguments) is None
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
@@ -291,4 +291,4 @@ class TestHomeMeterValidator:
     def test_validate_price_fails(failing_arguments):
         """The validation fails when incompatible arguments are provided."""
         with pytest.raises(D3ADeviceException):
-            HomeMeterValidator.validate_rate(**failing_arguments)
+            SmartMeterValidator.validate_rate(**failing_arguments)

@@ -19,11 +19,11 @@ from d3a_interface.validators import utils
 from d3a_interface.validators.base_validator import BaseValidator
 
 GeneralSettings = ConstSettings.GeneralSettings
-HomeMeterSettings = ConstSettings.HomeMeterSettings
+SmartMeterSettings = ConstSettings.SmartMeterSettings
 
 
-class HomeMeterValidator(BaseValidator):
-    """Validator class for Home Meter devices."""
+class SmartMeterValidator(BaseValidator):
+    """Validator class for Smart Meter devices."""
 
     @classmethod
     def validate(cls, **kwargs):
@@ -32,40 +32,40 @@ class HomeMeterValidator(BaseValidator):
 
     @classmethod
     def validate_rate(cls, **kwargs):
-        """Validate rates of a Home Meter device."""
+        """Validate rates of a Smart Meter device."""
         utils.validate_fit_to_limit(
             fit_to_limit=kwargs.get("fit_to_limit"),
             energy_rate_increase_per_update=kwargs.get("energy_rate_increase_per_update"),
             energy_rate_decrease_per_update=kwargs.get("energy_rate_decrease_per_update"))
-        cls._validate_home_meter_consumption_rates(**kwargs)
-        cls._validate_home_meter_production_rates(**kwargs)
+        cls._validate_smart_meter_consumption_rates(**kwargs)
+        cls._validate_smart_meter_production_rates(**kwargs)
 
     @staticmethod
-    def _validate_home_meter_consumption_rates(**kwargs):
+    def _validate_smart_meter_consumption_rates(**kwargs):
         """Validate rates related to the consumption activity of the device."""
         if kwargs.get("final_buying_rate") is not None:
             error_message = {
                 "misconfiguration": [
                     "final_buying_rate should be in between "
-                    f"{HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.min} & "
-                    f"{HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.max}."]}
+                    f"{SmartMeterSettings.FINAL_BUYING_RATE_LIMIT.min} & "
+                    f"{SmartMeterSettings.FINAL_BUYING_RATE_LIMIT.max}."]}
 
             utils.validate_range_limit(
-                HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.min,
+                SmartMeterSettings.FINAL_BUYING_RATE_LIMIT.min,
                 kwargs["final_buying_rate"],
-                HomeMeterSettings.FINAL_BUYING_RATE_LIMIT.max, error_message)
+                SmartMeterSettings.FINAL_BUYING_RATE_LIMIT.max, error_message)
 
         if kwargs.get("initial_buying_rate") is not None:
             error_message = {
                 "misconfiguration": [
                     "initial_buying_rate should be in between "
-                    f"{HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.min} & "
-                    f"{HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.max}"]}
+                    f"{SmartMeterSettings.INITIAL_BUYING_RATE_LIMIT.min} & "
+                    f"{SmartMeterSettings.INITIAL_BUYING_RATE_LIMIT.max}"]}
 
             utils.validate_range_limit(
-                HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.min,
+                SmartMeterSettings.INITIAL_BUYING_RATE_LIMIT.min,
                 kwargs["initial_buying_rate"],
-                HomeMeterSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
+                SmartMeterSettings.INITIAL_BUYING_RATE_LIMIT.max, error_message)
 
         if (kwargs.get("initial_buying_rate") is not None
                 and kwargs.get("final_buying_rate") is not None
@@ -89,31 +89,31 @@ class HomeMeterValidator(BaseValidator):
                 GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
 
     @staticmethod
-    def _validate_home_meter_production_rates(**kwargs):
+    def _validate_smart_meter_production_rates(**kwargs):
         """Validate rates related to the production activity of the device."""
         if kwargs.get("final_selling_rate") is not None:
             error_message = {
                 "misconfiguration": [
                     "final_selling_rate should be in between "
-                    f"{HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.min} & "
-                    f"{HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.max}"]}
+                    f"{SmartMeterSettings.FINAL_SELLING_RATE_LIMIT.min} & "
+                    f"{SmartMeterSettings.FINAL_SELLING_RATE_LIMIT.max}"]}
 
             utils.validate_range_limit(
-                HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.min,
+                SmartMeterSettings.FINAL_SELLING_RATE_LIMIT.min,
                 kwargs["final_selling_rate"],
-                HomeMeterSettings.FINAL_SELLING_RATE_LIMIT.max, error_message)
+                SmartMeterSettings.FINAL_SELLING_RATE_LIMIT.max, error_message)
 
         if kwargs.get("initial_selling_rate") is not None:
             error_message = {
                 "misconfiguration": [
                     "initial_selling_rate should be in between "
-                    f"{HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.min} & "
-                    f"{HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.max}"]}
+                    f"{SmartMeterSettings.INITIAL_SELLING_RATE_LIMIT.min} & "
+                    f"{SmartMeterSettings.INITIAL_SELLING_RATE_LIMIT.max}"]}
 
             utils.validate_range_limit(
-                HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.min,
+                SmartMeterSettings.INITIAL_SELLING_RATE_LIMIT.min,
                 kwargs["initial_selling_rate"],
-                HomeMeterSettings.INITIAL_SELLING_RATE_LIMIT.max, error_message)
+                SmartMeterSettings.INITIAL_SELLING_RATE_LIMIT.max, error_message)
 
         if (kwargs.get("initial_selling_rate") is not None
                 and kwargs.get("final_selling_rate") is not None
