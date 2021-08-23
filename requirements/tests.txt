@@ -38,7 +38,7 @@ ptpython==3.0.7           # via -r requirements/tests.ini
 py==1.9.0                 # via -r requirements/base.txt, pytest, tox
 pycodestyle==2.5.0        # via -r requirements/tests.ini, flake8
 pyflakes==2.1.0           # via -r requirements/tests.ini, flake8
-pygments==2.7.3           # via ptpython
+pygments==2.7.4           # via ptpython
 pyparsing==2.4.7          # via -r requirements/base.txt, packaging
 pyrsistent==0.17.3        # via -r requirements/base.txt, jsonschema
 pytest==6.1.2             # via -r requirements/tests.ini
