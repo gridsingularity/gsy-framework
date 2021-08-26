@@ -30,6 +30,7 @@ from statistics import mean
 from pkgutil import walk_packages
 from redis.exceptions import ConnectionError
 from pendulum import DateTime, from_format, from_timestamp, duration, today, datetime
+from datetime import datetime
 from d3a_interface.constants_limits import (
     DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT,
     DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION, GlobalConfig, TIME_ZONE,
@@ -482,3 +483,8 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict],
         return sorted(
             input_list,
             key=lambda obj: obj.get(attribute))
+
+
+def convert_datetime_to_ui_str_format(data_time):
+    assert isinstance(data_time, datetime)
+    return data_time.strftime("%m-%d-%Y, %H:%M:%S")
