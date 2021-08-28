@@ -26,6 +26,7 @@ from d3a_interface.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum
 
 RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
 RateRange = namedtuple('RateRange', ('initial', 'final'))
+PercentageRangeLimit = RangeLimit(0, 100)
 
 
 class ConstSettings:
