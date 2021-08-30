@@ -16,21 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import gc
+import json
+import logging
 import pathlib
 import sys
-import json
 import time
-import logging
-from typing import Dict, List, Callable
-from functools import wraps, lru_cache
 from collections import OrderedDict
 from copy import copy
-from threading import Timer
-from statistics import mean
+from functools import wraps, lru_cache
 from pkgutil import walk_packages
-from redis.exceptions import ConnectionError
+from statistics import mean
+from threading import Timer
+from typing import Dict, List, Callable
+
 from pendulum import DateTime, from_format, from_timestamp, duration, today, datetime
-from datetime import datetime
+from redis.exceptions import ConnectionError
+
 from d3a_interface.constants_limits import (
     DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT,
     DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION, GlobalConfig, TIME_ZONE,
