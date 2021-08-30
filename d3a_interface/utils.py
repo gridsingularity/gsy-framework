@@ -487,5 +487,4 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict],
 
 
 def convert_datetime_to_ui_str_format(data_time):
-    assert isinstance(data_time, datetime)
     return data_time.strftime("%m-%d-%Y, %H:%M:%S")
