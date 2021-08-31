@@ -83,8 +83,8 @@ def validate_global_settings(settings_dict):
             PercentageRangeLimit.min <=
             settings_dict["relative_std_from_forecast_percent"] <=
             PercentageRangeLimit.max):
-        raise D3ASettingsException(f'Invalid value for relative_std_from_forecast_percent '
-                                   f'({settings_dict["relative_std_from_forecast_percent"]}).')
+        raise D3ASettingsException(f"Invalid value for relative_std_from_forecast_percent "
+                                   f"({settings_dict['relative_std_from_forecast_percent']}).")
 
 
 def calc_min_max_tick_length(slot_length):
