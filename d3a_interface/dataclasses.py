@@ -36,9 +36,11 @@ def my_converter(o):
 class BaseBidOffer:
     """Base class defining shared functionality of Bid and Offer market structures."""
     def __init__(self, id: str, time: datetime, price: float, energy: float,
+                 original_price: Optional[float] = None,
                  attributes: Dict = None, requirements: List[Dict] = None):
         self.id = str(id)
         self.time = time
+        self.original_price = original_price or price
         self.price = price
         self.energy = energy
         self.energy_rate = self.price / self.energy
@@ -73,6 +75,7 @@ class BaseBidOffer:
             "id": self.id,
             "energy": self.energy,
             "energy_rate": self.energy_rate,
+            "original_price": self.original_price,
             "time": datetime_to_string_incl_seconds(self.time),
             "attributes": self.attributes,
             "requirements": self.requirements
@@ -94,15 +97,15 @@ class BaseBidOffer:
 
 class Offer(BaseBidOffer):
     def __init__(self, id: str, time: datetime, price: float,
-                 energy: float, seller: str, original_offer_price: float = None,
+                 energy: float, seller: str, original_price: Optional[float] = None,
                  seller_origin: str = None, seller_origin_id: str = None,
                  seller_id: str = None,
                  attributes: Dict = None,
                  requirements: List[Dict] = None):
         super().__init__(id=id, time=time, price=price, energy=energy,
+                         original_price=original_price,
                          attributes=attributes, requirements=requirements)
         self.seller = seller
-        self.original_offer_price = original_offer_price or price
         self.seller_origin = seller_origin
         self.seller_origin_id = seller_origin_id
         self.seller_id = seller_id
@@ -121,7 +124,6 @@ class Offer(BaseBidOffer):
 
     def serializable_dict(self) -> Dict:
         return {**super().serializable_dict(),
-                "original_offer_price": self.original_offer_price,
                 "seller": self.seller,
                 "seller_origin": self.seller_origin,
                 "seller_origin_id": self.seller_origin_id,
@@ -131,7 +133,7 @@ class Offer(BaseBidOffer):
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
                 self.price == other.price and
-                self.original_offer_price == other.original_offer_price and
+                self.original_price == other.original_price and
                 self.energy == other.energy and
                 self.seller == other.seller and
                 self.seller_origin_id == other.seller_origin_id and
@@ -150,7 +152,7 @@ class Offer(BaseBidOffer):
 class Bid(BaseBidOffer):
     def __init__(self, id: str, time: datetime, price: float,
                  energy: float, buyer: str,
-                 original_bid_price: float = None,
+                 original_price: Optional[float] = None,
                  buyer_origin: str = None,
                  buyer_origin_id: str = None,
                  buyer_id: str = None,
@@ -158,9 +160,9 @@ class Bid(BaseBidOffer):
                  requirements: List[Dict] = None
                  ):
         super().__init__(id=id, time=time, price=price, energy=energy,
+                         original_price=original_price,
                          attributes=attributes, requirements=requirements)
         self.buyer = buyer
-        self.original_bid_price = original_bid_price or price
         self.buyer_origin = buyer_origin
         self.buyer_origin_id = buyer_origin_id
         self.buyer_id = buyer_id
@@ -182,7 +184,6 @@ class Bid(BaseBidOffer):
 
     def serializable_dict(self) -> Dict:
         return {**super().serializable_dict(),
-                "original_bid_price": self.original_bid_price,
                 "buyer_origin": self.buyer_origin,
                 "buyer_origin_id": self.buyer_origin_id,
                 "buyer_id": self.buyer_id,
@@ -200,7 +201,7 @@ class Bid(BaseBidOffer):
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
                 self.price == other.price and
-                self.original_bid_price == other.original_bid_price and
+                self.original_price == other.original_price and
                 self.energy == other.energy and
                 self.buyer == other.buyer and
                 self.buyer_origin_id == other.buyer_origin_id and
@@ -210,7 +211,7 @@ class Bid(BaseBidOffer):
 
 def copy_offer(offer) -> Offer:
     return Offer(offer.id, offer.time, offer.price, offer.energy, offer.seller,
-                 offer.original_offer_price, offer.seller_origin, offer.seller_origin_id,
+                 offer.original_price, offer.seller_origin, offer.seller_origin_id,
                  offer.seller_id, attributes=offer.attributes, requirements=offer.requirements)
 
 
