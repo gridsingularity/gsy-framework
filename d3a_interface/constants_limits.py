@@ -58,6 +58,9 @@ class ConstSettings:
 
         REDIS_PUBLISH_FULL_RESULTS = False
 
+        MAX_AGE_SETTLEMENT_MARKET_HOURS = 1
+        ENABLE_SETTLEMENT_MARKETS = False
+
     class AreaSettings:
         PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
         CONSTANT_FEE_LIMIT = RangeLimit(0, sys.maxsize)
