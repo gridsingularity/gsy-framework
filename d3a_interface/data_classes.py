@@ -27,9 +27,10 @@ from pendulum import DateTime, parse
 from d3a_interface.utils import datetime_to_string_incl_seconds, key_in_dict_and_not_none
 
 
-def my_converter(o):
-    if isinstance(o, DateTime):
-        return o.isoformat()
+def my_converter(date_obj: DateTime):
+    """Define how to convert datetime objects while serializing to json."""
+    if isinstance(date_obj, DateTime):
+        return date_obj.isoformat()
     return None
 
 
