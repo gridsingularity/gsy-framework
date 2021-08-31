@@ -225,10 +225,6 @@ class TradeBidOfferInfo:
     def to_json_string(self) -> str:
         return json.dumps(asdict(self), default=my_converter)
 
-    @classmethod
-    def len(cls) -> int:
-        return cls.len()
-
 
 def trade_bid_info_from_json_string(info_string) -> TradeBidOfferInfo:
     info_dict = json.loads(info_string)
