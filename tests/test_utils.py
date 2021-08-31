@@ -1,8 +1,9 @@
 import unittest
+from datetime import datetime
 
 from d3a_interface.utils import (
     HomeRepresentationUtils, scenario_representation_traversal,
-    sort_list_of_dicts_by_attribute)
+    sort_list_of_dicts_by_attribute, convert_datetime_to_ui_str_format)
 
 
 class TestUtils(unittest.TestCase):
@@ -45,3 +46,8 @@ class TestUtils(unittest.TestCase):
         assert [4, 2, 1, 3] == [data["id"] for data in output_list]
         output_list = sort_list_of_dicts_by_attribute(input_list, "price", reverse_order=True)
         assert [3, 1, 2, 4] == [data["id"] for data in output_list]
+
+    def test_convert_datetime_to_ui_str_format(self):
+        current_time = datetime(year=2021, month=8, day=30, hour=15, minute=30, second=45)
+        current_time_str = convert_datetime_to_ui_str_format(current_time)
+        assert current_time_str == "August 30 2021, 15:30 h"
