@@ -78,6 +78,19 @@ class BaseBidOffer:
             "requirements": self.requirements
         }
 
+    @classmethod
+    def from_json(cls, offer_or_bid, current_time=None) -> Union["Offer", "Bid"]:
+        offer_bid_dict = json.loads(offer_or_bid)
+        object_type = offer_bid_dict.pop("type")
+
+        offer_bid_dict.pop("energy_rate", None)
+
+        if object_type == "Offer":
+            offer_bid_dict["time"] = current_time
+            return Offer(**offer_bid_dict)
+        if object_type == "Bid":
+            return Bid(**offer_bid_dict)
+
 
 class Offer(BaseBidOffer):
     def __init__(self, id: str, time: datetime, price: float,
@@ -201,19 +214,6 @@ def copy_offer(offer) -> Offer:
                  offer.seller_id, attributes=offer.attributes, requirements=offer.requirements)
 
 
-def offer_or_bid_from_json_string(offer_or_bid, current_time=None) -> Union[Offer, Bid]:
-    offer_bid_dict = json.loads(offer_or_bid)
-    object_type = offer_bid_dict.pop("type")
-
-    offer_bid_dict.pop("energy_rate", None)
-
-    if object_type == "Offer":
-        offer_bid_dict["time"] = current_time
-        return Offer(**offer_bid_dict)
-    if object_type == "Bid":
-        return Bid(**offer_bid_dict)
-
-
 @dataclass
 class TradeBidOfferInfo:
     original_bid_rate: float
@@ -279,6 +279,19 @@ class Trade:
                 trade_dict["offer_bid_trade_info"].to_json_string())
         return json.dumps(trade_dict, default=my_converter)
 
+    @classmethod
+    def from_json(cls, trade_string, current_time=None) -> "Trade":
+        trade_dict = json.loads(trade_string)
+        trade_dict["offer_bid"] = BaseBidOffer.from_json(trade_dict["offer_bid"], current_time)
+        if key_in_dict_and_not_none(trade_dict, "residual"):
+            trade_dict["residual"] = BaseBidOffer.from_json(trade_dict["residual"],
+                                                            current_time)
+        trade_dict["time"] = parse(trade_dict["time"])
+        if key_in_dict_and_not_none(trade_dict, "offer_bid_trade_info"):
+            trade_dict["offer_bid_trade_info"] = (
+                trade_bid_info_from_json_string(trade_dict["offer_bid_trade_info"]))
+        return Trade(**trade_dict)
+
     @property
     def is_bid_trade(self) -> bool:
         """Check if the instance is a bid trade."""
@@ -310,19 +323,6 @@ class Trade:
             "fee_price": self.fee_price,
             "time": datetime_to_string_incl_seconds(self.time)
         }
-
-
-def trade_from_json_string(trade_string, current_time=None) -> Trade:
-    trade_dict = json.loads(trade_string)
-    trade_dict["offer_bid"] = offer_or_bid_from_json_string(trade_dict["offer_bid"], current_time)
-    if key_in_dict_and_not_none(trade_dict, "residual"):
-        trade_dict["residual"] = offer_or_bid_from_json_string(trade_dict["residual"],
-                                                               current_time)
-    trade_dict["time"] = parse(trade_dict["time"])
-    if key_in_dict_and_not_none(trade_dict, "offer_bid_trade_info"):
-        trade_dict["offer_bid_trade_info"] = (
-            trade_bid_info_from_json_string(trade_dict["offer_bid_trade_info"]))
-    return Trade(**trade_dict)
 
 
 class BalancingOffer(Offer):
