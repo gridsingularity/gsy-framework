@@ -29,7 +29,7 @@ from statistics import mean
 from threading import Timer
 from typing import Dict, List, Callable
 
-from pendulum import DateTime, from_format, from_timestamp, duration, today, datetime
+from pendulum import DateTime, from_format, from_timestamp, duration, today, datetime, instance
 from redis.exceptions import ConnectionError
 
 from d3a_interface.constants_limits import (
@@ -487,4 +487,4 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict],
 
 
 def convert_datetime_to_ui_str_format(data_time):
-    return data_time.strftime("%m-%d-%Y, %H:%M:%S")
+    return instance(data_time).format(DATE_TIME_UI_FORMAT)

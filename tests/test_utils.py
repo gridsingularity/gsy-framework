@@ -48,6 +48,6 @@ class TestUtils(unittest.TestCase):
         assert [3, 1, 2, 4] == [data["id"] for data in output_list]
 
     def test_convert_datetime_to_ui_str_format(self):
-        current_time = datetime.now()
+        current_time = datetime(year=2021, month=8, day=30, hour=15, minute=30, second=45)
         current_time_str = convert_datetime_to_ui_str_format(current_time)
-        assert type(current_time_str) is str
+        assert current_time_str == "August 30 2021, 15:30 h"
