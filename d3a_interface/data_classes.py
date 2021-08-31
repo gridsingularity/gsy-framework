@@ -17,11 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import datetime
 import json
-from copy import deepcopy
 
+from copy import deepcopy
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Optional, Tuple, Union
-
 from pendulum import DateTime, parse
 
 from d3a_interface.utils import datetime_to_string_incl_seconds, key_in_dict_and_not_none
@@ -141,12 +140,12 @@ class Offer(BaseBidOffer):
                 self.attributes == other.attributes and
                 self.requirements == other.requirements)
 
-    def _to_csv(self) -> Tuple:
+    def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
         return rate, self.energy, self.price, self.seller
 
     @classmethod
-    def _csv_fields(cls):
+    def csv_fields(cls):
         return "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"
 
 
@@ -191,12 +190,12 @@ class Bid(BaseBidOffer):
                 "buyer": self.buyer,
                 }
 
-    def _to_csv(self) -> Tuple:
+    def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
         return rate, self.energy, self.price, self.buyer
 
     @classmethod
-    def _csv_fields(cls):
+    def csv_fields(cls):
         return "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"
 
     def __eq__(self, other) -> bool:
@@ -260,11 +259,11 @@ class Trade:
         )
 
     @classmethod
-    def _csv_fields(cls) -> Tuple:
+    def csv_fields(cls) -> Tuple:
         return (tuple(cls.__dataclass_fields__.keys())[1:2] + ("rate [ct./kWh]", "energy [kWh]") +
                 tuple(cls.__dataclass_fields__.keys())[3:5])
 
-    def _to_csv(self) -> Tuple:
+    def csv_values(self) -> Tuple:
         rate = round(self.offer_bid.energy_rate, 4)
         return (tuple(asdict(self).values())[1:2] +
                 (rate, self.offer_bid.energy) +
@@ -367,11 +366,11 @@ class BalancingTrade:
         )
 
     @classmethod
-    def _csv_fields(cls) -> Tuple:
+    def csv_fields(cls) -> Tuple:
         return (tuple(cls.__dataclass_fields__.keys())[1:2] + ("rate [ct./kWh]", "energy [kWh]") +
                 tuple(cls.__dataclass_fields__.keys())[3:5])
 
-    def _to_csv(self) -> Tuple:
+    def csv_values(self) -> Tuple:
         rate = round(self.offer_bid.energy_rate, 4)
         return (tuple(asdict(self).values())[1:2] +
                 (rate, self.offer_bid.energy) +
@@ -445,5 +444,5 @@ class MarketClearingState:
     clearing: Dict = field(default_factory=dict)
 
     @classmethod
-    def _csv_fields(cls):
+    def csv_fields(cls):
         return "time", "rate [ct./kWh]"
