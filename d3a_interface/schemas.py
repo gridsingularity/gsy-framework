@@ -66,7 +66,7 @@ class ScenarioSchemas:
                     "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "energy_rate_decrease_per_update": {"anyOf": [{"type": "number"},
                                                                   {"type": "null"}]},
-                    "max_panel_power_W": {"type": "number"},
+                    "capacity_kW": {"type": "number"},
                     "cloud_coverage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "power_profile": {"anyOf": [{"type": "number"},
                                                 {"type": "null"},
