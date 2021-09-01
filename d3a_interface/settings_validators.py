@@ -19,7 +19,7 @@ from typing import Dict
 from datetime import timedelta
 from pendulum import duration, Duration
 
-from d3a_interface.constants_limits import ConstSettings, GlobalConfig
+from d3a_interface.constants_limits import ConstSettings, GlobalConfig, PercentageRangeLimit
 from d3a_interface.exceptions import D3ASettingsException
 
 
@@ -68,27 +68,38 @@ def validate_global_settings(settings: Dict) -> None:
             <= ConstSettings.IAASettings.MARKET_TYPE_LIMIT[1]):
         raise D3ASettingsException(f"Invalid value ({settings['spot_market_type']}) "
                                    "for spot market type.")
-    if ("bid_offer_match_algo" in settings
-            and not ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT[0]
-            <= settings["bid_offer_match_algo"]
-            <= ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT[1]):
-        raise D3ASettingsException(f"Invalid value ({settings['bid_offer_match_algo']}) "
-                                   "for bid offer match algo.")
+
     if "sim_duration" in settings and not slot_length <= settings["sim_duration"]:
         raise D3ASettingsException("Invalid simulation duration "
                                    f"(lower than slot length of {slot_length.minutes} min")
     if "market_count" in settings and settings["market_count"] < 1:
         raise D3ASettingsException("Market count must be greater than 0.")
-    if ("grid_fee_type" in settings and
-            int(settings["grid_fee_type"]) not in ConstSettings.IAASettings.VALID_FEE_TYPES):
-        raise D3ASettingsException("Invalid value for grid_fee_type "
-                                   f"({settings['grid_fee_type']}).")
+
     if ("capacity_kW" in settings and not
             ConstSettings.PVSettings.CAPACITY_KW_LIMIT.min
             <= settings["capacity_kW"]
             <= ConstSettings.PVSettings.CAPACITY_KW_LIMIT.max):
         raise D3ASettingsException("Invalid value for capacity_kW "
                                    f"({settings['capacity_kW']}).")
+
+    if ("grid_fee_type" in settings and
+            int(settings["grid_fee_type"]) not in ConstSettings.IAASettings.VALID_FEE_TYPES):
+        raise D3ASettingsException("Invalid value for grid_fee_type "
+                                   f"({settings['grid_fee_type']}).")
+
+    if ("relative_std_from_forecast_percent" in settings and not
+            PercentageRangeLimit.min
+            <= settings["relative_std_from_forecast_percent"]
+            <= PercentageRangeLimit.max):
+        raise D3ASettingsException("Invalid value for relative_std_from_forecast_percent "
+                                   f"({settings['relative_std_from_forecast_percent']}).")
+
+    if ("bid_offer_match_algo" in settings
+            and not ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT[0]
+            <= settings["bid_offer_match_algo"]
+            <= ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT[1]):
+        raise D3ASettingsException(f"Invalid value ({settings['bid_offer_match_algo']}) "
+                                   "for bid offer match algo.")
 
 
 def calc_min_max_tick_length(slot_length):

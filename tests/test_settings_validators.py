@@ -20,7 +20,7 @@ from pendulum import duration
 from datetime import timedelta
 from d3a_interface.settings_validators import validate_global_settings
 from d3a_interface.exceptions import D3ASettingsException
-from d3a_interface.constants_limits import ConstSettings
+from d3a_interface.constants_limits import ConstSettings, PercentageRangeLimit
 
 
 class TestValidateGlobalSettings:
@@ -79,34 +79,34 @@ class TestValidateGlobalSettings:
         """Validate that spot_market_type should be within the range limit."""
         with pytest.raises(D3ASettingsException):
             validate_global_settings(
-                {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT[0] - 1})
+                {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT.min - 1})
         with pytest.raises(D3ASettingsException):
             validate_global_settings(
-                {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT[1] + 1})
+                {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT.max + 1})
         validate_global_settings(
-            {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT[1]})
+            {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT.max})
 
     def test_wrong_bid_offer_match_algo(self):
         """Validate that bid_offer_match_algo should be within the range limit."""
         with pytest.raises(D3ASettingsException):
             validate_global_settings(
                 {"bid_offer_match_algo":
-                 ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT[0] - 1})
+                 ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT.min - 1})
         with pytest.raises(D3ASettingsException):
             validate_global_settings(
                 {"bid_offer_match_algo":
-                 ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT[1] + 1})
+                 ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT.max + 1})
         validate_global_settings(
             {"bid_offer_match_algo":
-             ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT[1]})
+             ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT.max})
 
     def test_wrong_cloud_coverage(self):
         with pytest.raises(D3ASettingsException):
             validate_global_settings(
-                {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[0] - 1})
+                {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.min - 1})
         with pytest.raises(D3ASettingsException):
             validate_global_settings(
-                {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[1] + 1})
+                {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.max + 1})
 
     def test_wrong_capacity_kW(self):
         with pytest.raises(D3ASettingsException):
@@ -128,3 +128,14 @@ class TestValidateGlobalSettings:
             validate_global_settings({"grid_fee_type": 0})
         with pytest.raises(D3ASettingsException):
             validate_global_settings({"grid_fee_type": 3})
+
+    def test_std_from_forecast_percent(self):
+        validate_global_settings({"relative_std_from_forecast_percent": 50})
+        with pytest.raises(D3ASettingsException):
+            validate_global_settings({
+             "relative_std_from_forecast_percent": PercentageRangeLimit.min - 1
+            })
+        with pytest.raises(D3ASettingsException):
+            validate_global_settings({
+             "relative_std_from_forecast_percent": PercentageRangeLimit.max + 1
+            })
