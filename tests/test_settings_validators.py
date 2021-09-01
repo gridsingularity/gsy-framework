@@ -108,15 +108,20 @@ class TestValidateGlobalSettings:
             validate_global_settings(
                 {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[1] + 1})
 
-    def test_wrong_max_panel_power_W(self):
+    def test_wrong_capacity_kW(self):
         with pytest.raises(D3ASettingsException):
             validate_global_settings(
-                {"max_panel_power_W":
-                 ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[0] - 1})
+              {"capacity_kW":
+                     ConstSettings.PVSettings.CAPACITY_KW_LIMIT.min - 1})
         with pytest.raises(D3ASettingsException):
             validate_global_settings(
-                {"max_panel_power_W":
-                 ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[1] + 1})
+              {"capacity_kW":
+                     ConstSettings.PVSettings.CAPACITY_KW_LIMIT.min - 1})
+        with pytest.raises(
+             validate_global_settings(
+             {"capacity_kW":
+                     ConstSettings.PVSettings.CAPACITY_KW_LIMIT.max + 1})   
+        )
 
     def test_wrong_grid_fee_type(self):
         validate_global_settings({"grid_fee_type": 1})

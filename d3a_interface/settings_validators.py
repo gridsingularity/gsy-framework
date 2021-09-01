@@ -16,11 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from typing import Dict
-
-from d3a_interface.constants_limits import ConstSettings, GlobalConfig
-from d3a_interface.exceptions import D3ASettingsException
-from pendulum import duration, Duration
 from datetime import timedelta
+from pendulum import duration, Duration
+
+from d3a_interface.constants_limits import ConstSettings, GlobalConfig, PercentageRangeLimit
+from d3a_interface.exceptions import D3ASettingsException
 
 
 def validate_global_settings(settings: Dict) -> None:
@@ -79,24 +79,24 @@ def validate_global_settings(settings: Dict) -> None:
                                    f"(lower than slot length of {slot_length.minutes} min")
     if "market_count" in settings and settings["market_count"] < 1:
         raise D3ASettingsException("Market count must be greater than 0.")
-    if ("max_panel_power_W" in settings
-            and not ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[0]
-            <= settings["max_panel_power_W"]
-            <= ConstSettings.PVSettings.MAX_PANEL_OUTPUT_W_LIMIT[1]):
-        raise D3ASettingsException("Invalid value for max_panel_power_W "
-                                   f"({settings['max_panel_power_W']}).")
     if ("grid_fee_type" in settings and
             int(settings["grid_fee_type"]) not in ConstSettings.IAASettings.VALID_FEE_TYPES):
         raise D3ASettingsException("Invalid value for grid_fee_type "
                                    f"({settings['grid_fee_type']}).")
+    if ("capacity_kW" in settings and not
+            ConstSettings.PVSettings.CAPACITY_KW_LIMIT.min
+            <= settings["capacity_kW"]
+            <= ConstSettings.PVSettings.CAPACITY_KW_LIMIT.max):
+        raise D3ASettingsException("Invalid value for capacity_kW "
+                                   f"({settings['capacity_kW']}).")
 
 
 def calc_min_max_tick_length(slot_length):
-    return duration(seconds=ConstSettings.GeneralSettings.MIN_TICK_LENGTH_S), \
-           slot_length / ConstSettings.GeneralSettings.MIN_NUM_TICKS
+    return (duration(seconds=ConstSettings.GeneralSettings.MIN_TICK_LENGTH_S),
+            slot_length / ConstSettings.GeneralSettings.MIN_NUM_TICKS)
 
 
 def calc_min_max_slot_length(tick_length):
-    return max(tick_length * ConstSettings.GeneralSettings.MIN_NUM_TICKS,
-               duration(minutes=ConstSettings.GeneralSettings.MIN_SLOT_LENGTH_M)), \
-           duration(minutes=ConstSettings.GeneralSettings.MAX_SLOT_LENGTH_M)
+    return (max(tick_length * ConstSettings.GeneralSettings.MIN_NUM_TICKS,
+            duration(minutes=ConstSettings.GeneralSettings.MIN_SLOT_LENGTH_M)),
+            duration(minutes=ConstSettings.GeneralSettings.MAX_SLOT_LENGTH_M))

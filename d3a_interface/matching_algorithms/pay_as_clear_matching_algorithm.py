@@ -48,6 +48,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
         self.sorted_offers = []
 
     def get_matches_recommendations(self, matching_data):
+        matches = []
         for market_id, data in matching_data.items():
             bids = data.get("bids")
             offers = data.get("offers")
@@ -60,10 +61,9 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             if clearing_energy > 0:
                 log.info(f"Market Clearing Rate: {clearing_rate} "
                          f"||| Clearing Energy: {clearing_energy} ")
-            matches = self._create_bid_offer_matches(
-                clearing, self.sorted_offers, self.sorted_bids, market_id
-                )
-            return matches
+            matches.extend(self._create_bid_offer_matches(
+                clearing, self.sorted_offers, self.sorted_bids, market_id))
+        return matches
 
     @staticmethod
     def _discrete_point_curve(obj_list, round_functor):
@@ -184,8 +184,8 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                     offers.insert(0, offer)
                     # Save the matching
                     bid_offer_matches.append(
-                        BidOfferMatch(market_id=market_id, bid=bid, selected_energy=bid_energy,
-                                      offer=offer, trade_rate=clearing_rate).serializable_dict()
+                        BidOfferMatch(market_id=market_id, bids=[bid], selected_energy=bid_energy,
+                                      offers=[offer], trade_rate=clearing_rate).serializable_dict()
                     )
                     # Update total clearing energy
                     clearing_energy -= bid_energy
@@ -195,8 +195,9 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                     # Offer is exhausted by the bid. More offers are needed to cover the bid.
                     # Save the matching offer to accept later
                     bid_offer_matches.append(
-                        BidOfferMatch(market_id=market_id, bid=bid, selected_energy=offer_energy,
-                                      offer=offer, trade_rate=clearing_rate).serializable_dict()
+                        BidOfferMatch(
+                            market_id=market_id, bids=[bid], selected_energy=offer_energy,
+                            offers=[offer], trade_rate=clearing_rate).serializable_dict()
                     )
                     # Subtract the offer energy from the bid, in order to not be taken into account
                     # from following matches

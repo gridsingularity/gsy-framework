@@ -16,20 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import gc
+import json
+import logging
 import pathlib
 import sys
-import json
 import time
-import logging
-from typing import Dict, List, Callable
-from functools import wraps, lru_cache
 from collections import OrderedDict
 from copy import copy
-from threading import Timer
-from statistics import mean
+from functools import wraps, lru_cache
 from pkgutil import walk_packages
+from statistics import mean
+from threading import Timer
+from typing import Dict, List, Callable
+
+from pendulum import DateTime, from_format, from_timestamp, duration, today, datetime, instance
 from redis.exceptions import ConnectionError
-from pendulum import DateTime, from_format, from_timestamp, duration, today, datetime
+
 from d3a_interface.constants_limits import (
     DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT,
     DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION, GlobalConfig, TIME_ZONE,
@@ -482,3 +484,7 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict],
         return sorted(
             input_list,
             key=lambda obj: obj.get(attribute))
+
+
+def convert_datetime_to_ui_str_format(data_time):
+    return instance(data_time).format(DATE_TIME_UI_FORMAT)

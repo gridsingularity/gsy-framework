@@ -26,6 +26,7 @@ from d3a_interface.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum
 
 RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
 RateRange = namedtuple('RateRange', ('initial', 'final'))
+PercentageRangeLimit = RangeLimit(0, 100)
 
 
 class ConstSettings:
@@ -57,6 +58,11 @@ class ConstSettings:
         MIN_TICK_LENGTH_S = 1
 
         REDIS_PUBLISH_FULL_RESULTS = False
+
+    class SettlementMarketSettings:
+        MAX_AGE_SETTLEMENT_MARKET_HOURS = 1
+        ENABLE_SETTLEMENT_MARKETS = False
+        RELATIVE_STD_FROM_FORECAST_FLOAT = 10.0
 
     class AreaSettings:
         PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
@@ -118,14 +124,16 @@ class ConstSettings:
         PANEL_COUNT_LIMIT = RangeLimit(1, 10000)
         FINAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
         INITIAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
-        MAX_PANEL_OUTPUT_W_LIMIT = RangeLimit(0, sys.maxsize)
+        CAPACITY_KW_LIMIT = RangeLimit(0, sys.maxsize)
+        MAX_PANEL_OUTPUT_W_LIMIT = RangeLimit(0, sys.maxsize)  # needed for backward compatibility
         SELLING_RATE_RANGE = RateRange(30, 0)
         # Applies to the predefined PV strategy, where a PV profile is selected out of 3 predefined
         # ones. Available values 0: sunny, 1: partial cloudy, 2: cloudy, 3: Gaussian
         DEFAULT_POWER_PROFILE = 0
         CLOUD_COVERAGE_LIMIT = RangeLimit(0, 4)
-        # Applies to gaussian PVStrategy, controls the max panel output in Watts.
-        MAX_PANEL_OUTPUT_W = 160
+        # Power rating for PVs (Gaussian and Predefined)
+        DEFAULT_CAPACITY_KW = 5
+        MAX_PANEL_OUTPUT_W = 160  # needed for backward compatibility
         PV_PENALTY_RATE = 0
 
     class HomeMeterSettings:
