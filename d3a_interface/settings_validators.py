@@ -19,7 +19,7 @@ from typing import Dict
 from datetime import timedelta
 from pendulum import duration, Duration
 
-from d3a_interface.constants_limits import ConstSettings, GlobalConfig, PercentageRangeLimit
+from d3a_interface.constants_limits import ConstSettings, GlobalConfig
 from d3a_interface.exceptions import D3ASettingsException
 
 
