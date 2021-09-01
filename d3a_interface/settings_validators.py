@@ -19,7 +19,7 @@ from datetime import timedelta
 
 from pendulum import duration, Duration
 
-from d3a_interface.constants_limits import ConstSettings, GlobalConfig
+from d3a_interface.constants_limits import ConstSettings, GlobalConfig, PercentageRangeLimit
 from d3a_interface.exceptions import D3ASettingsException
 
 
@@ -78,6 +78,13 @@ def validate_global_settings(settings_dict):
             int(settings_dict["grid_fee_type"]) not in ConstSettings.IAASettings.VALID_FEE_TYPES):
         raise D3ASettingsException("Invalid value for grid_fee_type "
                                    f"({settings_dict['grid_fee_type']}).")
+
+    if ("relative_std_from_forecast_percent" in settings_dict and not
+            PercentageRangeLimit.min <=
+            settings_dict["relative_std_from_forecast_percent"] <=
+            PercentageRangeLimit.max):
+        raise D3ASettingsException("Invalid value for relative_std_from_forecast_percent "
+                                   f"({settings_dict['relative_std_from_forecast_percent']}).")
 
 
 def calc_min_max_tick_length(slot_length):

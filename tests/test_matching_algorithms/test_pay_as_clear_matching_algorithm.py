@@ -242,5 +242,18 @@ class TestPayAsClearMatchingAlgorithm:
         expected_trades = [{"market_id": "market1",
                             "bids": [{"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20}],
                             "offers": [{"id": 4, "seller": "A", "energy_rate": 1.00001,
-                                        "energy": 25}], "selected_energy": 20, "trade_rate": 3}]
+                                        "energy": 25}], "selected_energy": 20, "trade_rate": 3},
+                           {"market_id": "market2",
+                            "bids": [{"id": 9, "buyer": "C", "energy_rate": 6, "energy": 50}],
+                            "offers": [{"id": 10, "seller": "A", "energy_rate": 1,
+                                        "energy": 55}], "selected_energy": 50, "trade_rate": 2},
+                           {"market_id": "market2",
+                            "bids": [{"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45}],
+                            "offers": [{"id": 10, "seller": "A", "energy_rate": 1, "energy": 55}],
+                            "selected_energy": 5, "trade_rate": 2},
+                           {"market_id": "market2",
+                            "bids": [{"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45}],
+                            "offers": [{"id": 12, "seller": "C", "energy_rate": 1,
+                                        "energy": 65}], "selected_energy": 40, "trade_rate": 2},
+                           ]
         assert trades == expected_trades

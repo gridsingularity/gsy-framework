@@ -26,6 +26,7 @@ from d3a_interface.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum
 
 RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
 RateRange = namedtuple('RateRange', ('initial', 'final'))
+PercentageRangeLimit = RangeLimit(0, 100)
 
 
 class ConstSettings:
@@ -57,6 +58,11 @@ class ConstSettings:
         MIN_TICK_LENGTH_S = 1
 
         REDIS_PUBLISH_FULL_RESULTS = False
+
+    class SettlementMarketSettings:
+        MAX_AGE_SETTLEMENT_MARKET_HOURS = 1
+        ENABLE_SETTLEMENT_MARKETS = False
+        RELATIVE_STD_FROM_FORECAST_FLOAT = 10.0
 
     class AreaSettings:
         PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
