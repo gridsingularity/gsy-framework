@@ -33,7 +33,7 @@ from pendulum import DateTime, from_format, from_timestamp, duration, today, dat
 from redis.exceptions import ConnectionError
 
 from d3a_interface.constants_limits import (
-    DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT,
+    DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT, TIME_FORMAT_SECONDS,
     DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION, GlobalConfig, TIME_ZONE,
     CN_PROFILE_EXPANSION_DAYS)
 
@@ -185,7 +185,14 @@ def str_to_pendulum_datetime(input_str):
         try:
             pendulum_time = from_format(input_str, DATE_TIME_FORMAT)
         except ValueError:
-            raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}')")
+            try:
+                pendulum_time = from_format(input_str, DATE_TIME_FORMAT_SECONDS)
+            except ValueError:
+                try:
+                    pendulum_time = from_format(input_str, TIME_FORMAT_SECONDS)
+                except ValueError:
+                    raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}'"
+                                    f"'{DATE_TIME_FORMAT_SECONDS}', '{TIME_FORMAT_SECONDS}')")
     return pendulum_time
 
 
