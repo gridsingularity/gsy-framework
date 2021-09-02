@@ -30,7 +30,8 @@ from d3a_interface.utils import datetime_to_string_incl_seconds
 def test_my_convertor():
     assert my_converter("") is None
 
-    assert my_converter(DateTime.today()) == 1
+    my_date_time = DateTime.today()
+    assert my_converter(my_date_time) == my_date_time.isoformat()
 
 
 class TestBidOfferMatch:
