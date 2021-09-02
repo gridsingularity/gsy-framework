@@ -226,10 +226,10 @@ class TradeBidOfferInfo:
     def to_json_string(self) -> str:
         return json.dumps(asdict(self), default=my_converter)
 
-
-def trade_bid_info_from_json_string(info_string) -> TradeBidOfferInfo:
-    info_dict = json.loads(info_string)
-    return TradeBidOfferInfo(**info_dict)
+    @staticmethod
+    def from_json(trade_bid_offer_info: str) -> "TradeBidOfferInfo":
+        info_dict = json.loads(trade_bid_offer_info)
+        return TradeBidOfferInfo(**info_dict)
 
 
 @dataclass
@@ -290,7 +290,7 @@ class Trade:
         trade_dict["time"] = parse(trade_dict["time"])
         if key_in_dict_and_not_none(trade_dict, "offer_bid_trade_info"):
             trade_dict["offer_bid_trade_info"] = (
-                trade_bid_info_from_json_string(trade_dict["offer_bid_trade_info"]))
+                TradeBidOfferInfo.from_json(trade_dict["offer_bid_trade_info"]))
         return Trade(**trade_dict)
 
     @property

@@ -18,10 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import json
 import uuid
 from copy import deepcopy
+from dataclasses import asdict
 
 from pendulum import DateTime
 
-from d3a_interface.data_classes import BidOfferMatch, BaseBidOffer, Offer, Bid, my_converter
+from d3a_interface.data_classes import BidOfferMatch, BaseBidOffer, Offer, Bid, my_converter, \
+    TradeBidOfferInfo
 from d3a_interface.utils import datetime_to_string_incl_seconds
 
 
@@ -379,3 +381,12 @@ class TestBid:
     def test_csv_fields(self):
         assert (Bid.csv_fields() ==
                 ("rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
+
+
+class TestTradeBidOfferInfo:
+    def test_to_json_string(self):
+        trade_bid_offer_info = TradeBidOfferInfo(
+            1, 1, 1, 1, 1
+        )
+        assert (trade_bid_offer_info.to_json_string() ==
+                json.dumps(asdict(trade_bid_offer_info), default=my_converter))
