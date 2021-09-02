@@ -48,6 +48,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
         self.sorted_offers = []
 
     def get_matches_recommendations(self, matching_data):
+        matches = []
         for market_id, data in matching_data.items():
             bids = data.get("bids")
             offers = data.get("offers")
@@ -60,9 +61,9 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             if clearing_energy > 0:
                 log.info(f"Market Clearing Rate: {clearing_rate} "
                          f"||| Clearing Energy: {clearing_energy} ")
-            matches = self._create_bid_offer_matches(
-                self.sorted_offers, self.sorted_bids, market_id, current_time)
-            return matches
+            matches.extend(self._create_bid_offer_matches(
+                self.sorted_offers, self.sorted_bids, market_id, current_time))
+        return matches
 
     @staticmethod
     def _discrete_point_curve(obj_list, round_functor):
