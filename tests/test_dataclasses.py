@@ -23,7 +23,7 @@ from dataclasses import asdict
 from pendulum import DateTime
 
 from d3a_interface.data_classes import BidOfferMatch, BaseBidOffer, Offer, Bid, my_converter, \
-    TradeBidOfferInfo
+    TradeBidOfferInfo, Trade
 from d3a_interface.utils import datetime_to_string_incl_seconds
 
 
@@ -390,3 +390,117 @@ class TestTradeBidOfferInfo:
         )
         assert (trade_bid_offer_info.to_json_string() ==
                 json.dumps(asdict(trade_bid_offer_info), default=my_converter))
+
+
+class TestTrade:
+    def setup_method(self):
+        self.initial_data = {
+            "id": "my_id",
+            "time": DateTime.now(),
+            "offer_bid": Offer("id", DateTime.now(), 1, 2, "seller"),
+            "seller": "seller",
+            "buyer": "buyer"}
+
+    def test_str(self):
+        trade = Trade(**self.initial_data)
+        assert (str(trade) ==
+                "{{{s.id!s:.6s}}} [origin: {s.seller_origin} -> {s.buyer_origin}] "
+                "[{s.seller} -> {s.buyer}] {s.offer_bid.energy} kWh @ {s.offer_bid.price} {rate} "
+                "{s.offer_bid.id} [fee: {s.fee_price} cts.]".
+                format(s=trade, rate=round(trade.offer_bid.energy_rate, 8))
+                )
+
+    def test_csv_fields(self):
+        assert Trade.csv_fields() == (
+            "time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer")
+
+    def test_csv_values(self):
+        trade = Trade(**self.initial_data)
+        rate = round(trade.offer_bid.energy_rate, 4)
+        assert (trade.csv_values() ==
+                (trade.time, rate, trade.offer_bid.energy, trade.seller, trade.buyer))
+
+    def test_to_json_string(self):
+        trade = Trade(**self.initial_data)
+        trade_dict = deepcopy(trade.__dict__)
+        trade_dict["offer_bid"] = trade_dict["offer_bid"].to_json_string()
+        assert (trade.to_json_string() ==
+                json.dumps(trade_dict, default=my_converter))
+
+        # Test the residual check
+        trade.residual = deepcopy(trade.offer_bid)
+        trade_dict["residual"] = deepcopy(trade.offer_bid).to_json_string()
+        assert (trade.to_json_string() ==
+                json.dumps(trade_dict, default=my_converter))
+        assert json.loads(trade.to_json_string()).get("residual") is not None
+
+        # Test the offer_bid_trade_info check
+        trade.offer_bid_trade_info = TradeBidOfferInfo(1, 2, 3, 4, 5)
+        # TODO: rename offer_bid_trade_info to trade_offer_bid_info
+        trade_dict["offer_bid_trade_info"] = (
+            deepcopy(trade.offer_bid_trade_info).to_json_string())
+        assert (trade.to_json_string() ==
+                json.dumps(trade_dict, default=my_converter))
+        assert json.loads(trade.to_json_string()).get("offer_bid_trade_info") is not None
+
+    def test_from_json(self):
+        trade = Trade(
+            **self.initial_data
+        )
+        assert (Trade.from_json(trade.to_json_string()) == trade)
+
+    def test_is_bid_trade(self):
+        trade = Trade(
+            **self.initial_data
+        )
+        assert trade.is_bid_trade is False
+
+        trade.offer_bid = Bid("id", DateTime.now(), 1, 2, "buyer")
+        assert trade.is_bid_trade is True
+
+    def test_is_offer_trade(self):
+        trade = Trade(
+            **self.initial_data
+        )
+        assert trade.is_offer_trade is True
+
+        trade.offer_bid = Bid("id", DateTime.now(), 1, 2, "buyer")
+        assert trade.is_offer_trade is False
+
+    def test_serializable_dict(self):
+        trade = Trade(
+            **{
+                "id": "my_id",
+                "offer_bid": Offer("id", DateTime.now(), 1, 2, "seller"),
+                "buyer": "buyer",
+                "buyer_origin": "buyer_origin",
+                "seller_origin": "seller_origin",
+                "seller_origin_id": "seller_origin_id",
+                "buyer_origin_id": "buyer_origin_id",
+                "seller_id": "seller_id",
+                "buyer_id": "buyer_id",
+                "seller": "seller",
+                "fee_price": 2,
+                "time": DateTime.now(),
+            }
+        )
+        assert trade.serializable_dict() == {
+            "type": "Trade",
+            "match_type": "Offer",
+            "id": trade.id,
+            "offer_bid_id": trade.offer_bid.id,
+            "residual_id": trade.residual.id if trade.residual is not None else None,
+            "energy": trade.offer_bid.energy,
+            "energy_rate": trade.offer_bid.energy_rate,
+            "price": trade.offer_bid.price,
+            "buyer": trade.buyer,
+            "buyer_origin": trade.buyer_origin,
+            "seller_origin": trade.seller_origin,
+            "seller_origin_id": trade.seller_origin_id,
+            "buyer_origin_id": trade.buyer_origin_id,
+            "seller_id": trade.seller_id,
+            "buyer_id": trade.buyer_id,
+            "seller": trade.seller,
+            "fee_price": trade.fee_price,
+            "time": datetime_to_string_incl_seconds(trade.time)
+        }

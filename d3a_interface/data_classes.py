@@ -260,14 +260,11 @@ class Trade:
 
     @classmethod
     def csv_fields(cls) -> Tuple:
-        return (tuple(cls.__dataclass_fields__.keys())[1:2] + ("rate [ct./kWh]", "energy [kWh]") +
-                tuple(cls.__dataclass_fields__.keys())[3:5])
+        return "time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer"
 
     def csv_values(self) -> Tuple:
         rate = round(self.offer_bid.energy_rate, 4)
-        return (tuple(asdict(self).values())[1:2] +
-                (rate, self.offer_bid.energy) +
-                tuple(asdict(self).values())[3:5])
+        return self.time, rate, self.offer_bid.energy, self.seller, self.buyer
 
     def to_json_string(self) -> str:
         # __dict__ instead of asdict to not recursively deserialize objects
