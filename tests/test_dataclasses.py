@@ -278,6 +278,13 @@ class TestOffer:
         assert (Offer.csv_fields() ==
                 ("rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"))
 
+    def test_copy(self):
+        offer = Offer(
+            **self.initial_data
+        )
+        second_offer = Offer.copy(offer)
+        assert offer == second_offer
+
 
 class TestBid:
     def setup_method(self):

@@ -148,6 +148,12 @@ class Offer(BaseBidOffer):
     def csv_fields(cls):
         return "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"
 
+    @staticmethod
+    def copy(offer: "Offer") -> "Offer":
+        return Offer(offer.id, offer.time, offer.price, offer.energy, offer.seller,
+                     offer.original_price, offer.seller_origin, offer.seller_origin_id,
+                     offer.seller_id, attributes=offer.attributes, requirements=offer.requirements)
+
 
 class Bid(BaseBidOffer):
     def __init__(self, id: str, time: datetime, price: float,
@@ -207,12 +213,6 @@ class Bid(BaseBidOffer):
                 self.buyer_origin_id == other.buyer_origin_id and
                 self.attributes == other.attributes and
                 self.requirements == other.requirements)
-
-
-def copy_offer(offer) -> Offer:
-    return Offer(offer.id, offer.time, offer.price, offer.energy, offer.seller,
-                 offer.original_price, offer.seller_origin, offer.seller_origin_id,
-                 offer.seller_id, attributes=offer.attributes, requirements=offer.requirements)
 
 
 @dataclass
