@@ -15,7 +15,20 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from d3a_interface.data_classes import BidOfferMatch
+import json
+import uuid
+from copy import deepcopy
+
+from pendulum import DateTime
+
+from d3a_interface.data_classes import BidOfferMatch, BaseBidOffer, Offer, Bid, my_converter
+from d3a_interface.utils import datetime_to_string_incl_seconds
+
+
+def test_my_convertor():
+    assert my_converter("") is None
+
+    assert my_converter(DateTime.today()) == 1
 
 
 class TestBidOfferMatch:
@@ -77,3 +90,285 @@ class TestBidOfferMatch:
         assert bid_offer_match.offers == expected_dict["offers"]
         assert bid_offer_match.selected_energy == expected_dict["selected_energy"]
         assert bid_offer_match.trade_rate == expected_dict["trade_rate"]
+
+
+class TestBaseBidOffer:
+
+    def setup_method(self):
+        self.initial_data = {
+            "id": uuid.uuid4(),
+            "time": DateTime.now(),
+            "price": 10,
+            "energy": 30,
+            "original_price": 8,
+            "attributes": {},
+            "requirements": []
+        }
+
+    def test_init(self):
+        bid_offer = BaseBidOffer(
+            **self.initial_data
+        )
+        assert bid_offer.id == str(self.initial_data["id"])
+        assert bid_offer.time == self.initial_data["time"]
+        assert bid_offer.price == self.initial_data["price"]
+        assert bid_offer.energy == self.initial_data["energy"]
+        assert bid_offer.original_price == self.initial_data["original_price"]
+        assert bid_offer.energy_rate == self.initial_data["price"] / self.initial_data["energy"]
+        assert bid_offer.attributes == self.initial_data["attributes"]
+        assert bid_offer.requirements == self.initial_data["requirements"]
+
+        # Test whether the original_price will resort to the "price" member
+        self.initial_data.pop("original_price")
+        bid_offer = BaseBidOffer(
+            **self.initial_data
+        )
+        assert bid_offer.original_price == self.initial_data["price"]
+
+    def test_update_price(self):
+        bid_offer = BaseBidOffer(
+            **self.initial_data
+        )
+        bid_offer.update_price(30)
+        assert bid_offer.price == 30
+        assert bid_offer.energy_rate == 30 / bid_offer.energy
+
+    def test_update_energy(self):
+        bid_offer = BaseBidOffer(
+            **self.initial_data
+        )
+        bid_offer.update_energy(40)
+        assert bid_offer.energy == 40
+        assert bid_offer.energy_rate == bid_offer.price / 40
+
+    def test_to_json_string(self):
+        bid_offer = BaseBidOffer(
+            **self.initial_data
+        )
+        obj_dict = deepcopy(bid_offer.__dict__)
+
+        obj_dict["type"] = "BaseBidOffer"
+        assert bid_offer.to_json_string() == json.dumps(obj_dict, default=my_converter)
+        assert json.loads(
+            bid_offer.to_json_string(my_extra_key=10)).get("my_extra_key") == 10
+
+    def test_serializable_dict(self):
+        bid_offer = BaseBidOffer(
+            **self.initial_data
+        )
+        assert bid_offer.serializable_dict() == {
+            "type": "BaseBidOffer",
+            "id": str(bid_offer.id),
+            "energy": bid_offer.energy,
+            "energy_rate": bid_offer.energy_rate,
+            "original_price": bid_offer.original_price,
+            "time": datetime_to_string_incl_seconds(bid_offer.time),
+            "attributes": bid_offer.attributes,
+            "requirements": bid_offer.requirements
+        }
+
+    def test_from_json(self):
+        offer = Offer(
+            **self.initial_data,
+            seller="seller"
+        )
+        offer_json = offer.to_json_string()
+        assert offer == BaseBidOffer.from_json(offer_json)
+
+        bid = Bid(
+            **self.initial_data,
+            buyer="buyer"
+        )
+        bid_json = bid.to_json_string()
+        assert bid == BaseBidOffer.from_json(bid_json)
+
+
+class TestOffer:
+    def setup_method(self):
+        self.initial_data = {
+            "id": uuid.uuid4(),
+            "time": DateTime.now(),
+            "price": 10,
+            "energy": 30,
+            "original_price": 8,
+            "attributes": {},
+            "requirements": [],
+            "seller": "seller"
+        }
+
+    def test_init(self):
+        offer = Offer(
+            **self.initial_data
+        )
+        assert offer.id == str(self.initial_data["id"])
+        assert offer.time == self.initial_data["time"]
+        assert offer.price == self.initial_data["price"]
+        assert offer.energy == self.initial_data["energy"]
+        assert offer.original_price == self.initial_data["original_price"]
+        assert offer.energy_rate == self.initial_data["price"] / self.initial_data["energy"]
+        assert offer.attributes == self.initial_data["attributes"]
+        assert offer.requirements == self.initial_data["requirements"]
+        assert offer.seller == "seller"
+        assert offer.seller_id is None
+        assert offer.seller_origin is None
+        assert offer.seller_origin_id is None
+
+    def test_hash(self):
+        offer = Offer(
+            **self.initial_data,
+        )
+        assert offer.__hash__() == hash(offer.id)
+
+    def test_repr(self):
+        offer = Offer(
+            **self.initial_data,
+        )
+        assert (repr(offer) ==
+                "<Offer('{s.id!s:.6s}', '{s.energy} kWh@{s.price}', '{s.seller} {rate}'>"
+                .format(s=offer, rate=offer.energy_rate))
+
+    def test_str(self):
+        offer = Offer(
+            **self.initial_data,
+        )
+        assert (str(offer) ==
+                "{{{s.id!s:.6s}}} [origin: {s.seller_origin}] "
+                "[{s.seller}]: {s.energy} kWh @ {s.price} @ {rate}"
+                .format(s=offer, rate=offer.energy_rate))
+
+    def test_serializable_dict(self):
+        offer = Offer(
+            **self.initial_data,
+        )
+        assert offer.serializable_dict() == {
+            "type": "Offer",
+            "id": str(offer.id),
+            "energy": offer.energy,
+            "energy_rate": offer.energy_rate,
+            "original_price": offer.original_price,
+            "time": datetime_to_string_incl_seconds(offer.time),
+            "attributes": offer.attributes,
+            "requirements": offer.requirements,
+            "seller": offer.seller,
+            "seller_origin": offer.seller_origin,
+            "seller_origin_id": offer.seller_origin_id,
+            "seller_id": offer.seller_id,
+        }
+
+    def test_eq(self):
+        offer = Offer(
+            **self.initial_data
+        )
+        other_offer = Offer(
+            **self.initial_data
+        )
+        assert offer == other_offer
+
+        other_offer.id = "other_id"
+        assert offer != other_offer
+
+    def test_csv_values(self):
+        offer = Offer(
+            **self.initial_data
+        )
+        rate = round(offer.energy_rate, 4)
+        assert offer.csv_values() == (rate, offer.energy, offer.price, offer.seller)
+
+    def test_csv_fields(self):
+        assert (Offer.csv_fields() ==
+                ("rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"))
+
+
+class TestBid:
+    def setup_method(self):
+        self.initial_data = {
+            "id": uuid.uuid4(),
+            "time": DateTime.now(),
+            "price": 10,
+            "energy": 30,
+            "original_price": 8,
+            "attributes": {},
+            "requirements": [],
+            "buyer": "buyer"
+        }
+
+    def test_init(self):
+        bid = Bid(
+            **self.initial_data
+        )
+        assert bid.id == str(self.initial_data["id"])
+        assert bid.time == self.initial_data["time"]
+        assert bid.price == self.initial_data["price"]
+        assert bid.energy == self.initial_data["energy"]
+        assert bid.original_price == self.initial_data["original_price"]
+        assert bid.energy_rate == self.initial_data["price"] / self.initial_data["energy"]
+        assert bid.attributes == self.initial_data["attributes"]
+        assert bid.requirements == self.initial_data["requirements"]
+        assert bid.buyer == "buyer"
+        assert bid.buyer_id is None
+        assert bid.buyer_origin is None
+        assert bid.buyer_origin_id is None
+
+    def test_hash(self):
+        bid = Bid(
+            **self.initial_data
+        )
+        assert bid.__hash__() == hash(bid.id)
+
+    def test_repr(self):
+        bid = Bid(
+            **self.initial_data
+        )
+        assert (repr(bid) ==
+                "<Bid {{{s.id!s:.6s}}} [{s.buyer}] "
+                "{s.energy} kWh @ {s.price} {rate}>".format(s=bid, rate=bid.energy_rate))
+
+    def test_str(self):
+        bid = Bid(
+            **self.initial_data
+        )
+        assert (str(bid) ==
+                "{{{s.id!s:.6s}}} [origin: {s.buyer_origin}] [{s.buyer}] "
+                "{s.energy} kWh @ {s.price} {rate}".format(s=bid, rate=bid.energy_rate))
+
+    def test_serializable_dict(self):
+        bid = Bid(
+            **self.initial_data
+        )
+        assert bid.serializable_dict() == {
+            "type": "Bid",
+            "id": str(bid.id),
+            "energy": bid.energy,
+            "energy_rate": bid.energy_rate,
+            "original_price": bid.original_price,
+            "time": datetime_to_string_incl_seconds(bid.time),
+            "attributes": bid.attributes,
+            "requirements": bid.requirements,
+            "buyer": bid.buyer,
+            "buyer_origin": bid.buyer_origin,
+            "buyer_origin_id": bid.buyer_origin_id,
+            "buyer_id": bid.buyer_id,
+        }
+
+    def test_eq(self):
+        bid = Bid(
+            **self.initial_data
+        )
+        other_bid = Bid(
+            **self.initial_data
+        )
+        assert bid == other_bid
+
+        other_bid.id = "other_id"
+        assert bid != other_bid
+
+    def test_csv_values(self):
+        bid = Bid(
+            **self.initial_data
+        )
+        rate = round(bid.energy_rate, 4)
+        assert bid.csv_values() == (rate, bid.energy, bid.price, bid.buyer)
+
+    def test_csv_fields(self):
+        assert (Bid.csv_fields() ==
+                ("rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
