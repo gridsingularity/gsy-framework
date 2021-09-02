@@ -144,8 +144,8 @@ class DeviceStatistics(ResultsBaseClass):
             return "soc_history_%"
         if is_load_node_type(area):
             return "load_profile_kWh"
-        if area["type"] == "HomeMeterStrategy":
-            return "home_meter_profile_kWh"
+        if area["type"] == "SmartMeterStrategy":
+            return "smart_meter_profile_kWh"
         if area["type"] == "FinitePowerPlant":
             return "production_kWh"
 
