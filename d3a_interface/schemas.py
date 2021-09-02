@@ -42,7 +42,7 @@ class ScenarioSchemas:
                                         {"$ref": "#/definitions/area"},
                                         {"$ref": "#/definitions/pv"},
                                         {"$ref": "#/definitions/load"},
-                                        {"$ref": "#/definitions/home_meter"},
+                                        {"$ref": "#/definitions/smart_meter"},
                                         {"$ref": "#/definitions/infinite_power_plant"},
                                         {"$ref": "#/definitions/finite_power_plant"},
                                         {"$ref": "#/definitions/storage"}
@@ -125,11 +125,11 @@ class ScenarioSchemas:
                                                      {"type": "string"}]}
                 }
             },
-            "home_meter": {
+            "smart_meter": {
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "type": {"enum": ["HomeMeter"]},
+                    "type": {"enum": ["SmartMeter"]},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
@@ -174,7 +174,7 @@ class ScenarioSchemas:
             {"$ref": "#/definitions/area"},
             {"$ref": "#/definitions/pv"},
             {"$ref": "#/definitions/load"},
-            {"$ref": "#/definitions/home_meter"},
+            {"$ref": "#/definitions/smart_meter"},
             {"$ref": "#/definitions/infinite_power_plant"},
             {"$ref": "#/definitions/finite_power_plant"},
             {"$ref": "#/definitions/storage"}
