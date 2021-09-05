@@ -23,7 +23,7 @@ from dataclasses import asdict
 from pendulum import DateTime
 
 from d3a_interface.data_classes import BidOfferMatch, BaseBidOffer, Offer, Bid, my_converter, \
-    TradeBidOfferInfo, Trade
+    TradeBidOfferInfo, Trade, BalancingOffer
 from d3a_interface.utils import datetime_to_string_incl_seconds
 
 
@@ -392,6 +392,14 @@ class TestTradeBidOfferInfo:
         assert (trade_bid_offer_info.to_json_string() ==
                 json.dumps(asdict(trade_bid_offer_info), default=my_converter))
 
+    def test_from_json(self):
+        trade_bid_offer_info = TradeBidOfferInfo(
+            1, 1, 1, 1, 1
+        )
+        trade_bid_offer_info_json = trade_bid_offer_info.to_json_string()
+        assert (TradeBidOfferInfo.from_json(trade_bid_offer_info_json) ==
+                trade_bid_offer_info)
+
 
 class TestTrade:
     def setup_method(self):
@@ -447,6 +455,10 @@ class TestTrade:
     def test_from_json(self):
         trade = Trade(
             **self.initial_data
+        )
+        trade.residual = deepcopy(trade.offer_bid)
+        trade.offer_bid_trade_info = TradeBidOfferInfo(
+            1, 1, 1, 1, 1
         )
         assert (Trade.from_json(trade.to_json_string()) == trade)
 
@@ -505,3 +517,30 @@ class TestTrade:
             "fee_price": trade.fee_price,
             "time": datetime_to_string_incl_seconds(trade.time)
         }
+
+
+class TestBalancingOffer:
+    def setup_method(self):
+        self.initial_data = {
+            "id": uuid.uuid4(),
+            "time": DateTime.now(),
+            "price": 10,
+            "energy": 30,
+            "original_price": 8,
+            "attributes": {},
+            "requirements": [],
+            "seller": "seller"
+        }
+
+    def test_repr(self):
+        offer = BalancingOffer(**self.initial_data)
+        assert (repr(offer) ==
+                "<BalancingOffer('{s.id!s:.6s}', '{s.energy} kWh@{s.price}', '{s.seller} {rate}'>"
+                .format(s=offer, rate=offer.energy_rate))
+
+    def test_str(self):
+        offer = BalancingOffer(**self.initial_data)
+        assert (str(offer) ==
+                "<BalancingOffer{{{s.id!s:.6s}}} [{s.seller}]: "
+                "{s.energy} kWh @ {s.price} @ {rate}>"
+                .format(s=offer, rate=offer.energy_rate))
