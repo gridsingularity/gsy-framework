@@ -232,23 +232,31 @@ class TradeBidOfferInfo:
         return TradeBidOfferInfo(**info_dict)
 
 
-@dataclass
 class Trade:
-    id: str
-    time: datetime
-    offer_bid: Union[Offer, Bid]
-    seller: str
-    buyer: str
-    residual: Union[Offer, Bid] = None
-    already_tracked: bool = False
-    offer_bid_trade_info: TradeBidOfferInfo = None
-    seller_origin: str = None
-    buyer_origin: str = None
-    fee_price: float = None
-    seller_origin_id: str = None
-    buyer_origin_id: str = None
-    seller_id: str = None
-    buyer_id: str = None
+    def __init__(self, id: str, time: datetime, offer_bid: Union[Offer, Bid],
+                 seller: str, buyer: str, residual: Optional[Union[Offer, Bid]] = None,
+                 already_tracked: bool = False,
+                 offer_bid_trade_info: Optional[TradeBidOfferInfo] = None,
+                 seller_origin: Optional[str] = None, buyer_origin: Optional[str] = None,
+                 fee_price: Optional[float] = None, seller_origin_id: Optional[str] = None,
+                 buyer_origin_id: Optional[str] = None, seller_id: Optional[str] = None,
+                 buyer_id: Optional[str] = None):
+
+        self.id = str(id)
+        self.time = time
+        self.offer_bid = offer_bid
+        self.seller = seller
+        self.buyer = buyer
+        self.residual = residual
+        self.already_tracked = already_tracked
+        self.offer_bid_trade_info = offer_bid_trade_info
+        self.seller_origin = seller_origin
+        self.buyer_origin = buyer_origin
+        self.fee_price = fee_price
+        self.seller_origin_id = seller_origin_id
+        self.buyer_origin_id = buyer_origin_id
+        self.seller_id = seller_id
+        self.buyer_id = buyer_id
 
     def __str__(self) -> str:
         return (
@@ -322,6 +330,25 @@ class Trade:
             "time": datetime_to_string_incl_seconds(self.time)
         }
 
+    def __eq__(self, other: "Trade") -> bool:
+        return (
+            self.id == other.id and
+            self.time == other.time and
+            self.offer_bid == other.offer_bid and
+            self.seller == other.seller and
+            self.buyer == other.buyer and
+            self.residual == other.residual and
+            self.already_tracked == other.already_tracked and
+            self.offer_bid_trade_info == other.offer_bid_trade_info and
+            self.seller_origin == other.seller_origin and
+            self.buyer_origin == other.buyer_origin and
+            self.fee_price == other.fee_price and
+            self.seller_origin_id == other.seller_origin_id and
+            self.buyer_origin_id == other.buyer_origin_id and
+            self.seller_id == other.seller_id and
+            self.buyer_id == other.buyer_id
+        )
+
 
 class BalancingOffer(Offer):
 
@@ -335,43 +362,13 @@ class BalancingOffer(Offer):
                                                              rate=self.energy_rate)
 
 
-@dataclass
-class BalancingTrade:
-    id: str
-    time: datetime
-    offer_bid: Union[Offer, Bid]
-    seller: str
-    buyer: str
-    residual: Union[Offer, Bid] = None
-    offer_bid_trade_info: TradeBidOfferInfo = None
-    seller_origin: float = None
-    buyer_origin: str = None
-    fee_price: float = None
-    seller_origin_id: str = None
-    buyer_origin_id: str = None
-    seller_id: str = None
-    buyer_id: str = None
-
-    def __post_init__(self):
-        self.id = str(self.id)
-
+class BalancingTrade(Trade):
     def __str__(self) -> str:
         return (
             "{{{s.id!s:.6s}}} [{s.seller} -> {s.buyer}] "
             "{s.offer_bid.energy} kWh @ {s.offer_bid.price} {rate} {s.offer_bid.id}".
             format(s=self, rate=self.offer_bid.energy_rate)
         )
-
-    @classmethod
-    def csv_fields(cls) -> Tuple:
-        return (tuple(cls.__dataclass_fields__.keys())[1:2] + ("rate [ct./kWh]", "energy [kWh]") +
-                tuple(cls.__dataclass_fields__.keys())[3:5])
-
-    def csv_values(self) -> Tuple:
-        rate = round(self.offer_bid.energy_rate, 4)
-        return (tuple(asdict(self).values())[1:2] +
-                (rate, self.offer_bid.energy) +
-                tuple(asdict(self).values())[3:5])
 
 
 @dataclass

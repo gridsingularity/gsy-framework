@@ -23,7 +23,7 @@ from dataclasses import asdict
 from pendulum import DateTime
 
 from d3a_interface.data_classes import BidOfferMatch, BaseBidOffer, Offer, Bid, my_converter, \
-    TradeBidOfferInfo, Trade, BalancingOffer
+    TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade
 from d3a_interface.utils import datetime_to_string_incl_seconds
 
 
@@ -519,7 +519,7 @@ class TestTrade:
         }
 
 
-class TestBalancingOffer:
+class TestBalancingOffer(TestOffer):
     def setup_method(self):
         self.initial_data = {
             "id": uuid.uuid4(),
@@ -544,3 +544,14 @@ class TestBalancingOffer:
                 "<BalancingOffer{{{s.id!s:.6s}}} [{s.seller}]: "
                 "{s.energy} kWh @ {s.price} @ {rate}>"
                 .format(s=offer, rate=offer.energy_rate))
+
+
+class TestBalancingTrade(TestTrade):
+
+    def test_str(self):
+        trade = BalancingTrade(**self.initial_data)
+        assert (str(trade) ==
+                "{{{s.id!s:.6s}}} [{s.seller} -> {s.buyer}] "
+                "{s.offer_bid.energy} kWh @ {s.offer_bid.price} {rate} {s.offer_bid.id}"
+                .format(s=trade, rate=trade.offer_bid.energy_rate))
+
