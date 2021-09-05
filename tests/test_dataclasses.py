@@ -23,7 +23,7 @@ from dataclasses import asdict
 from pendulum import DateTime
 
 from d3a_interface.data_classes import BidOfferMatch, BaseBidOffer, Offer, Bid, my_converter, \
-    TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade
+    TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade, Clearing, MarketClearingState
 from d3a_interface.utils import datetime_to_string_incl_seconds
 
 
@@ -555,3 +555,14 @@ class TestBalancingTrade(TestTrade):
                 "{s.offer_bid.energy} kWh @ {s.offer_bid.price} {rate} {s.offer_bid.id}"
                 .format(s=trade, rate=trade.offer_bid.energy_rate))
 
+
+class TestClearing:
+    def test_serializable_dict(self):
+        clearing = Clearing(energy=1, rate=1)
+        assert clearing.serializable_dict() == {
+            "energy": 1, "rate": 1}
+
+
+class TestMarketClearingState:
+    def test_csv_fields(self):
+        assert MarketClearingState.csv_fields() == ("time", "rate [ct./kWh]")
