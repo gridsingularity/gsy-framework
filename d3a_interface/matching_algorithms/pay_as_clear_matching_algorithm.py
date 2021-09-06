@@ -20,7 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import math
 from logging import getLogger
 from collections import OrderedDict
-from typing import List, Dict
+from typing import List, Dict, Union
+from pendulum import DateTime
 
 from d3a_interface.constants_limits import ConstSettings
 from d3a_interface.dataclasses import MarketClearingState, Clearing, BidOfferMatch
@@ -83,13 +84,15 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                 obj[i] = obj.get(i, 0) + obj.get(i + 1, 0)
         return obj
 
-    def _get_clearing_point(self, max_rate, cumulative_bids, cumulative_offers):
+    @staticmethod
+    def _get_clearing_point(max_rate: int, cumulative_bids: OrderedDict,
+                            cumulative_offers: OrderedDict) -> (int, float):
+        """Gets the energy rate and cumulative energy at the point of equilibrium."""
         for rate in range(1, max_rate + 1):
             if cumulative_offers[rate] >= cumulative_bids[rate]:
                 if cumulative_bids[rate] == 0:
                     return rate-1, cumulative_offers[rate-1]
-                else:
-                    return rate, cumulative_bids[rate]
+                return rate, cumulative_bids[rate]
 
     @staticmethod
     def _accumulated_energy_per_rate(offer_bids: List[Dict]):
@@ -119,7 +122,9 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             if len(clearing) > 0:
                 return clearing[-1].rate, clearing[-1].energy
 
-    def get_clearing_point(self, bids: List[Dict], offers: List[Dict], current_time, market_id):
+    def get_clearing_point(self, bids: List[Dict], offers: List[Dict], current_time: DateTime,
+                           market_id: str) -> Union[Clearing, None]:
+        """Sorts Bids and Offers to find the equilibrium point"""
         self.sorted_bids = sort_list_of_dicts_by_attribute(bids, "energy_rate", True)
         self.sorted_offers = sort_list_of_dicts_by_attribute(offers, "energy_rate")
         clearing, cumulative_bids, cumulative_offers = None, None, None
