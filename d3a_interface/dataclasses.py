@@ -89,3 +89,12 @@ class MarketClearingState:
     @classmethod
     def _csv_fields(cls):
         return "time", "rate [ct./kWh]"
+
+
+@dataclass
+class PlotDescription:
+    data: list
+    barmode: str
+    xtitle: str
+    ytitle: str
+    title: str
