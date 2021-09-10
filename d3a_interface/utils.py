@@ -23,19 +23,18 @@ import sys
 import time
 from collections import OrderedDict
 from copy import copy
-from functools import wraps, lru_cache
+from functools import lru_cache, wraps
 from pkgutil import walk_packages
 from statistics import mean
 from threading import Timer
-from typing import Dict, List, Callable
+from typing import Callable, Dict, List
 
-from pendulum import DateTime, from_format, from_timestamp, duration, today, datetime, instance
+from pendulum import DateTime, datetime, duration, from_format, from_timestamp, instance, today
 from redis.exceptions import ConnectionError
 
 from d3a_interface.constants_limits import (
-    DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT,
-    DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION, GlobalConfig, TIME_ZONE,
-    CN_PROFILE_EXPANSION_DAYS)
+    CN_PROFILE_EXPANSION_DAYS, DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
+    DEFAULT_PRECISION, TIME_FORMAT, TIME_ZONE, GlobalConfig)
 
 
 def convert_datetime_to_str_in_list(in_list: List, ui_format: bool = False):
