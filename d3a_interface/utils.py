@@ -37,6 +37,17 @@ from d3a_interface.constants_limits import (
     DEFAULT_PRECISION, TIME_FORMAT, TIME_ZONE, GlobalConfig)
 
 
+def execute_function_util(function: callable, function_name: str):
+    """Log exceptions raised by the given callable without re-raising them.
+
+    This utility is used to log errors in functions submitted to ThreadPoolExecutor instances.
+    """
+    try:
+        function()
+    except Exception as ex:
+        logging.exception("%s raised exception: %s.", function_name, ex)
+
+
 def convert_datetime_to_str_in_list(in_list: List, ui_format: bool = False):
     """
     Converts all Datetime elements in a list into strings in DATE_TIME_FORMAT
