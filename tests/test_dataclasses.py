@@ -22,16 +22,18 @@ from dataclasses import asdict
 
 from pendulum import DateTime
 
-from d3a_interface.data_classes import BidOfferMatch, BaseBidOffer, Offer, Bid, my_converter, \
-    TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade, Clearing, MarketClearingState
+from d3a_interface.data_classes import (
+    BidOfferMatch, BaseBidOffer, Offer, Bid, json_datetime_serializer,
+    TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade, Clearing,
+    MarketClearingState)
 from d3a_interface.utils import datetime_to_string_incl_seconds
 
 
-def test_my_convertor():
-    assert my_converter("") is None
+def test_json_datetime_serializer():
+    assert json_datetime_serializer("") is None
 
     my_date_time = DateTime.today()
-    assert my_converter(my_date_time) == my_date_time.isoformat()
+    assert json_datetime_serializer(my_date_time) == my_date_time.isoformat()
 
 
 class TestBidOfferMatch:
@@ -99,7 +101,7 @@ class TestBaseBidOffer:
 
     def setup_method(self):
         self.initial_data = {
-            "id": uuid.uuid4(),
+            "id": str(uuid.uuid4()),
             "time": DateTime.now(),
             "price": 10,
             "energy": 30,
@@ -151,7 +153,7 @@ class TestBaseBidOffer:
         obj_dict = deepcopy(bid_offer.__dict__)
 
         obj_dict["type"] = "BaseBidOffer"
-        assert bid_offer.to_json_string() == json.dumps(obj_dict, default=my_converter)
+        assert bid_offer.to_json_string() == json.dumps(obj_dict, default=json_datetime_serializer)
         assert json.loads(
             bid_offer.to_json_string(my_extra_key=10)).get("my_extra_key") == 10
 
@@ -390,7 +392,7 @@ class TestTradeBidOfferInfo:
             1, 1, 1, 1, 1
         )
         assert (trade_bid_offer_info.to_json_string() ==
-                json.dumps(asdict(trade_bid_offer_info), default=my_converter))
+                json.dumps(asdict(trade_bid_offer_info), default=json_datetime_serializer))
 
     def test_from_json(self):
         trade_bid_offer_info = TradeBidOfferInfo(
@@ -434,13 +436,13 @@ class TestTrade:
         trade_dict = deepcopy(trade.__dict__)
         trade_dict["offer_bid"] = trade_dict["offer_bid"].to_json_string()
         assert (trade.to_json_string() ==
-                json.dumps(trade_dict, default=my_converter))
+                json.dumps(trade_dict, default=json_datetime_serializer))
 
         # Test the residual check
         trade.residual = deepcopy(trade.offer_bid)
         trade_dict["residual"] = deepcopy(trade.offer_bid).to_json_string()
         assert (trade.to_json_string() ==
-                json.dumps(trade_dict, default=my_converter))
+                json.dumps(trade_dict, default=json_datetime_serializer))
         assert json.loads(trade.to_json_string()).get("residual") is not None
 
         # Test the offer_bid_trade_info check
@@ -449,7 +451,7 @@ class TestTrade:
         trade_dict["offer_bid_trade_info"] = (
             deepcopy(trade.offer_bid_trade_info).to_json_string())
         assert (trade.to_json_string() ==
-                json.dumps(trade_dict, default=my_converter))
+                json.dumps(trade_dict, default=json_datetime_serializer))
         assert json.loads(trade.to_json_string()).get("offer_bid_trade_info") is not None
 
     def test_from_json(self):

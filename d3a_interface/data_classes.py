@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import datetime
 import json
-
 from copy import deepcopy
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Optional, Tuple, Union
+
 from pendulum import DateTime, parse
 
 from d3a_interface.utils import datetime_to_string_incl_seconds, key_in_dict_and_not_none
 
 
-def my_converter(date_obj: DateTime):
+def json_datetime_serializer(date_obj: DateTime):
     """Define how to convert datetime objects while serializing to json."""
     if isinstance(date_obj, DateTime):
         return date_obj.isoformat()
@@ -67,7 +67,7 @@ class BaseBidOffer:
 
         obj_dict["type"] = self.__class__.__name__
 
-        return json.dumps(obj_dict, default=my_converter)
+        return json.dumps(obj_dict, default=json_datetime_serializer)
 
     def serializable_dict(self) -> Dict:
         return {
@@ -224,7 +224,7 @@ class TradeBidOfferInfo:
     trade_rate: float
 
     def to_json_string(self) -> str:
-        return json.dumps(asdict(self), default=my_converter)
+        return json.dumps(asdict(self), default=json_datetime_serializer)
 
     @staticmethod
     def from_json(trade_bid_offer_info: str) -> "TradeBidOfferInfo":
@@ -283,7 +283,7 @@ class Trade:
         if key_in_dict_and_not_none(trade_dict, "offer_bid_trade_info"):
             trade_dict["offer_bid_trade_info"] = (
                 trade_dict["offer_bid_trade_info"].to_json_string())
-        return json.dumps(trade_dict, default=my_converter)
+        return json.dumps(trade_dict, default=json_datetime_serializer)
 
     @classmethod
     def from_json(cls, trade_string, current_time=None) -> "Trade":
