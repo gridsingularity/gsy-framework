@@ -88,8 +88,9 @@ class BaseBidOffer:
 
         offer_bid_dict.pop("energy_rate", None)
 
+        offer_bid_dict["time"] = current_time
+
         if object_type == "Offer":
-            offer_bid_dict["time"] = current_time
             return Offer(**offer_bid_dict)
         if object_type == "Bid":
             return Bid(**offer_bid_dict)
