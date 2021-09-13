@@ -179,21 +179,16 @@ def key_in_dict_and_not_none_and_negative(d, key):
 def str_to_pendulum_datetime(input_str):
     if input_str is None:
         return None
-    try:
-        pendulum_time = from_format(input_str, TIME_FORMAT)
-    except ValueError:
+
+    supported_formats = [TIME_FORMAT, DATE_TIME_FORMAT,
+                         DATE_TIME_FORMAT_SECONDS, TIME_FORMAT_SECONDS]
+
+    for datetime_format in supported_formats:
         try:
-            pendulum_time = from_format(input_str, DATE_TIME_FORMAT)
+            return from_format(input_str, datetime_format)
         except ValueError:
-            try:
-                pendulum_time = from_format(input_str, DATE_TIME_FORMAT_SECONDS)
-            except ValueError:
-                try:
-                    pendulum_time = from_format(input_str, TIME_FORMAT_SECONDS)
-                except ValueError:
-                    raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}'"
-                                    f"'{DATE_TIME_FORMAT_SECONDS}', '{TIME_FORMAT_SECONDS}')")
-    return pendulum_time
+            continue
+    raise Exception(f"Format of {input_str} is not one of {supported_formats}")
 
 
 def datetime_str_to_ui_formatted_datetime_str(input_str):
