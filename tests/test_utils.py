@@ -1,14 +1,14 @@
-import unittest
-from datetime import datetime
+import pytest
+from pendulum import datetime, today
 
 from d3a_interface.utils import (
     HomeRepresentationUtils, scenario_representation_traversal,
-    sort_list_of_dicts_by_attribute, convert_datetime_to_ui_str_format)
+    sort_list_of_dicts_by_attribute, convert_datetime_to_ui_str_format, str_to_pendulum_datetime)
 
 
-class TestUtils(unittest.TestCase):
+class TestUtils:
 
-    def setUp(self):
+    def setup_method(self):
         self.scenario_repr = {
             "name": "grid",
             "children": [
@@ -51,3 +51,16 @@ class TestUtils(unittest.TestCase):
         current_time = datetime(year=2021, month=8, day=30, hour=15, minute=30, second=45)
         current_time_str = convert_datetime_to_ui_str_format(current_time)
         assert current_time_str == "August 30 2021, 15:30 h"
+
+    def test_str_to_pendulum_datetime(self):
+        datetime_obj = datetime(year=2021, month=4, day=5, hour=12, minute=30)
+        assert str_to_pendulum_datetime("2021-04-05T12:30") == datetime_obj
+        assert str_to_pendulum_datetime("2021-04-05T12:30:00") == datetime_obj
+        datetime_obj = today(tz="UTC")
+        datetime_obj = datetime_obj.set(hour=12, minute=30)
+        assert str_to_pendulum_datetime("12:30") == datetime_obj
+        assert str_to_pendulum_datetime("12:30:00") == datetime_obj
+        with pytest.raises(Exception):
+            str_to_pendulum_datetime("an_erroneous_datetime_string")
+        with pytest.raises(Exception):
+            str_to_pendulum_datetime("2021-04-05T12:30:00-04:00")
