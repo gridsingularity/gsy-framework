@@ -114,13 +114,13 @@ class Offer(BaseBidOffer):
         return hash(self.id)
 
     def __repr__(self) -> str:
-        return ("<Offer('{s.id!s:.6s}', '{s.energy} kWh@{s.price}', '{s.seller} {rate}'>"
-                .format(s=self, rate=self.energy_rate))
+        return (
+            f"<Offer('{self.id!s:.6s}', '{self.energy} kWh@{self.price}',"
+            f" '{self.seller} {self.energy_rate}'>")
 
     def __str__(self) -> str:
-        return ("{{{s.id!s:.6s}}} [origin: {s.seller_origin}] "
-                "[{s.seller}]: {s.energy} kWh @ {s.price} @ {rate}"
-                .format(s=self, rate=self.energy_rate))
+        return (f"{{{self.id!s:.6s}}} [origin: {self.seller_origin}] "
+                f"[{self.seller}]: {self.energy} kWh @ {self.price} @ {self.energy_rate}")
 
     def serializable_dict(self) -> Dict:
         return {**super().serializable_dict(),
@@ -178,14 +178,14 @@ class Bid(BaseBidOffer):
 
     def __repr__(self) -> str:
         return (
-            "<Bid {{{s.id!s:.6s}}} [{s.buyer}] "
-            "{s.energy} kWh @ {s.price} {rate}>".format(s=self, rate=self.energy_rate)
+            f"<Bid {{{self.id!s:.6s}}} [{self.buyer}] "
+            f"{self.energy} kWh @ {self.price} {self.energy_rate}>"
         )
 
     def __str__(self) -> str:
         return (
-            "{{{s.id!s:.6s}}} [origin: {s.buyer_origin}] [{s.buyer}] "
-            "{s.energy} kWh @ {s.price} {rate}".format(s=self, rate=self.energy_rate)
+            f"{{{self.id!s:.6s}}} [origin: {self.buyer_origin}] [{self.buyer}] "
+            f"{self.energy} kWh @ {self.price} {self.energy_rate}"
         )
 
     def serializable_dict(self) -> Dict:
@@ -260,11 +260,10 @@ class Trade:
 
     def __str__(self) -> str:
         return (
-            "{{{s.id!s:.6s}}} [origin: {s.seller_origin} -> {s.buyer_origin}] "
-            "[{s.seller} -> {s.buyer}] {s.offer_bid.energy} kWh @ {s.offer_bid.price} {rate} "
-            "{s.offer_bid.id} [fee: {s.fee_price} cts.]".
-            format(s=self, rate=round(self.offer_bid.energy_rate, 8))
-        )
+            f"{{{self.id!s:.6s}}} [origin: {self.seller_origin} -> {self.buyer_origin}] "
+            f"[{self.seller} -> {self.buyer}] {self.offer_bid.energy} kWh @ {self.offer_bid.price}"
+            f" {round(self.offer_bid.energy_rate, 8)} "
+            f"{self.offer_bid.id} [fee: {self.fee_price} cts.]")
 
     @classmethod
     def csv_fields(cls) -> Tuple:
@@ -353,21 +352,21 @@ class Trade:
 class BalancingOffer(Offer):
 
     def __repr__(self) -> str:
-        return "<BalancingOffer('{s.id!s:.6s}', '{s.energy} kWh@{s.price}', '{s.seller} {rate}'>"\
-            .format(s=self, rate=self.energy_rate)
+        return (f"<BalancingOffer('{self.id!s:.6s}', "
+                f"'{self.energy} kWh@{self.price}', "
+                f"'{self.seller} {self.energy_rate}'>")
 
     def __str__(self) -> str:
-        return "<BalancingOffer{{{s.id!s:.6s}}} [{s.seller}]: " \
-               "{s.energy} kWh @ {s.price} @ {rate}>".format(s=self,
-                                                             rate=self.energy_rate)
+        return (f"<BalancingOffer{{{self.id!s:.6s}}} [{self.seller}]: "
+                f"{self.energy} kWh @ {self.price} @ {self.energy_rate}>")
 
 
 class BalancingTrade(Trade):
     def __str__(self) -> str:
         return (
-            "{{{s.id!s:.6s}}} [{s.seller} -> {s.buyer}] "
-            "{s.offer_bid.energy} kWh @ {s.offer_bid.price} {rate} {s.offer_bid.id}".
-            format(s=self, rate=self.offer_bid.energy_rate)
+            f"{{{self.id!s:.6s}}} [{self.seller} -> {self.buyer}] "
+            f"{self.offer_bid.energy} kWh @ {self.offer_bid.price}"
+            f" {self.offer_bid.energy_rate} {self.offer_bid.id}"
         )
 
 

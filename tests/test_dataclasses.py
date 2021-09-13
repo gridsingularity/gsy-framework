@@ -229,17 +229,16 @@ class TestOffer:
             **self.initial_data,
         )
         assert (repr(offer) ==
-                "<Offer('{s.id!s:.6s}', '{s.energy} kWh@{s.price}', '{s.seller} {rate}'>"
-                .format(s=offer, rate=offer.energy_rate))
+                f"<Offer('{offer.id!s:.6s}', '{offer.energy} kWh@{offer.price}',"
+                f" '{offer.seller} {offer.energy_rate}'>")
 
     def test_str(self):
         offer = Offer(
             **self.initial_data,
         )
         assert (str(offer) ==
-                "{{{s.id!s:.6s}}} [origin: {s.seller_origin}] "
-                "[{s.seller}]: {s.energy} kWh @ {s.price} @ {rate}"
-                .format(s=offer, rate=offer.energy_rate))
+                f"{{{offer.id!s:.6s}}} [origin: {offer.seller_origin}] "
+                f"[{offer.seller}]: {offer.energy} kWh @ {offer.price} @ {offer.energy_rate}")
 
     def test_serializable_dict(self):
         offer = Offer(
@@ -332,16 +331,16 @@ class TestBid:
             **self.initial_data
         )
         assert (repr(bid) ==
-                "<Bid {{{s.id!s:.6s}}} [{s.buyer}] "
-                "{s.energy} kWh @ {s.price} {rate}>".format(s=bid, rate=bid.energy_rate))
+                f"<Bid {{{bid.id!s:.6s}}} [{bid.buyer}] "
+                f"{bid.energy} kWh @ {bid.price} {bid.energy_rate}>")
 
     def test_str(self):
         bid = Bid(
             **self.initial_data
         )
         assert (str(bid) ==
-                "{{{s.id!s:.6s}}} [origin: {s.buyer_origin}] [{s.buyer}] "
-                "{s.energy} kWh @ {s.price} {rate}".format(s=bid, rate=bid.energy_rate))
+                f"{{{bid.id!s:.6s}}} [origin: {bid.buyer_origin}] [{bid.buyer}] "
+                f"{bid.energy} kWh @ {bid.price} {bid.energy_rate}")
 
     def test_serializable_dict(self):
         bid = Bid(
@@ -415,11 +414,10 @@ class TestTrade:
     def test_str(self):
         trade = Trade(**self.initial_data)
         assert (str(trade) ==
-                "{{{s.id!s:.6s}}} [origin: {s.seller_origin} -> {s.buyer_origin}] "
-                "[{s.seller} -> {s.buyer}] {s.offer_bid.energy} kWh @ {s.offer_bid.price} {rate} "
-                "{s.offer_bid.id} [fee: {s.fee_price} cts.]".
-                format(s=trade, rate=round(trade.offer_bid.energy_rate, 8))
-                )
+                f"{{{trade.id!s:.6s}}} [origin: {trade.seller_origin} -> {trade.buyer_origin}] "
+                f"[{trade.seller} -> {trade.buyer}] {trade.offer_bid.energy} kWh"
+                f" @ {trade.offer_bid.price} {round(trade.offer_bid.energy_rate, 8)} "
+                f"{trade.offer_bid.id} [fee: {trade.fee_price} cts.]")
 
     def test_csv_fields(self):
         assert Trade.csv_fields() == (
@@ -537,15 +535,15 @@ class TestBalancingOffer(TestOffer):
     def test_repr(self):
         offer = BalancingOffer(**self.initial_data)
         assert (repr(offer) ==
-                "<BalancingOffer('{s.id!s:.6s}', '{s.energy} kWh@{s.price}', '{s.seller} {rate}'>"
-                .format(s=offer, rate=offer.energy_rate))
+                f"<BalancingOffer('{offer.id!s:.6s}', "
+                f"'{offer.energy} kWh@{offer.price}', "
+                f"'{offer.seller} {offer.energy_rate}'>")
 
     def test_str(self):
         offer = BalancingOffer(**self.initial_data)
         assert (str(offer) ==
-                "<BalancingOffer{{{s.id!s:.6s}}} [{s.seller}]: "
-                "{s.energy} kWh @ {s.price} @ {rate}>"
-                .format(s=offer, rate=offer.energy_rate))
+                f"<BalancingOffer{{{offer.id!s:.6s}}} [{offer.seller}]: "
+                f"{offer.energy} kWh @ {offer.price} @ {offer.energy_rate}>")
 
 
 class TestBalancingTrade(TestTrade):
@@ -553,9 +551,9 @@ class TestBalancingTrade(TestTrade):
     def test_str(self):
         trade = BalancingTrade(**self.initial_data)
         assert (str(trade) ==
-                "{{{s.id!s:.6s}}} [{s.seller} -> {s.buyer}] "
-                "{s.offer_bid.energy} kWh @ {s.offer_bid.price} {rate} {s.offer_bid.id}"
-                .format(s=trade, rate=trade.offer_bid.energy_rate))
+                f"{{{trade.id!s:.6s}}} [{trade.seller} -> {trade.buyer}] "
+                f"{trade.offer_bid.energy} kWh @ {trade.offer_bid.price}"
+                f" {trade.offer_bid.energy_rate} {trade.offer_bid.id}")
 
 
 class TestClearing:
