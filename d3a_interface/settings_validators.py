@@ -15,19 +15,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from typing import Dict
 from datetime import timedelta
-
 from pendulum import duration, Duration
 
 from d3a_interface.constants_limits import ConstSettings, GlobalConfig, PercentageRangeLimit
 from d3a_interface.exceptions import D3ASettingsException
 
 
-def validate_global_settings(settings_dict):
-    slot_length = (settings_dict["slot_length"]
-                   if "slot_length" in settings_dict else GlobalConfig.slot_length)
-    tick_length = (settings_dict["tick_length"]
-                   if "tick_length" in settings_dict else GlobalConfig.tick_length)
+def validate_global_settings(settings: Dict) -> None:
+    """Validate global config settings of a simulation.
+
+    Raises:
+        D3ASettingsException
+    """
+    slot_length = (settings["slot_length"]
+                   if "slot_length" in settings else GlobalConfig.slot_length)
+    tick_length = (settings["tick_length"]
+                   if "tick_length" in settings else GlobalConfig.tick_length)
 
     # converting into duration
     if not isinstance(tick_length, Duration):
@@ -37,54 +42,64 @@ def validate_global_settings(settings_dict):
         slot_length = (duration(minutes=slot_length.seconds / 60)
                        if isinstance(slot_length, timedelta) else duration(minutes=slot_length))
 
-    if "tick_length" in settings_dict:
+    if "tick_length" in settings:
         min_tick_length, max_tick_length = calc_min_max_tick_length(slot_length)
         if not min_tick_length <= tick_length <= max_tick_length:
             raise D3ASettingsException("Invalid tick_length "
                                        f"({tick_length.in_seconds()} sec, limits: "
                                        f"[{min_tick_length.in_seconds()} sec, "
                                        f"{max_tick_length.in_seconds()} sec])")
-    if "slot_length" in settings_dict:
+    if "slot_length" in settings:
         min_slot_length, max_slot_length = calc_min_max_slot_length(tick_length)
         if not min_slot_length <= slot_length <= max_slot_length:
             raise D3ASettingsException("Invalid slot_length "
                                        f"({slot_length.in_minutes()} min, limits: "
                                        f"[{min_slot_length.in_minutes()} min, "
                                        f"{max_slot_length.in_minutes()} min])")
-    if ("cloud_coverage" in settings_dict and
-        not (ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.min
-             <= settings_dict["cloud_coverage"] <=
-             ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.max)):
+    if ("cloud_coverage" in settings and
+            not (ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[0]
+                 <= settings["cloud_coverage"] <=
+                 ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[1])):
         raise D3ASettingsException("Invalid cloud coverage value "
-                                   f"({settings_dict['cloud_coverage']}).")
-    if ("spot_market_type" in settings_dict and
-            not ConstSettings.IAASettings.MARKET_TYPE_LIMIT.min
-            <= settings_dict["spot_market_type"] <=
-            ConstSettings.IAASettings.MARKET_TYPE_LIMIT.max):
-        raise D3ASettingsException(f"Invalid value ({settings_dict['spot_market_type']}) "
+                                   f"({settings['cloud_coverage']}).")
+    if ("spot_market_type" in settings
+            and not ConstSettings.IAASettings.MARKET_TYPE_LIMIT[0]
+            <= settings["spot_market_type"]
+            <= ConstSettings.IAASettings.MARKET_TYPE_LIMIT[1]):
+        raise D3ASettingsException(f"Invalid value ({settings['spot_market_type']}) "
                                    "for spot market type.")
-    if "sim_duration" in settings_dict and not slot_length <= settings_dict["sim_duration"]:
+
+    if "sim_duration" in settings and not slot_length <= settings["sim_duration"]:
         raise D3ASettingsException("Invalid simulation duration "
                                    f"(lower than slot length of {slot_length.minutes} min")
-    if "market_count" in settings_dict and not 1 <= settings_dict["market_count"]:
+    if "market_count" in settings and settings["market_count"] < 1:
         raise D3ASettingsException("Market count must be greater than 0.")
-    if ("capacity_kW" in settings_dict and not
+
+    if ("capacity_kW" in settings and not
             ConstSettings.PVSettings.CAPACITY_KW_LIMIT.min
-            <= settings_dict["capacity_kW"]
+            <= settings["capacity_kW"]
             <= ConstSettings.PVSettings.CAPACITY_KW_LIMIT.max):
         raise D3ASettingsException("Invalid value for capacity_kW "
-                                   f"({settings_dict['capacity_kW']}).")
-    if ("grid_fee_type" in settings_dict and
-            int(settings_dict["grid_fee_type"]) not in ConstSettings.IAASettings.VALID_FEE_TYPES):
-        raise D3ASettingsException("Invalid value for grid_fee_type "
-                                   f"({settings_dict['grid_fee_type']}).")
+                                   f"({settings['capacity_kW']}).")
 
-    if ("relative_std_from_forecast_percent" in settings_dict and not
-            PercentageRangeLimit.min <=
-            settings_dict["relative_std_from_forecast_percent"] <=
-            PercentageRangeLimit.max):
+    if ("grid_fee_type" in settings and
+            int(settings["grid_fee_type"]) not in ConstSettings.IAASettings.VALID_FEE_TYPES):
+        raise D3ASettingsException("Invalid value for grid_fee_type "
+                                   f"({settings['grid_fee_type']}).")
+
+    if ("relative_std_from_forecast_percent" in settings and not
+            PercentageRangeLimit.min
+            <= settings["relative_std_from_forecast_percent"]
+            <= PercentageRangeLimit.max):
         raise D3ASettingsException("Invalid value for relative_std_from_forecast_percent "
-                                   f"({settings_dict['relative_std_from_forecast_percent']}).")
+                                   f"({settings['relative_std_from_forecast_percent']}).")
+
+    if ("bid_offer_match_algo" in settings
+            and not ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT[0]
+            <= settings["bid_offer_match_algo"]
+            <= ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT[1]):
+        raise D3ASettingsException(f"Invalid value ({settings['bid_offer_match_algo']}) "
+                                   "for bid offer match algo.")
 
 
 def calc_min_max_tick_length(slot_length):
