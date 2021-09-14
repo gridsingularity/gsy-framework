@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
-from d3a_interface.dataclasses import BidOfferMatch
+from d3a_interface.data_classes import BidOfferMatch
 
 
 class BaseMatchingAlgorithm(ABC):
