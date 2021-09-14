@@ -34,7 +34,7 @@ from redis.exceptions import ConnectionError
 
 from d3a_interface.constants_limits import (
     CN_PROFILE_EXPANSION_DAYS, DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
-    DEFAULT_PRECISION, TIME_FORMAT, TIME_ZONE, GlobalConfig)
+    DEFAULT_PRECISION, TIME_FORMAT, TIME_FORMAT_SECONDS, TIME_ZONE, GlobalConfig)
 
 
 def execute_function_util(function: callable, function_name: str):
@@ -189,14 +189,16 @@ def key_in_dict_and_not_none_and_negative(d, key):
 def str_to_pendulum_datetime(input_str):
     if input_str is None:
         return None
-    try:
-        pendulum_time = from_format(input_str, TIME_FORMAT)
-    except ValueError:
+
+    supported_formats = [TIME_FORMAT, DATE_TIME_FORMAT,
+                         DATE_TIME_FORMAT_SECONDS, TIME_FORMAT_SECONDS]
+
+    for datetime_format in supported_formats:
         try:
-            pendulum_time = from_format(input_str, DATE_TIME_FORMAT)
+            return from_format(input_str, datetime_format)
         except ValueError:
-            raise Exception(f"Format is not one of ('{TIME_FORMAT}', '{DATE_TIME_FORMAT}')")
-    return pendulum_time
+            continue
+    raise Exception(f"Format of {input_str} is not one of {supported_formats}")
 
 
 def datetime_str_to_ui_formatted_datetime_str(input_str):
