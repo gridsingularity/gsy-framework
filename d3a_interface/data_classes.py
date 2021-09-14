@@ -23,7 +23,8 @@ from typing import List, Dict, Optional, Tuple, Union
 
 from pendulum import DateTime, parse
 
-from d3a_interface.utils import datetime_to_string_incl_seconds, key_in_dict_and_not_none
+from d3a_interface.utils import (
+    datetime_to_string_incl_seconds, key_in_dict_and_not_none, str_to_pendulum_datetime)
 
 
 def json_datetime_serializer(date_obj: DateTime):
@@ -35,7 +36,7 @@ def json_datetime_serializer(date_obj: DateTime):
 
 class BaseBidOffer:
     """Base class defining shared functionality of Bid and Offer market structures."""
-    def __init__(self, id: str, time: datetime, price: float, energy: float,
+    def __init__(self, id: str, time: DateTime, price: float, energy: float,
                  original_price: Optional[float] = None,
                  attributes: Dict = None, requirements: List[Dict] = None):
         self.id = str(id)
@@ -97,7 +98,7 @@ class BaseBidOffer:
 
 
 class Offer(BaseBidOffer):
-    def __init__(self, id: str, time: datetime, price: float,
+    def __init__(self, id: str, time: DateTime, price: float,
                  energy: float, seller: str, original_price: Optional[float] = None,
                  seller_origin: str = None, seller_origin_id: str = None,
                  seller_id: str = None,
@@ -131,6 +132,24 @@ class Offer(BaseBidOffer):
                 "seller_id": self.seller_id,
                 }
 
+    @staticmethod
+    def from_dict(offer: Dict) -> "Offer":
+        """Deserialize an offer dict."""
+
+        return Offer(
+            **{"id": offer["id"],
+               "time": str_to_pendulum_datetime(offer["time"]),
+               "energy": offer["energy"],
+               "price": offer["energy"] * offer["energy_rate"],
+               "original_price": offer.get("original_price"),
+               "seller": offer.get("seller"),
+               "seller_origin": offer.get("seller_origin"),
+               "seller_origin_id": offer.get("seller_origin_id"),
+               "seller_id": offer.get("seller_id"),
+               "attributes": offer.get("attributes"),
+               "requirements": offer.get("requirements"),
+               })
+
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
                 self.price == other.price and
@@ -157,7 +176,7 @@ class Offer(BaseBidOffer):
 
 
 class Bid(BaseBidOffer):
-    def __init__(self, id: str, time: datetime, price: float,
+    def __init__(self, id: str, time: DateTime, price: float,
                  energy: float, buyer: str,
                  original_price: Optional[float] = None,
                  buyer_origin: str = None,
@@ -196,6 +215,24 @@ class Bid(BaseBidOffer):
                 "buyer_id": self.buyer_id,
                 "buyer": self.buyer,
                 }
+
+    @staticmethod
+    def from_dict(bid: Dict) -> "Bid":
+        """Deserialize a bid dict."""
+
+        return Bid(
+            **{"id": bid["id"],
+               "time": str_to_pendulum_datetime(bid["time"]),
+               "energy": bid["energy"],
+               "price": bid["energy"] * bid["energy_rate"],
+               "original_price": bid.get("original_price"),
+               "buyer": bid.get("buyer"),
+               "buyer_origin": bid.get("buyer_origin"),
+               "buyer_origin_id": bid.get("buyer_origin_id"),
+               "buyer_id": bid.get("buyer_id"),
+               "attributes": bid.get("attributes"),
+               "requirements": bid.get("requirements"),
+               })
 
     def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
