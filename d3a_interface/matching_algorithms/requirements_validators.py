@@ -178,11 +178,9 @@ class RequirementsSatisfiedChecker:
         offer = Offer.from_dict(offer) if isinstance(offer, dict) else offer
         bid = Bid.from_dict(bid) if isinstance(bid, dict) else bid
 
-        for offer_requirement in offer.requirements:
-            return cls.is_offer_requirement_satisfied(
-                offer, bid, offer_requirement, clearing_rate, selected_energy
-            )
-        return False
+        return any(cls.is_offer_requirement_satisfied(
+            offer, bid, offer_requirement, clearing_rate, selected_energy
+        ) for offer_requirement in offer.requirements)
 
     @classmethod
     def are_bid_requirements_satisfied(
@@ -194,8 +192,6 @@ class RequirementsSatisfiedChecker:
         offer = Offer.from_dict(offer) if isinstance(offer, dict) else offer
         bid = Bid.from_dict(bid) if isinstance(bid, dict) else bid
 
-        for bid_requirement in bid.requirements:
-            return cls.is_bid_requirement_satisfied(
-                offer, bid, bid_requirement, clearing_rate, selected_energy
-            )
-        return False
+        return any(cls.is_bid_requirement_satisfied(
+            offer, bid, bid_requirement, clearing_rate, selected_energy
+        ) for bid_requirement in bid.requirements)
