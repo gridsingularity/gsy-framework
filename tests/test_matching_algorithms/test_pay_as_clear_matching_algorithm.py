@@ -23,6 +23,7 @@ import pendulum
 import pytest
 
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
+from d3a_interface.dataclasses import Clearing
 from d3a_interface.matching_algorithms import (
     PayAsClearMatchingAlgorithm
 )
@@ -67,7 +68,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        pac_algo.state.clearing[market_id] = {current_time: (1, clearing_energy)}
+        pac_algo.state.clearing[market_id] = {current_time: Clearing(1, clearing_energy)}
         matches = pac_algo._create_bid_offer_matches(
             offers_list, bids_list, market_id=market_id, current_time=current_time)
         assert len(matches) == 5
@@ -89,7 +90,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        pac_algo.state.clearing[market_id] = {current_time: (1, 15)}
+        pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
             offers_list, bids_list, market_id=market_id, current_time=current_time)
 
@@ -117,7 +118,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        pac_algo.state.clearing[market_id] = {current_time: (1, 15)}
+        pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
             offer_list, bid_list, market_id=market_id, current_time=current_time)
 
@@ -144,7 +145,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        pac_algo.state.clearing[market_id] = {current_time: (1, 15)}
+        pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
             offer_list, bid_list, market_id=market_id, current_time=current_time)
 
@@ -172,7 +173,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        pac_algo.state.clearing[market_id] = {current_time: (1, 15)}
+        pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
             offer_list, bid_list, market_id=market_id, current_time=current_time)
 
@@ -198,7 +199,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        pac_algo.state.clearing[market_id] = {current_time: (1, 15)}
+        pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
             offer_list, bid_list, market_id=market_id, current_time=current_time)
 
@@ -222,7 +223,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        pac_algo.state.clearing[market_id] = {current_time: (1, 15)}
+        pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
             offers_list, bids_list, market_id=market_id, current_time=current_time)
 

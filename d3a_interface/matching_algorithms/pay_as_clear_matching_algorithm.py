@@ -49,7 +49,8 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
         self.sorted_bids = []
         self.sorted_offers = []
 
-    def get_matches_recommendations(self, matching_data):
+    def get_matches_recommendations(self, matching_data: Dict) -> List:
+        """Returns the recommended bid offer matches"""
         matches = []
         for market_id, data in matching_data.items():
             bids = data.get("bids")
@@ -59,16 +60,17 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             if clearing is None:
                 return []
 
-            clearing_rate, clearing_energy = clearing
-            if clearing_energy > 0:
-                log.info(f"Market Clearing Rate: {clearing_rate} "
-                         f"||| Clearing Energy: {clearing_energy} ")
+            if clearing.energy > 0:
+                log.info(f"Market Clearing Rate: {clearing.rate} "
+                         f"||| Clearing Energy: {clearing.energy} ")
             matches.extend(self._create_bid_offer_matches(
                 self.sorted_offers, self.sorted_bids, market_id, current_time))
         return matches
 
     @staticmethod
     def _discrete_point_curve(obj_list, round_functor):
+        """Create a dict with rounded energy rate as key and value as
+        cumulative energy of bids/offers"""
         cumulative = {}
         for obj in obj_list:
             rate = round_functor(obj["energy_rate"])
@@ -93,10 +95,12 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             if cumulative_offers[rate] >= cumulative_bids[rate]:
                 if cumulative_bids[rate] == 0:
                     return rate-1, cumulative_offers[rate-1]
-                return rate, cumulative_bids[rate]
+                return Clearing(rate, cumulative_bids[rate])
 
     @staticmethod
-    def _accumulated_energy_per_rate(offer_bids: List[Dict]):
+    def _accumulated_energy_per_rate(offer_bids: List[Dict]) -> OrderedDict:
+        """Return an ordered dict with with key as energy rate and value as accumulated
+        energy at that point"""
         energy_sum = 0
         accumulated = OrderedDict()
         for offer_bid in offer_bids:
@@ -105,7 +109,10 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
         return accumulated
 
     @staticmethod
-    def _clearing_point_from_supply_demand_curve(bids_rate_energy: Dict, offers_rate_energy: Dict):
+    def _clearing_point_from_supply_demand_curve(
+            bids_rate_energy: Dict, offers_rate_energy: Dict) -> Clearing:
+        """Sweeps over ordered dict having cumulative bids and offers incrementally at energy rate
+        to find clearing point"""
         clearing = []
         for b_rate, b_energy in bids_rate_energy.items():
             for o_rate, o_energy in offers_rate_energy.items():
@@ -114,18 +121,18 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                         clearing.append(Clearing(b_rate, b_energy))
         # if cumulative_supply is greater than cumulative_demand
         if len(clearing) > 0:
-            return clearing[0].rate, clearing[0].energy
+            return clearing[0]
         else:
             for b_rate, b_energy in bids_rate_energy.items():
                 for o_rate, o_energy in offers_rate_energy.items():
                     if o_rate <= (b_rate + MATCH_FLOATING_POINT_TOLERANCE) and o_energy < b_energy:
                         clearing.append(Clearing(b_rate, o_energy))
             if len(clearing) > 0:
-                return clearing[-1].rate, clearing[-1].energy
+                return clearing[-1]
 
     def get_clearing_point(self, bids: List[Dict], offers: List[Dict], current_time: DateTime,
                            market_id: str) -> Union[Clearing, None]:
-        """Sorts Bids and Offers to find the equilibrium point"""
+        """Sorts Bids and Offers and find the equilibrium point"""
         self.sorted_bids = sort_list_of_dicts_by_attribute(bids, "energy_rate", True)
         self.sorted_offers = sort_list_of_dicts_by_attribute(offers, "energy_rate")
         clearing, cumulative_bids, cumulative_offers = None, None, None
@@ -164,7 +171,8 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
 
     def _create_bid_offer_matches(self, offers: List[Dict], bids: List[Dict], market_id: str,
                                   current_time: str) -> List[Dict]:
-        clearing_rate, clearing_energy = self.state.clearing[market_id][current_time]
+        clearing_rate = self.state.clearing[market_id][current_time].rate
+        clearing_energy = self.state.clearing[market_id][current_time].energy
         # Return value, holds the bid-offer matches
         bid_offer_matches = []
         # Keeps track of the residual energy from offers that have been matched once,
