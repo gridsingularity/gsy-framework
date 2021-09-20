@@ -18,9 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 import math
-from logging import getLogger
 from collections import OrderedDict
+from logging import getLogger
 from typing import List, Dict, Union
+
 from pendulum import DateTime
 
 from d3a_interface.constants_limits import ConstSettings
@@ -87,7 +88,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
     @staticmethod
     def _get_clearing_point(max_rate: int, cumulative_bids: OrderedDict,
                             cumulative_offers: OrderedDict) -> (int, float):
-        """Gets the energy rate and cumulative energy at the point of equilibrium."""
+        """Get the energy rate and cumulative energy at the point of equilibrium."""
         for rate in range(1, max_rate + 1):
             if cumulative_offers[rate] >= cumulative_bids[rate]:
                 if cumulative_bids[rate] == 0:
@@ -141,8 +142,8 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
         elif ConstSettings.IAASettings.PAY_AS_CLEAR_AGGREGATION_ALGORITHM == 2:
             cumulative_bids = self._discrete_point_curve(self.sorted_bids, math.floor)
             cumulative_offers = self._discrete_point_curve(self.sorted_offers, math.ceil)
-            max_rate, cumulative_bids, cumulative_offers = \
-                self._populate_market_cumulative_offer_and_bid(cumulative_bids, cumulative_offers)
+            max_rate, cumulative_bids, cumulative_offers = (
+                self._populate_market_cumulative_offer_and_bid(cumulative_bids, cumulative_offers))
             clearing = self._get_clearing_point(max_rate, cumulative_bids, cumulative_offers)
         if clearing is not None:
             self.state.cumulative_bids[market_id] = {current_time: cumulative_bids}

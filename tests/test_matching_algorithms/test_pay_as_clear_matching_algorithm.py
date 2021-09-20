@@ -17,10 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from collections import namedtuple
 from typing import List, Dict
-
-import pytest
-import pendulum
 from uuid import uuid4
+
+import pendulum
+import pytest
 
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
 from d3a_interface.matching_algorithms import (
