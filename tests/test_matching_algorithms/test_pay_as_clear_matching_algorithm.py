@@ -23,10 +23,8 @@ import pendulum
 import pytest
 
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
-from d3a_interface.dataclasses import Clearing
-from d3a_interface.matching_algorithms import (
-    PayAsClearMatchingAlgorithm
-)
+from d3a_interface.data_classes import Clearing
+from d3a_interface.matching_algorithms import PayAsClearMatchingAlgorithm
 
 Offer = namedtuple("Offer", ["id", "time", "price", "energy", "seller"])
 Bid = namedtuple("Bid", ["id", "time", "price", "energy", "buyer"])
