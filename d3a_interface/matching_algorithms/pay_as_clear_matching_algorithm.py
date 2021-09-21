@@ -25,7 +25,7 @@ from typing import List, Dict, Union
 from pendulum import DateTime
 
 from d3a_interface.constants_limits import ConstSettings
-from d3a_interface.dataclasses import MarketClearingState, Clearing, BidOfferMatch
+from d3a_interface.data_classes import MarketClearingState, Clearing, BidOfferMatch
 from d3a_interface.matching_algorithms import BaseMatchingAlgorithm
 from d3a_interface.utils import sort_list_of_dicts_by_attribute, add_or_create_key
 
