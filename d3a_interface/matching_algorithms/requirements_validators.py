@@ -146,11 +146,14 @@ class RequirementsSatisfiedChecker:
 
     @staticmethod
     def is_offer_requirement_satisfied(
-            offer: Offer, bid: Bid,
+            offer: Union[Offer, Offer.serializable_dict],
+            bid: Union[Bid, Bid.serializable_dict],
             offer_requirement: Dict,
             clearing_rate: Optional[float] = None,
             selected_energy: Optional[float] = None):
         """Check whether an offer requirement is satisfied."""
+        offer = Offer.from_dict(offer) if isinstance(offer, dict) else offer
+        bid = Bid.from_dict(bid) if isinstance(bid, dict) else bid
         return all(key in SUPPORTED_OFFER_REQUIREMENTS
                    and SUPPORTED_OFFER_REQUIREMENTS[key].is_satisfied(
                     offer, bid, offer_requirement, clearing_rate, selected_energy)
@@ -158,11 +161,14 @@ class RequirementsSatisfiedChecker:
 
     @staticmethod
     def is_bid_requirement_satisfied(
-            offer: Offer, bid: Bid,
+            offer: Union[Offer, Offer.serializable_dict],
+            bid: Union[Bid, Bid.serializable_dict],
             bid_requirement: Dict,
             clearing_rate: Optional[float] = None,
             selected_energy: Optional[float] = None):
         """Check whether a bid requirement is satisfied."""
+        offer = Offer.from_dict(offer) if isinstance(offer, dict) else offer
+        bid = Bid.from_dict(bid) if isinstance(bid, dict) else bid
         return all(key in SUPPORTED_BID_REQUIREMENTS
                    and SUPPORTED_BID_REQUIREMENTS[key].is_satisfied(
                     offer, bid, bid_requirement, clearing_rate, selected_energy)
