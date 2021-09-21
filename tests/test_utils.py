@@ -1,13 +1,14 @@
+from unittest.mock import patch, MagicMock
+
 import pytest
 from pendulum import datetime, today
 
 from d3a_interface.utils import (
-    HomeRepresentationUtils, scenario_representation_traversal,
-    sort_list_of_dicts_by_attribute, convert_datetime_to_ui_str_format, str_to_pendulum_datetime)
+    HomeRepresentationUtils, convert_datetime_to_ui_str_format, execute_function_util,
+    scenario_representation_traversal, sort_list_of_dicts_by_attribute, str_to_pendulum_datetime)
 
 
 class TestUtils:
-
     def setup_method(self):
         self.scenario_repr = {
             "name": "grid",
@@ -64,3 +65,14 @@ class TestUtils:
             str_to_pendulum_datetime("an_erroneous_datetime_string")
         with pytest.raises(Exception):
             str_to_pendulum_datetime("2021-04-05T12:30:00-04:00")
+
+    @staticmethod
+    @patch("d3a_interface.utils.logging")
+    def test_execute_function_util_logs_raised_exceptions(logging_mock: MagicMock):
+        """The execute_function_util correctly logs exceptions when they are raised."""
+        raised_exception = ValueError("some exception message")
+        function_mock = MagicMock(side_effect=raised_exception)
+        execute_function_util(function_mock, function_name="function_mock_name")
+
+        logging_mock.exception.assert_called_once_with(
+            "%s raised exception: %s.", "function_mock_name", raised_exception)
