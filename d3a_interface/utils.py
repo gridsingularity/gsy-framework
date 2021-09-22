@@ -316,6 +316,7 @@ def round_floats_for_ui(number):
 def round_prices_to_cents(number):
     return round(number, 2)
 
+
 def create_subdict_or_update(indict, key, subdict):
     if key in indict:
         indict[key].update(subdict)
