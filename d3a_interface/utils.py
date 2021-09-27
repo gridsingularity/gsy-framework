@@ -34,7 +34,8 @@ from redis.exceptions import ConnectionError
 
 from d3a_interface.constants_limits import (
     PROFILE_EXPANSION_DAYS, DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
-    DEFAULT_PRECISION, TIME_FORMAT, TIME_FORMAT_SECONDS, TIME_ZONE, GlobalConfig)
+    DEFAULT_PRECISION, TIME_FORMAT, TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS, TIME_ZONE,
+    GlobalConfig)
 
 
 def execute_function_util(function: callable, function_name: str):
@@ -190,7 +191,7 @@ def str_to_pendulum_datetime(input_str):
     if input_str is None:
         return None
 
-    supported_formats = [TIME_FORMAT, DATE_TIME_FORMAT,
+    supported_formats = [TIME_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT_HOURS,
                          DATE_TIME_FORMAT_SECONDS, TIME_FORMAT_SECONDS]
 
     for datetime_format in supported_formats:
