@@ -43,7 +43,16 @@ class PVValidator(BaseValidator):
                                  kwargs["panel_count"],
                                  PvSettings.PANEL_COUNT_LIMIT.max, error_message)
 
-        if kwargs.get("max_panel_power_W") is not None:
+        if kwargs.get("capacity_kW") is not None:
+            error_message = {
+                "misconfiguration": ["capacity_kW should be in between "
+                                     f"{PvSettings.CAPACITY_KW_LIMIT.min} & "
+                                     f"{PvSettings.CAPACITY_KW_LIMIT.max}"]}
+            validate_range_limit(PvSettings.CAPACITY_KW_LIMIT.min,
+                                 kwargs["capacity_kW"],
+                                 PvSettings.CAPACITY_KW_LIMIT.max, error_message)
+
+        if kwargs.get("max_panel_power_W") is not None:  # deprecated
             error_message = {
                 "misconfiguration": ["max_panel_power_W should be in between "
                                      f"{PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.min} & "

@@ -23,19 +23,29 @@ import sys
 import time
 from collections import OrderedDict
 from copy import copy
-from functools import wraps, lru_cache
+from functools import lru_cache, wraps
 from pkgutil import walk_packages
 from statistics import mean
 from threading import Timer
-from typing import Dict, List, Callable
+from typing import Callable, Dict, List
 
-from pendulum import DateTime, from_format, from_timestamp, duration, datetime
+from pendulum import DateTime, datetime, duration, from_format, from_timestamp, instance
 from redis.exceptions import ConnectionError
 
-from d3a_interface.constants_limits import (DATE_TIME_UI_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT,
-                                            DATE_TIME_FORMAT_SECONDS, DEFAULT_PRECISION,
-                                            GlobalConfig, TIME_ZONE, PROFILE_EXPANSION_DAYS,
-                                            TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS)
+from d3a_interface.constants_limits import (
+    PROFILE_EXPANSION_DAYS, DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
+    DEFAULT_PRECISION, TIME_FORMAT, TIME_FORMAT_SECONDS, TIME_ZONE, GlobalConfig)
+
+
+def execute_function_util(function: callable, function_name: str):
+    """Log exceptions raised by the given callable without re-raising them.
+
+    This utility is used to log errors in functions submitted to ThreadPoolExecutor instances.
+    """
+    try:
+        function()
+    except Exception as ex:
+        logging.exception("%s raised exception: %s.", function_name, ex)
 
 
 def convert_datetime_to_str_in_list(in_list: List, ui_format: bool = False):
@@ -179,27 +189,16 @@ def key_in_dict_and_not_none_and_negative(d, key):
 def str_to_pendulum_datetime(input_str):
     if input_str is None:
         return None
-    try:
-        pendulum_time = from_format(input_str, TIME_FORMAT)
-    except ValueError:
+
+    supported_formats = [TIME_FORMAT, DATE_TIME_FORMAT,
+                         DATE_TIME_FORMAT_SECONDS, TIME_FORMAT_SECONDS]
+
+    for datetime_format in supported_formats:
         try:
-            pendulum_time = from_format(input_str, DATE_TIME_FORMAT)
+            return from_format(input_str, datetime_format)
         except ValueError:
-            try:
-                pendulum_time = from_format(input_str, DATE_TIME_FORMAT_SECONDS)
-            except ValueError:
-                try:
-                    pendulum_time = from_format(input_str, TIME_FORMAT_HOURS)
-                except ValueError:
-                    try:
-                        pendulum_time = from_format(input_str, TIME_FORMAT_SECONDS)
-                    except ValueError:
-                        raise Exception(f"Format is not one of ('{TIME_FORMAT}', "
-                                        f"'{DATE_TIME_FORMAT}', "
-                                        f"'{DATE_TIME_FORMAT_SECONDS}', "
-                                        f"'{TIME_FORMAT_HOURS}', "
-                                        f"'{TIME_FORMAT_SECONDS}')")
-    return pendulum_time
+            continue
+    raise Exception(f"Format of {input_str} is not one of {supported_formats}")
 
 
 def datetime_str_to_ui_formatted_datetime_str(input_str):
@@ -312,6 +311,10 @@ def get_area_uuid_name_mapping(area_dict, results):
 
 def round_floats_for_ui(number):
     return round(number, 3)
+
+
+def round_prices_to_cents(number):
+    return round(number, 2)
 
 
 def create_subdict_or_update(indict, key, subdict):
@@ -497,3 +500,7 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict],
         return sorted(
             input_list,
             key=lambda obj: obj.get(attribute))
+
+
+def convert_datetime_to_ui_str_format(data_time):
+    return instance(data_time).format(DATE_TIME_UI_FORMAT)

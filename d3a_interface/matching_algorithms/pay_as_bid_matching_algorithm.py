@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
-from d3a_interface.dataclasses import BidOfferMatch
+from d3a_interface.data_classes import BidOfferMatch
 from d3a_interface.matching_algorithms import BaseMatchingAlgorithm
 from d3a_interface.utils import sort_list_of_dicts_by_attribute
 
@@ -37,7 +37,7 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
                         selected_energy = min(bid.get("energy"), offer.get("energy"))
                         bid_offer_pairs.append(
                             BidOfferMatch(market_id=market_id,
-                                          bid=bid, offer=offer,
+                                          bids=[bid], offers=[offer],
                                           selected_energy=selected_energy,
                                           trade_rate=bid.get("energy_rate")).serializable_dict())
                         break
