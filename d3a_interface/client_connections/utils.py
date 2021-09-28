@@ -124,7 +124,7 @@ def log_market_progression(message: dict) -> None:
             headers.append("slot_completion")
             table_data.append(data_dict.get("slot_completion"))
 
-        if event == "market" and "market_slot" in data_dict:
+        if event in ["market", "market_cycle"] and "market_slot" in data_dict:
             headers.extend(["market_slot"])
             table_data.extend([data_dict.get("market_slot")])
 
