@@ -36,6 +36,7 @@ def json_datetime_serializer(date_obj: DateTime):
 class BaseBidOffer:
     """Base class defining shared functionality of Bid and Offer market structures."""
     def __init__(self, id: str, time: datetime, price: float, energy: float,
+                 actor: str, actor_id: str, actor_origin: str, actor_origin_id: str,
                  original_price: Optional[float] = None,
                  attributes: Dict = None, requirements: List[Dict] = None):
         self.id = str(id)
@@ -43,6 +44,10 @@ class BaseBidOffer:
         self.original_price = original_price or price
         self.price = price
         self.energy = energy
+        self.actor = actor
+        self.actor_id = actor_id
+        self.actor_origin = actor_origin
+        self.actor_origin_id = actor_origin_id
         self.energy_rate = self.price / self.energy
         self.attributes = attributes
         self.requirements = requirements
@@ -97,19 +102,14 @@ class BaseBidOffer:
 
 
 class Offer(BaseBidOffer):
-    def __init__(self, id: str, time: datetime, price: float,
-                 energy: float, seller: str, original_price: Optional[float] = None,
-                 seller_origin: str = None, seller_origin_id: str = None,
-                 seller_id: str = None,
-                 attributes: Dict = None,
+    def __init__(self, id: str, time: datetime, price: float, energy: float,
+                 actor: str, actor_id: str, actor_origin: str, actor_origin_id: str,
+                 original_price: Optional[float] = None, attributes: Dict = None,
                  requirements: List[Dict] = None):
         super().__init__(id=id, time=time, price=price, energy=energy,
-                         original_price=original_price,
+                         actor=actor, actor_id=actor_id, actor_origin=actor_origin,
+                         actor_origin_id=actor_origin_id, original_price=original_price,
                          attributes=attributes, requirements=requirements)
-        self.seller = seller
-        self.seller_origin = seller_origin
-        self.seller_origin_id = seller_origin_id
-        self.seller_id = seller_id
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -117,33 +117,35 @@ class Offer(BaseBidOffer):
     def __repr__(self) -> str:
         return (
             f"<Offer('{self.id!s:.6s}', '{self.energy} kWh@{self.price}',"
-            f" '{self.seller} {self.energy_rate}'>")
+            f" '{self.actor} {self.energy_rate}'>")
 
     def __str__(self) -> str:
-        return (f"{{{self.id!s:.6s}}} [origin: {self.seller_origin}] "
-                f"[{self.seller}]: {self.energy} kWh @ {self.price} @ {self.energy_rate}")
+        return (f"{{{self.id!s:.6s}}} [origin: {self.actor_origin}] "
+                f"[{self.actor}]: {self.energy} kWh @ {self.price} @ {self.energy_rate}")
 
     def serializable_dict(self) -> Dict:
         return {**super().serializable_dict(),
-                "seller": self.seller,
-                "seller_origin": self.seller_origin,
-                "seller_origin_id": self.seller_origin_id,
-                "seller_id": self.seller_id,
+                "seller": self.actor,
+                "seller_origin": self.actor_origin,
+                "seller_origin_id": self.actor_origin_id,
+                "seller_id": self.actor_id,
                 }
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: "Offer") -> bool:
         return (self.id == other.id and
                 self.price == other.price and
                 self.original_price == other.original_price and
                 self.energy == other.energy and
-                self.seller == other.seller and
-                self.seller_origin_id == other.seller_origin_id and
+                self.actor == other.actor and
+                self.actor_id == other.actor_id,
+                self.actor_origin == other.actor_origin,
+                self.actor_origin_id == other.actor_origin_id and
                 self.attributes == other.attributes and
                 self.requirements == other.requirements)
 
     def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
-        return rate, self.energy, self.price, self.seller
+        return rate, self.energy, self.price, self.actor
 
     @classmethod
     def csv_fields(cls):
@@ -151,67 +153,64 @@ class Offer(BaseBidOffer):
 
     @staticmethod
     def copy(offer: "Offer") -> "Offer":
-        return Offer(offer.id, offer.time, offer.price, offer.energy, offer.seller,
-                     offer.original_price, offer.seller_origin, offer.seller_origin_id,
-                     offer.seller_id, attributes=offer.attributes, requirements=offer.requirements)
+        return Offer(id=offer.id, time=offer.time, price=offer.price, energy=offer.energy,
+                     actor=offer.actor, actor_id=offer.actor_id, actor_origin=offer.actor_origin,
+                     actor_origin_id=offer.actor_origin_id, original_price=offer.original_price,
+                     attributes=offer.attributes, requirements=offer.requirements)
 
 
 class Bid(BaseBidOffer):
-    def __init__(self, id: str, time: datetime, price: float,
-                 energy: float, buyer: str,
+    def __init__(self, id: str, time: datetime, price: float, energy: float,
+                 actor: str, actor_id: str, actor_origin: str, actor_origin_id: str,
                  original_price: Optional[float] = None,
-                 buyer_origin: str = None,
-                 buyer_origin_id: str = None,
-                 buyer_id: str = None,
                  attributes: Dict = None,
-                 requirements: List[Dict] = None
-                 ):
+                 requirements: List[Dict] = None):
         super().__init__(id=id, time=time, price=price, energy=energy,
+                         actor=actor, actor_id=actor_id, actor_origin=actor_origin,
+                         actor_origin_id=actor_origin_id,
                          original_price=original_price,
                          attributes=attributes, requirements=requirements)
-        self.buyer = buyer
-        self.buyer_origin = buyer_origin
-        self.buyer_origin_id = buyer_origin_id
-        self.buyer_id = buyer_id
 
     def __hash__(self) -> int:
         return hash(self.id)
 
     def __repr__(self) -> str:
         return (
-            f"<Bid {{{self.id!s:.6s}}} [{self.buyer}] "
+            f"<Bid {{{self.id!s:.6s}}} [{self.actor}] "
             f"{self.energy} kWh @ {self.price} {self.energy_rate}>"
         )
 
     def __str__(self) -> str:
         return (
-            f"{{{self.id!s:.6s}}} [origin: {self.buyer_origin}] [{self.buyer}] "
+            f"{{{self.id!s:.6s}}} [origin: {self.actor_origin}] [{self.actor}] "
             f"{self.energy} kWh @ {self.price} {self.energy_rate}"
         )
 
     def serializable_dict(self) -> Dict:
         return {**super().serializable_dict(),
-                "buyer_origin": self.buyer_origin,
-                "buyer_origin_id": self.buyer_origin_id,
-                "buyer_id": self.buyer_id,
-                "buyer": self.buyer,
+                "buyer_origin": self.actor_origin,
+                "buyer_origin_id": self.actor_origin_id,
+                "buyer_id": self.actor_id,
+                "buyer": self.actor,
                 }
 
     def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
-        return rate, self.energy, self.price, self.buyer
+        return rate, self.energy, self.price, self.actor
 
     @classmethod
     def csv_fields(cls):
         return "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: "Bid") -> bool:
         return (self.id == other.id and
                 self.price == other.price and
                 self.original_price == other.original_price and
                 self.energy == other.energy and
-                self.buyer == other.buyer and
-                self.buyer_origin_id == other.buyer_origin_id and
+                self.actor == other.actor and
+                self.actor_id == other.actor_id and
+                self.actor_origin == other.actor_origin and
+                self.actor_origin_id == other.actor_origin_id and
                 self.attributes == other.attributes and
                 self.requirements == other.requirements)
 
@@ -355,10 +354,10 @@ class BalancingOffer(Offer):
     def __repr__(self) -> str:
         return (f"<BalancingOffer('{self.id!s:.6s}', "
                 f"'{self.energy} kWh@{self.price}', "
-                f"'{self.seller} {self.energy_rate}'>")
+                f"'{self.actor} {self.energy_rate}'>")
 
     def __str__(self) -> str:
-        return (f"<BalancingOffer{{{self.id!s:.6s}}} [{self.seller}]: "
+        return (f"<BalancingOffer{{{self.id!s:.6s}}} [{self.actor}]: "
                 f"{self.energy} kWh @ {self.price} @ {self.energy_rate}>")
 
 
