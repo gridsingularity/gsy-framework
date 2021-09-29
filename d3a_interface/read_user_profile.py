@@ -58,14 +58,16 @@ def _str_to_datetime(time_str, time_format) -> DateTime:
         raise D3AReadProfileException("Provided time_format invalid.")
 
 
-def default_profile_dict(val=None) -> Dict[DateTime, int]:
+def default_profile_dict(val=None, current_timestamp=None) -> Dict[DateTime, int]:
     """
     Returns dictionary with default values for all market slots.
     :param val: Default value
     """
     if val is None:
         val = 0
-    return {time_slot: val for time_slot in generate_market_slot_list()}
+    return {time_slot: val
+            for time_slot in
+            generate_market_slot_list(start_timestamp=current_timestamp)}
 
 
 def is_number(number):
@@ -218,7 +220,8 @@ def _fill_gaps_in_profile(input_profile: Dict = None, out_profile: Dict = None) 
     return out_profile
 
 
-def _read_from_different_sources_todict(input_profile: Any) -> Dict[DateTime, float]:
+def _read_from_different_sources_todict(
+        input_profile: Any, current_timestamp: DateTime = None) -> Dict[DateTime, float]:
     """
     Reads arbitrary profile.
     Handles csv, dict and string input.
@@ -274,33 +277,13 @@ def _read_from_different_sources_todict(input_profile: Any) -> Dict[DateTime, fl
             isinstance(input_profile, float) or \
             isinstance(input_profile, tuple):
         # input is single value
-        profile = default_profile_dict(val=input_profile)
+        profile = default_profile_dict(val=input_profile, current_timestamp=current_timestamp)
 
     else:
         raise D3AReadProfileException(
             f"Unsupported input type: {str(input_profile)}")
 
     return profile
-
-
-def _eval_time_period_consensus(input_profile: Dict):
-    """
-    Checks whether the provided profile is providing information for the simulation time period
-    :return:
-    """
-    input_time_list = list(input_profile.keys())
-    simulation_time_list = [GlobalConfig.start_date,
-                            GlobalConfig.start_date + GlobalConfig.sim_duration
-                            - GlobalConfig.slot_length]
-    if simulation_time_list[0] < input_time_list[0] or \
-            simulation_time_list[-1] > input_time_list[-1]:
-        raise D3AReadProfileException(
-            f"Provided profile is not overlapping with simulation time period "
-            f"(provided time period: {input_time_list[0].format(DATE_TIME_FORMAT)}, "
-            f"{input_time_list[-1].format(DATE_TIME_FORMAT)}, "
-            f"simulation time period: "
-            f"{simulation_time_list[0].format(DATE_TIME_FORMAT)}, "
-            f"{simulation_time_list[-1].format(DATE_TIME_FORMAT)})")
 
 
 def time_str(hour, minute):
@@ -320,7 +303,8 @@ def copy_profile_to_multiple_days(in_profile):
 
 @return_ordered_dict
 def read_arbitrary_profile(profile_type: InputProfileTypes,
-                           input_profile) -> Dict[DateTime, float]:
+                           input_profile,
+                           current_timestamp: DateTime = None) -> Dict[DateTime, float]:
     """
     Reads arbitrary profile.
     Handles csv, dict and string input.
@@ -330,20 +314,21 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
     or a dict with hourly data (Dict[int, float])
     or a dict with arbitrary time data (Dict[str, float])
     or a string containing a serialized dict of the aforementioned structure
+    :param current_timestamp:
     :return: a mapping from time to profile values
     """
 
-    profile = _read_from_different_sources_todict(input_profile)
+    profile = _read_from_different_sources_todict(input_profile,
+                                                  current_timestamp=current_timestamp)
     profile_time_list = list(profile.keys())
     profile_duration = profile_time_list[-1] - profile_time_list[0]
     if GlobalConfig.sim_duration > duration(days=1) >= profile_duration or \
             GlobalConfig.IS_CANARY_NETWORK:
         profile = copy_profile_to_multiple_days(profile)
     if profile is not None:
-        zero_value_slot_profile = default_profile_dict()
+
+        zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
         filled_profile = _fill_gaps_in_profile(profile, zero_value_slot_profile)
-        if not GlobalConfig.IS_CANARY_NETWORK:
-            _eval_time_period_consensus(filled_profile)
 
         if profile_type == InputProfileTypes.POWER:
             return _calculate_energy_from_power_profile(filled_profile, GlobalConfig.slot_length)
@@ -387,7 +372,12 @@ def read_profile_without_config(input_profile: Dict, slot_length_mins=15) -> Dic
             f"Profile file cannot be read successfully. Please reconfigure the file path.")
 
 
-def read_and_convert_identity_profile_to_float(profile):
+def read_and_convert_identity_profile_to_float(profile, current_timestamp: DateTime = None):
     parsed_profile = ast.literal_eval(str(profile))
-    generated_profile = read_arbitrary_profile(InputProfileTypes.IDENTITY, parsed_profile)
+    generated_profile = read_arbitrary_profile(InputProfileTypes.IDENTITY, parsed_profile,
+                                               current_timestamp=current_timestamp)
     return {k: float(v) for k, v in generated_profile.items()}
+
+
+def convert_identity_profile_to_float(profile, current_timestamp: DateTime = None):
+    return {k: float(v) for k, v in profile.items()}
