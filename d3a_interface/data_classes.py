@@ -470,9 +470,9 @@ class Clearing:
 
 @dataclass
 class MarketClearingState:
-    cumulative_offers: Dict = field(default_factory=dict)
-    cumulative_bids: Dict = field(default_factory=dict)
-    clearing: Dict = field(default_factory=dict)
+    cumulative_offers: Dict[str, Dict[DateTime, Dict]] = field(default_factory=dict)
+    cumulative_bids: Dict[str, Dict[DateTime, Dict]] = field(default_factory=dict)
+    clearing: Dict[str, Dict[DateTime, Clearing]] = field(default_factory=dict)
 
     @classmethod
     def csv_fields(cls):

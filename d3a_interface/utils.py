@@ -29,12 +29,13 @@ from statistics import mean
 from threading import Timer
 from typing import Callable, Dict, List
 
-from pendulum import DateTime, datetime, duration, from_format, from_timestamp, instance, today
+from pendulum import DateTime, datetime, duration, from_format, from_timestamp, instance
 from redis.exceptions import ConnectionError
 
 from d3a_interface.constants_limits import (
-    CN_PROFILE_EXPANSION_DAYS, DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
-    DEFAULT_PRECISION, TIME_FORMAT, TIME_FORMAT_SECONDS, TIME_ZONE, GlobalConfig)
+    PROFILE_EXPANSION_DAYS, DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
+    DEFAULT_PRECISION, TIME_FORMAT, TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS, TIME_ZONE,
+    DATE_TIME_FORMAT_HOURS, GlobalConfig)
 
 
 def execute_function_util(function: callable, function_name: str):
@@ -66,38 +67,38 @@ def convert_datetime_to_str_in_list(in_list: List, ui_format: bool = False):
     return out_list
 
 
-def generate_market_slot_list_from_config(sim_duration: duration, start_date: DateTime,
+def generate_market_slot_list_from_config(sim_duration: duration, start_timestamp: DateTime,
                                           market_count: int, slot_length: duration):
     """
     Returns a list of all slot times in Datetime format
     @param sim_duration: Total simulation duration
-    @param start_date: Start datetime of the simulation
+    @param start_timestamp: Start datetime of the simulation
     @param market_count: Number of future markets
     @param slot_length: Market slot length
     @return: List with market slot datetimes
     """
     return [
-        start_date + (slot_length * i) for i in range(
+        start_timestamp + (slot_length * i) for i in range(
             (sim_duration + (market_count * slot_length)) //
             slot_length - 1)
         if (slot_length * i) <= sim_duration]
 
 
-def generate_market_slot_list():
+def generate_market_slot_list(start_timestamp=None):
     """
     Creates a list with datetimes that correspond to market slots of the simulation.
     No input arguments, required input is only handled by a preconfigured GlobalConfig
     @return: List with market slot datetimes
     """
-    start_date = today(tz=TIME_ZONE) \
-        if GlobalConfig.IS_CANARY_NETWORK else GlobalConfig.start_date
-    time_span = duration(days=CN_PROFILE_EXPANSION_DAYS) \
-        if GlobalConfig.IS_CANARY_NETWORK else GlobalConfig.sim_duration
+    time_span = duration(days=PROFILE_EXPANSION_DAYS)\
+        if GlobalConfig.IS_CANARY_NETWORK \
+        else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
     sim_duration_plus_future_markets = time_span + GlobalConfig.slot_length * \
         (GlobalConfig.market_count - 1)
     market_slot_list = \
         generate_market_slot_list_from_config(sim_duration=sim_duration_plus_future_markets,
-                                              start_date=start_date,
+                                              start_timestamp=start_timestamp
+                                              if start_timestamp else GlobalConfig.start_date,
                                               market_count=GlobalConfig.market_count,
                                               slot_length=GlobalConfig.slot_length)
 
@@ -190,8 +191,8 @@ def str_to_pendulum_datetime(input_str):
     if input_str is None:
         return None
 
-    supported_formats = [TIME_FORMAT, DATE_TIME_FORMAT,
-                         DATE_TIME_FORMAT_SECONDS, TIME_FORMAT_SECONDS]
+    supported_formats = [TIME_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT_HOURS,
+                         DATE_TIME_FORMAT_SECONDS, TIME_FORMAT_SECONDS, DATE_TIME_FORMAT_HOURS]
 
     for datetime_format in supported_formats:
         try:
@@ -311,6 +312,10 @@ def get_area_uuid_name_mapping(area_dict, results):
 
 def round_floats_for_ui(number):
     return round(number, 3)
+
+
+def round_prices_to_cents(number):
+    return round(number, 2)
 
 
 def create_subdict_or_update(indict, key, subdict):
