@@ -83,8 +83,8 @@ class SelectedEnergyRequirement(Requirement):
         return bid_required_energy >= selected_energy
 
 
-class ClearingRateRequirement(Requirement):
-    """Check if price (clearing rate) requirement of bid is satisfied."""
+class PriceRequirement(Requirement):
+    """Check if price requirement of bid is satisfied."""
 
     @classmethod
     def is_satisfied(cls, offer: Offer, bid: Bid, requirement: Dict,
@@ -93,10 +93,12 @@ class ClearingRateRequirement(Requirement):
         bid_required_price = requirement.get("price")
         assert isinstance(bid_required_price, (int, float)), \
             f"Invalid data type for energy {requirement}"
+        assert isinstance(selected_energy, (int, float)), \
+            f"Invalid data type for selected_energy {selected_energy}"
         assert isinstance(clearing_rate, (int, float)), \
             f"Invalid data type for clearing_rate {clearing_rate}"
-        # bid_required_energy is None or it is defined & equals selected_energy -> true
-        return bid_required_price >= clearing_rate
+        # bid_required_price <= price -> true
+        return bid_required_price <= selected_energy * clearing_rate
 
 
 # Supported offers/bids requirements
@@ -110,7 +112,7 @@ SUPPORTED_BID_REQUIREMENTS = {
     "trading_partners": TradingPartnersRequirement,
     "energy_type": EnergyTypeRequirement,
     "energy": SelectedEnergyRequirement,
-    "price": ClearingRateRequirement
+    "price": PriceRequirement
 }
 
 

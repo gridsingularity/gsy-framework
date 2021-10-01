@@ -7,7 +7,7 @@ from d3a_interface.data_classes import Offer, Bid
 from d3a_interface.matching_algorithms.requirements_validators import (
     EnergyTypeRequirement,
     TradingPartnersRequirement,
-    RequirementsSatisfiedChecker, SelectedEnergyRequirement, ClearingRateRequirement)
+    RequirementsSatisfiedChecker, SelectedEnergyRequirement, PriceRequirement)
 
 
 @pytest.fixture
@@ -86,25 +86,26 @@ class TestRequirementsValidator:
         assert SelectedEnergyRequirement.is_satisfied(
             offer, bid, requirement, selected_energy=9) is True
 
-    def test_clearing_rate_requirement(self, offer, bid):
+    def test_price_requirement(self, offer, bid):
         requirement = {"price": "1"}
         with pytest.raises(AssertionError):
             # price is not of type float
-            ClearingRateRequirement.is_satisfied(
+            PriceRequirement.is_satisfied(
                 offer, bid, requirement, clearing_rate=2)
         requirement = {"price": 1}
         with pytest.raises(AssertionError):
-            # selected price is not passed
-            ClearingRateRequirement.is_satisfied(
+            # selected clearing_rate and selected energy are not passed
+            PriceRequirement.is_satisfied(
                 offer, bid, requirement)
         requirement = {"price": 10}
         bid.requirements = [requirement]
-        assert ClearingRateRequirement.is_satisfied(
-            offer, bid, requirement, clearing_rate=12) is False
-        requirement = {"price": 10}
+        # required price is greater than the clearing_rate * selected_energy
+        assert PriceRequirement.is_satisfied(
+            offer, bid, requirement, clearing_rate=8, selected_energy=1) is False
+        requirement = {"price": 8}
         bid.requirements = [requirement]
-        assert ClearingRateRequirement.is_satisfied(
-            offer, bid, requirement, clearing_rate=9) is True
+        assert PriceRequirement.is_satisfied(
+            offer, bid, requirement, clearing_rate=8, selected_energy=1) is True
 
     @patch(
         "d3a_interface.matching_algorithms.requirements_validators."
