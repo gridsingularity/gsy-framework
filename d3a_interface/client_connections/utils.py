@@ -108,7 +108,7 @@ def log_market_progression(message: dict) -> None:
 
     try:
         event = message.get("event", None)
-        if event not in ["tick", "market"]:
+        if event not in ["tick", "market", "market_cycle"]:
             return
         headers = ["event", ]
         table_data = [event, ]
