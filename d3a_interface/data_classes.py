@@ -137,18 +137,17 @@ class Offer(BaseBidOffer):
         """Deserialize an offer dict."""
 
         return Offer(
-            **{"id": offer["id"],
-               "time": str_to_pendulum_datetime(offer["time"]),
-               "energy": offer["energy"],
-               "price": offer["energy"] * offer["energy_rate"],
-               "original_price": offer.get("original_price"),
-               "seller": offer.get("seller"),
-               "seller_origin": offer.get("seller_origin"),
-               "seller_origin_id": offer.get("seller_origin_id"),
-               "seller_id": offer.get("seller_id"),
-               "attributes": offer.get("attributes"),
-               "requirements": offer.get("requirements"),
-               })
+            id=offer["id"],
+            time=str_to_pendulum_datetime(offer["time"]),
+            energy=offer["energy"],
+            price=offer["energy"] * offer["energy_rate"],
+            original_price=offer.get("original_price"),
+            seller=offer.get("seller"),
+            seller_origin=offer.get("seller_origin"),
+            seller_origin_id=offer.get("seller_origin_id"),
+            seller_id=offer.get("seller_id"),
+            attributes=offer.get("attributes"),
+            requirements=offer.get("requirements"))
 
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
@@ -221,18 +220,18 @@ class Bid(BaseBidOffer):
         """Deserialize a bid dict."""
 
         return Bid(
-            **{"id": bid["id"],
-               "time": str_to_pendulum_datetime(bid["time"]),
-               "energy": bid["energy"],
-               "price": bid["energy"] * bid["energy_rate"],
-               "original_price": bid.get("original_price"),
-               "buyer": bid.get("buyer"),
-               "buyer_origin": bid.get("buyer_origin"),
-               "buyer_origin_id": bid.get("buyer_origin_id"),
-               "buyer_id": bid.get("buyer_id"),
-               "attributes": bid.get("attributes"),
-               "requirements": bid.get("requirements"),
-               })
+            id=bid["id"],
+            time=str_to_pendulum_datetime(bid["time"]),
+            energy=bid["energy"],
+            price=bid["energy"] * bid["energy_rate"],
+            original_price=bid.get("original_price"),
+            buyer=bid.get("buyer"),
+            buyer_origin=bid.get("buyer_origin"),
+            buyer_origin_id=bid.get("buyer_origin_id"),
+            buyer_id=bid.get("buyer_id"),
+            attributes=bid.get("attributes"),
+            requirements=bid.get("requirements")
+        )
 
     def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
