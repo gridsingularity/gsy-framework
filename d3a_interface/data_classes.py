@@ -143,11 +143,11 @@ class Offer(BaseBidOffer):
 
     def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
-        return rate, self.energy, self.price, self.seller
+        return self.time, rate, self.energy, self.price, self.seller
 
     @classmethod
-    def csv_fields(cls):
-        return "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"
+    def csv_fields(cls) -> Tuple:
+        return "time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"
 
     @staticmethod
     def copy(offer: "Offer") -> "Offer":
@@ -199,11 +199,11 @@ class Bid(BaseBidOffer):
 
     def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
-        return rate, self.energy, self.price, self.buyer
+        return self.time, rate, self.energy, self.price, self.buyer
 
     @classmethod
-    def csv_fields(cls):
-        return "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"
+    def csv_fields(cls) -> Tuple:
+        return "time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"
 
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
