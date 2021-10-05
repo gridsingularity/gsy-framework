@@ -26,6 +26,7 @@ from d3a_interface.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum
 
 RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
 RateRange = namedtuple('RateRange', ('initial', 'final'))
+PercentageRangeLimit = RangeLimit(0, 100)
 
 
 class ConstSettings:
@@ -57,6 +58,11 @@ class ConstSettings:
         MIN_TICK_LENGTH_S = 1
 
         REDIS_PUBLISH_FULL_RESULTS = False
+
+    class SettlementMarketSettings:
+        MAX_AGE_SETTLEMENT_MARKET_HOURS = 1
+        ENABLE_SETTLEMENT_MARKETS = False
+        RELATIVE_STD_FROM_FORECAST_FLOAT = 10.0
 
     class AreaSettings:
         PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
@@ -118,17 +124,19 @@ class ConstSettings:
         PANEL_COUNT_LIMIT = RangeLimit(1, 10000)
         FINAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
         INITIAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
-        MAX_PANEL_OUTPUT_W_LIMIT = RangeLimit(0, sys.maxsize)
+        CAPACITY_KW_LIMIT = RangeLimit(0, sys.maxsize)
+        MAX_PANEL_OUTPUT_W_LIMIT = RangeLimit(0, sys.maxsize)  # needed for backward compatibility
         SELLING_RATE_RANGE = RateRange(30, 0)
         # Applies to the predefined PV strategy, where a PV profile is selected out of 3 predefined
         # ones. Available values 0: sunny, 1: partial cloudy, 2: cloudy, 3: Gaussian
         DEFAULT_POWER_PROFILE = 0
         CLOUD_COVERAGE_LIMIT = RangeLimit(0, 4)
-        # Applies to gaussian PVStrategy, controls the max panel output in Watts.
-        MAX_PANEL_OUTPUT_W = 160
+        # Power rating for PVs (Gaussian and Predefined)
+        DEFAULT_CAPACITY_KW = 5
+        MAX_PANEL_OUTPUT_W = 160  # needed for backward compatibility
         PV_PENALTY_RATE = 0
 
-    class HomeMeterSettings:
+    class SmartMeterSettings:
         # Production constants
         SELLING_RATE_RANGE = RateRange(30, 0)
         INITIAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
@@ -151,9 +159,10 @@ class ConstSettings:
         VALID_FEE_TYPES = [1, 2]
         # Market type option
         MARKET_TYPE = SpotMarketTypeEnum.ONE_SIDED.value
-        MARKET_TYPE_LIMIT = RangeLimit(1, 3)
+        MARKET_TYPE_LIMIT = RangeLimit(1, 2)
 
         BID_OFFER_MATCH_TYPE = BidOfferMatchAlgoEnum.PAY_AS_BID.value
+        BID_OFFER_MATCH_TYPE_LIMIT = RangeLimit(1, 3)
 
         # Pay as clear offer and bid rate/energy aggregation algorithm
         # Default value 1 stands for line sweep algorithm
@@ -231,14 +240,16 @@ class HeartBeat:
     TOLERANCE = 16  # in secs
 
 
+TIME_FORMAT_HOURS = "HH"
 TIME_FORMAT = "HH:mm"
 TIME_FORMAT_SECONDS = "HH:mm:ss"
 DATE_FORMAT = "YYYY-MM-DD"
 DATE_TIME_FORMAT = f"{DATE_FORMAT}T{TIME_FORMAT}"
 DATE_TIME_FORMAT_SECONDS = f"{DATE_FORMAT}T{TIME_FORMAT_SECONDS}"
+DATE_TIME_FORMAT_HOURS = f"{DATE_FORMAT}T{TIME_FORMAT_HOURS}"
 DATE_TIME_UI_FORMAT = "MMMM DD YYYY, HH:mm [h]"
 TIME_ZONE = 'UTC'
-CN_PROFILE_EXPANSION_DAYS = 7
+PROFILE_EXPANSION_DAYS = 7
 
 JWT_TOKEN_EXPIRY_IN_SECS = 48 * 3600
 
