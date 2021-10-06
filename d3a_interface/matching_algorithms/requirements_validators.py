@@ -61,10 +61,10 @@ class EnergyTypeRequirement(Requirement):
         bid_required_energy_types = requirement.get("energy_type")
         assert isinstance(bid_required_energy_types, list), \
             f"Invalid data type for energy_type {requirement}"
-        offer_energy_type = (
-                offer.attributes or {}).get("energy_type", None)
-        # bid_required_energy_types is None or it is defined & includes offer_energy_type -> true
-        return not bid_required_energy_types or offer_energy_type in bid_required_energy_types
+        offer_energy_type = (offer.attributes or {}).get("energy_type", None)
+        if not bid_required_energy_types:
+            return True
+        return offer_energy_type in bid_required_energy_types
 
 
 class SelectedEnergyRequirement(Requirement):
@@ -79,7 +79,7 @@ class SelectedEnergyRequirement(Requirement):
             f"Invalid data type for energy {requirement}"
         assert isinstance(selected_energy, (int, float)), \
             f"Invalid data type for selected_energy {selected_energy}"
-        # bid_required_energy is None or it is defined & equals selected_energy -> true
+
         return bid_required_energy >= selected_energy
 
 
@@ -131,20 +131,20 @@ class RequirementsSatisfiedChecker:
         bid = Bid.from_dict(bid) if isinstance(bid, dict) else bid
 
         if offer.requirements:
-            offer_requirement_satisfied = cls.are_offer_requirements_satisfied(
+            offer_requirements_satisfied = cls.are_offer_requirements_satisfied(
                 offer, bid, clearing_rate, selected_energy)
         else:
-            # If concerned offer have no requirements, consider it as satisfied.
-            offer_requirement_satisfied = True
+            # If the concerned offer has no requirements, consider it as satisfied.
+            offer_requirements_satisfied = True
 
         if bid.requirements:
-            bid_requirement_satisfied = cls.are_bid_requirements_satisfied(
+            bid_requirements_satisfied = cls.are_bid_requirements_satisfied(
                 offer, bid, clearing_rate, selected_energy)
         else:
-            # If concerned bid have no requirements, consider it as satisfied.
-            bid_requirement_satisfied = True
+            # If the concerned bid has no requirements, consider it as satisfied.
+            bid_requirements_satisfied = True
 
-        return offer_requirement_satisfied and bid_requirement_satisfied
+        return offer_requirements_satisfied and bid_requirements_satisfied
 
     @staticmethod
     def is_offer_requirement_satisfied(
