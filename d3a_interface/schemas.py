@@ -42,7 +42,7 @@ class ScenarioSchemas:
                                         {"$ref": "#/definitions/area"},
                                         {"$ref": "#/definitions/pv"},
                                         {"$ref": "#/definitions/load"},
-                                        {"$ref": "#/definitions/home_meter"},
+                                        {"$ref": "#/definitions/smart_meter"},
                                         {"$ref": "#/definitions/infinite_power_plant"},
                                         {"$ref": "#/definitions/finite_power_plant"},
                                         {"$ref": "#/definitions/storage"}
@@ -66,7 +66,7 @@ class ScenarioSchemas:
                     "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "energy_rate_decrease_per_update": {"anyOf": [{"type": "number"},
                                                                   {"type": "null"}]},
-                    "max_panel_power_W": {"type": "number"},
+                    "capacity_kW": {"type": "number"},
                     "cloud_coverage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "power_profile": {"anyOf": [{"type": "number"},
                                                 {"type": "null"},
@@ -125,11 +125,11 @@ class ScenarioSchemas:
                                                      {"type": "string"}]}
                 }
             },
-            "home_meter": {
+            "smart_meter": {
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "type": {"enum": ["HomeMeter"]},
+                    "type": {"enum": ["SmartMeter"]},
                     "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
@@ -174,7 +174,7 @@ class ScenarioSchemas:
             {"$ref": "#/definitions/area"},
             {"$ref": "#/definitions/pv"},
             {"$ref": "#/definitions/load"},
-            {"$ref": "#/definitions/home_meter"},
+            {"$ref": "#/definitions/smart_meter"},
             {"$ref": "#/definitions/infinite_power_plant"},
             {"$ref": "#/definitions/finite_power_plant"},
             {"$ref": "#/definitions/storage"}
