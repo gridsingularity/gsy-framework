@@ -122,8 +122,8 @@ class PVValidator(BaseValidator):
         # validate location is provided to work with azimuth/tilt
         if (kwargs.get("geo_tag_location") is None and
                 (kwargs.get("standard_orientations") is not None or
-                 kwargs.get("azimuth") is not None and
-                 kwargs.get("tilt") is None)):
+                 kwargs.get("azimuth") is not None or
+                 kwargs.get("tilt") is not None)):
             raise D3ADeviceException({"misconfiguration": [
                 "Geo-coordinate for PV asset must be provided "
                 "to work with Azimuth/tilt or standard_orientations."]})
