@@ -30,6 +30,7 @@ class PVValidator(BaseValidator):
         """Validate the energy and rate values of the device."""
         cls.validate_energy(**kwargs)
         cls.validate_rate(**kwargs)
+        cls.validate_settings(**kwargs)
 
     @classmethod
     def validate_energy(cls, **kwargs):
@@ -114,3 +115,37 @@ class PVValidator(BaseValidator):
             validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                                  kwargs["energy_rate_decrease_per_update"],
                                  GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
+
+    @classmethod
+    def validate_settings(cls, **kwargs):
+        """Validator to catch mis-configured PV parameters"""
+        # validate location is provided to work with azimuth/tilt
+        if (kwargs.get("geo_tag_location") is None and
+                (kwargs.get("standard_orientations") is not None or
+                 kwargs.get("azimuth") is not None and
+                 kwargs.get("tilt") is None)):
+            raise D3ADeviceException({"misconfiguration": [
+                "Geo-coordinate for PV asset must be provided "
+                "to work with Azimuth/tilt or standard_orientations."]})
+
+        # validate standard_orientations isn't set together with azimuth/tilt
+        if (kwargs.get("standard_orientations") is not None and
+                (kwargs.get("azimuth") is not None or kwargs.get("tilt") is not None)):
+            raise D3ADeviceException({"misconfiguration": ["Azimuth/tilt cannot be set together "
+                                                           "with standard_orientations."]})
+
+        # validate both azimuth and tilt needs to be set together.
+        if ((kwargs.get("azimuth") is not None and kwargs.get("tilt") is None) or
+                (kwargs.get("azimuth") is None and kwargs.get("tilt") is not None)):
+            raise D3ADeviceException({"misconfiguration": ["Either both azimuth and tilt needs "
+                                                           "to be set or none of them."]})
+
+        # validate azimuth isn't out of bound
+        if kwargs.get("azimuth") is not None and not (0 <= kwargs["azimuth"] <= 360):
+            raise D3ADeviceException({"misconfiguration": ["Azimuth could only be in between "
+                                                           "0 and 360 degrees."]})
+
+        # validate tilt isn't out of bound
+        if kwargs.get("tilt") is not None and not (0 <= kwargs["tilt"] <= 90):
+            raise D3ADeviceException({"misconfiguration": ["tilt could only be in between "
+                                                           "0 and 90 degrees."]})
