@@ -124,24 +124,20 @@ def find_object_of_same_weekday_and_time(indict: Dict, time_slot: DateTime,
                              if the time_slot cannot be found in the original dict
     @return: Profile value for the requested time slot
     """
-    if GlobalConfig.IS_CANARY_NETWORK:
-        start_time = list(indict.keys())[0]
-        add_days = time_slot.weekday() - start_time.weekday()
-        if add_days < 0:
-            add_days += 7
-        timestamp_key = datetime(year=start_time.year, month=start_time.month, day=start_time.day,
-                                 hour=time_slot.hour, minute=time_slot.minute, tz=TIME_ZONE).add(
-            days=add_days)
+    start_time = list(indict.keys())[0]
+    add_days = time_slot.weekday() - start_time.weekday()
+    if add_days < 0:
+        add_days += 7
+    timestamp_key = datetime(year=start_time.year, month=start_time.month, day=start_time.day,
+                             hour=time_slot.hour, minute=time_slot.minute, tz=TIME_ZONE).add(
+        days=add_days)
 
-        if timestamp_key in indict:
-            return indict[timestamp_key]
-        else:
-            if not ignore_not_found:
-                logging.error(f"Weekday and time not found in dict for {time_slot}")
-            return
-
+    if timestamp_key in indict:
+        return indict[timestamp_key]
     else:
-        return indict[time_slot]
+        if not ignore_not_found:
+            logging.error(f"Weekday and time not found in dict for {time_slot}")
+        return
 
 
 def wait_until_timeout_blocking(functor: Callable, timeout: int = 10, polling_period: int = 0.01):
