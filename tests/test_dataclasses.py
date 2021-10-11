@@ -259,6 +259,12 @@ class TestOffer:
             "seller_id": offer.seller_id,
         }
 
+    def test_from_dict(self):
+        offer = Offer(
+            **self.initial_data,
+        )
+        assert Offer.from_dict(offer.serializable_dict()) == offer
+
     def test_eq(self):
         offer = Offer(
             **self.initial_data
@@ -360,6 +366,12 @@ class TestBid:
             "buyer_origin_id": bid.buyer_origin_id,
             "buyer_id": bid.buyer_id,
         }
+
+    def test_from_dict(self):
+        bid = Bid(
+            **self.initial_data,
+        )
+        assert Bid.from_dict(bid.serializable_dict()) == bid
 
     def test_eq(self):
         bid = Bid(
