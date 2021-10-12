@@ -289,11 +289,11 @@ class TestOffer:
             **self.initial_data
         )
         rate = round(offer.energy_rate, 4)
-        assert offer.csv_values() == (rate, offer.energy, offer.price, offer.seller)
+        assert offer.csv_values() == (offer.time, rate, offer.energy, offer.price, offer.seller)
 
     def test_csv_fields(self):
         assert (Offer.csv_fields() ==
-                ("rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"))
+                ("time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"))
 
     def test_copy(self):
         offer = Offer(
@@ -397,11 +397,11 @@ class TestBid:
             **self.initial_data
         )
         rate = round(bid.energy_rate, 4)
-        assert bid.csv_values() == (rate, bid.energy, bid.price, bid.buyer)
+        assert bid.csv_values() == (bid.time, rate, bid.energy, bid.price, bid.buyer)
 
     def test_csv_fields(self):
         assert (Bid.csv_fields() ==
-                ("rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
+                ("time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
 
 
 class TestTradeBidOfferInfo:
