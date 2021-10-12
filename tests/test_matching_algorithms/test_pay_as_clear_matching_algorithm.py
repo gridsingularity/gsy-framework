@@ -66,7 +66,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        time_slot = "time_slot"
+        time_slot = "20211006T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, clearing_energy)}
         matches = pac_algo._create_bid_offer_matches(
             offers_list, bids_list, market_id=market_id, time_slot=time_slot,
@@ -90,7 +90,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        time_slot = "time_slot"
+        time_slot = "20211006T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
             offers_list, bids_list, market_id=market_id, time_slot=time_slot,
@@ -119,7 +119,7 @@ class TestPayAsClearMatchingAlgorithm:
         ]
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
-        time_slot = "time_slot"
+        time_slot = "20211006T12:00"
         current_time = str(pendulum.now())
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
@@ -148,7 +148,7 @@ class TestPayAsClearMatchingAlgorithm:
         ]
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
-        time_slot = "time_slot"
+        time_slot = "20211006T12:00"
         current_time = str(pendulum.now())
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
@@ -178,7 +178,7 @@ class TestPayAsClearMatchingAlgorithm:
         ]
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
-        time_slot = "time_slot"
+        time_slot = "20211006T12:00"
         current_time = str(pendulum.now())
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
@@ -207,7 +207,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        time_slot = "time_slot"
+        time_slot = "20211006T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
             offer_list, bid_list, market_id=market_id, time_slot=time_slot,
@@ -233,7 +233,7 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        time_slot = "time_slot"
+        time_slot = "20211006T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
             offers_list, bids_list, market_id=market_id, time_slot=time_slot,
@@ -249,7 +249,7 @@ class TestPayAsClearMatchingAlgorithm:
     def test_get_matches_recommendations(self):
         data = {
             "market1": {
-                "time_slot1": {
+                "20211006T12:00": {
                     "bids": [
                         {"id": 1, "buyer": "A", "energy_rate": 1, "energy": 10},
                         {"id": 2, "buyer": "B", "energy_rate": 2, "energy": 15},
@@ -263,7 +263,7 @@ class TestPayAsClearMatchingAlgorithm:
                     ],
                 }},
             "market2": {
-                "time_slot1": {
+                "20211006T12:00": {
                     "bids": [
                         {"id": 7, "buyer": "A", "energy_rate": 1.5, "energy": 40},
                         {"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45},
@@ -279,22 +279,22 @@ class TestPayAsClearMatchingAlgorithm:
         }
         trades = PayAsClearMatchingAlgorithm().get_matches_recommendations(data)
         expected_trades = [{"market_id": "market1",
-                            "time_slot": "time_slot1",
+                            "time_slot": "20211006T12:00",
                             "bids": [{"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20}],
                             "offers": [{"id": 4, "seller": "A", "energy_rate": 1.00001,
                                         "energy": 25}], "selected_energy": 20, "trade_rate": 3},
                            {"market_id": "market2",
-                            "time_slot": "time_slot1",
+                            "time_slot": "20211006T12:00",
                             "bids": [{"id": 9, "buyer": "C", "energy_rate": 6, "energy": 50}],
                             "offers": [{"id": 10, "seller": "A", "energy_rate": 1,
                                         "energy": 55}], "selected_energy": 50, "trade_rate": 2},
                            {"market_id": "market2",
-                            "time_slot": "time_slot1",
+                            "time_slot": "20211006T12:00",
                             "bids": [{"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45}],
                             "offers": [{"id": 10, "seller": "A", "energy_rate": 1, "energy": 55}],
                             "selected_energy": 5, "trade_rate": 2},
                            {"market_id": "market2",
-                            "time_slot": "time_slot1",
+                            "time_slot": "20211006T12:00",
                             "bids": [{"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45}],
                             "offers": [{"id": 12, "seller": "C", "energy_rate": 1,
                                         "energy": 65}], "selected_energy": 40, "trade_rate": 2},

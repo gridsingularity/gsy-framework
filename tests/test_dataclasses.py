@@ -44,13 +44,13 @@ class TestBidOfferMatch:
         """Test the serializable_dict method of BidOfferMatch dataclass."""
         bid_offer_match = BidOfferMatch(
             market_id="market_id",
-            time_slot="time_slot",
+            time_slot="20211006T12:00",
             bids=[{"type": "bid"}],
             offers=[{"type": "offer"}],
             selected_energy=1,
             trade_rate=1)
         expected_dict = {"market_id": "market_id",
-                         "time_slot": "time_slot",
+                         "time_slot": "20211006T12:00",
                          "bids": [{"type": "bid"}],
                          "offers": [{"type": "offer"}],
                          "selected_energy": 1,
@@ -61,7 +61,7 @@ class TestBidOfferMatch:
     def test_is_valid_dict():
         """Test the is_valid_dict method of BidOfferMatch dataclass."""
         bid_offer_match = {"market_id": "market_id",
-                           "time_slot": "time_slot",
+                           "time_slot": "20211006T12:00",
                            "bids": [{"type": "bid"}],
                            "offers": [{"type": "offer"}],
                            "selected_energy": 1,
@@ -70,7 +70,7 @@ class TestBidOfferMatch:
 
         # Key does not exist
         bid_offer_match = {"market_id": "market_id",
-                           "time_slot": "time_slot",
+                           "time_slot": "20211006T12:00",
                            "bids": [{"type": "bid"}],
                            "offers": [{"type": "offer"}],
                            "selected_energy": 1,
@@ -79,7 +79,7 @@ class TestBidOfferMatch:
 
         # Wrong type
         bid_offer_match = {"market_id": "market_id",
-                           "time_slot": "time_slot",
+                           "time_slot": "20211006T12:00",
                            "bids": [{"type": "bid"}],
                            "offers": [{"type": "offer"}],
                            "selected_energy": 1,
@@ -90,7 +90,7 @@ class TestBidOfferMatch:
     def test_from_dict():
         """Test the from_dict method of BidOfferMatch dataclass."""
         expected_dict = {"market_id": "market_id",
-                         "time_slot": "time_slot",
+                         "time_slot": "20211006T12:00",
                          "bids": [{"type": "bid"}],
                          "offers": [{"type": "offer"}],
                          "selected_energy": 1,
