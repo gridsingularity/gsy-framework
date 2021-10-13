@@ -41,14 +41,14 @@ REQUESTED_FIELDS_CLASS_MAP = {
 
 def merge_last_market_results_to_global(
         market_results: Dict, global_results: Dict,
-        sim_duration: timedelta, start_date: date, market_count: int, slot_length: timedelta,
+        sim_duration: timedelta, start_date: date, slot_length: timedelta,
         requested_fields: List = None
 ):
     if requested_fields is None:
         requested_fields = REQUESTED_FIELDS_LIST
 
     slot_list_ui_format = convert_datetime_to_str_in_list(
-        generate_market_slot_list_from_config(sim_duration, start_date, market_count, slot_length),
+        generate_market_slot_list_from_config(sim_duration, start_date, slot_length),
         ui_format=True)
 
     for field in requested_fields:

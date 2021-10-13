@@ -224,7 +224,6 @@ class GlobalConfig:
     # Default simulation settings d3a side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))
     sim_duration = duration(days=DURATION_D)
-    market_count = MARKET_COUNT
     slot_length = duration(minutes=SLOT_LENGTH_M)
     tick_length = duration(seconds=TICK_LENGTH_S)
     ticks_per_slot = int(slot_length / tick_length)
