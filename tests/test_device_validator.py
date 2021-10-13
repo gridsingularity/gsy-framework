@@ -297,10 +297,7 @@ class TestSmartMeterValidator:
 
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
-        {"azimuth": 10, "geo_tag_location": None},
         {"tilt": 10, "geo_tag_location": None},
-        {"azimuth": 10},
-        {"tilt": 10},
         {"azimuth": 500},
         {"tilt": 600},
     ])
@@ -312,6 +309,7 @@ class TestSmartMeterValidator:
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
         {"azimuth": 10, "tilt": 10, "geo_tag_location": [30, 30]},
+        {"tilt": 10, "geo_tag_location": [30, 30]},
     ])
     def test_pv_orientation_setting_succeeds(valid_arguments):
         """The PV device validation succeeds when valid arguments are provided."""
