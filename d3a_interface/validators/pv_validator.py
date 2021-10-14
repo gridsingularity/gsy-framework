@@ -126,11 +126,15 @@ class PVValidator(BaseValidator):
                 "to work with PV orientations."]})
 
         # validate azimuth isn't out of bound
-        if kwargs.get("azimuth") is not None and not 0 <= kwargs["azimuth"] <= 360:
-            raise D3ADeviceException({"misconfiguration": ["Azimuth could only be in between "
-                                                           "0 and 360 degrees."]})
+        if kwargs.get("azimuth") is not None:
+            error_message = {
+                "misconfiguration": ["Azimuth could only be in between 0 and 360 degrees."]}
+            validate_range_limit(PvSettings.AZIMUTH_LIMIT.min, kwargs["azimuth"],
+                                 PvSettings.AZIMUTH_LIMIT.max, error_message)
 
         # validate tilt isn't out of bound
-        if kwargs.get("tilt") is not None and not 0 <= kwargs["tilt"] <= 90:
-            raise D3ADeviceException({"misconfiguration": ["tilt could only be in between "
-                                                           "0 and 90 degrees."]})
+        if kwargs.get("tilt") is not None:
+            error_message = {"misconfiguration": ["tilt could only be in between "
+                                                  "0 and 90 degrees."]}
+            validate_range_limit(PvSettings.TILT_LIMIT.min, kwargs["tilt"],
+                                 PvSettings.TILT_LIMIT.max, error_message)
