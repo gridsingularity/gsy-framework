@@ -135,6 +135,8 @@ class ConstSettings:
         DEFAULT_CAPACITY_KW = 5
         MAX_PANEL_OUTPUT_W = 160  # needed for backward compatibility
         PV_PENALTY_RATE = 0
+        AZIMUTH_LIMIT = RangeLimit(0, 360)
+        TILT_LIMIT = RangeLimit(0, 90)
 
     class SmartMeterSettings:
         # Production constants
