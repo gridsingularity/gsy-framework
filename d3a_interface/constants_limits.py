@@ -58,6 +58,8 @@ class ConstSettings:
         MIN_TICK_LENGTH_S = 1
 
         REDIS_PUBLISH_FULL_RESULTS = False
+        # Allow orders to contain additional requirements and attributes
+        ENABLE_DEGREES_OF_FREEDOM = True
 
     class SettlementMarketSettings:
         MAX_AGE_SETTLEMENT_MARKET_HOURS = 1
@@ -233,6 +235,7 @@ class GlobalConfig:
     cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     grid_fee_type = ConstSettings.IAASettings.GRID_FEE_TYPE
+    enable_degrees_of_freedom = ConstSettings.GeneralSettings.ENABLE_DEGREES_OF_FREEDOM
 
 
 class HeartBeat:
