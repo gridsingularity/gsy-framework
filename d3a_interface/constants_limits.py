@@ -135,6 +135,8 @@ class ConstSettings:
         DEFAULT_CAPACITY_KW = 5
         MAX_PANEL_OUTPUT_W = 160  # needed for backward compatibility
         PV_PENALTY_RATE = 0
+        AZIMUTH_LIMIT = RangeLimit(0, 360)
+        TILT_LIMIT = RangeLimit(0, 90)
 
     class SmartMeterSettings:
         # Production constants
@@ -224,7 +226,6 @@ class GlobalConfig:
     # Default simulation settings d3a side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))
     sim_duration = duration(days=DURATION_D)
-    market_count = MARKET_COUNT
     slot_length = duration(minutes=SLOT_LENGTH_M)
     tick_length = duration(seconds=TICK_LENGTH_S)
     ticks_per_slot = int(slot_length / tick_length)
