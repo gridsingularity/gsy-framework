@@ -7,7 +7,7 @@ class TestPayAsBidMatchingAlgorithm:
     def test_perform_pay_as_bid_match(self):
         data = {
             "market1": {
-                "20211006T12:00": {
+                "2021-10-06T12:00": {
                     "bids": [
                         {"id": 1, "buyer": "A", "energy_rate": 1, "energy": 10},
                         {"id": 2, "buyer": "B", "energy_rate": 2, "energy": 15},
@@ -23,7 +23,7 @@ class TestPayAsBidMatchingAlgorithm:
 
             },
             "market2": {
-                "20211006T12:00": {
+                "2021-10-06T12:00": {
                     "bids": [
                         {"id": 7, "buyer": "A", "energy_rate": 1.5, "energy": 40},
                         {"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45},
@@ -41,19 +41,19 @@ class TestPayAsBidMatchingAlgorithm:
         trades = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
         expected_trades = [
             {"market_id": "market1",
-             "time_slot": "20211006T12:00",
+             "time_slot": "2021-10-06T12:00",
              "bids": [{"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20}],
              "offers": [{"id": 4, "seller": "A", "energy_rate": 1.00001, "energy": 25}],
              "selected_energy": 20, "trade_rate": 3},
 
             {"market_id": "market2",
-             "time_slot": "20211006T12:00",
+             "time_slot": "2021-10-06T12:00",
              "bids": [{"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45}],
              "offers": [{"id": 12, "seller": "C", "energy_rate": 1, "energy": 65}],
              "selected_energy": 45, "trade_rate": 2},
 
             {"market_id": "market2",
-             "time_slot": "20211006T12:00",
+             "time_slot": "2021-10-06T12:00",
              "bids": [{"id": 9, "buyer": "C", "energy_rate": 6, "energy": 50}],
              "offers": [{"id": 11, "seller": "B", "energy_rate": 1, "energy": 60}],
              "selected_energy": 50, "trade_rate": 6}]
