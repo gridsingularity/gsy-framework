@@ -52,19 +52,20 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
     def get_matches_recommendations(self, matching_data: Dict) -> List:
         """Returns the recommended bid offer matches"""
         matches = []
-        for market_id, data in matching_data.items():
-            bids = data.get("bids")
-            offers = data.get("offers")
-            current_time = data.get("current_time")
-            clearing = self.get_clearing_point(bids, offers, current_time, market_id)
-            if clearing is None:
-                return []
+        for market_id, time_slot_data in matching_data.items():
+            for time_slot, data in time_slot_data.items():
+                bids = data.get("bids")
+                offers = data.get("offers")
+                current_time = data.get("current_time")
+                clearing = self.get_clearing_point(bids, offers, current_time, market_id)
+                if clearing is None:
+                    return []
 
-            if clearing.energy > 0:
-                log.info(f"Market Clearing Rate: {clearing.rate} "
-                         f"||| Clearing Energy: {clearing.energy} ")
-            matches.extend(self._create_bid_offer_matches(
-                self.sorted_offers, self.sorted_bids, market_id, current_time))
+                if clearing.energy > 0:
+                    log.info(f"Market Clearing Rate: {clearing.rate} "
+                             f"||| Clearing Energy: {clearing.energy} ")
+                matches.extend(self._create_bid_offer_matches(
+                    self.sorted_offers, self.sorted_bids, market_id, time_slot, current_time))
         return matches
 
     @staticmethod
@@ -170,7 +171,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
         return max_rate, cumulative_bids, cumulative_offers
 
     def _create_bid_offer_matches(self, offers: List[Dict], bids: List[Dict], market_id: str,
-                                  current_time: str) -> List[Dict]:
+                                  time_slot: str, current_time: str) -> List[Dict]:
         clearing_rate = self.state.clearing[market_id][current_time].rate
         clearing_energy = self.state.clearing[market_id][current_time].energy
         # Return value, holds the bid-offer matches
@@ -196,7 +197,8 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                     offers.insert(0, offer)
                     # Save the matching
                     bid_offer_matches.append(
-                        BidOfferMatch(market_id=market_id, bids=[bid], selected_energy=bid_energy,
+                        BidOfferMatch(market_id=market_id, time_slot=time_slot,
+                                      bids=[bid], selected_energy=bid_energy,
                                       offers=[offer], trade_rate=clearing_rate).serializable_dict()
                     )
                     # Update total clearing energy
@@ -208,7 +210,8 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                     # Save the matching offer to accept later
                     bid_offer_matches.append(
                         BidOfferMatch(
-                            market_id=market_id, bids=[bid], selected_energy=offer_energy,
+                            market_id=market_id, time_slot=time_slot,
+                            bids=[bid], selected_energy=offer_energy,
                             offers=[offer], trade_rate=clearing_rate).serializable_dict()
                     )
                     # Subtract the offer energy from the bid, in order to not be taken into account
