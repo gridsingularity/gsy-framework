@@ -40,6 +40,7 @@ DATE_TIME_FORMAT_SPACED = f"YYYY-MM-DD HH:mm:ss"
 class InputProfileTypes(Enum):
     IDENTITY = 1
     POWER = 2
+    REBASE = 3
 
 
 def _str_to_datetime(time_str, time_format) -> DateTime:
