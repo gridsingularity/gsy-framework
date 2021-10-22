@@ -35,7 +35,7 @@ class AreaThroughputStats(ResultsBaseClass):
         self.results_redis = {}
         self.update_results(area_result_dict, core_stats, current_market_slot)
 
-    def update_results(self, area_dict, core_stats, current_market_time_slot_str):
+    def update_results(self, area_dict, core_stats, current_market_timeslot_str):
         area_throughput = core_stats.get(area_dict['uuid'], {}).get('area_throughput', {})
         imported_peak = round_floats_for_ui(area_throughput.get('imported_energy_kWh', 0.))
         exported_peak = round_floats_for_ui(area_throughput.get('exported_energy_kWh', 0.))
@@ -82,14 +82,14 @@ class AreaThroughputStats(ResultsBaseClass):
                 {'capacity_kWh': round_floats_for_ui(export_capacity)}
             )
         area_throughput_profile = {}
-        area_throughput_profile[current_market_time_slot_str] = area_results
+        area_throughput_profile[current_market_timeslot_str] = area_results
 
         create_subdict_or_update(self.results, area_dict['name'], area_throughput_profile)
         create_subdict_or_update(self.results_redis, area_dict['uuid'], area_throughput_profile)
 
         for child in area_dict['children']:
             if child['type'] == "Area":
-                self.update_results(child, core_stats, current_market_time_slot_str)
+                self.update_results(child, core_stats, current_market_timeslot_str)
 
     @staticmethod
     def merge_results_to_global(market_trade: Dict, global_trade: Dict, *_):
@@ -99,8 +99,8 @@ class AreaThroughputStats(ResultsBaseClass):
         for area_uuid in market_trade:
             if area_uuid not in global_trade or global_trade[area_uuid] == {}:
                 global_trade[area_uuid] = {}
-            for time_slot in market_trade[area_uuid]:
-                global_trade[area_uuid][time_slot] = market_trade[area_uuid][time_slot]
+            for timeslot in market_trade[area_uuid]:
+                global_trade[area_uuid][timeslot] = market_trade[area_uuid][timeslot]
         return global_trade
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):

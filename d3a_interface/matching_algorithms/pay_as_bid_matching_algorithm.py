@@ -18,8 +18,8 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
     @classmethod
     def get_matches_recommendations(cls, matching_data: Dict) -> List:
         bid_offer_pairs = []
-        for market_id, time_slot_data in matching_data.items():
-            for time_slot, data in time_slot_data.items():
+        for market_id, timeslot_data in matching_data.items():
+            for timeslot, data in timeslot_data.items():
                 bids = data.get("bids")
                 offers = data.get("offers")
                 # Sorted bids in descending order
@@ -39,7 +39,7 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
                             bid_offer_pairs.append(
                                 BidOfferMatch(
                                     market_id=market_id,
-                                    time_slot=time_slot,
+                                    timeslot=timeslot,
                                     bids=[bid], offers=[offer],
                                     selected_energy=selected_energy,
                                     trade_rate=bid.get("energy_rate")).serializable_dict())

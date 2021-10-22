@@ -42,10 +42,10 @@ class CumulativeNetEnergyFlow(ResultsBaseClass):
                 isinstance(last_known_state_data, float):
             self.net_area_flow[area_uuid] = last_known_state_data
 
-    def _update_results(self, area_dict, core_stats, current_market_time_slot_str):
+    def _update_results(self, area_dict, core_stats, current_market_timeslot_str):
         self._accumulate_net_energy(area_dict, core_stats)
         for child in area_dict['children']:
-            self._update_results(child, core_stats, current_market_time_slot_str)
+            self._update_results(child, core_stats, current_market_timeslot_str)
 
     def _accumulate_net_energy(self, area_dict, core_stats):
 

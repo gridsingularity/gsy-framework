@@ -187,7 +187,7 @@ class ResultsSchemas:
                       "properties": {
                             "job_id":  {"type": "string"},
                             "current_market": {"type": "string"},
-                            "current_market_ui_time_slot_str": {"type": "string"},
+                            "current_market_ui_timeslot_str": {"type": "string"},
                             "random_seed": {"type": "number"},
                             "price_energy_day": {"type": "object"},
                             "cumulative_grid_trades": {"type": "object"},

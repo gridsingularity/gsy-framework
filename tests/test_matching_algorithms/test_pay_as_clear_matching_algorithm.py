@@ -66,10 +66,10 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        time_slot = "2021-10-06T12:00"
+        timeslot = "2021-10-06T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, clearing_energy)}
         matches = pac_algo._create_bid_offer_matches(
-            offers_list, bids_list, market_id=market_id, time_slot=time_slot,
+            offers_list, bids_list, market_id=market_id, timeslot=timeslot,
             current_time=current_time)
         assert len(matches) == 5
         for index in range(5):
@@ -90,10 +90,10 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        time_slot = "2021-10-06T12:00"
+        timeslot = "2021-10-06T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
-            offers_list, bids_list, market_id=market_id, time_slot=time_slot,
+            offers_list, bids_list, market_id=market_id, timeslot=timeslot,
             current_time=current_time)
 
         assert len(matches) == 7
@@ -119,11 +119,11 @@ class TestPayAsClearMatchingAlgorithm:
         ]
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
-        time_slot = "2021-10-06T12:00"
+        timeslot = "2021-10-06T12:00"
         current_time = str(pendulum.now())
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
-            offer_list, bid_list, market_id=market_id, time_slot=time_slot,
+            offer_list, bid_list, market_id=market_id, timeslot=timeslot,
             current_time=current_time)
 
         self.validate_matching(matches[0], 1, "offer_id1", "bid_id1")
@@ -148,11 +148,11 @@ class TestPayAsClearMatchingAlgorithm:
         ]
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
-        time_slot = "2021-10-06T12:00"
+        timeslot = "2021-10-06T12:00"
         current_time = str(pendulum.now())
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
-            offer_list, bid_list, market_id=market_id, time_slot=time_slot,
+            offer_list, bid_list, market_id=market_id, timeslot=timeslot,
             current_time=current_time)
 
         assert len(matches) == 7
@@ -178,11 +178,11 @@ class TestPayAsClearMatchingAlgorithm:
         ]
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
-        time_slot = "2021-10-06T12:00"
+        timeslot = "2021-10-06T12:00"
         current_time = str(pendulum.now())
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
-            offer_list, bid_list, market_id=market_id, time_slot=time_slot,
+            offer_list, bid_list, market_id=market_id, timeslot=timeslot,
             current_time=current_time)
 
         assert len(matches) == 7
@@ -207,10 +207,10 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        time_slot = "2021-10-06T12:00"
+        timeslot = "2021-10-06T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
-            offer_list, bid_list, market_id=market_id, time_slot=time_slot,
+            offer_list, bid_list, market_id=market_id, timeslot=timeslot,
             current_time=current_time)
 
         assert len(matches) == 5
@@ -233,10 +233,10 @@ class TestPayAsClearMatchingAlgorithm:
         pac_algo = PayAsClearMatchingAlgorithm()
         market_id = str(uuid4())
         current_time = str(pendulum.now())
-        time_slot = "2021-10-06T12:00"
+        timeslot = "2021-10-06T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
         matches = pac_algo._create_bid_offer_matches(
-            offers_list, bids_list, market_id=market_id, time_slot=time_slot,
+            offers_list, bids_list, market_id=market_id, timeslot=timeslot,
             current_time=current_time)
 
         assert len(matches) == 5
@@ -279,22 +279,22 @@ class TestPayAsClearMatchingAlgorithm:
         }
         trades = PayAsClearMatchingAlgorithm().get_matches_recommendations(data)
         expected_trades = [{"market_id": "market1",
-                            "time_slot": "2021-10-06T12:00",
+                            "timeslot": "2021-10-06T12:00",
                             "bids": [{"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20}],
                             "offers": [{"id": 4, "seller": "A", "energy_rate": 1.00001,
                                         "energy": 25}], "selected_energy": 20, "trade_rate": 3},
                            {"market_id": "market2",
-                            "time_slot": "2021-10-06T12:00",
+                            "timeslot": "2021-10-06T12:00",
                             "bids": [{"id": 9, "buyer": "C", "energy_rate": 6, "energy": 50}],
                             "offers": [{"id": 10, "seller": "A", "energy_rate": 1,
                                         "energy": 55}], "selected_energy": 50, "trade_rate": 2},
                            {"market_id": "market2",
-                            "time_slot": "2021-10-06T12:00",
+                            "timeslot": "2021-10-06T12:00",
                             "bids": [{"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45}],
                             "offers": [{"id": 10, "seller": "A", "energy_rate": 1, "energy": 55}],
                             "selected_energy": 5, "trade_rate": 2},
                            {"market_id": "market2",
-                            "time_slot": "2021-10-06T12:00",
+                            "timeslot": "2021-10-06T12:00",
                             "bids": [{"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45}],
                             "offers": [{"id": 12, "seller": "C", "energy_rate": 1,
                                         "energy": 65}], "selected_energy": 40, "trade_rate": 2},

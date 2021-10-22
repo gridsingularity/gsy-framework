@@ -411,7 +411,7 @@ class BalancingTrade(Trade):
 class BidOfferMatch:
     """Representation of a market match."""
     market_id: str
-    time_slot: str
+    timeslot: str
     bids: List[Dict]
     selected_energy: float
     offers: List[Dict]
@@ -421,7 +421,7 @@ class BidOfferMatch:
         """Serialized representation of the instance."""
         return {
             "market_id": self.market_id,
-            "time_slot": self.time_slot,
+            "timeslot": self.timeslot,
             "bids": self.bids,
             "offers": self.offers,
             "selected_energy": self.selected_energy,
