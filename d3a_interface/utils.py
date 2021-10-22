@@ -103,7 +103,7 @@ def generate_market_slot_list(start_timestamp=None):
     return market_slot_list
 
 
-def find_object_of_same_weekday_and_time(indict: Dict, timeslot: DateTime,
+def find_object_of_same_weekday_and_time(indict: Dict, time_slot: DateTime,
                                          ignore_not_found: bool = False):
     """
     Based on a profile with datetimes that span in one week as keys and some values, finds the
@@ -114,25 +114,25 @@ def find_object_of_same_weekday_and_time(indict: Dict, timeslot: DateTime,
     same weekday and on the same time
     @param indict: profile dict (keys are datetimes, values are arbitrary objects, but usually
                    floats) that contains data for one week that will be used as reference for
-                   the requested timeslots
-    @param timeslot: DateTime value that represents the requested time slot
+                   the requested time_slots
+    @param time_slot: DateTime value that represents the requested time slot
     @param ignore_not_found: Boolean parameter that controls whether an error log will be reported
-                             if the timeslot cannot be found in the original dict
+                             if the time_slot cannot be found in the original dict
     @return: Profile value for the requested time slot
     """
     start_time = list(indict.keys())[0]
-    add_days = timeslot.weekday() - start_time.weekday()
+    add_days = time_slot.weekday() - start_time.weekday()
     if add_days < 0:
         add_days += 7
     timestamp_key = datetime(year=start_time.year, month=start_time.month, day=start_time.day,
-                             hour=timeslot.hour, minute=timeslot.minute, tz=TIME_ZONE).add(
+                             hour=time_slot.hour, minute=time_slot.minute, tz=TIME_ZONE).add(
         days=add_days)
 
     if timestamp_key in indict:
         return indict[timestamp_key]
     else:
         if not ignore_not_found:
-            logging.error(f"Weekday and time not found in dict for {timeslot}")
+            logging.error(f"Weekday and time not found in dict for {time_slot}")
         return
 
 

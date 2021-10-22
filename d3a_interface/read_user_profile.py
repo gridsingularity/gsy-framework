@@ -66,8 +66,8 @@ def default_profile_dict(val=None, current_timestamp=None) -> Dict[DateTime, int
     """
     if val is None:
         val = 0
-    return {timeslot: val
-            for timeslot in
+    return {time_slot: val
+            for time_slot in
             generate_market_slot_list(start_timestamp=current_timestamp)}
 
 
@@ -102,7 +102,7 @@ def _eval_single_format(time_dict, time_format):
 def _eval_time_format(time_dict: Dict) -> str:
     """
     Evaluates which time format the provided dictionary has, also checks if the time-format is
-    consistent for each timeslot
+    consistent for each time_slot
     :return: TIME_FORMAT or DATE_TIME_FORMAT or DATE_TIME_FORMAT_SECONDS
     """
 
