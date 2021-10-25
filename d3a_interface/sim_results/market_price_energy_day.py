@@ -102,10 +102,10 @@ class MarketPriceEnergyDay(ResultsBaseClass):
                 }
             redis_output[node_uuid]["price-energy-day"] = [
                 {
-                    "time": timeslot,
+                    "time": time_slot,
                     "min_price": round_floats_for_ui(min(trades) if len(trades) > 0 else 0),
                     "max_price": round_floats_for_ui(max(trades) if len(trades) > 0 else 0),
-                } for timeslot, trades in trade_rates.items()
+                } for time_slot, trades in trade_rates.items()
             ]
 
             area_core_stats = core_stats.get(node_uuid, {})

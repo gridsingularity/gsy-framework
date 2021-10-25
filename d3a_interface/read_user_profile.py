@@ -40,6 +40,7 @@ DATE_TIME_FORMAT_SPACED = "YYYY-MM-DD HH:mm:ss"
 class InputProfileTypes(Enum):
     IDENTITY = 1
     POWER = 2
+    REBASE = 3
 
 
 def _str_to_datetime(time_str, time_format) -> DateTime:
@@ -207,14 +208,13 @@ def _fill_gaps_in_profile(input_profile: Dict = None, out_profile: Dict = None) 
         current_val = 0
 
     for time in out_profile.keys():
-        if GlobalConfig.IS_CANARY_NETWORK:
+        if time not in input_profile:
             temp_val = find_object_of_same_weekday_and_time(input_profile, time,
                                                             ignore_not_found=True)
             if temp_val is not None:
                 current_val = temp_val
         else:
-            if time in input_profile:
-                current_val = input_profile[time]
+            current_val = input_profile[time]
         out_profile[time] = current_val
 
     return out_profile
@@ -317,7 +317,6 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
     :param current_timestamp:
     :return: a mapping from time to profile values
     """
-
     profile = _read_from_different_sources_todict(input_profile,
                                                   current_timestamp=current_timestamp)
     profile_time_list = list(profile.keys())

@@ -30,6 +30,7 @@ class PVValidator(BaseValidator):
         """Validate the energy and rate values of the device."""
         cls.validate_energy(**kwargs)
         cls.validate_rate(**kwargs)
+        cls.validate_settings(**kwargs)
 
     @classmethod
     def validate_energy(cls, **kwargs):
@@ -114,3 +115,26 @@ class PVValidator(BaseValidator):
             validate_range_limit(GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.min,
                                  kwargs["energy_rate_decrease_per_update"],
                                  GeneralSettings.RATE_CHANGE_PER_UPDATE_LIMIT.max, error_message)
+
+    @classmethod
+    def validate_settings(cls, **kwargs):
+        """Validator to catch mis-configured PV parameters"""
+        # validate location is provided to work with PV orientations
+        if (kwargs.get("geo_tag_location") is None and kwargs.get("tilt") is not None):
+            raise D3ADeviceException({"misconfiguration": [
+                "Geo-coordinate for PV asset must be provided "
+                "to work with PV orientations."]})
+
+        # validate azimuth isn't out of bound
+        if kwargs.get("azimuth") is not None:
+            error_message = {
+                "misconfiguration": ["Azimuth could only be in between 0 and 360 degrees."]}
+            validate_range_limit(PvSettings.AZIMUTH_LIMIT.min, kwargs["azimuth"],
+                                 PvSettings.AZIMUTH_LIMIT.max, error_message)
+
+        # validate tilt isn't out of bound
+        if kwargs.get("tilt") is not None:
+            error_message = {"misconfiguration": ["tilt could only be in between "
+                                                  "0 and 90 degrees."]}
+            validate_range_limit(PvSettings.TILT_LIMIT.min, kwargs["tilt"],
+                                 PvSettings.TILT_LIMIT.max, error_message)

@@ -68,18 +68,17 @@ def convert_datetime_to_str_in_list(in_list: List, ui_format: bool = False):
 
 
 def generate_market_slot_list_from_config(sim_duration: duration, start_timestamp: DateTime,
-                                          market_count: int, slot_length: duration):
+                                          slot_length: duration):
     """
     Returns a list of all slot times in Datetime format
     @param sim_duration: Total simulation duration
     @param start_timestamp: Start datetime of the simulation
-    @param market_count: Number of future markets
     @param slot_length: Market slot length
     @return: List with market slot datetimes
     """
     return [
         start_timestamp + (slot_length * i) for i in range(
-            (sim_duration + (market_count * slot_length)) //
+            (sim_duration + slot_length) //
             slot_length - 1)
         if (slot_length * i) <= sim_duration]
 
@@ -93,13 +92,10 @@ def generate_market_slot_list(start_timestamp=None):
     time_span = duration(days=PROFILE_EXPANSION_DAYS)\
         if GlobalConfig.IS_CANARY_NETWORK \
         else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
-    sim_duration_plus_future_markets = time_span + GlobalConfig.slot_length * \
-        (GlobalConfig.market_count - 1)
     market_slot_list = \
-        generate_market_slot_list_from_config(sim_duration=sim_duration_plus_future_markets,
+        generate_market_slot_list_from_config(sim_duration=time_span,
                                               start_timestamp=start_timestamp
                                               if start_timestamp else GlobalConfig.start_date,
-                                              market_count=GlobalConfig.market_count,
                                               slot_length=GlobalConfig.slot_length)
 
     if not getattr(GlobalConfig, 'market_slot_list', []):
@@ -124,24 +120,20 @@ def find_object_of_same_weekday_and_time(indict: Dict, time_slot: DateTime,
                              if the time_slot cannot be found in the original dict
     @return: Profile value for the requested time slot
     """
-    if GlobalConfig.IS_CANARY_NETWORK:
-        start_time = list(indict.keys())[0]
-        add_days = time_slot.weekday() - start_time.weekday()
-        if add_days < 0:
-            add_days += 7
-        timestamp_key = datetime(year=start_time.year, month=start_time.month, day=start_time.day,
-                                 hour=time_slot.hour, minute=time_slot.minute, tz=TIME_ZONE).add(
-            days=add_days)
+    start_time = list(indict.keys())[0]
+    add_days = time_slot.weekday() - start_time.weekday()
+    if add_days < 0:
+        add_days += 7
+    timestamp_key = datetime(year=start_time.year, month=start_time.month, day=start_time.day,
+                             hour=time_slot.hour, minute=time_slot.minute, tz=TIME_ZONE).add(
+        days=add_days)
 
-        if timestamp_key in indict:
-            return indict[timestamp_key]
-        else:
-            if not ignore_not_found:
-                logging.error(f"Weekday and time not found in dict for {time_slot}")
-            return
-
+    if timestamp_key in indict:
+        return indict[timestamp_key]
     else:
-        return indict[time_slot]
+        if not ignore_not_found:
+            logging.error(f"Weekday and time not found in dict for {time_slot}")
+        return
 
 
 def wait_until_timeout_blocking(functor: Callable, timeout: int = 10, polling_period: int = 0.01):

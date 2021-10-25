@@ -72,8 +72,6 @@ def validate_global_settings(settings: Dict) -> None:
     if "sim_duration" in settings and not slot_length <= settings["sim_duration"]:
         raise D3ASettingsException("Invalid simulation duration "
                                    f"(lower than slot length of {slot_length.minutes} min")
-    if "market_count" in settings and settings["market_count"] < 1:
-        raise D3ASettingsException("Market count must be greater than 0.")
 
     if ("capacity_kW" in settings and not
             ConstSettings.PVSettings.CAPACITY_KW_LIMIT.min
