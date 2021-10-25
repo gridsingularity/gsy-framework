@@ -39,7 +39,7 @@ class BaseBidOffer:
                  original_price: Optional[float] = None, time_slot: DateTime = None,
                  attributes: Dict = None, requirements: List[Dict] = None):
         self.id = str(id)
-        self.time = time  # Actual time if creation
+        self.time = time  # Actual time of creation
         self.time_slot = time_slot  # market slot of creation
         self.original_price = original_price or price
         self.price = price
@@ -104,7 +104,7 @@ class Offer(BaseBidOffer):
                  seller_id: str = None,
                  attributes: Dict = None,
                  requirements: List[Dict] = None,
-                 time_slot: DateTime = None):
+                 time_slot: Optional[DateTime] = None):
         super().__init__(id=id, time=time, price=price, energy=energy,
                          original_price=original_price,
                          attributes=attributes, requirements=requirements, time_slot=time_slot)
@@ -151,7 +151,6 @@ class Offer(BaseBidOffer):
             requirements=offer.get("requirements"))
 
     def __eq__(self, other) -> bool:
-        # TODO: maybe add the self.time_slot here, but may make the comparing slower and not needed
         return (self.id == other.id and
                 self.price == other.price and
                 self.original_price == other.original_price and
@@ -159,7 +158,8 @@ class Offer(BaseBidOffer):
                 self.seller == other.seller and
                 self.seller_origin_id == other.seller_origin_id and
                 self.attributes == other.attributes and
-                self.requirements == other.requirements)
+                self.requirements == other.requirements and
+                self.time_slot == other.time_slot)
 
     def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
@@ -185,7 +185,7 @@ class Bid(BaseBidOffer):
                  buyer_id: str = None,
                  attributes: Dict = None,
                  requirements: List[Dict] = None,
-                 time_slot: DateTime = None
+                 time_slot: Optional[DateTime] = None
                  ):
         super().__init__(id=id, time=time, price=price, energy=energy,
                          original_price=original_price,
@@ -280,10 +280,10 @@ class Trade:
                  seller_origin: Optional[str] = None, buyer_origin: Optional[str] = None,
                  fee_price: Optional[float] = None, seller_origin_id: Optional[str] = None,
                  buyer_origin_id: Optional[str] = None, seller_id: Optional[str] = None,
-                 buyer_id: Optional[str] = None, time_slot: DateTime = None):
+                 buyer_id: Optional[str] = None, time_slot: Optional[DateTime] = None):
 
         self.id = str(id)
-        self.time = time  # Actual time if creation
+        self.time = time  # Actual time of creation
         self.time_slot = time_slot  # market slot of creation
         self.offer_bid = offer_bid
         self.seller = seller
