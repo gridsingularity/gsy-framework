@@ -36,11 +36,11 @@ def json_datetime_serializer(date_obj: DateTime):
 
 class BaseBidOffer:
     """Base class defining shared functionality of Bid and Offer market structures."""
-    def __init__(self, id: str, time: DateTime, price: float, energy: float,
+    def __init__(self, id: str, creation_time: DateTime, price: float, energy: float,
                  original_price: Optional[float] = None,
                  attributes: Dict = None, requirements: List[Dict] = None):
         self.id = str(id)
-        self.time = time
+        self.creation_time = creation_time
         self.original_price = original_price or price
         self.price = price
         self.energy = energy
@@ -77,7 +77,7 @@ class BaseBidOffer:
             "energy": self.energy,
             "energy_rate": self.energy_rate,
             "original_price": self.original_price,
-            "time": datetime_to_string_incl_seconds(self.time),
+            "creation_time": datetime_to_string_incl_seconds(self.creation_time),
             "attributes": self.attributes,
             "requirements": self.requirements
         }
@@ -89,7 +89,7 @@ class BaseBidOffer:
 
         offer_bid_dict.pop("energy_rate", None)
 
-        offer_bid_dict["time"] = current_time
+        offer_bid_dict["creation_time"] = current_time
 
         if object_type == "Offer":
             return Offer(**offer_bid_dict)
@@ -98,13 +98,13 @@ class BaseBidOffer:
 
 
 class Offer(BaseBidOffer):
-    def __init__(self, id: str, time: DateTime, price: float,
+    def __init__(self, id: str, creation_time: DateTime, price: float,
                  energy: float, seller: str, original_price: Optional[float] = None,
                  seller_origin: str = None, seller_origin_id: str = None,
                  seller_id: str = None,
                  attributes: Dict = None,
                  requirements: List[Dict] = None):
-        super().__init__(id=id, time=time, price=price, energy=energy,
+        super().__init__(id=id, creation_time=creation_time, price=price, energy=energy,
                          original_price=original_price,
                          attributes=attributes, requirements=requirements)
         self.seller = seller
@@ -138,7 +138,7 @@ class Offer(BaseBidOffer):
 
         return Offer(
             id=offer["id"],
-            time=str_to_pendulum_datetime(offer["time"]),
+            creation_time=str_to_pendulum_datetime(offer["creation_time"]),
             energy=offer["energy"],
             price=offer["energy"] * offer["energy_rate"],
             original_price=offer.get("original_price"),
@@ -161,21 +161,21 @@ class Offer(BaseBidOffer):
 
     def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
-        return self.time, rate, self.energy, self.price, self.seller
+        return self.creation_time, rate, self.energy, self.price, self.seller
 
     @classmethod
     def csv_fields(cls) -> Tuple:
-        return "time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"
+        return "creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"
 
     @staticmethod
     def copy(offer: "Offer") -> "Offer":
-        return Offer(offer.id, offer.time, offer.price, offer.energy, offer.seller,
+        return Offer(offer.id, offer.creation_time, offer.price, offer.energy, offer.seller,
                      offer.original_price, offer.seller_origin, offer.seller_origin_id,
                      offer.seller_id, attributes=offer.attributes, requirements=offer.requirements)
 
 
 class Bid(BaseBidOffer):
-    def __init__(self, id: str, time: DateTime, price: float,
+    def __init__(self, id: str, creation_time: DateTime, price: float,
                  energy: float, buyer: str,
                  original_price: Optional[float] = None,
                  buyer_origin: str = None,
@@ -184,7 +184,7 @@ class Bid(BaseBidOffer):
                  attributes: Dict = None,
                  requirements: List[Dict] = None
                  ):
-        super().__init__(id=id, time=time, price=price, energy=energy,
+        super().__init__(id=id, creation_time=creation_time, price=price, energy=energy,
                          original_price=original_price,
                          attributes=attributes, requirements=requirements)
         self.buyer = buyer
@@ -221,7 +221,7 @@ class Bid(BaseBidOffer):
 
         return Bid(
             id=bid["id"],
-            time=str_to_pendulum_datetime(bid["time"]),
+            creation_time=str_to_pendulum_datetime(bid["creation_time"]),
             energy=bid["energy"],
             price=bid["energy"] * bid["energy_rate"],
             original_price=bid.get("original_price"),
@@ -235,11 +235,11 @@ class Bid(BaseBidOffer):
 
     def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
-        return self.time, rate, self.energy, self.price, self.buyer
+        return self.creation_time, rate, self.energy, self.price, self.buyer
 
     @classmethod
     def csv_fields(cls) -> Tuple:
-        return "time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"
+        return "creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"
 
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
@@ -270,7 +270,7 @@ class TradeBidOfferInfo:
 
 
 class Trade:
-    def __init__(self, id: str, time: datetime, offer_bid: Union[Offer, Bid],
+    def __init__(self, id: str, creation_time: datetime, offer_bid: Union[Offer, Bid],
                  seller: str, buyer: str, residual: Optional[Union[Offer, Bid]] = None,
                  already_tracked: bool = False,
                  offer_bid_trade_info: Optional[TradeBidOfferInfo] = None,
@@ -280,7 +280,7 @@ class Trade:
                  buyer_id: Optional[str] = None):
 
         self.id = str(id)
-        self.time = time
+        self.creation_time = creation_time
         self.offer_bid = offer_bid
         self.seller = seller
         self.buyer = buyer
@@ -304,11 +304,11 @@ class Trade:
 
     @classmethod
     def csv_fields(cls) -> Tuple:
-        return "time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer"
+        return "creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer"
 
     def csv_values(self) -> Tuple:
         rate = round(self.offer_bid.energy_rate, 4)
-        return self.time, rate, self.offer_bid.energy, self.seller, self.buyer
+        return self.creation_time, rate, self.offer_bid.energy, self.seller, self.buyer
 
     def to_json_string(self) -> str:
         # __dict__ instead of asdict to not recursively deserialize objects
@@ -328,7 +328,7 @@ class Trade:
         if key_in_dict_and_not_none(trade_dict, "residual"):
             trade_dict["residual"] = BaseBidOffer.from_json(trade_dict["residual"],
                                                             current_time)
-        trade_dict["time"] = parse(trade_dict["time"])
+        trade_dict["creation_time"] = parse(trade_dict["creation_time"])
         if key_in_dict_and_not_none(trade_dict, "offer_bid_trade_info"):
             trade_dict["offer_bid_trade_info"] = (
                 TradeBidOfferInfo.from_json(trade_dict["offer_bid_trade_info"]))
@@ -363,13 +363,13 @@ class Trade:
             "buyer_id": self.buyer_id,
             "seller": self.seller,
             "fee_price": self.fee_price,
-            "time": datetime_to_string_incl_seconds(self.time)
+            "creation_time": datetime_to_string_incl_seconds(self.creation_time)
         }
 
     def __eq__(self, other: "Trade") -> bool:
         return (
             self.id == other.id and
-            self.time == other.time and
+            self.creation_time == other.creation_time and
             self.offer_bid == other.offer_bid and
             self.seller == other.seller and
             self.buyer == other.buyer and
@@ -477,4 +477,4 @@ class MarketClearingState:
 
     @classmethod
     def csv_fields(cls):
-        return "time", "rate [ct./kWh]"
+        return "creation_time", "rate [ct./kWh]"
