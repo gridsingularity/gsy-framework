@@ -34,7 +34,7 @@ Exposes mixins that can be used from strategy classes.
 """
 
 
-DATE_TIME_FORMAT_SPACED = f"YYYY-MM-DD HH:mm:ss"
+DATE_TIME_FORMAT_SPACED = "YYYY-MM-DD HH:mm:ss"
 
 
 class InputProfileTypes(Enum):
@@ -369,7 +369,7 @@ def read_profile_without_config(input_profile: Dict, slot_length_mins=15) -> Dic
         }
     else:
         raise D3AReadProfileException(
-            f"Profile file cannot be read successfully. Please reconfigure the file path.")
+            "Profile file cannot be read successfully. Please reconfigure the file path.")
 
 
 def read_and_convert_identity_profile_to_float(profile, current_timestamp: DateTime = None):
