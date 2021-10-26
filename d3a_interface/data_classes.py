@@ -15,7 +15,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-import datetime
 import json
 from copy import deepcopy
 from dataclasses import dataclass, field, asdict
@@ -37,10 +36,11 @@ def json_datetime_serializer(date_obj: DateTime):
 class BaseBidOffer:
     """Base class defining shared functionality of Bid and Offer market structures."""
     def __init__(self, id: str, time: DateTime, price: float, energy: float,
-                 original_price: Optional[float] = None,
+                 original_price: Optional[float] = None, time_slot: DateTime = None,
                  attributes: Dict = None, requirements: List[Dict] = None):
         self.id = str(id)
-        self.time = time
+        self.time = time  # Actual time of creation
+        self.time_slot = time_slot  # market slot of creation
         self.original_price = original_price or price
         self.price = price
         self.energy = energy
@@ -103,10 +103,11 @@ class Offer(BaseBidOffer):
                  seller_origin: str = None, seller_origin_id: str = None,
                  seller_id: str = None,
                  attributes: Dict = None,
-                 requirements: List[Dict] = None):
+                 requirements: List[Dict] = None,
+                 time_slot: Optional[DateTime] = None):
         super().__init__(id=id, time=time, price=price, energy=energy,
                          original_price=original_price,
-                         attributes=attributes, requirements=requirements)
+                         attributes=attributes, requirements=requirements, time_slot=time_slot)
         self.seller = seller
         self.seller_origin = seller_origin
         self.seller_origin_id = seller_origin_id
@@ -157,7 +158,8 @@ class Offer(BaseBidOffer):
                 self.seller == other.seller and
                 self.seller_origin_id == other.seller_origin_id and
                 self.attributes == other.attributes and
-                self.requirements == other.requirements)
+                self.requirements == other.requirements and
+                self.time_slot == other.time_slot)
 
     def csv_values(self) -> Tuple:
         rate = round(self.energy_rate, 4)
@@ -182,11 +184,12 @@ class Bid(BaseBidOffer):
                  buyer_origin_id: str = None,
                  buyer_id: str = None,
                  attributes: Dict = None,
-                 requirements: List[Dict] = None
+                 requirements: List[Dict] = None,
+                 time_slot: Optional[DateTime] = None
                  ):
         super().__init__(id=id, time=time, price=price, energy=energy,
                          original_price=original_price,
-                         attributes=attributes, requirements=requirements)
+                         attributes=attributes, requirements=requirements, time_slot=time_slot)
         self.buyer = buyer
         self.buyer_origin = buyer_origin
         self.buyer_origin_id = buyer_origin_id
@@ -270,17 +273,18 @@ class TradeBidOfferInfo:
 
 
 class Trade:
-    def __init__(self, id: str, time: datetime, offer_bid: Union[Offer, Bid],
+    def __init__(self, id: str, time: DateTime, offer_bid: Union[Offer, Bid],
                  seller: str, buyer: str, residual: Optional[Union[Offer, Bid]] = None,
                  already_tracked: bool = False,
                  offer_bid_trade_info: Optional[TradeBidOfferInfo] = None,
                  seller_origin: Optional[str] = None, buyer_origin: Optional[str] = None,
                  fee_price: Optional[float] = None, seller_origin_id: Optional[str] = None,
                  buyer_origin_id: Optional[str] = None, seller_id: Optional[str] = None,
-                 buyer_id: Optional[str] = None):
+                 buyer_id: Optional[str] = None, time_slot: Optional[DateTime] = None):
 
         self.id = str(id)
-        self.time = time
+        self.time = time  # Actual time of creation
+        self.time_slot = time_slot  # market slot of creation
         self.offer_bid = offer_bid
         self.seller = seller
         self.buyer = buyer

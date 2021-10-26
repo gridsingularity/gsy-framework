@@ -22,7 +22,7 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
             for time_slot, data in time_slot_data.items():
                 bids = data.get("bids")
                 offers = data.get("offers")
-                # Sorted bids in descending order
+                # Sorted bids in descending orders
                 sorted_bids = sort_list_of_dicts_by_attribute(bids, "energy_rate", True)
                 # Sorted offers in descending order
                 sorted_offers = sort_list_of_dicts_by_attribute(offers, "energy_rate", True)
