@@ -20,9 +20,9 @@ from uuid import uuid4
 
 import pytest
 
-from d3a_interface.constants_limits import ConstSettings
-from d3a_interface.exceptions import D3ADeviceException
-from d3a_interface.validators import (
+from gsy_framework.constants_limits import ConstSettings
+from gsy_framework.exceptions import D3ADeviceException
+from gsy_framework.validators import (
     SmartMeterValidator, LoadValidator, PVValidator, StorageValidator, CommercialProducerValidator,
     InfiniteBusValidator, MarketMakerValidator, FiniteDieselGeneratorValidator)
 

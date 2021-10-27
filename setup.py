@@ -23,7 +23,7 @@ setup(
     url='https://github.com/gridsingularity/d3a-interface',
     version=VERSION,
     packages=find_packages(where=".", exclude=["tests"]),
-    package_dir={"d3a_interface": "d3a_interface"},
+    package_dir={"gsy_framework": "gsy_framework"},
     package_data={},
     install_requires=REQUIREMENTS,
     zip_safe=False,

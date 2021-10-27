@@ -18,9 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import pytest
 from pendulum import duration
 from datetime import timedelta
-from d3a_interface.settings_validators import validate_global_settings
-from d3a_interface.exceptions import D3ASettingsException
-from d3a_interface.constants_limits import ConstSettings, PercentageRangeLimit
+from gsy_framework.settings_validators import validate_global_settings
+from gsy_framework.exceptions import D3ASettingsException
+from gsy_framework.constants_limits import ConstSettings, PercentageRangeLimit
 
 
 class TestValidateGlobalSettings:

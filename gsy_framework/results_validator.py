@@ -16,9 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from gsy_framework.constants_limits import ConstSettings, GlobalConfig
+from jsonschema.validators import validate
+from gsy_framework.schemas import ResultsSchemas
 
 
-def test_constanst():
-    assert ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE == 30
-    assert GlobalConfig.DURATION_D == 1
+def results_validator(results):
+    validate(instance=results, schema=ResultsSchemas.results_schema)

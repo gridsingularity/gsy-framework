@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # flake8: noqa
 import unittest
 from jsonschema import ValidationError
-from d3a_interface.results_validator import results_validator
+from gsy_framework.results_validator import results_validator
 
 
 class TestValidateResults(unittest.TestCase):

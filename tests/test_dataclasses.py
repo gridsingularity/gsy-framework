@@ -22,11 +22,11 @@ from dataclasses import asdict
 
 from pendulum import DateTime
 
-from d3a_interface.data_classes import (
+from gsy_framework.data_classes import (
     BidOfferMatch, BaseBidOffer, Offer, Bid, json_datetime_serializer,
     TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade, Clearing,
     MarketClearingState)
-from d3a_interface.utils import datetime_to_string_incl_seconds
+from gsy_framework.utils import datetime_to_string_incl_seconds
 
 
 def test_json_datetime_serializer():

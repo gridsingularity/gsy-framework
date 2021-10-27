@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
 
-from d3a_interface.exceptions import D3ADeviceException, D3AAreaException
-from d3a_interface.area_validator import validate_area
+from gsy_framework.exceptions import D3ADeviceException, D3AAreaException
+from gsy_framework.area_validator import validate_area
 
 
 class TestValidateAreaSettings(unittest.TestCase):
