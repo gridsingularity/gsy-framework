@@ -15,12 +15,12 @@ with open("README.md", "r") as readme:
 VERSION = '1.1.0'
 
 setup(
-    name="d3a-interface",
-    description="D3A interface",
+    name="gsy-framework",
+    description="GSy Framework",
     long_description=README,
     author='GridSingularity',
     author_email='d3a@gridsingularity.com',
-    url='https://github.com/gridsingularity/d3a-interface',
+    url='https://github.com/faizan2590/gsy-framework',
     version=VERSION,
     packages=find_packages(where=".", exclude=["tests"]),
     package_dir={"gsy_framework": "gsy_framework"},
