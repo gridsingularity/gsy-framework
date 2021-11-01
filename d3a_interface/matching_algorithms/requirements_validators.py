@@ -97,8 +97,8 @@ class PriceRequirement(Requirement):
             f"Invalid data type for selected_energy {selected_energy}"
         assert isinstance(clearing_rate, (int, float)), \
             f"Invalid data type for clearing_rate {clearing_rate}"
-        # bid_required_price <= price -> true
-        return bid_required_price <= selected_energy * clearing_rate
+        # bid_required_price >= price -> true
+        return bid_required_price >= selected_energy * clearing_rate
 
 
 # Supported offers/bids requirements
