@@ -6,33 +6,89 @@
 #
 attrs==21.2.0
     # via jsonschema
+backports.entry-points-selectable==1.1.0
+    # via virtualenv
 certifi==2021.10.8
     # via requests
+cfgv==3.3.1
+    # via pre-commit
 chardet==4.0.0
     # via requests
+distlib==0.3.3
+    # via virtualenv
+entrypoints==0.3
+    # via flake8
+filelock==3.3.2
+    # via
+    #   tox
+    #   virtualenv
+flake8==3.7.9
+    # via
+    #   -r requirements/base.ini
+    #   flake8-tuple
+flake8-tuple==0.4.1
+    # via -r requirements/base.ini
+identify==2.3.3
+    # via pre-commit
 idna==2.10
     # via requests
 jsonschema==4.1.2
     # via -r requirements/base.ini
 kafka-python==2.0.2
     # via -r requirements/base.ini
+mccabe==0.6.1
+    # via flake8
+nodeenv==1.6.0
+    # via pre-commit
+packaging==21.2
+    # via tox
 pendulum==2.1.2
     # via -r requirements/base.ini
+platformdirs==2.4.0
+    # via virtualenv
+pluggy==1.0.0
+    # via tox
+pre-commit==2.15.0
+    # via -r requirements/base.ini
+py==1.10.0
+    # via tox
+pycodestyle==2.5.0
+    # via flake8
+pyflakes==2.1.1
+    # via flake8
+pyparsing==2.4.7
+    # via packaging
 pyrsistent==0.18.0
     # via jsonschema
 python-dateutil==2.8.2
     # via pendulum
 pytzdata==2020.1
     # via pendulum
+pyyaml==6.0
+    # via pre-commit
 redis==3.5.3
     # via -r requirements/base.ini
 requests==2.25.1
     # via -r requirements/base.ini
 six==1.16.0
-    # via python-dateutil
+    # via
+    #   flake8-tuple
+    #   python-dateutil
+    #   tox
+    #   virtualenv
 tabulate==0.8.9
+    # via -r requirements/base.ini
+toml==0.10.2
+    # via
+    #   pre-commit
+    #   tox
+tox==3.24.4
     # via -r requirements/base.ini
 urllib3==1.26.7
     # via requests
+virtualenv==20.10.0
+    # via
+    #   pre-commit
+    #   tox
 websockets==10.0
     # via -r requirements/base.ini

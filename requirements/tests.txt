@@ -13,11 +13,17 @@ attrs==21.2.0
     #   jsonschema
     #   pytest
 backports.entry-points-selectable==1.1.0
-    # via virtualenv
+    # via
+    #   -r requirements/base.txt
+    #   virtualenv
 certifi==2021.10.8
     # via
     #   -r requirements/base.txt
     #   requests
+cfgv==3.3.1
+    # via
+    #   -r requirements/base.txt
+    #   pre-commit
 chardet==4.0.0
     # via
     #   -r requirements/base.txt
@@ -27,23 +33,31 @@ coverage==6.1.1
 deepdiff==5.6.0
     # via -r requirements/tests.ini
 distlib==0.3.3
-    # via virtualenv
+    # via
+    #   -r requirements/base.txt
+    #   virtualenv
 entrypoints==0.3
     # via
+    #   -r requirements/base.txt
     #   -r requirements/tests.ini
     #   flake8
 filelock==3.3.2
     # via
+    #   -r requirements/base.txt
     #   tox
     #   virtualenv
 flake8==3.7.9
     # via
-    #   -r requirements/tests.ini
+    #   -r requirements/base.txt
     #   flake8-tuple
 flake8-tuple==0.4.1
-    # via -r requirements/tests.ini
+    # via -r requirements/base.txt
 hypothesis==6.24.1
     # via -r requirements/tests.ini
+identify==2.3.3
+    # via
+    #   -r requirements/base.txt
+    #   pre-commit
 idna==2.10
     # via
     #   -r requirements/base.txt
@@ -59,11 +73,18 @@ jsonschema==4.1.2
 kafka-python==2.0.2
     # via -r requirements/base.txt
 mccabe==0.6.1
-    # via flake8
+    # via
+    #   -r requirements/base.txt
+    #   flake8
+nodeenv==1.6.0
+    # via
+    #   -r requirements/base.txt
+    #   pre-commit
 ordered-set==4.0.2
     # via deepdiff
 packaging==21.2
     # via
+    #   -r requirements/base.txt
     #   pytest
     #   tox
 parameterized==0.8.1
@@ -73,31 +94,40 @@ parso==0.8.2
 pendulum==2.1.2
     # via -r requirements/base.txt
 platformdirs==2.4.0
-    # via virtualenv
+    # via
+    #   -r requirements/base.txt
+    #   virtualenv
 pluggy==1.0.0
     # via
+    #   -r requirements/base.txt
     #   pytest
     #   tox
+pre-commit==2.15.0
+    # via -r requirements/base.txt
 prompt-toolkit==3.0.21
     # via ptpython
 ptpython==3.0.20
     # via -r requirements/tests.ini
 py==1.10.0
     # via
+    #   -r requirements/base.txt
     #   pytest
     #   tox
 pycodestyle==2.5.0
     # via
+    #   -r requirements/base.txt
     #   -r requirements/tests.ini
     #   flake8
-pyflakes==2.1.0
+pyflakes==2.1.1
     # via
-    #   -r requirements/tests.ini
+    #   -r requirements/base.txt
     #   flake8
 pygments==2.10.0
     # via ptpython
 pyparsing==2.4.7
-    # via packaging
+    # via
+    #   -r requirements/base.txt
+    #   packaging
 pyrsistent==0.18.0
     # via
     #   -r requirements/base.txt
@@ -112,6 +142,10 @@ pytzdata==2020.1
     # via
     #   -r requirements/base.txt
     #   pendulum
+pyyaml==6.0
+    # via
+    #   -r requirements/base.txt
+    #   pre-commit
 redis==3.5.3
     # via -r requirements/base.txt
 requests==2.25.1
@@ -134,16 +168,21 @@ tabulate==0.8.9
     # via -r requirements/base.txt
 toml==0.10.2
     # via
+    #   -r requirements/base.txt
+    #   pre-commit
     #   pytest
     #   tox
 tox==3.24.4
-    # via -r requirements/tests.ini
+    # via -r requirements/base.txt
 urllib3==1.26.7
     # via
     #   -r requirements/base.txt
     #   requests
 virtualenv==20.10.0
-    # via tox
+    # via
+    #   -r requirements/base.txt
+    #   pre-commit
+    #   tox
 wcwidth==0.2.5
     # via prompt-toolkit
 websockets==10.0
