@@ -55,7 +55,7 @@ class WebsocketAsyncConnection:
         try:
             await self._connection_loop_coroutine(websocket_headers)
         except Exception as e:
-            logging.warning(f"Connection failed, trying to reconnect.")
+            logging.warning("Connection failed, trying to reconnect.")
             ws_error_time = time()
             if ws_error_time - ws_connect_time > WEBSOCKET_ERROR_THRESHOLD_SECONDS:
                 retry_count = 0
