@@ -31,8 +31,7 @@ def validate_global_settings(settings: Dict) -> None:
     """
     slot_length = (settings["slot_length"]
                    if "slot_length" in settings else GlobalConfig.slot_length)
-    tick_length = (settings["tick_length"]
-                   if "tick_length" in settings else GlobalConfig.tick_length)
+    tick_length = (settings["tick_length"] if "tick_length" in settings else GlobalConfig.tick_length)
 
     # converting into duration
     if not isinstance(tick_length, Duration):
