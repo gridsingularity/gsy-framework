@@ -97,11 +97,11 @@ class TestRequirementsValidator:
             # selected clearing_rate and selected energy are not passed
             PriceRequirement.is_satisfied(
                 offer, bid, requirement)
-        requirement = {"price": 10}
+        requirement = {"price": 8}
         bid.requirements = [requirement]
         # required price is greater than the clearing_rate * selected_energy
         assert PriceRequirement.is_satisfied(
-            offer, bid, requirement, clearing_rate=8, selected_energy=1) is False
+            offer, bid, requirement, clearing_rate=10, selected_energy=1) is False
         requirement = {"price": 8}
         bid.requirements = [requirement]
         assert PriceRequirement.is_satisfied(
