@@ -13,7 +13,7 @@ the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this program. If
 not, see <http://www.gnu.org/licenses/>.
 """
-from gsy_framework.exceptions import D3ADeviceException
+from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.utils import key_in_dict_and_not_none_and_not_str_type
 from gsy_framework.validators import utils
 from gsy_framework.validators.cep_validator import CommercialProducerValidator
@@ -28,18 +28,18 @@ class InfiniteBusValidator(CommercialProducerValidator):
         super().validate(**kwargs)
         if (kwargs.get("energy_rate_profile") is not None
                 and kwargs.get("energy_rate_profile_uuid") is None):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": ["energy_rate_profile must have a uuid."]})
         if key_in_dict_and_not_none_and_not_str_type(kwargs, "energy_rate_profile_uuid"):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": ["energy_rate_profile_uuid must have a string type."]})
 
         if kwargs.get("energy_buy_rate") is not None:
             utils.validate_rate(kwargs["energy_buy_rate"])
         if kwargs.get("buying_rate_profile") is not None and (
                 kwargs.get("buying_rate_profile_uuid") is None):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": ["buying_rate_profile must have a uuid."]})
         if key_in_dict_and_not_none_and_not_str_type(kwargs, "buying_rate_profile_uuid"):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": ["buying_rate_profile_uuid must have a string type."]})

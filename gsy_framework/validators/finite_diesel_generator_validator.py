@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with thi
 not, see <http://www.gnu.org/licenses/>.
 """
 from gsy_framework.constants_limits import ConstSettings
-from gsy_framework.exceptions import D3ADeviceException
+from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators import utils
 from gsy_framework.validators.cep_validator import CommercialProducerValidator
 
@@ -48,7 +48,7 @@ class FiniteDieselGeneratorValidator(CommercialProducerValidator):
                         CepSettings.MAX_POWER_KW_LIMIT.min, value,
                         CepSettings.MAX_POWER_KW_LIMIT.max, error_message)
             else:
-                raise D3ADeviceException({
+                raise GSyDeviceException({
                     "misconfiguration": ["max_available_power_kW has an invalid type."]})
 
         super().validate(**kwargs)

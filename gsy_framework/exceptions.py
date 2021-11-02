@@ -17,21 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 
-class D3AException(Exception):
+class GSyException(Exception):
     pass
 
 
-class D3AAreaException(D3AException):
+class GSyAreaException(GSyException):
     pass
 
 
-class D3ASettingsException(D3AException):
+class GSySettingsException(GSyException):
     pass
 
 
-class D3ADeviceException(D3AException):
+class GSyDeviceException(GSyException):
     pass
 
 
-class D3AReadProfileException(D3AException):
+class GSyReadProfileException(GSyException):
     pass

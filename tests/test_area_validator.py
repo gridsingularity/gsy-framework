@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
 
-from gsy_framework.exceptions import D3ADeviceException, D3AAreaException
+from gsy_framework.exceptions import GSyDeviceException, GSyAreaException
 from gsy_framework.area_validator import validate_area
 
 
@@ -31,15 +31,15 @@ class TestValidateAreaSettings(unittest.TestCase):
                                         grid_fee_constant=0))
         self.assertIsNone(validate_area(grid_fee_percentage=0,
                                         grid_fee_constant=1))
-        with self.assertRaises(D3ADeviceException):
+        with self.assertRaises(GSyDeviceException):
             validate_area(grid_fee_percentage=-1)
-        with self.assertRaises(D3ADeviceException):
+        with self.assertRaises(GSyDeviceException):
             validate_area(grid_fee_percentage=101)
-        with self.assertRaises(D3AAreaException):
+        with self.assertRaises(GSyAreaException):
             validate_area(baseline_peak_energy_import_kWh=-1.0)
-        with self.assertRaises(D3AAreaException):
+        with self.assertRaises(GSyAreaException):
             validate_area(baseline_peak_energy_export_kWh=-1.0)
-        with self.assertRaises(D3AAreaException):
+        with self.assertRaises(GSyAreaException):
             validate_area(import_capacity_kVA=-1.0)
-        with self.assertRaises(D3AAreaException):
+        with self.assertRaises(GSyAreaException):
             validate_area(export_capacity_kVA=-1.0)

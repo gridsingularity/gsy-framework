@@ -17,7 +17,7 @@ import ast
 from typing import Optional
 
 from gsy_framework.constants_limits import ConstSettings
-from gsy_framework.exceptions import D3ADeviceException
+from gsy_framework.exceptions import GSyDeviceException
 
 CepSettings = ConstSettings.CommercialProducerSettings
 
@@ -33,7 +33,7 @@ def validate_fit_to_limit(
     if fit_to_limit is True and (
             energy_rate_decrease_per_update is not None
             or energy_rate_increase_per_update is not None):
-        raise D3ADeviceException({
+        raise GSyDeviceException({
             "misconfiguration": [
                 "fit_to_limit and energy_rate_increase/decrease_per_update can't be set "
                 "together."]})
@@ -41,7 +41,7 @@ def validate_fit_to_limit(
     if fit_to_limit is False and (
             energy_rate_increase_per_update is None
             or energy_rate_decrease_per_update is None):
-        raise D3ADeviceException(
+        raise GSyDeviceException(
             {"misconfiguration": [
                 "energy_rate_increase/decrease_per_update must be set if fit_to_limit is "
                 "False."]})
@@ -50,7 +50,7 @@ def validate_fit_to_limit(
 def validate_range_limit(initial_limit, value, final_limit, error_message):
     """Check that the provided arguments form a valid range."""
     if not initial_limit <= value <= final_limit:
-        raise D3ADeviceException(error_message)
+        raise GSyDeviceException(error_message)
 
 
 def validate_energy_rate(**kwargs):
@@ -66,7 +66,7 @@ def validate_energy_rate(**kwargs):
     elif isinstance(energy_rate, dict):
         _validate_rate_profile(energy_rate)
     else:
-        raise D3ADeviceException({"misconfiguration": ["energy_rate has an invalid type."]})
+        raise GSyDeviceException({"misconfiguration": ["energy_rate has an invalid type."]})
 
 
 def validate_rate(energy_rate):

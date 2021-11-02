@@ -27,7 +27,7 @@ from gsy_framework.constants_limits import TIME_FORMAT, DATE_TIME_FORMAT, Global
     DATE_TIME_FORMAT_SECONDS, TIME_ZONE
 from gsy_framework.utils import convert_kW_to_kWh, return_ordered_dict, \
     generate_market_slot_list, find_object_of_same_weekday_and_time
-from gsy_framework.exceptions import D3AReadProfileException
+from gsy_framework.exceptions import GSyReadProfileException
 
 """
 Exposes mixins that can be used from strategy classes.
@@ -56,7 +56,7 @@ def _str_to_datetime(time_str, time_format) -> DateTime:
         return GlobalConfig.start_date.add(
             hours=time.hour, minutes=time.minute, seconds=time.second)
     else:
-        raise D3AReadProfileException("Provided time_format invalid.")
+        raise GSyReadProfileException("Provided time_format invalid.")
 
 
 def default_profile_dict(val=None, current_timestamp=None) -> Dict[DateTime, int]:
@@ -111,7 +111,7 @@ def _eval_time_format(time_dict: Dict) -> str:
         if _eval_single_format(time_dict, time_format):
             return time_format
 
-    raise D3AReadProfileException(
+    raise GSyReadProfileException(
         f"Format of time-stamp is not one of ('{TIME_FORMAT}', "
         f"'{DATE_TIME_FORMAT}', '{DATE_TIME_FORMAT_SECONDS}')")
 
@@ -128,7 +128,7 @@ def _readCSV(path: str) -> Dict:
         csv_rows = csv.reader(csv_file)
         for row in csv_rows:
             if len(row) == 0:
-                raise D3AReadProfileException(
+                raise GSyReadProfileException(
                     f"There must not be an empty line in the profile file {path}")
             if len(row) != 2:
                 row = row[0].split(";")
@@ -270,7 +270,7 @@ def _read_from_different_sources_todict(
             )
 
         else:
-            raise D3AReadProfileException(
+            raise GSyReadProfileException(
                 "Unsupported input type : " + str(list(input_profile.keys())[0]))
 
     elif isinstance(input_profile, int) or \
@@ -280,7 +280,7 @@ def _read_from_different_sources_todict(
         profile = default_profile_dict(val=input_profile, current_timestamp=current_timestamp)
 
     else:
-        raise D3AReadProfileException(
+        raise GSyReadProfileException(
             f"Unsupported input type: {str(input_profile)}")
 
     return profile
@@ -367,7 +367,7 @@ def read_profile_without_config(input_profile: Dict, slot_length_mins=15) -> Dic
             for ii, energy in enumerate(profile_values)
         }
     else:
-        raise D3AReadProfileException(
+        raise GSyReadProfileException(
             "Profile file cannot be read successfully. Please reconfigure the file path.")
 
 

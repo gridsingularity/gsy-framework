@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with thi
 not, see <http://www.gnu.org/licenses/>.
 """
 from gsy_framework.constants_limits import ConstSettings
-from gsy_framework.exceptions import D3ADeviceException
+from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators.base_validator import BaseValidator
 from gsy_framework.validators.utils import validate_range_limit
 
@@ -64,7 +64,7 @@ class PVValidator(BaseValidator):
 
         if kwargs.get("cloud_coverage") is not None:
             if kwargs["cloud_coverage"] != 4 and kwargs.get("power_profile") is not None:
-                raise D3ADeviceException(
+                raise GSyDeviceException(
                     {"misconfiguration": [
                         "cloud_coverage (if values 0-3) & power_profile can't be set together."]})
 
@@ -90,7 +90,7 @@ class PVValidator(BaseValidator):
         if (kwargs.get("initial_selling_rate") is not None
                 and kwargs.get("final_selling_rate") is not None
                 and kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": [
                     "initial_selling_rate/market_maker_rate should be greater than or equal to "
                     "final_selling_rate. Please adapt the market_maker_rate of the configuration "
@@ -98,12 +98,12 @@ class PVValidator(BaseValidator):
 
         if (kwargs.get("fit_to_limit") is True
                 and kwargs.get("energy_rate_decrease_per_update") is not None):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": [
                     "fit_to_limit & energy_rate_decrease_per_update can't be set together."]})
         if (kwargs.get("fit_to_limit") is False
                 and kwargs.get("energy_rate_decrease_per_update") is None):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": [
                     "energy_rate_decrease_per_update must be set if fit_to_limit is False."]})
 
@@ -121,7 +121,7 @@ class PVValidator(BaseValidator):
         """Validator to catch mis-configured PV parameters"""
         # validate location is provided to work with PV orientations
         if (kwargs.get("geo_tag_location") is None and kwargs.get("tilt") is not None):
-            raise D3ADeviceException({"misconfiguration": [
+            raise GSyDeviceException({"misconfiguration": [
                 "Geo-coordinate for PV asset must be provided "
                 "to work with PV orientations."]})
 

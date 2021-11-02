@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with thi
 not, see <http://www.gnu.org/licenses/>.
 """
 from gsy_framework.constants_limits import ConstSettings
-from gsy_framework.exceptions import D3ADeviceException
+from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators.base_validator import BaseValidator
 from gsy_framework.validators.utils import validate_range_limit
 
@@ -46,7 +46,7 @@ class LoadValidator(BaseValidator):
                 or kwargs.get("hrs_per_day") is not None
                 or kwargs.get("hrs_of_day") is not None)
                 and kwargs.get("daily_load_profile") is not None):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": ["daily_load_profile shouldn't be set with "
                                       "avg_power_W, hrs_per_day & hrs_of_day."]})
 
@@ -61,14 +61,14 @@ class LoadValidator(BaseValidator):
         if kwargs.get("hrs_of_day") is not None and any(
                 not LoadSettings.HOURS_LIMIT.min <= h <= LoadSettings.HOURS_LIMIT.max
                 for h in kwargs["hrs_of_day"]):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": ["hrs_of_day should be less between "
                                       f"{LoadSettings.HOURS_LIMIT.min} & "
                                       f"{LoadSettings.HOURS_LIMIT.max}."]})
 
         if (kwargs.get("hrs_of_day") is not None and kwargs.get("hrs_per_day") is not None
                 and (len(kwargs["hrs_of_day"]) < kwargs["hrs_per_day"])):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": [
                     "length of hrs_of_day list should be greater than or equal hrs_per_day."]})
 
@@ -77,7 +77,7 @@ class LoadValidator(BaseValidator):
                 or kwargs.get("hrs_per_day") is not None
                 or kwargs.get("hrs_of_day") is not None
                 ) and kwargs.get("daily_load_profile") is not None:
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": [
                     "daily_load_profile and all or one [hrs_per_day, hrs_of_day, avg_power_W] "
                     "can't be set together."]})
@@ -105,7 +105,7 @@ class LoadValidator(BaseValidator):
         if (kwargs.get("initial_buying_rate") is not None
                 and kwargs.get("final_buying_rate") is not None
                 and kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
-            raise D3ADeviceException({"misconfiguration": [
+            raise GSyDeviceException({"misconfiguration": [
                 "initial_buying_rate should be less than or equal to final_buying_rate/"
                 "market_maker_rate. Please adapt the market_maker_rate of the configuration "
                 "or the initial_buying_rate."]})
@@ -121,11 +121,11 @@ class LoadValidator(BaseValidator):
 
         if (kwargs.get("fit_to_limit") is True
                 and kwargs.get("energy_rate_increase_per_update") is not None):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": [
                     "fit_to_limit & energy_rate_increase_per_update can't be set together."]})
         if (kwargs.get("fit_to_limit") is False
                 and kwargs.get("energy_rate_increase_per_update") is None):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": [
                     "energy_rate_increase_per_update must be set if fit_to_limit is False."]})

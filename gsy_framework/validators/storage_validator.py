@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with thi
 not, see <http://www.gnu.org/licenses/>.
 """
 from gsy_framework.constants_limits import ConstSettings
-from gsy_framework.exceptions import D3ADeviceException
+from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators import utils
 from gsy_framework.validators.base_validator import BaseValidator
 
@@ -58,7 +58,7 @@ class StorageValidator(BaseValidator):
         if (
                 kwargs.get("initial_soc") is not None and kwargs.get("min_allowed_soc") is not None
                 and kwargs["initial_soc"] < kwargs["min_allowed_soc"]):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": [
                     "initial_soc should be greater than or equal to min_allowed_soc."]})
 
@@ -109,7 +109,7 @@ class StorageValidator(BaseValidator):
                 kwargs.get("initial_selling_rate") is not None
                 and kwargs.get("final_selling_rate") is not None
                 and kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": ["initial_selling_rate should be greater than or equal to "
                                       "final_selling_rate."]})
 
@@ -137,7 +137,7 @@ class StorageValidator(BaseValidator):
                 kwargs.get("initial_buying_rate") is not None
                 and kwargs.get("final_buying_rate") is not None
                 and kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": [
                     "initial_buying_rate should be less than or equal to final_buying_rate."]})
 
@@ -145,7 +145,7 @@ class StorageValidator(BaseValidator):
                 kwargs.get("final_selling_rate") is not None
                 and kwargs.get("final_buying_rate") is not None
                 and kwargs["final_buying_rate"] > kwargs["final_selling_rate"]):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": [
                     "final_buying_rate should be less than or equal to final_selling_rate."]})
 

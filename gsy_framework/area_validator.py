@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.validators.utils import validate_range_limit
-from gsy_framework.exceptions import D3AAreaException
+from gsy_framework.exceptions import GSyAreaException
 from gsy_framework.utils import (
     key_in_dict_and_not_none, key_in_dict_and_not_none_and_greater_than_zero,
     key_in_dict_and_not_none_and_negative)
@@ -31,7 +31,7 @@ AreaSettings = ConstSettings.AreaSettings
 def validate_area(**kwargs):
     if key_in_dict_and_not_none_and_greater_than_zero(kwargs, "grid_fee_constant") and \
             key_in_dict_and_not_none_and_greater_than_zero(kwargs, "grid_fee_percentage"):
-        raise D3AAreaException("Cannot set both percentage and constant "
+        raise GSyAreaException("Cannot set both percentage and constant "
                                "grid fees on the same area.")
     if key_in_dict_and_not_none(kwargs, "grid_fee_percentage"):
         error_message = {"misconfiguration": [f"grid_fee_percentage should be in between "
@@ -50,14 +50,14 @@ def validate_area(**kwargs):
                              AreaSettings.CONSTANT_FEE_LIMIT.max, error_message)
 
     if key_in_dict_and_not_none_and_negative(kwargs, "baseline_peak_energy_import_kWh"):
-        raise D3AAreaException({"misconfiguration": ["baseline_peak_energy_import_kWh must be a "
+        raise GSyAreaException({"misconfiguration": ["baseline_peak_energy_import_kWh must be a "
                                                      "positive value."]})
     if key_in_dict_and_not_none_and_negative(kwargs, "baseline_peak_energy_export_kWh"):
-        raise D3AAreaException({"misconfiguration": ["baseline_peak_energy_export_kWh must be a "
+        raise GSyAreaException({"misconfiguration": ["baseline_peak_energy_export_kWh must be a "
                                                      "positive value."]})
     if key_in_dict_and_not_none_and_negative(kwargs, "import_capacity_kVA"):
-        raise D3AAreaException(
+        raise GSyAreaException(
             {"misconfiguration": ["import_capacity_kVA must be a positive value."]})
     if key_in_dict_and_not_none_and_negative(kwargs, "export_capacity_kVA"):
-        raise D3AAreaException({"misconfiguration": ["export_capacity_kVA must be a "
+        raise GSyAreaException({"misconfiguration": ["export_capacity_kVA must be a "
                                                      "positive value."]})

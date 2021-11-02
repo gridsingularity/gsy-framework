@@ -13,7 +13,7 @@ the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this program. If
 not, see <http://www.gnu.org/licenses/>.
 """
-from gsy_framework.exceptions import D3ADeviceException
+from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators import utils
 from gsy_framework.validators.base_validator import BaseValidator
 
@@ -27,10 +27,10 @@ class MarketMakerValidator(BaseValidator):
         utils.validate_energy_rate(**kwargs)
         if (kwargs.get("energy_rate_profile") is not None
                 and kwargs.get("energy_rate_profile_uuid") is None):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": ["energy_rate_profile must have a uuid."]})
 
         if (kwargs.get("grid_connected") is not None
                 and not isinstance(kwargs["grid_connected"], bool)):
-            raise D3ADeviceException(
+            raise GSyDeviceException(
                 {"misconfiguration": ["grid_connected must be a boolean value."]})
