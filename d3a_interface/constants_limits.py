@@ -64,6 +64,10 @@ class ConstSettings:
         ENABLE_SETTLEMENT_MARKETS = False
         RELATIVE_STD_FROM_FORECAST_FLOAT = 10.0
 
+    class FutureMarketSettings:
+        # Duration between clearing in future markets
+        FUTURE_MARKET_CLEARING_INTERVAL = 15  # in minutes
+
     class AreaSettings:
         PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
         CONSTANT_FEE_LIMIT = RangeLimit(0, sys.maxsize)
