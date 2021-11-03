@@ -25,6 +25,13 @@ from pendulum import DateTime
 from d3a_interface.utils import (
     datetime_to_string_incl_seconds, key_in_dict_and_not_none, str_to_pendulum_datetime)
 
+# pylint: disable=invalid-name
+# pylint: disable=redefined-builtin
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-locals
+# pylint: disable=no-member
+
 
 def json_datetime_serializer(datetime_obj: DateTime) -> Optional[str]:
     """Define how to convert datetime objects while serializing to json."""
@@ -49,10 +56,12 @@ class BaseBidOffer:
         self.requirements = requirements
 
     def update_price(self, price: float) -> None:
+        """Update price member."""
         self.price = price
         self.energy_rate = self.price / self.energy
 
     def update_energy(self, energy: float) -> None:
+        """Update energy member."""
         self.energy = energy
         self.energy_rate = self.price / self.energy
 
@@ -71,6 +80,7 @@ class BaseBidOffer:
         return json.dumps(obj_dict, default=json_datetime_serializer)
 
     def serializable_dict(self) -> Dict:
+        """Return a json serializable representation of the class."""
         return {
             "type": self.__class__.__name__,
             "id": self.id,
@@ -85,6 +95,7 @@ class BaseBidOffer:
 
     @classmethod
     def from_json(cls, offer_or_bid: str) -> Union["Offer", "Bid"]:
+        """De-serialize orders from json string."""
         offer_bid_dict = json.loads(offer_or_bid)
         object_type = offer_bid_dict.pop("type")
         offer_bid_dict.pop("energy_rate", None)
@@ -99,9 +110,11 @@ class BaseBidOffer:
             return Offer(**offer_bid_dict)
         if object_type == "Bid":
             return Bid(**offer_bid_dict)
+        assert False, "from_json expects a json string containing the 'type' key."
 
 
 class Offer(BaseBidOffer):
+    """Offer class"""
     def __init__(self, id: str, creation_time: DateTime, price: float,
                  energy: float, seller: str, original_price: Optional[float] = None,
                  seller_origin: str = None, seller_origin_id: str = None,
@@ -130,6 +143,7 @@ class Offer(BaseBidOffer):
                 f"[{self.seller}]: {self.energy} kWh @ {self.price} @ {self.energy_rate}")
 
     def serializable_dict(self) -> Dict:
+        """Return a json serializable representation of the class."""
         return {**super().serializable_dict(),
                 "seller": self.seller,
                 "seller_origin": self.seller_origin,
@@ -169,15 +183,18 @@ class Offer(BaseBidOffer):
                 self.time_slot == other.time_slot)
 
     def csv_values(self) -> Tuple:
+        """Return values of class members that are needed for creation of CSV export."""
         rate = round(self.energy_rate, 4)
         return self.creation_time, rate, self.energy, self.price, self.seller
 
     @classmethod
     def csv_fields(cls) -> Tuple:
+        """Return labels for csv_values for CSV export."""
         return "creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"
 
     @staticmethod
     def copy(offer: "Offer") -> "Offer":
+        """Return a copy of an offer Object."""
         return Offer(offer.id, offer.creation_time, offer.price, offer.energy, offer.seller,
                      offer.original_price, offer.seller_origin, offer.seller_origin_id,
                      offer.seller_id, attributes=offer.attributes, requirements=offer.requirements,
@@ -185,6 +202,7 @@ class Offer(BaseBidOffer):
 
 
 class Bid(BaseBidOffer):
+    "Bid class."
     def __init__(self, id: str, creation_time: DateTime, price: float,
                  energy: float, buyer: str,
                  original_price: Optional[float] = None,
@@ -219,6 +237,7 @@ class Bid(BaseBidOffer):
         )
 
     def serializable_dict(self) -> Dict:
+        """Return a json serializable representation of the class."""
         return {**super().serializable_dict(),
                 "buyer_origin": self.buyer_origin,
                 "buyer_origin_id": self.buyer_origin_id,
@@ -246,11 +265,13 @@ class Bid(BaseBidOffer):
         )
 
     def csv_values(self) -> Tuple:
+        """Return values of class members that are needed for creation of CSV export."""
         rate = round(self.energy_rate, 4)
         return self.creation_time, rate, self.energy, self.price, self.buyer
 
     @classmethod
     def csv_fields(cls) -> Tuple:
+        """Return labels for csv_values for CSV export."""
         return "creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"
 
     def __eq__(self, other) -> bool:
@@ -268,6 +289,7 @@ class Bid(BaseBidOffer):
 
 @dataclass
 class TradeBidOfferInfo:
+    """Class that contains information about the original bid or offer."""
     original_bid_rate: float
     propagated_bid_rate: float
     original_offer_rate: float
@@ -275,15 +297,18 @@ class TradeBidOfferInfo:
     trade_rate: float
 
     def to_json_string(self) -> str:
+        """Return json string of the representation."""
         return json.dumps(asdict(self), default=json_datetime_serializer)
 
     @staticmethod
     def from_json(trade_bid_offer_info: str) -> "TradeBidOfferInfo":
+        """Return TradeBidOfferInfo object from json representation."""
         info_dict = json.loads(trade_bid_offer_info)
         return TradeBidOfferInfo(**info_dict)
 
 
 class Trade:
+    """Trade class."""
     def __init__(self, id: str, creation_time: DateTime, offer_bid: Union[Offer, Bid],
                  seller: str, buyer: str, residual: Optional[Union[Offer, Bid]] = None,
                  already_tracked: bool = False,
@@ -319,13 +344,16 @@ class Trade:
 
     @classmethod
     def csv_fields(cls) -> Tuple:
+        """Return labels for csv_values for CSV export."""
         return "creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer"
 
     def csv_values(self) -> Tuple:
+        """Return values of class members that are needed for creation of CSV export."""
         rate = round(self.offer_bid.energy_rate, 4)
         return self.creation_time, rate, self.offer_bid.energy, self.seller, self.buyer
 
     def to_json_string(self) -> str:
+        """Return json string of the representation."""
         # __dict__ instead of asdict to not recursively deserialize objects
         trade_dict = deepcopy(self.__dict__)
         trade_dict["offer_bid"] = trade_dict["offer_bid"].to_json_string()
@@ -338,6 +366,7 @@ class Trade:
 
     @classmethod
     def from_json(cls, trade_string) -> "Trade":
+        """De-serialize trade from json string."""
         trade_dict = json.loads(trade_string)
         trade_dict["offer_bid"] = BaseBidOffer.from_json(trade_dict["offer_bid"])
         if trade_dict.get("residual"):
@@ -364,6 +393,7 @@ class Trade:
         return isinstance(self.offer_bid, Offer)
 
     def serializable_dict(self) -> Dict:
+        """Return a json serializable representation of the class."""
         return {
             "type": "Trade",
             "match_type": type(self.offer_bid).__name__,
@@ -408,6 +438,7 @@ class Trade:
 
 
 class BalancingOffer(Offer):
+    """BalancingOffer class."""
 
     def __repr__(self) -> str:
         return (f"<BalancingOffer('{self.id!s:.6s}', "
@@ -420,6 +451,7 @@ class BalancingOffer(Offer):
 
 
 class BalancingTrade(Trade):
+    """BalancingTrade class."""
     def __str__(self) -> str:
         return (
             f"{{{self.id!s:.6s}}} [{self.seller} -> {self.buyer}] "
@@ -439,7 +471,7 @@ class BidOfferMatch:
     trade_rate: float
 
     def serializable_dict(self) -> Dict:
-        """Serialized representation of the instance."""
+        """Return a json serializable representation of the class."""
         return {
             "market_id": self.market_id,
             "time_slot": self.time_slot,
@@ -454,6 +486,7 @@ class BidOfferMatch:
         """Receive a serializable dict of BidOfferMatch and return a BidOfferMatch object."""
         if cls.is_valid_dict(bid_offer_match):
             return BidOfferMatch(**bid_offer_match)
+        return None
 
     @classmethod
     def is_valid_dict(cls, bid_offer_match: Dict) -> bool:
@@ -480,10 +513,12 @@ class BidOfferMatch:
 
 @dataclass
 class Clearing:
+    """Class that contains information about the market clearing."""
     rate: float
     energy: float
 
     def serializable_dict(self):
+        """Return a json serializable representation of the class."""
         return {
             "rate": self.rate,
             "energy": self.energy
@@ -492,10 +527,12 @@ class Clearing:
 
 @dataclass
 class MarketClearingState:
+    """MarketClearingState class."""
     cumulative_offers: Dict[str, Dict[DateTime, Dict]] = field(default_factory=dict)
     cumulative_bids: Dict[str, Dict[DateTime, Dict]] = field(default_factory=dict)
     clearing: Dict[str, Dict[DateTime, Clearing]] = field(default_factory=dict)
 
     @classmethod
-    def csv_fields(cls):
+    def csv_fields(cls) -> Tuple:
+        """Return labels for CSV export."""
         return "creation_time", "rate [ct./kWh]"
