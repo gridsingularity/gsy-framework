@@ -20,7 +20,7 @@ import uuid
 from copy import deepcopy
 from dataclasses import asdict
 
-from pendulum import DateTime
+from pendulum import DateTime, datetime
 
 from d3a_interface.data_classes import (
     BidOfferMatch, BaseBidOffer, Offer, Bid, json_datetime_serializer,
@@ -33,7 +33,11 @@ def test_json_datetime_serializer():
     assert json_datetime_serializer("") is None
 
     my_date_time = DateTime.today()
-    assert json_datetime_serializer(my_date_time) == my_date_time.isoformat()
+    assert json_datetime_serializer(my_date_time) == datetime_to_string_incl_seconds(my_date_time)
+
+
+def test_time_stamp() -> DateTime:
+    return datetime(2021, 11, 3, 10, 45)
 
 
 class TestBidOfferMatch:
@@ -109,7 +113,8 @@ class TestBaseBidOffer:
     def setup_method(self):
         self.initial_data = {
             "id": str(uuid.uuid4()),
-            "creation_time": DateTime.now(),
+            "creation_time": test_time_stamp(),
+            "time_slot": test_time_stamp(),
             "price": 10,
             "energy": 30,
             "original_price": 8,
@@ -176,7 +181,8 @@ class TestBaseBidOffer:
             "original_price": bid_offer.original_price,
             "creation_time": datetime_to_string_incl_seconds(bid_offer.creation_time),
             "attributes": bid_offer.attributes,
-            "requirements": bid_offer.requirements
+            "requirements": bid_offer.requirements,
+            "time_slot": datetime_to_string_incl_seconds(bid_offer.time_slot)
         }
 
     def test_from_json(self):
@@ -199,21 +205,26 @@ class TestOffer:
     def setup_method(self):
         self.initial_data = {
             "id": uuid.uuid4(),
-            "creation_time": DateTime.now(),
-            "price": 10,
+            "creation_time": test_time_stamp(),
+            "price": 10.,
             "energy": 30,
             "original_price": 8,
             "attributes": {},
             "requirements": [],
-            "seller": "seller"
+            "seller": "seller",
+            "time_slot": test_time_stamp()
         }
+        print(self.initial_data)
 
     def test_init(self):
+        print(self.initial_data)
         offer = Offer(
             **self.initial_data
         )
+        print(self.initial_data)
         assert offer.id == str(self.initial_data["id"])
         assert offer.creation_time == self.initial_data["creation_time"]
+        assert offer.time_slot == self.initial_data["time_slot"]
         assert offer.price == self.initial_data["price"]
         assert offer.energy == self.initial_data["energy"]
         assert offer.original_price == self.initial_data["original_price"]
@@ -264,6 +275,7 @@ class TestOffer:
             "seller_origin": offer.seller_origin,
             "seller_origin_id": offer.seller_origin_id,
             "seller_id": offer.seller_id,
+            "time_slot": datetime_to_string_incl_seconds(offer.time_slot)
         }
 
     def test_from_dict(self):
@@ -308,13 +320,14 @@ class TestBid:
     def setup_method(self):
         self.initial_data = {
             "id": uuid.uuid4(),
-            "creation_time": DateTime.now(),
+            "creation_time": test_time_stamp(),
             "price": 10,
             "energy": 30,
             "original_price": 8,
             "attributes": {},
             "requirements": [],
-            "buyer": "buyer"
+            "buyer": "buyer",
+            "time_slot": test_time_stamp()
         }
 
     def test_init(self):
@@ -360,6 +373,7 @@ class TestBid:
         bid = Bid(
             **self.initial_data
         )
+
         assert bid.serializable_dict() == {
             "type": "Bid",
             "id": str(bid.id),
@@ -373,6 +387,7 @@ class TestBid:
             "buyer_origin": bid.buyer_origin,
             "buyer_origin_id": bid.buyer_origin_id,
             "buyer_id": bid.buyer_id,
+            "time_slot": datetime_to_string_incl_seconds(bid.time_slot)
         }
 
     def test_from_dict(self):
@@ -426,8 +441,8 @@ class TestTrade:
     def setup_method(self):
         self.initial_data = {
             "id": "my_id",
-            "creation_time": DateTime.now(),
-            "offer_bid": Offer("id", DateTime.now(), 1, 2, "seller"),
+            "creation_time": test_time_stamp(),
+            "offer_bid": Offer("id", test_time_stamp(), 1, 2, "seller"),
             "seller": "seller",
             "buyer": "buyer"}
 
@@ -504,7 +519,7 @@ class TestTrade:
         trade = Trade(
             **{
                 "id": "my_id",
-                "offer_bid": Offer("id", DateTime.now(), 1, 2, "seller"),
+                "offer_bid": Offer("id", test_time_stamp(), 1, 2, "seller"),
                 "buyer": "buyer",
                 "buyer_origin": "buyer_origin",
                 "seller_origin": "seller_origin",
@@ -514,7 +529,8 @@ class TestTrade:
                 "buyer_id": "buyer_id",
                 "seller": "seller",
                 "fee_price": 2,
-                "creation_time": DateTime.now(),
+                "creation_time": test_time_stamp(),
+                "time_slot": test_time_stamp()
             }
         )
         assert trade.serializable_dict() == {
@@ -535,7 +551,8 @@ class TestTrade:
             "buyer_id": trade.buyer_id,
             "seller": trade.seller,
             "fee_price": trade.fee_price,
-            "creation_time": datetime_to_string_incl_seconds(trade.creation_time)
+            "creation_time": datetime_to_string_incl_seconds(trade.creation_time),
+            "time_slot": datetime_to_string_incl_seconds(trade.creation_time)
         }
 
 
@@ -543,13 +560,14 @@ class TestBalancingOffer(TestOffer):
     def setup_method(self):
         self.initial_data = {
             "id": uuid.uuid4(),
-            "creation_time": DateTime.now(),
+            "creation_time": test_time_stamp(),
             "price": 10,
             "energy": 30,
             "original_price": 8,
             "attributes": {},
             "requirements": [],
-            "seller": "seller"
+            "seller": "seller",
+            "time_slot": test_time_stamp()
         }
 
     def test_repr(self):

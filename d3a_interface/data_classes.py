@@ -20,16 +20,16 @@ from copy import deepcopy
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Optional, Tuple, Union
 
-from pendulum import DateTime, parse
+from pendulum import DateTime
 
 from d3a_interface.utils import (
     datetime_to_string_incl_seconds, key_in_dict_and_not_none, str_to_pendulum_datetime)
 
 
-def json_datetime_serializer(date_obj: DateTime):
+def json_datetime_serializer(datetime_obj: DateTime) -> Optional[str]:
     """Define how to convert datetime objects while serializing to json."""
-    if isinstance(date_obj, DateTime):
-        return date_obj.isoformat()
+    if isinstance(datetime_obj, DateTime):
+        return datetime_to_string_incl_seconds(datetime_obj)
     return None
 
 
@@ -78,19 +78,23 @@ class BaseBidOffer:
             "energy_rate": self.energy_rate,
             "original_price": self.original_price,
             "creation_time": datetime_to_string_incl_seconds(self.creation_time),
+            "time_slot": datetime_to_string_incl_seconds(self.time_slot),
             "attributes": self.attributes,
             "requirements": self.requirements
         }
 
     @classmethod
-    def from_json(cls, offer_or_bid, current_time=None) -> Union["Offer", "Bid"]:
+    def from_json(cls, offer_or_bid: str) -> Union["Offer", "Bid"]:
         offer_bid_dict = json.loads(offer_or_bid)
         object_type = offer_bid_dict.pop("type")
-
         offer_bid_dict.pop("energy_rate", None)
-
-        offer_bid_dict["creation_time"] = current_time
-
+        if offer_bid_dict.get("creation_time"):
+            offer_bid_dict["creation_time"] = (
+                str_to_pendulum_datetime(offer_bid_dict["creation_time"]))
+        else:
+            offer_bid_dict["creation_time"] = None
+        if offer_bid_dict.get("time_slot"):
+            offer_bid_dict["time_slot"] = str_to_pendulum_datetime(offer_bid_dict["time_slot"])
         if object_type == "Offer":
             return Offer(**offer_bid_dict)
         if object_type == "Bid":
@@ -140,6 +144,7 @@ class Offer(BaseBidOffer):
         return Offer(
             id=offer["id"],
             creation_time=str_to_pendulum_datetime(offer["creation_time"]),
+            time_slot=str_to_pendulum_datetime(offer["time_slot"]),
             energy=offer["energy"],
             price=offer["energy"] * offer["energy_rate"],
             original_price=offer.get("original_price"),
@@ -151,6 +156,7 @@ class Offer(BaseBidOffer):
             requirements=offer.get("requirements"))
 
     def __eq__(self, other) -> bool:
+
         return (self.id == other.id and
                 self.price == other.price and
                 self.original_price == other.original_price and
@@ -159,6 +165,7 @@ class Offer(BaseBidOffer):
                 self.seller_origin_id == other.seller_origin_id and
                 self.attributes == other.attributes and
                 self.requirements == other.requirements and
+                self.creation_time == other.creation_time and
                 self.time_slot == other.time_slot)
 
     def csv_values(self) -> Tuple:
@@ -173,7 +180,8 @@ class Offer(BaseBidOffer):
     def copy(offer: "Offer") -> "Offer":
         return Offer(offer.id, offer.creation_time, offer.price, offer.energy, offer.seller,
                      offer.original_price, offer.seller_origin, offer.seller_origin_id,
-                     offer.seller_id, attributes=offer.attributes, requirements=offer.requirements)
+                     offer.seller_id, attributes=offer.attributes, requirements=offer.requirements,
+                     time_slot=offer.time_slot)
 
 
 class Bid(BaseBidOffer):
@@ -233,7 +241,8 @@ class Bid(BaseBidOffer):
             buyer_origin_id=bid.get("buyer_origin_id"),
             buyer_id=bid.get("buyer_id"),
             attributes=bid.get("attributes"),
-            requirements=bid.get("requirements")
+            requirements=bid.get("requirements"),
+            time_slot=str_to_pendulum_datetime(bid.get("time_slot"))
         )
 
     def csv_values(self) -> Tuple:
@@ -252,7 +261,9 @@ class Bid(BaseBidOffer):
                 self.buyer == other.buyer and
                 self.buyer_origin_id == other.buyer_origin_id and
                 self.attributes == other.attributes and
-                self.requirements == other.requirements)
+                self.requirements == other.requirements and
+                self.creation_time == other.creation_time and
+                self.time_slot == other.time_slot)
 
 
 @dataclass
@@ -326,14 +337,18 @@ class Trade:
         return json.dumps(trade_dict, default=json_datetime_serializer)
 
     @classmethod
-    def from_json(cls, trade_string, current_time=None) -> "Trade":
+    def from_json(cls, trade_string) -> "Trade":
         trade_dict = json.loads(trade_string)
-        trade_dict["offer_bid"] = BaseBidOffer.from_json(trade_dict["offer_bid"], current_time)
-        if key_in_dict_and_not_none(trade_dict, "residual"):
-            trade_dict["residual"] = BaseBidOffer.from_json(trade_dict["residual"],
-                                                            current_time)
-        trade_dict["creation_time"] = parse(trade_dict["creation_time"])
-        if key_in_dict_and_not_none(trade_dict, "offer_bid_trade_info"):
+        trade_dict["offer_bid"] = BaseBidOffer.from_json(trade_dict["offer_bid"])
+        if trade_dict.get("residual"):
+            trade_dict["residual"] = BaseBidOffer.from_json(trade_dict["residual"])
+        if trade_dict.get("creation_time"):
+            trade_dict["creation_time"] = str_to_pendulum_datetime(trade_dict["creation_time"])
+        else:
+            trade_dict["creation_time"] = None
+        if trade_dict.get("time_slot"):
+            trade_dict["time_slot"] = str_to_pendulum_datetime(trade_dict[""])
+        if trade_dict.get("offer_bid_trade_info"):
             trade_dict["offer_bid_trade_info"] = (
                 TradeBidOfferInfo.from_json(trade_dict["offer_bid_trade_info"]))
         return Trade(**trade_dict)
@@ -367,13 +382,15 @@ class Trade:
             "buyer_id": self.buyer_id,
             "seller": self.seller,
             "fee_price": self.fee_price,
-            "creation_time": datetime_to_string_incl_seconds(self.creation_time)
+            "creation_time": datetime_to_string_incl_seconds(self.creation_time),
+            "time_slot": datetime_to_string_incl_seconds(self.time_slot),
         }
 
     def __eq__(self, other: "Trade") -> bool:
         return (
             self.id == other.id and
             self.creation_time == other.creation_time and
+            self.time_slot == other.time_slot and
             self.offer_bid == other.offer_bid and
             self.seller == other.seller and
             self.buyer == other.buyer and
