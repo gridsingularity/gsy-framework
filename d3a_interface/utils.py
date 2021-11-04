@@ -92,6 +92,7 @@ def generate_market_slot_list(start_timestamp=None):
     time_span = duration(days=PROFILE_EXPANSION_DAYS)\
         if GlobalConfig.IS_CANARY_NETWORK \
         else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
+    time_span += duration(hours=GlobalConfig.FUTURE_MARKET_DURATION_HOURS)
     market_slot_list = \
         generate_market_slot_list_from_config(sim_duration=time_span,
                                               start_timestamp=start_timestamp
