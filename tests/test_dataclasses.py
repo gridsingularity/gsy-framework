@@ -15,11 +15,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-class-docstring
+# pylint: disable=attribute-defined-outside-init
+
 import json
 import uuid
 from copy import deepcopy
 from dataclasses import asdict
 
+import pytest
 from pendulum import DateTime, datetime
 
 from d3a_interface.data_classes import (
@@ -28,9 +33,6 @@ from d3a_interface.data_classes import (
     MarketClearingState)
 from d3a_interface.utils import datetime_to_string_incl_seconds
 
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-class-docstring
-# pylint: disable=attribute-defined-outside-init
 
 DEFAULT_DATETIME = datetime(2021, 11, 3, 10, 45)
 
@@ -205,13 +207,37 @@ class TestBaseBidOffer:
         bid_json = bid.to_json_string()
         assert bid == BaseBidOffer.from_json(bid_json)
 
+    @pytest.mark.parametrize("time_stamp", [None, DEFAULT_DATETIME])
+    def test_from_json_deals_with_time_stamps_correctly(self, time_stamp):
+        updated_initial_data = self.initial_data
+        updated_initial_data.update({"time_slot": time_stamp,
+                                     "creation_time": time_stamp})
+        bid = Bid(**updated_initial_data, buyer="buyer")
+        bid_json = bid.to_json_string()
+        bid = Bid.from_json(bid_json)
+        assert bid.creation_time == time_stamp
+
+    def test_from_json_asserts_if_no_type_was_provided(self):
+        bid = Bid(**self.initial_data, buyer="buyer")
+        bid_json = bid.to_json_string()
+        bid_json = bid_json.replace(', "type": "Bid"', "")
+        with pytest.raises(AssertionError):
+            Bid.from_json(bid_json)
+
+    def test_from_json_asserts_if_wrong_type_was_provided(self):
+        bid = Bid(**self.initial_data, buyer="buyer")
+        bid_json = bid.to_json_string()
+        bid_json = bid_json.replace(', "type": "Bid"', ', "type": "InvalidType"')
+        with pytest.raises(AssertionError):
+            Bid.from_json(bid_json)
+
 
 class TestOffer:
     def setup_method(self):
         self.initial_data = {
             "id": uuid.uuid4(),
             "creation_time": DEFAULT_DATETIME,
-            "price": 10.,
+            "price": 10,
             "energy": 30,
             "original_price": 8,
             "attributes": {},
@@ -502,6 +528,16 @@ class TestTrade:
             1, 1, 1, 1, 1
         )
         assert Trade.from_json(trade.to_json_string()) == trade
+
+    @pytest.mark.parametrize("time_stamp", [None, DEFAULT_DATETIME])
+    def test_from_json_deals_with_time_stamps_correctly(self, time_stamp):
+        updated_initial_data = self.initial_data
+        updated_initial_data.update({"time_slot": time_stamp,
+                                     "creation_time": time_stamp})
+        trade = Trade(**updated_initial_data)
+        trade_json = trade.to_json_string()
+        trade = Trade.from_json(trade_json)
+        assert trade.creation_time == time_stamp
 
     def test_is_bid_trade(self):
         trade = Trade(

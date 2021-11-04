@@ -15,6 +15,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+# pylint: disable=invalid-name
+# pylint: disable=redefined-builtin
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-locals
+# pylint: disable=no-member
+
 import json
 from copy import deepcopy
 from dataclasses import dataclass, field, asdict
@@ -24,13 +31,6 @@ from pendulum import DateTime
 
 from d3a_interface.utils import (
     datetime_to_string_incl_seconds, key_in_dict_and_not_none, str_to_pendulum_datetime)
-
-# pylint: disable=invalid-name
-# pylint: disable=redefined-builtin
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-locals
-# pylint: disable=no-member
 
 
 def json_datetime_serializer(datetime_obj: DateTime) -> Optional[str]:
@@ -97,7 +97,9 @@ class BaseBidOffer:
     def from_json(cls, offer_or_bid: str) -> Union["Offer", "Bid"]:
         """De-serialize orders from json string."""
         offer_bid_dict = json.loads(offer_or_bid)
-        object_type = offer_bid_dict.pop("type")
+        object_type = offer_bid_dict.pop("type", None)
+        if object_type:
+            assert False, "from_json expects a json string containing the 'type' key"
         offer_bid_dict.pop("energy_rate", None)
         if offer_bid_dict.get("creation_time"):
             offer_bid_dict["creation_time"] = (
@@ -110,7 +112,7 @@ class BaseBidOffer:
             return Offer(**offer_bid_dict)
         if object_type == "Bid":
             return Bid(**offer_bid_dict)
-        assert False, "from_json expects a json string containing the 'type' key."
+        assert False, "the type member needs to be set to one of ('Bid', 'Offer')."
 
 
 class Offer(BaseBidOffer):
@@ -170,7 +172,6 @@ class Offer(BaseBidOffer):
             requirements=offer.get("requirements"))
 
     def __eq__(self, other) -> bool:
-
         return (self.id == other.id and
                 self.price == other.price and
                 self.original_price == other.original_price and
@@ -376,7 +377,7 @@ class Trade:
         else:
             trade_dict["creation_time"] = None
         if trade_dict.get("time_slot"):
-            trade_dict["time_slot"] = str_to_pendulum_datetime(trade_dict[""])
+            trade_dict["time_slot"] = str_to_pendulum_datetime(trade_dict["time_slot"])
         if trade_dict.get("offer_bid_trade_info"):
             trade_dict["offer_bid_trade_info"] = (
                 TradeBidOfferInfo.from_json(trade_dict["offer_bid_trade_info"]))
