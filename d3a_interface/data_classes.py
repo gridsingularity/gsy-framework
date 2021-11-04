@@ -98,7 +98,7 @@ class BaseBidOffer:
         """De-serialize orders from json string."""
         offer_bid_dict = json.loads(offer_or_bid)
         object_type = offer_bid_dict.pop("type", None)
-        if object_type:
+        if not object_type:
             assert False, "from_json expects a json string containing the 'type' key"
         offer_bid_dict.pop("energy_rate", None)
         if offer_bid_dict.get("creation_time"):
