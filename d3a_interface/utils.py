@@ -27,7 +27,7 @@ from functools import lru_cache, wraps
 from pkgutil import walk_packages
 from statistics import mean
 from threading import Timer
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List
 
 from pendulum import DateTime, datetime, duration, from_format, from_timestamp, instance
 from redis.exceptions import ConnectionError
@@ -222,9 +222,8 @@ def format_datetime(datetime, ui_format=False, unix_time=False):
         return datetime.format(DATE_TIME_FORMAT)
 
 
-def datetime_to_string_incl_seconds(date_time: Optional[DateTime]) -> Optional[str]:
-    if date_time:
-        return date_time.format(DATE_TIME_FORMAT_SECONDS)
+def datetime_to_string_incl_seconds(date_time: DateTime) -> str:
+    return date_time.format(DATE_TIME_FORMAT_SECONDS)
 
 
 def convert_pendulum_to_str_in_dict(indict, outdict=None, ui_format=False, unix_time=False):
