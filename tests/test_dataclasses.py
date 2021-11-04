@@ -44,11 +44,13 @@ class TestBidOfferMatch:
         """Test the serializable_dict method of BidOfferMatch dataclass."""
         bid_offer_match = BidOfferMatch(
             market_id="market_id",
+            time_slot="2021-10-06T12:00",
             bids=[{"type": "bid"}],
             offers=[{"type": "offer"}],
             selected_energy=1,
             trade_rate=1)
         expected_dict = {"market_id": "market_id",
+                         "time_slot": "2021-10-06T12:00",
                          "bids": [{"type": "bid"}],
                          "offers": [{"type": "offer"}],
                          "selected_energy": 1,
@@ -59,6 +61,7 @@ class TestBidOfferMatch:
     def test_is_valid_dict():
         """Test the is_valid_dict method of BidOfferMatch dataclass."""
         bid_offer_match = {"market_id": "market_id",
+                           "time_slot": "2021-10-06T12:00",
                            "bids": [{"type": "bid"}],
                            "offers": [{"type": "offer"}],
                            "selected_energy": 1,
@@ -67,6 +70,7 @@ class TestBidOfferMatch:
 
         # Key does not exist
         bid_offer_match = {"market_id": "market_id",
+                           "time_slot": "2021-10-06T12:00",
                            "bids": [{"type": "bid"}],
                            "offers": [{"type": "offer"}],
                            "selected_energy": 1,
@@ -75,6 +79,7 @@ class TestBidOfferMatch:
 
         # Wrong type
         bid_offer_match = {"market_id": "market_id",
+                           "time_slot": "2021-10-06T12:00",
                            "bids": [{"type": "bid"}],
                            "offers": [{"type": "offer"}],
                            "selected_energy": 1,
@@ -85,12 +90,14 @@ class TestBidOfferMatch:
     def test_from_dict():
         """Test the from_dict method of BidOfferMatch dataclass."""
         expected_dict = {"market_id": "market_id",
+                         "time_slot": "2021-10-06T12:00",
                          "bids": [{"type": "bid"}],
                          "offers": [{"type": "offer"}],
                          "selected_energy": 1,
                          "trade_rate": 1}
         bid_offer_match = BidOfferMatch.from_dict(expected_dict)
         assert bid_offer_match.market_id == expected_dict["market_id"]
+        assert bid_offer_match.time_slot == expected_dict["time_slot"]
         assert bid_offer_match.bids == expected_dict["bids"]
         assert bid_offer_match.offers == expected_dict["offers"]
         assert bid_offer_match.selected_energy == expected_dict["selected_energy"]
@@ -102,7 +109,7 @@ class TestBaseBidOffer:
     def setup_method(self):
         self.initial_data = {
             "id": str(uuid.uuid4()),
-            "time": DateTime.now(),
+            "creation_time": DateTime.now(),
             "price": 10,
             "energy": 30,
             "original_price": 8,
@@ -115,7 +122,7 @@ class TestBaseBidOffer:
             **self.initial_data
         )
         assert bid_offer.id == str(self.initial_data["id"])
-        assert bid_offer.time == self.initial_data["time"]
+        assert bid_offer.creation_time == self.initial_data["creation_time"]
         assert bid_offer.price == self.initial_data["price"]
         assert bid_offer.energy == self.initial_data["energy"]
         assert bid_offer.original_price == self.initial_data["original_price"]
@@ -167,7 +174,7 @@ class TestBaseBidOffer:
             "energy": bid_offer.energy,
             "energy_rate": bid_offer.energy_rate,
             "original_price": bid_offer.original_price,
-            "time": datetime_to_string_incl_seconds(bid_offer.time),
+            "creation_time": datetime_to_string_incl_seconds(bid_offer.creation_time),
             "attributes": bid_offer.attributes,
             "requirements": bid_offer.requirements
         }
@@ -192,7 +199,7 @@ class TestOffer:
     def setup_method(self):
         self.initial_data = {
             "id": uuid.uuid4(),
-            "time": DateTime.now(),
+            "creation_time": DateTime.now(),
             "price": 10,
             "energy": 30,
             "original_price": 8,
@@ -206,7 +213,7 @@ class TestOffer:
             **self.initial_data
         )
         assert offer.id == str(self.initial_data["id"])
-        assert offer.time == self.initial_data["time"]
+        assert offer.creation_time == self.initial_data["creation_time"]
         assert offer.price == self.initial_data["price"]
         assert offer.energy == self.initial_data["energy"]
         assert offer.original_price == self.initial_data["original_price"]
@@ -250,7 +257,7 @@ class TestOffer:
             "energy": offer.energy,
             "energy_rate": offer.energy_rate,
             "original_price": offer.original_price,
-            "time": datetime_to_string_incl_seconds(offer.time),
+            "creation_time": datetime_to_string_incl_seconds(offer.creation_time),
             "attributes": offer.attributes,
             "requirements": offer.requirements,
             "seller": offer.seller,
@@ -258,6 +265,12 @@ class TestOffer:
             "seller_origin_id": offer.seller_origin_id,
             "seller_id": offer.seller_id,
         }
+
+    def test_from_dict(self):
+        offer = Offer(
+            **self.initial_data,
+        )
+        assert Offer.from_dict(offer.serializable_dict()) == offer
 
     def test_eq(self):
         offer = Offer(
@@ -276,11 +289,12 @@ class TestOffer:
             **self.initial_data
         )
         rate = round(offer.energy_rate, 4)
-        assert offer.csv_values() == (offer.time, rate, offer.energy, offer.price, offer.seller)
+        assert offer.csv_values() == (
+            offer.creation_time, rate, offer.energy, offer.price, offer.seller)
 
     def test_csv_fields(self):
         assert (Offer.csv_fields() ==
-                ("time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"))
+                ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"))
 
     def test_copy(self):
         offer = Offer(
@@ -294,7 +308,7 @@ class TestBid:
     def setup_method(self):
         self.initial_data = {
             "id": uuid.uuid4(),
-            "time": DateTime.now(),
+            "creation_time": DateTime.now(),
             "price": 10,
             "energy": 30,
             "original_price": 8,
@@ -308,7 +322,7 @@ class TestBid:
             **self.initial_data
         )
         assert bid.id == str(self.initial_data["id"])
-        assert bid.time == self.initial_data["time"]
+        assert bid.creation_time == self.initial_data["creation_time"]
         assert bid.price == self.initial_data["price"]
         assert bid.energy == self.initial_data["energy"]
         assert bid.original_price == self.initial_data["original_price"]
@@ -352,7 +366,7 @@ class TestBid:
             "energy": bid.energy,
             "energy_rate": bid.energy_rate,
             "original_price": bid.original_price,
-            "time": datetime_to_string_incl_seconds(bid.time),
+            "creation_time": datetime_to_string_incl_seconds(bid.creation_time),
             "attributes": bid.attributes,
             "requirements": bid.requirements,
             "buyer": bid.buyer,
@@ -360,6 +374,12 @@ class TestBid:
             "buyer_origin_id": bid.buyer_origin_id,
             "buyer_id": bid.buyer_id,
         }
+
+    def test_from_dict(self):
+        bid = Bid(
+            **self.initial_data,
+        )
+        assert Bid.from_dict(bid.serializable_dict()) == bid
 
     def test_eq(self):
         bid = Bid(
@@ -378,11 +398,11 @@ class TestBid:
             **self.initial_data
         )
         rate = round(bid.energy_rate, 4)
-        assert bid.csv_values() == (bid.time, rate, bid.energy, bid.price, bid.buyer)
+        assert bid.csv_values() == (bid.creation_time, rate, bid.energy, bid.price, bid.buyer)
 
     def test_csv_fields(self):
         assert (Bid.csv_fields() ==
-                ("time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
+                ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
 
 
 class TestTradeBidOfferInfo:
@@ -406,7 +426,7 @@ class TestTrade:
     def setup_method(self):
         self.initial_data = {
             "id": "my_id",
-            "time": DateTime.now(),
+            "creation_time": DateTime.now(),
             "offer_bid": Offer("id", DateTime.now(), 1, 2, "seller"),
             "seller": "seller",
             "buyer": "buyer"}
@@ -421,13 +441,13 @@ class TestTrade:
 
     def test_csv_fields(self):
         assert Trade.csv_fields() == (
-            "time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer")
+            "creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer")
 
     def test_csv_values(self):
         trade = Trade(**self.initial_data)
         rate = round(trade.offer_bid.energy_rate, 4)
         assert (trade.csv_values() ==
-                (trade.time, rate, trade.offer_bid.energy, trade.seller, trade.buyer))
+                (trade.creation_time, rate, trade.offer_bid.energy, trade.seller, trade.buyer))
 
     def test_to_json_string(self):
         trade = Trade(**self.initial_data)
@@ -494,7 +514,7 @@ class TestTrade:
                 "buyer_id": "buyer_id",
                 "seller": "seller",
                 "fee_price": 2,
-                "time": DateTime.now(),
+                "creation_time": DateTime.now(),
             }
         )
         assert trade.serializable_dict() == {
@@ -515,7 +535,7 @@ class TestTrade:
             "buyer_id": trade.buyer_id,
             "seller": trade.seller,
             "fee_price": trade.fee_price,
-            "time": datetime_to_string_incl_seconds(trade.time)
+            "creation_time": datetime_to_string_incl_seconds(trade.creation_time)
         }
 
 
@@ -523,7 +543,7 @@ class TestBalancingOffer(TestOffer):
     def setup_method(self):
         self.initial_data = {
             "id": uuid.uuid4(),
-            "time": DateTime.now(),
+            "creation_time": DateTime.now(),
             "price": 10,
             "energy": 30,
             "original_price": 8,
@@ -565,4 +585,4 @@ class TestClearing:
 
 class TestMarketClearingState:
     def test_csv_fields(self):
-        assert MarketClearingState.csv_fields() == ("time", "rate [ct./kWh]")
+        assert MarketClearingState.csv_fields() == ("creation_time", "rate [ct./kWh]")

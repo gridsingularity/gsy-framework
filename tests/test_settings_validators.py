@@ -26,11 +26,6 @@ from d3a_interface.constants_limits import ConstSettings, PercentageRangeLimit
 class TestValidateGlobalSettings:
     """Test the settings_validators.validate_global_settings function."""
 
-    def test_wrong_market_count(self):
-        """Validate that market_count should be greater than 0."""
-        with pytest.raises(D3ASettingsException):
-            validate_global_settings({"market_count": 0})
-
     def test_wrong_tick_and_slot_lengths(self):
         with pytest.raises(D3ASettingsException):
             validate_global_settings(

@@ -135,6 +135,8 @@ class ConstSettings:
         DEFAULT_CAPACITY_KW = 5
         MAX_PANEL_OUTPUT_W = 160  # needed for backward compatibility
         PV_PENALTY_RATE = 0
+        AZIMUTH_LIMIT = RangeLimit(0, 360)
+        TILT_LIMIT = RangeLimit(0, 90)
 
     class SmartMeterSettings:
         # Production constants
@@ -214,6 +216,7 @@ class GlobalConfig:
     TICK_LENGTH_S = 15
     DURATION_D = 1
     MARKET_COUNT = 1
+    FUTURE_MARKET_DURATION_HOURS = 24
     CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = str(ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
@@ -224,11 +227,11 @@ class GlobalConfig:
     # Default simulation settings d3a side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))
     sim_duration = duration(days=DURATION_D)
-    market_count = MARKET_COUNT
     slot_length = duration(minutes=SLOT_LENGTH_M)
     tick_length = duration(seconds=TICK_LENGTH_S)
     ticks_per_slot = int(slot_length / tick_length)
     total_ticks = int(sim_duration / tick_length)
+    future_market_duration = duration(hours=FUTURE_MARKET_DURATION_HOURS)
     cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     grid_fee_type = ConstSettings.IAASettings.GRID_FEE_TYPE

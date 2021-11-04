@@ -50,14 +50,14 @@ def validate_area(**kwargs):
                              AreaSettings.CONSTANT_FEE_LIMIT.max, error_message)
 
     if key_in_dict_and_not_none_and_negative(kwargs, "baseline_peak_energy_import_kWh"):
-        raise D3AAreaException({"misconfiguration": [f"baseline_peak_energy_import_kWh must be a "
-                                                     f"positive value."]})
+        raise D3AAreaException({"misconfiguration": ["baseline_peak_energy_import_kWh must be a "
+                                                     "positive value."]})
     if key_in_dict_and_not_none_and_negative(kwargs, "baseline_peak_energy_export_kWh"):
-        raise D3AAreaException({"misconfiguration": [f"baseline_peak_energy_export_kWh must be a "
-                                                     f"positive value."]})
+        raise D3AAreaException({"misconfiguration": ["baseline_peak_energy_export_kWh must be a "
+                                                     "positive value."]})
     if key_in_dict_and_not_none_and_negative(kwargs, "import_capacity_kVA"):
         raise D3AAreaException(
-            {"misconfiguration": [f"import_capacity_kVA must be a positive value."]})
+            {"misconfiguration": ["import_capacity_kVA must be a positive value."]})
     if key_in_dict_and_not_none_and_negative(kwargs, "export_capacity_kVA"):
-        raise D3AAreaException({"misconfiguration": [f"export_capacity_kVA must be a "
-                                                     f"positive value."]})
+        raise D3AAreaException({"misconfiguration": ["export_capacity_kVA must be a "
+                                                     "positive value."]})
