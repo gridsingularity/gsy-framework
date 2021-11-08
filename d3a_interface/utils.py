@@ -222,8 +222,10 @@ def format_datetime(datetime, ui_format=False, unix_time=False):
         return datetime.format(DATE_TIME_FORMAT)
 
 
-def datetime_to_string_incl_seconds(datetime):
-    return datetime.format(DATE_TIME_FORMAT_SECONDS)
+def datetime_to_string_incl_seconds(date_time: DateTime) -> str:
+    if not date_time:
+        return ""
+    return date_time.format(DATE_TIME_FORMAT_SECONDS)
 
 
 def convert_pendulum_to_str_in_dict(indict, outdict=None, ui_format=False, unix_time=False):
