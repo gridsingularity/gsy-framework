@@ -66,7 +66,7 @@ class ConstSettings:
 
     class FutureMarketSettings:
         # Duration between clearing in future markets
-        FUTURE_MARKET_CLEARING_INTERVAL = 15  # in minutes
+        FUTURE_MARKET_CLEARING_INTERVAL_MINUTES = 15
 
     class AreaSettings:
         PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
