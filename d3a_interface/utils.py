@@ -223,6 +223,8 @@ def format_datetime(datetime, ui_format=False, unix_time=False):
 
 
 def datetime_to_string_incl_seconds(date_time: DateTime) -> str:
+    if not date_time:
+        return ""
     return date_time.format(DATE_TIME_FORMAT_SECONDS)
 
 
