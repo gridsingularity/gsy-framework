@@ -20,7 +20,7 @@ setup(
     long_description=README,
     author='GridSingularity',
     author_email='d3a@gridsingularity.com',
-    url='https://github.com/faizan2590/gsy-framework',
+    url='https://github.com/gridsingularity/gsy-framework',
     version=VERSION,
     packages=find_packages(where=".", exclude=["tests"]),
     package_dir={"gsy_framework": "gsy_framework"},
