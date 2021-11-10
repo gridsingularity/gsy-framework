@@ -3,8 +3,8 @@ import asyncio
 from time import time
 from sys import platform
 from parameterized import parameterized
-import d3a_interface.client_connections.websocket_connection as websocket_connection
-from d3a_interface.client_connections.websocket_connection import WebsocketAsyncConnection
+import gsy_framework.client_connections.websocket_connection as websocket_connection
+from gsy_framework.client_connections.websocket_connection import WebsocketAsyncConnection
 
 
 class TestWebsocket(unittest.TestCase):

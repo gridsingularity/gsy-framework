@@ -2,8 +2,8 @@ from uuid import uuid4
 
 import pytest
 
-from d3a_interface.sim_results.kpi import KPI, SavingsKPI
-from d3a_interface.constants_limits import GlobalConfig
+from gsy_framework.sim_results.kpi import KPI, SavingsKPI
+from gsy_framework.constants_limits import GlobalConfig
 
 
 class FakeEndpointBuffer:

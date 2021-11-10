@@ -22,8 +22,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 from pendulum import datetime, today
 
-from d3a_interface.utils import (datetime_to_string_incl_seconds,
-                                 HomeRepresentationUtils, convert_datetime_to_ui_str_format,
+from gsy_framework.utils import (HomeRepresentationUtils, convert_datetime_to_ui_str_format,
                                  execute_function_util, scenario_representation_traversal,
                                  sort_list_of_dicts_by_attribute, str_to_pendulum_datetime)
 
@@ -95,13 +94,7 @@ class TestUtils:
             str_to_pendulum_datetime("2021-04-05T12:30:00-04:00")
 
     @staticmethod
-    def test_datetime_to_string_incl_seconds():
-        """Test if datetime_to_string_incl_seconds returns correctly."""
-        assert (datetime_to_string_incl_seconds(date_time=datetime(2021, 11, 4, 15, 30)) ==
-                "2021-11-04T15:30:00")
-
-    @staticmethod
-    @patch("d3a_interface.utils.logging")
+    @patch("gsy_framework.utils.logging")
     def test_execute_function_util_logs_raised_exceptions(logging_mock: MagicMock):
         """The execute_function_util correctly logs exceptions when they are raised."""
         raised_exception = ValueError("some exception message")

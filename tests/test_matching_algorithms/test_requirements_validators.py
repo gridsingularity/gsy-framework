@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pendulum import now
 
-from d3a_interface.data_classes import Offer, Bid
-from d3a_interface.matching_algorithms.requirements_validators import (
+from gsy_framework.data_classes import Offer, Bid
+from gsy_framework.matching_algorithms.requirements_validators import (
     EnergyTypeRequirement,
     TradingPartnersRequirement,
     RequirementsSatisfiedChecker, SelectedEnergyRequirement, PriceRequirement)
@@ -108,7 +108,7 @@ class TestRequirementsValidator:
             offer, bid, requirement, clearing_rate=8, selected_energy=1) is True
 
     @patch(
-        "d3a_interface.matching_algorithms.requirements_validators."
+        "gsy_framework.matching_algorithms.requirements_validators."
         "TradingPartnersRequirement.is_satisfied", MagicMock())
     def test_requirements_validator(self, offer, bid):
         # Empty requirement, should be satisfied
