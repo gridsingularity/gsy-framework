@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
 from pendulum import datetime, duration
-from d3a_interface.unit_test_utils import assert_dicts_identical
-from d3a_interface.read_user_profile import _generate_slot_based_zero_values_dict_from_profile, \
+from gsy_framework.unit_test_utils import assert_dicts_identical
+from gsy_framework.read_user_profile import _generate_slot_based_zero_values_dict_from_profile, \
     _fill_gaps_in_profile, _interpolate_profile_values_to_slot, read_profile_without_config
 
 

@@ -22,7 +22,7 @@ import unittest
 from jsonschema import ValidationError
 from parameterized import parameterized
 
-from d3a_interface.scenario_validators import scenario_validator
+from gsy_framework.scenario_validators import scenario_validator
 
 
 class TestValidateGlobalSettings(unittest.TestCase):

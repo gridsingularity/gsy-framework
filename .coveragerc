@@ -1,6 +1,6 @@
 [run]
 branch = True
-source = d3a_interface
+source = gsy_framework
 parallel = True
 
 [report]
