@@ -27,11 +27,11 @@ from dataclasses import asdict
 import pytest
 from pendulum import DateTime, datetime
 
-from d3a_interface.data_classes import (
+from gsy_framework.data_classes import (
     BidOfferMatch, BaseBidOffer, Offer, Bid, json_datetime_serializer,
     TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade, Clearing,
     MarketClearingState)
-from d3a_interface.utils import datetime_to_string_incl_seconds
+from gsy_framework.utils import datetime_to_string_incl_seconds
 
 
 DEFAULT_DATETIME = datetime(2021, 11, 3, 10, 45)
