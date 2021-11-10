@@ -1,7 +1,5 @@
-# D3A interface
+# GSy Framework
 
-[![codecov](https://codecov.io/gh/gridsingularity/d3a-interface/branch/master/graph/badge.svg?token=CAYP3OC8P4)](https://codecov.io/gh/gridsingularity/d3a-interface)
+[![codecov](https://codecov.io/gh/gridsingularity/gsy-framework/branch/master/graph/badge.svg?token=CAYP3OC8P4)](https://codecov.io/gh/gridsingularity/gsy-framework)
 
-This is a common interface between D3A micro services. 
-
-The repository also holds constants that need to be shared among multiple D3A repositories.
+Framework that contains utilities and libraries that are used in multiple GSy repos and services. 
