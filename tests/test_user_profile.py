@@ -16,10 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import unittest
-from pendulum import datetime, duration
+
+from pendulum import datetime, duration, today
+
+from gsy_framework.constants_limits import GlobalConfig, TIME_ZONE, PROFILE_EXPANSION_DAYS
+from gsy_framework.read_user_profile import (
+    _generate_slot_based_zero_values_dict_from_profile, read_arbitrary_profile, InputProfileTypes,
+    _fill_gaps_in_profile, _interpolate_profile_values_to_slot, read_profile_without_config)
 from gsy_framework.unit_test_utils import assert_dicts_identical
-from gsy_framework.read_user_profile import _generate_slot_based_zero_values_dict_from_profile, \
-    _fill_gaps_in_profile, _interpolate_profile_values_to_slot, read_profile_without_config
 
 
 class TestReadUserProfile(unittest.TestCase):
@@ -91,3 +95,30 @@ class TestReadUserProfile(unittest.TestCase):
             datetime(2021, 2, 12, 0, 15, 0): 0.5,
             datetime(2021, 2, 12, 0, 30, 0): 0.1
         })
+
+    def test_correct_time_expansion_read_arbitrary_profile(self):
+        market_maker_rate = 30
+        if GlobalConfig.IS_CANARY_NETWORK:
+            GlobalConfig.sim_duration = duration(hours=3)
+            expected_last_time_slot = today(tz=TIME_ZONE).add(days=PROFILE_EXPANSION_DAYS - 1,
+                                                              hours=23, minutes=45)
+            mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+            assert list(mmr.keys())[-1] == expected_last_time_slot
+            GlobalConfig.sim_duration = duration(hours=30)
+            expected_last_time_slot = today(tz=TIME_ZONE).add(days=PROFILE_EXPANSION_DAYS - 1,
+                                                              hours=23, minutes=45)
+            mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+            assert list(mmr.keys())[-1] == expected_last_time_slot
+        else:
+            GlobalConfig.FUTURE_MARKET_DURATION_HOURS = 0
+            GlobalConfig.sim_duration = duration(hours=3)
+            mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+            assert (list(mmr.keys())[-1] - today(tz=TIME_ZONE)).days == 0
+            GlobalConfig.sim_duration = duration(hours=36)
+            mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+            assert (list(mmr.keys())[-1] - today(tz=TIME_ZONE)).days == 1
+
+            GlobalConfig.FUTURE_MARKET_DURATION_HOURS = 24
+            GlobalConfig.sim_duration = duration(hours=1)
+            mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+            assert (list(mmr.keys())[-1] - today(tz=TIME_ZONE)).days == 1
