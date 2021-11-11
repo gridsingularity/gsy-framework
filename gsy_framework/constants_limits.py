@@ -96,9 +96,6 @@ class ConstSettings:
         FINAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
         # Min allowed battery SOC, range is [0, 100] %.
         MIN_ALLOWED_SOC = 10
-        # Controls whether energy is sold only on the most expensive market, default is
-        # to sell to all markets
-        SELL_ON_MOST_EXPENSIVE_MARKET = False
 
         # Controls the energy loss of the storage over time#
         # LOSS_FUNCTION = 1 ==> relative loss
