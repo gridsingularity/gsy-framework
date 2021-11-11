@@ -96,7 +96,7 @@ class TestReadUserProfile(unittest.TestCase):
             datetime(2021, 2, 12, 0, 30, 0): 0.1
         })
 
-    def test_correct_time_expansion_read_arbitrary_profile(self):
+    def test_read_arbitrary_profile_returns_profile_with_correct_time_expansion(self):
         market_maker_rate = 30
         if GlobalConfig.IS_CANARY_NETWORK:
             GlobalConfig.sim_duration = duration(hours=3)
@@ -121,4 +121,6 @@ class TestReadUserProfile(unittest.TestCase):
             GlobalConfig.FUTURE_MARKET_DURATION_HOURS = 24
             GlobalConfig.sim_duration = duration(hours=1)
             mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
-            assert (list(mmr.keys())[-1] - today(tz=TIME_ZONE)).days == 1
+            time_diff = list(mmr.keys())[-1] - today(tz=TIME_ZONE)
+            assert time_diff.hours == 0
+            assert time_diff.days == 1
