@@ -1,6 +1,6 @@
 """
 Copyright 2018 Grid Singularity
-This file is part of D3A.
+This file is part of Grid Singularity Exchange.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -66,6 +66,10 @@ class ConstSettings:
         ENABLE_SETTLEMENT_MARKETS = False
         RELATIVE_STD_FROM_FORECAST_FLOAT = 10.0
 
+    class FutureMarketSettings:
+        # Duration between clearing in future markets
+        FUTURE_MARKET_CLEARING_INTERVAL_MINUTES = 15
+
     class AreaSettings:
         PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
         CONSTANT_FEE_LIMIT = RangeLimit(0, sys.maxsize)
@@ -98,9 +102,6 @@ class ConstSettings:
         FINAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
         # Min allowed battery SOC, range is [0, 100] %.
         MIN_ALLOWED_SOC = 10
-        # Controls whether energy is sold only on the most expensive market, default is
-        # to sell to all markets
-        SELL_ON_MOST_EXPENSIVE_MARKET = False
 
         # Controls the energy loss of the storage over time#
         # LOSS_FUNCTION = 1 ==> relative loss
