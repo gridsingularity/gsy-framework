@@ -28,7 +28,7 @@ import pytest
 from pendulum import DateTime, datetime
 
 from gsy_framework.data_classes import (
-    BidOfferMatch, BaseBidOffer, Offer, Bid, json_datetime_serializer,
+    OrdersMatch, BaseBidOffer, Offer, Bid, json_datetime_serializer,
     TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade, Clearing,
     MarketClearingState)
 from gsy_framework.utils import datetime_to_string_incl_seconds
@@ -51,7 +51,7 @@ class TestBidOfferMatch:
     @staticmethod
     def test_serializable_dict():
         """Test the serializable_dict method of BidOfferMatch dataclass."""
-        bid_offer_match = BidOfferMatch(
+        bid_offer_match = OrdersMatch(
             market_id="market_id",
             time_slot="2021-10-06T12:00",
             bids=[{"type": "bid"}],
@@ -75,7 +75,7 @@ class TestBidOfferMatch:
                            "offers": [{"type": "offer"}],
                            "selected_energy": 1,
                            "trade_rate": 1}
-        assert BidOfferMatch.is_valid_dict(bid_offer_match)
+        assert OrdersMatch.is_valid_dict(bid_offer_match)
 
         # Key does not exist
         bid_offer_match = {"market_id": "market_id",
@@ -84,7 +84,7 @@ class TestBidOfferMatch:
                            "offers": [{"type": "offer"}],
                            "selected_energy": 1,
                            }
-        assert not BidOfferMatch.is_valid_dict(bid_offer_match)
+        assert not OrdersMatch.is_valid_dict(bid_offer_match)
 
         # Wrong type
         bid_offer_match = {"market_id": "market_id",
@@ -93,7 +93,7 @@ class TestBidOfferMatch:
                            "offers": [{"type": "offer"}],
                            "selected_energy": 1,
                            "trade_rate": ""}
-        assert not BidOfferMatch.is_valid_dict(bid_offer_match)
+        assert not OrdersMatch.is_valid_dict(bid_offer_match)
 
     @staticmethod
     def test_from_dict():
@@ -104,7 +104,7 @@ class TestBidOfferMatch:
                          "offers": [{"type": "offer"}],
                          "selected_energy": 1,
                          "trade_rate": 1}
-        bid_offer_match = BidOfferMatch.from_dict(expected_dict)
+        bid_offer_match = OrdersMatch.from_dict(expected_dict)
         assert bid_offer_match.market_id == expected_dict["market_id"]
         assert bid_offer_match.time_slot == expected_dict["time_slot"]
         assert bid_offer_match.bids == expected_dict["bids"]

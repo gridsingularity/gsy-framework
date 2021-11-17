@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
-from gsy_framework.data_classes import BidOfferMatch
+from gsy_framework.data_classes import OrdersMatch
 from gsy_framework.matching_algorithms import BaseMatchingAlgorithm
 from gsy_framework.utils import sort_list_of_dicts_by_attribute
 
@@ -37,7 +37,7 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
                             already_selected_bids.add(bid.get("id"))
                             selected_energy = min(bid.get("energy"), offer.get("energy"))
                             bid_offer_pairs.append(
-                                BidOfferMatch(
+                                OrdersMatch(
                                     market_id=market_id,
                                     time_slot=time_slot,
                                     bids=[bid], offers=[offer],

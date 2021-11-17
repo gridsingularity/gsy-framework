@@ -25,7 +25,7 @@ from typing import List, Dict, Union
 from pendulum import DateTime
 
 from gsy_framework.constants_limits import ConstSettings
-from gsy_framework.data_classes import MarketClearingState, Clearing, BidOfferMatch
+from gsy_framework.data_classes import MarketClearingState, Clearing, OrdersMatch
 from gsy_framework.matching_algorithms import BaseMatchingAlgorithm
 from gsy_framework.utils import sort_list_of_dicts_by_attribute, add_or_create_key
 
@@ -197,9 +197,9 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                     offers.insert(0, offer)
                     # Save the matching
                     bid_offer_matches.append(
-                        BidOfferMatch(market_id=market_id, time_slot=time_slot,
-                                      bids=[bid], selected_energy=bid_energy,
-                                      offers=[offer], trade_rate=clearing_rate).serializable_dict()
+                        OrdersMatch(market_id=market_id, time_slot=time_slot,
+                                    bids=[bid], selected_energy=bid_energy,
+                                    offers=[offer], trade_rate=clearing_rate).serializable_dict()
                     )
                     # Update total clearing energy
                     clearing_energy -= bid_energy
@@ -209,7 +209,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                     # Offer is exhausted by the bid. More offers are needed to cover the bid.
                     # Save the matching offer to accept later
                     bid_offer_matches.append(
-                        BidOfferMatch(
+                        OrdersMatch(
                             market_id=market_id, time_slot=time_slot,
                             bids=[bid], selected_energy=offer_energy,
                             offers=[offer], trade_rate=clearing_rate).serializable_dict()

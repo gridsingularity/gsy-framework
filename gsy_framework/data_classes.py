@@ -462,7 +462,7 @@ class BalancingTrade(Trade):
 
 
 @dataclass
-class BidOfferMatch:
+class OrdersMatch:
     """Representation of a market match."""
     market_id: str
     time_slot: str
@@ -483,10 +483,10 @@ class BidOfferMatch:
         }
 
     @classmethod
-    def from_dict(cls, bid_offer_match: Dict) -> Optional["BidOfferMatch"]:
+    def from_dict(cls, bid_offer_match: Dict) -> Optional["OrdersMatch"]:
         """Receive a serializable dict of BidOfferMatch and return a BidOfferMatch object."""
         if cls.is_valid_dict(bid_offer_match):
-            return BidOfferMatch(**bid_offer_match)
+            return OrdersMatch(**bid_offer_match)
         return None
 
     @classmethod
