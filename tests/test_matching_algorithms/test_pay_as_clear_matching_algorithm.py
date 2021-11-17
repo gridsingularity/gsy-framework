@@ -36,7 +36,7 @@ class TestPayAsClearMatchingAlgorithm:
     def validate_matching(
             matching: Dict, matched_energy: float,
             offer_id: str, bid_id: str) -> None:
-        """Validate if a BidOfferMatch dict is valid.
+        """Validate if a OrdersMatch dict is valid.
 
         Raises:
             AssertionError

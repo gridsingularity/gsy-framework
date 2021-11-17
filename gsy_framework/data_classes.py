@@ -40,7 +40,7 @@ def json_datetime_serializer(datetime_obj: DateTime) -> Optional[str]:
     return None
 
 
-class BaseBidOffer:
+class BaseOrder:
     """Base class defining shared functionality of Bid and Offer market structures."""
     def __init__(self, id: str, creation_time: DateTime, price: float, energy: float,
                  original_price: Optional[float] = None, time_slot: DateTime = None,
@@ -115,7 +115,7 @@ class BaseBidOffer:
         assert False, "the type member needs to be set to one of ('Bid', 'Offer')."
 
 
-class Offer(BaseBidOffer):
+class Offer(BaseOrder):
     """Offer class"""
     def __init__(self, id: str, creation_time: DateTime, price: float,
                  energy: float, seller: str, original_price: Optional[float] = None,
@@ -202,7 +202,7 @@ class Offer(BaseBidOffer):
                      time_slot=offer.time_slot)
 
 
-class Bid(BaseBidOffer):
+class Bid(BaseOrder):
     "Bid class."
     def __init__(self, id: str, creation_time: DateTime, price: float,
                  energy: float, buyer: str,
@@ -369,9 +369,9 @@ class Trade:
     def from_json(cls, trade_string) -> "Trade":
         """De-serialize trade from json string."""
         trade_dict = json.loads(trade_string)
-        trade_dict["offer_bid"] = BaseBidOffer.from_json(trade_dict["offer_bid"])
+        trade_dict["offer_bid"] = BaseOrder.from_json(trade_dict["offer_bid"])
         if trade_dict.get("residual"):
-            trade_dict["residual"] = BaseBidOffer.from_json(trade_dict["residual"])
+            trade_dict["residual"] = BaseOrder.from_json(trade_dict["residual"])
         if trade_dict.get("creation_time"):
             trade_dict["creation_time"] = str_to_pendulum_datetime(trade_dict["creation_time"])
         else:
@@ -484,14 +484,14 @@ class OrdersMatch:
 
     @classmethod
     def from_dict(cls, bid_offer_match: Dict) -> Optional["OrdersMatch"]:
-        """Receive a serializable dict of BidOfferMatch and return a BidOfferMatch object."""
+        """Receive a serializable dict of OrdersMatch and return a OrdersMatch object."""
         if cls.is_valid_dict(bid_offer_match):
             return OrdersMatch(**bid_offer_match)
         return None
 
     @classmethod
     def is_valid_dict(cls, bid_offer_match: Dict) -> bool:
-        """Check whether a serialized dict can be a valid BidOfferMatch instance."""
+        """Check whether a serialized dict can be a valid OrdersMatch instance."""
         is_valid = True
         if len(bid_offer_match.keys()) != len(cls.__annotations__.keys()):
             is_valid = False

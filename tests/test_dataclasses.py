@@ -28,7 +28,7 @@ import pytest
 from pendulum import DateTime, datetime
 
 from gsy_framework.data_classes import (
-    OrdersMatch, BaseBidOffer, Offer, Bid, json_datetime_serializer,
+    OrdersMatch, BaseOrder, Offer, Bid, json_datetime_serializer,
     TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade, Clearing,
     MarketClearingState)
 from gsy_framework.utils import datetime_to_string_incl_seconds
@@ -45,8 +45,8 @@ def test_json_datetime_serializer():
     assert json_datetime_serializer(my_date_time) == datetime_to_string_incl_seconds(my_date_time)
 
 
-class TestBidOfferMatch:
-    """Tester class for the BidOfferMatch dataclass."""
+class TestOrdersMatch:
+    """Tester class for the OrdersMatch dataclass."""
 
     @staticmethod
     def test_serializable_dict():
@@ -113,8 +113,8 @@ class TestBidOfferMatch:
         assert bid_offer_match.trade_rate == expected_dict["trade_rate"]
 
 
-class TestBaseBidOffer:
-    """Test BaseBidOffer class."""
+class TestBaseOrder:
+    """Test BaseOrder class."""
 
     def setup_method(self):
         self.initial_data = {
@@ -130,7 +130,7 @@ class TestBaseBidOffer:
 
     def test_init(self):
         """Test __init__."""
-        bid_offer = BaseBidOffer(
+        bid_offer = BaseOrder(
             **self.initial_data
         )
         assert bid_offer.id == str(self.initial_data["id"])
@@ -144,13 +144,13 @@ class TestBaseBidOffer:
 
         # Test whether the original_price will resort to the "price" member
         self.initial_data.pop("original_price")
-        bid_offer = BaseBidOffer(
+        bid_offer = BaseOrder(
             **self.initial_data
         )
         assert bid_offer.original_price == self.initial_data["price"]
 
     def test_update_price(self):
-        bid_offer = BaseBidOffer(
+        bid_offer = BaseOrder(
             **self.initial_data
         )
         bid_offer.update_price(30)
@@ -158,7 +158,7 @@ class TestBaseBidOffer:
         assert bid_offer.energy_rate == 30 / bid_offer.energy
 
     def test_update_energy(self):
-        bid_offer = BaseBidOffer(
+        bid_offer = BaseOrder(
             **self.initial_data
         )
         bid_offer.update_energy(40)
@@ -166,22 +166,22 @@ class TestBaseBidOffer:
         assert bid_offer.energy_rate == bid_offer.price / 40
 
     def test_to_json_string(self):
-        bid_offer = BaseBidOffer(
+        bid_offer = BaseOrder(
             **self.initial_data
         )
         obj_dict = deepcopy(bid_offer.__dict__)
 
-        obj_dict["type"] = "BaseBidOffer"
+        obj_dict["type"] = "BaseOrder"
         assert bid_offer.to_json_string() == json.dumps(obj_dict, default=json_datetime_serializer)
         assert json.loads(
             bid_offer.to_json_string(my_extra_key=10)).get("my_extra_key") == 10
 
     def test_serializable_dict(self):
-        bid_offer = BaseBidOffer(
+        bid_offer = BaseOrder(
             **self.initial_data
         )
         assert bid_offer.serializable_dict() == {
-            "type": "BaseBidOffer",
+            "type": "BaseOrder",
             "id": str(bid_offer.id),
             "energy": bid_offer.energy,
             "energy_rate": bid_offer.energy_rate,
@@ -198,14 +198,14 @@ class TestBaseBidOffer:
             seller="seller"
         )
         offer_json = offer.to_json_string()
-        assert offer == BaseBidOffer.from_json(offer_json)
+        assert offer == BaseOrder.from_json(offer_json)
 
         bid = Bid(
             **self.initial_data,
             buyer="buyer"
         )
         bid_json = bid.to_json_string()
-        assert bid == BaseBidOffer.from_json(bid_json)
+        assert bid == BaseOrder.from_json(bid_json)
 
     @pytest.mark.parametrize("time_stamp", [None, DEFAULT_DATETIME])
     def test_from_json_deals_with_time_stamps_correctly(self, time_stamp):
