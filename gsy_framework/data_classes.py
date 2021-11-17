@@ -289,7 +289,7 @@ class Bid(BaseOrder):
 
 
 @dataclass
-class TradeBidOfferInfo:
+class TradeOrderInfo:
     """Class that contains information about the original bid or offer."""
     original_bid_rate: float
     propagated_bid_rate: float
@@ -302,10 +302,10 @@ class TradeBidOfferInfo:
         return json.dumps(asdict(self), default=json_datetime_serializer)
 
     @staticmethod
-    def from_json(trade_bid_offer_info: str) -> "TradeBidOfferInfo":
-        """Return TradeBidOfferInfo object from json representation."""
+    def from_json(trade_bid_offer_info: str) -> "TradeOrderInfo":
+        """Return TradeOrderInfo object from json representation."""
         info_dict = json.loads(trade_bid_offer_info)
-        return TradeBidOfferInfo(**info_dict)
+        return TradeOrderInfo(**info_dict)
 
 
 class Trade:
@@ -313,7 +313,7 @@ class Trade:
     def __init__(self, id: str, creation_time: DateTime, offer_bid: Union[Offer, Bid],
                  seller: str, buyer: str, residual: Optional[Union[Offer, Bid]] = None,
                  already_tracked: bool = False,
-                 offer_bid_trade_info: Optional[TradeBidOfferInfo] = None,
+                 offer_bid_trade_info: Optional[TradeOrderInfo] = None,
                  seller_origin: Optional[str] = None, buyer_origin: Optional[str] = None,
                  fee_price: Optional[float] = None, seller_origin_id: Optional[str] = None,
                  buyer_origin_id: Optional[str] = None, seller_id: Optional[str] = None,
@@ -380,7 +380,7 @@ class Trade:
             trade_dict["time_slot"] = str_to_pendulum_datetime(trade_dict["time_slot"])
         if trade_dict.get("offer_bid_trade_info"):
             trade_dict["offer_bid_trade_info"] = (
-                TradeBidOfferInfo.from_json(trade_dict["offer_bid_trade_info"]))
+                TradeOrderInfo.from_json(trade_dict["offer_bid_trade_info"]))
         return Trade(**trade_dict)
 
     @property

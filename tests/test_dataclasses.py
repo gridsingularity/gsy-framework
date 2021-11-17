@@ -29,7 +29,7 @@ from pendulum import DateTime, datetime
 
 from gsy_framework.data_classes import (
     OrdersMatch, BaseOrder, Offer, Bid, json_datetime_serializer,
-    TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade, Clearing,
+    TradeOrderInfo, Trade, BalancingOffer, BalancingTrade, Clearing,
     MarketClearingState)
 from gsy_framework.utils import datetime_to_string_incl_seconds
 
@@ -450,10 +450,10 @@ class TestBid:
                 ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
 
 
-class TestTradeBidOfferInfo:
+class TestTradeOrderInfo:
     @staticmethod
     def test_to_json_string():
-        trade_bid_offer_info = TradeBidOfferInfo(
+        trade_bid_offer_info = TradeOrderInfo(
             1, 1, 1, 1, 1
         )
         assert (trade_bid_offer_info.to_json_string() ==
@@ -461,11 +461,11 @@ class TestTradeBidOfferInfo:
 
     @staticmethod
     def test_from_json():
-        trade_bid_offer_info = TradeBidOfferInfo(
+        trade_bid_offer_info = TradeOrderInfo(
             1, 1, 1, 1, 1
         )
         trade_bid_offer_info_json = trade_bid_offer_info.to_json_string()
-        assert (TradeBidOfferInfo.from_json(trade_bid_offer_info_json) ==
+        assert (TradeOrderInfo.from_json(trade_bid_offer_info_json) ==
                 trade_bid_offer_info)
 
 
@@ -512,7 +512,7 @@ class TestTrade:
         assert json.loads(trade.to_json_string()).get("residual") is not None
 
         # Test the offer_bid_trade_info check
-        trade.offer_bid_trade_info = TradeBidOfferInfo(1, 2, 3, 4, 5)
+        trade.offer_bid_trade_info = TradeOrderInfo(1, 2, 3, 4, 5)
         trade_dict["offer_bid_trade_info"] = (
             deepcopy(trade.offer_bid_trade_info).to_json_string())
         assert (trade.to_json_string() ==
@@ -524,7 +524,7 @@ class TestTrade:
             **self.initial_data
         )
         trade.residual = deepcopy(trade.offer_bid)
-        trade.offer_bid_trade_info = TradeBidOfferInfo(
+        trade.offer_bid_trade_info = TradeOrderInfo(
             1, 1, 1, 1, 1
         )
         assert Trade.from_json(trade.to_json_string()) == trade
