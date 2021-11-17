@@ -64,7 +64,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                 if clearing.energy > 0:
                     log.info(f"Market Clearing Rate: {clearing.rate} "
                              f"||| Clearing Energy: {clearing.energy} ")
-                matches.extend(self._create_bid_offer_matches(
+                matches.extend(self._create_orders_matches(
                     self.sorted_offers, self.sorted_bids, market_id, time_slot, current_time))
         return matches
 
@@ -99,14 +99,14 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                 return Clearing(rate, cumulative_bids[rate])
 
     @staticmethod
-    def _accumulated_energy_per_rate(offer_bids: List[Dict]) -> OrderedDict:
+    def _accumulated_energy_per_rate(orderss: List[Dict]) -> OrderedDict:
         """Return an ordered dict with with key as energy rate and value as accumulated
         energy at that point"""
         energy_sum = 0
         accumulated = OrderedDict()
-        for offer_bid in offer_bids:
-            energy_sum += offer_bid["energy"]
-            accumulated[offer_bid["energy_rate"]] = energy_sum
+        for orders in orderss:
+            energy_sum += orders["energy"]
+            accumulated[orders["energy_rate"]] = energy_sum
         return accumulated
 
     @staticmethod
@@ -170,12 +170,12 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
             cumulative_bids, max_rate, False)
         return max_rate, cumulative_bids, cumulative_offers
 
-    def _create_bid_offer_matches(self, offers: List[Dict], bids: List[Dict], market_id: str,
-                                  time_slot: str, current_time: str) -> List[Dict]:
+    def _create_orders_matches(self, offers: List[Dict], bids: List[Dict], market_id: str,
+                               time_slot: str, current_time: str) -> List[Dict]:
         clearing_rate = self.state.clearing[market_id][current_time].rate
         clearing_energy = self.state.clearing[market_id][current_time].energy
         # Return value, holds the bid-offer matches
-        bid_offer_matches = []
+        orders_matches = []
         # Keeps track of the residual energy from offers that have been matched once,
         # in order for their energy to be correctly tracked on following bids
         residual_offer_energy = {}
@@ -196,7 +196,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                     # since the offer still has some energy left
                     offers.insert(0, offer)
                     # Save the matching
-                    bid_offer_matches.append(
+                    orders_matches.append(
                         OrdersMatch(market_id=market_id, time_slot=time_slot,
                                     bids=[bid], selected_energy=bid_energy,
                                     offers=[offer], trade_rate=clearing_rate).serializable_dict()
@@ -208,7 +208,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                 else:
                     # Offer is exhausted by the bid. More offers are needed to cover the bid.
                     # Save the matching offer to accept later
-                    bid_offer_matches.append(
+                    orders_matches.append(
                         OrdersMatch(
                             market_id=market_id, time_slot=time_slot,
                             bids=[bid], selected_energy=offer_energy,
@@ -223,6 +223,6 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                     clearing_energy -= offer_energy
                 if clearing_energy <= MATCH_FLOATING_POINT_TOLERANCE:
                     # Clearing energy has been satisfied by existing matches. Return the matches
-                    return bid_offer_matches
+                    return orders_matches
 
-        return bid_offer_matches
+        return orders_matches

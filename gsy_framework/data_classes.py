@@ -96,22 +96,22 @@ class BaseOrder:
     @classmethod
     def from_json(cls, offer_or_bid: str) -> Union["Offer", "Bid"]:
         """De-serialize orders from json string."""
-        offer_bid_dict = json.loads(offer_or_bid)
-        object_type = offer_bid_dict.pop("type", None)
+        orders_dict = json.loads(offer_or_bid)
+        object_type = orders_dict.pop("type", None)
         if not object_type:
             assert False, "from_json expects a json string containing the 'type' key"
-        offer_bid_dict.pop("energy_rate", None)
-        if offer_bid_dict.get("creation_time"):
-            offer_bid_dict["creation_time"] = (
-                str_to_pendulum_datetime(offer_bid_dict["creation_time"]))
+        orders_dict.pop("energy_rate", None)
+        if orders_dict.get("creation_time"):
+            orders_dict["creation_time"] = (
+                str_to_pendulum_datetime(orders_dict["creation_time"]))
         else:
-            offer_bid_dict["creation_time"] = None
-        if offer_bid_dict.get("time_slot"):
-            offer_bid_dict["time_slot"] = str_to_pendulum_datetime(offer_bid_dict["time_slot"])
+            orders_dict["creation_time"] = None
+        if orders_dict.get("time_slot"):
+            orders_dict["time_slot"] = str_to_pendulum_datetime(orders_dict["time_slot"])
         if object_type == "Offer":
-            return Offer(**offer_bid_dict)
+            return Offer(**orders_dict)
         if object_type == "Bid":
-            return Bid(**offer_bid_dict)
+            return Bid(**orders_dict)
         assert False, "the type member needs to be set to one of ('Bid', 'Offer')."
 
 
@@ -302,18 +302,18 @@ class TradeOrderInfo:
         return json.dumps(asdict(self), default=json_datetime_serializer)
 
     @staticmethod
-    def from_json(trade_bid_offer_info: str) -> "TradeOrderInfo":
+    def from_json(trade_order_info: str) -> "TradeOrderInfo":
         """Return TradeOrderInfo object from json representation."""
-        info_dict = json.loads(trade_bid_offer_info)
+        info_dict = json.loads(trade_order_info)
         return TradeOrderInfo(**info_dict)
 
 
 class Trade:
     """Trade class."""
-    def __init__(self, id: str, creation_time: DateTime, offer_bid: Union[Offer, Bid],
+    def __init__(self, id: str, creation_time: DateTime, order: Union[Offer, Bid],
                  seller: str, buyer: str, residual: Optional[Union[Offer, Bid]] = None,
                  already_tracked: bool = False,
-                 offer_bid_trade_info: Optional[TradeOrderInfo] = None,
+                 trade_orders_info: Optional[TradeOrderInfo] = None,
                  seller_origin: Optional[str] = None, buyer_origin: Optional[str] = None,
                  fee_price: Optional[float] = None, seller_origin_id: Optional[str] = None,
                  buyer_origin_id: Optional[str] = None, seller_id: Optional[str] = None,
@@ -322,12 +322,12 @@ class Trade:
         self.id = str(id)
         self.creation_time = creation_time
         self.time_slot = time_slot  # market slot of creation
-        self.offer_bid = offer_bid
+        self.order = order
         self.seller = seller
         self.buyer = buyer
         self.residual = residual
         self.already_tracked = already_tracked
-        self.offer_bid_trade_info = offer_bid_trade_info
+        self.trade_orders_info = trade_orders_info
         self.seller_origin = seller_origin
         self.buyer_origin = buyer_origin
         self.fee_price = fee_price
@@ -339,9 +339,9 @@ class Trade:
     def __str__(self) -> str:
         return (
             f"{{{self.id!s:.6s}}} [origin: {self.seller_origin} -> {self.buyer_origin}] "
-            f"[{self.seller} -> {self.buyer}] {self.offer_bid.energy} kWh @ {self.offer_bid.price}"
-            f" {round(self.offer_bid.energy_rate, 8)} "
-            f"{self.offer_bid.id} [fee: {self.fee_price} cts.]")
+            f"[{self.seller} -> {self.buyer}] {self.order.energy} kWh @ {self.order.price}"
+            f" {round(self.order.energy_rate, 8)} "
+            f"{self.order.id} [fee: {self.fee_price} cts.]")
 
     @classmethod
     def csv_fields(cls) -> Tuple:
@@ -350,26 +350,26 @@ class Trade:
 
     def csv_values(self) -> Tuple:
         """Return values of class members that are needed for creation of CSV export."""
-        rate = round(self.offer_bid.energy_rate, 4)
-        return self.creation_time, rate, self.offer_bid.energy, self.seller, self.buyer
+        rate = round(self.order.energy_rate, 4)
+        return self.creation_time, rate, self.order.energy, self.seller, self.buyer
 
     def to_json_string(self) -> str:
         """Return json string of the representation."""
         # __dict__ instead of asdict to not recursively deserialize objects
         trade_dict = deepcopy(self.__dict__)
-        trade_dict["offer_bid"] = trade_dict["offer_bid"].to_json_string()
+        trade_dict["order"] = trade_dict["order"].to_json_string()
         if key_in_dict_and_not_none(trade_dict, "residual"):
             trade_dict["residual"] = trade_dict["residual"].to_json_string()
-        if key_in_dict_and_not_none(trade_dict, "offer_bid_trade_info"):
-            trade_dict["offer_bid_trade_info"] = (
-                trade_dict["offer_bid_trade_info"].to_json_string())
+        if key_in_dict_and_not_none(trade_dict, "trade_orders_info"):
+            trade_dict["trade_orders_info"] = (
+                trade_dict["trade_orders_info"].to_json_string())
         return json.dumps(trade_dict, default=json_datetime_serializer)
 
     @classmethod
     def from_json(cls, trade_string) -> "Trade":
         """De-serialize trade from json string."""
         trade_dict = json.loads(trade_string)
-        trade_dict["offer_bid"] = BaseOrder.from_json(trade_dict["offer_bid"])
+        trade_dict["order"] = BaseOrder.from_json(trade_dict["order"])
         if trade_dict.get("residual"):
             trade_dict["residual"] = BaseOrder.from_json(trade_dict["residual"])
         if trade_dict.get("creation_time"):
@@ -378,32 +378,32 @@ class Trade:
             trade_dict["creation_time"] = None
         if trade_dict.get("time_slot"):
             trade_dict["time_slot"] = str_to_pendulum_datetime(trade_dict["time_slot"])
-        if trade_dict.get("offer_bid_trade_info"):
-            trade_dict["offer_bid_trade_info"] = (
-                TradeOrderInfo.from_json(trade_dict["offer_bid_trade_info"]))
+        if trade_dict.get("trade_orders_info"):
+            trade_dict["trade_orders_info"] = (
+                TradeOrderInfo.from_json(trade_dict["trade_orders_info"]))
         return Trade(**trade_dict)
 
     @property
     def is_bid_trade(self) -> bool:
         """Check if the instance is a bid trade."""
-        return isinstance(self.offer_bid, Bid)
+        return isinstance(self.order, Bid)
 
     @property
     def is_offer_trade(self) -> bool:
         """Check if the instance is an offer trade."""
-        return isinstance(self.offer_bid, Offer)
+        return isinstance(self.order, Offer)
 
     def serializable_dict(self) -> Dict:
         """Return a json serializable representation of the class."""
         return {
             "type": "Trade",
-            "match_type": type(self.offer_bid).__name__,
+            "match_type": type(self.order).__name__,
             "id": self.id,
-            "offer_bid_id": self.offer_bid.id,
+            "order_id": self.order.id,
             "residual_id": self.residual.id if self.residual is not None else None,
-            "energy": self.offer_bid.energy,
-            "energy_rate": self.offer_bid.energy_rate,
-            "price": self.offer_bid.price,
+            "energy": self.order.energy,
+            "energy_rate": self.order.energy_rate,
+            "price": self.order.price,
             "buyer": self.buyer,
             "buyer_origin": self.buyer_origin,
             "seller_origin": self.seller_origin,
@@ -422,12 +422,12 @@ class Trade:
             self.id == other.id and
             self.creation_time == other.creation_time and
             self.time_slot == other.time_slot and
-            self.offer_bid == other.offer_bid and
+            self.order == other.order and
             self.seller == other.seller and
             self.buyer == other.buyer and
             self.residual == other.residual and
             self.already_tracked == other.already_tracked and
-            self.offer_bid_trade_info == other.offer_bid_trade_info and
+            self.trade_orders_info == other.trade_orders_info and
             self.seller_origin == other.seller_origin and
             self.buyer_origin == other.buyer_origin and
             self.fee_price == other.fee_price and
@@ -456,8 +456,8 @@ class BalancingTrade(Trade):
     def __str__(self) -> str:
         return (
             f"{{{self.id!s:.6s}}} [{self.seller} -> {self.buyer}] "
-            f"{self.offer_bid.energy} kWh @ {self.offer_bid.price}"
-            f" {self.offer_bid.energy_rate} {self.offer_bid.id}"
+            f"{self.order.energy} kWh @ {self.order.price}"
+            f" {self.order.energy_rate} {self.order.id}"
         )
 
 
@@ -483,31 +483,31 @@ class OrdersMatch:
         }
 
     @classmethod
-    def from_dict(cls, bid_offer_match: Dict) -> Optional["OrdersMatch"]:
+    def from_dict(cls, orders_match: Dict) -> Optional["OrdersMatch"]:
         """Receive a serializable dict of OrdersMatch and return a OrdersMatch object."""
-        if cls.is_valid_dict(bid_offer_match):
-            return OrdersMatch(**bid_offer_match)
+        if cls.is_valid_dict(orders_match):
+            return OrdersMatch(**orders_match)
         return None
 
     @classmethod
-    def is_valid_dict(cls, bid_offer_match: Dict) -> bool:
+    def is_valid_dict(cls, orders_match: Dict) -> bool:
         """Check whether a serialized dict can be a valid OrdersMatch instance."""
         is_valid = True
-        if len(bid_offer_match.keys()) != len(cls.__annotations__.keys()):
+        if len(orders_match.keys()) != len(cls.__annotations__.keys()):
             is_valid = False
-        elif not all(attribute in bid_offer_match for attribute in cls.__annotations__):
+        elif not all(attribute in orders_match for attribute in cls.__annotations__):
             is_valid = False
-        elif not isinstance(bid_offer_match["market_id"], str):
+        elif not isinstance(orders_match["market_id"], str):
             is_valid = False
-        elif not (isinstance(bid_offer_match["bids"], list) and
-                  all(isinstance(bid, Dict) for bid in bid_offer_match["bids"])):
+        elif not (isinstance(orders_match["bids"], list) and
+                  all(isinstance(bid, Dict) for bid in orders_match["bids"])):
             is_valid = False
-        elif not (isinstance(bid_offer_match["offers"], list) and
-                  all(isinstance(offer, Dict) for offer in bid_offer_match["offers"])):
+        elif not (isinstance(orders_match["offers"], list) and
+                  all(isinstance(offer, Dict) for offer in orders_match["offers"])):
             is_valid = False
-        elif not isinstance(bid_offer_match["selected_energy"], (int, float)):
+        elif not isinstance(orders_match["selected_energy"], (int, float)):
             is_valid = False
-        elif not isinstance(bid_offer_match["trade_rate"], (int, float)):
+        elif not isinstance(orders_match["trade_rate"], (int, float)):
             is_valid = False
         return is_valid
 

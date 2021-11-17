@@ -54,7 +54,7 @@ class TestPayAsClearMatchingAlgorithm:
             ([12, 123, 432, 543, 1], 1111.2),
             ([867867.61, 123.98, 432.43, 12.12, 0.001], 868440)
         ])
-    def test_create_bid_offer_matches_respects_offer_bid_order(
+    def test_create_orders_matches_respects_orders_order(
             self, energy_values: List[float], clearing_energy: float) -> None:
         bids_list = []
         offers_list = []
@@ -68,7 +68,7 @@ class TestPayAsClearMatchingAlgorithm:
         current_time = str(pendulum.now())
         time_slot = "2021-10-06T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, clearing_energy)}
-        matches = pac_algo._create_bid_offer_matches(
+        matches = pac_algo._create_orders_matches(
             offers_list, bids_list, market_id=market_id, time_slot=time_slot,
             current_time=current_time)
         assert len(matches) == 5
@@ -76,7 +76,7 @@ class TestPayAsClearMatchingAlgorithm:
             self.validate_matching(
                 matches[index], energy_values[index], f"offer_id{index}", f"bid_id{index}")
 
-    def test_create_bid_offer_matches_can_handle_partial_bids(self):
+    def test_create_orders_matches_can_handle_partial_bids(self):
         bids_list = [
             Bid("bid_id1", pendulum.now(), 9, 9, "Buyer")._asdict(),
             Bid("bid_id2", pendulum.now(), 3, 3, "Buyer")._asdict(),
@@ -92,7 +92,7 @@ class TestPayAsClearMatchingAlgorithm:
         current_time = str(pendulum.now())
         time_slot = "2021-10-06T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
-        matches = pac_algo._create_bid_offer_matches(
+        matches = pac_algo._create_orders_matches(
             offers_list, bids_list, market_id=market_id, time_slot=time_slot,
             current_time=current_time)
 
@@ -105,7 +105,7 @@ class TestPayAsClearMatchingAlgorithm:
         self.validate_matching(matches[5], 2, "offer_id5", "bid_id2")
         self.validate_matching(matches[6], 3, "offer_id5", "bid_id3")
 
-    def test_create_bid_offer_matches_can_handle_partial_offers(self):
+    def test_create_orders_matches_can_handle_partial_offers(self):
         bid_list = []
         for index in range(1, 6):
             bid_list.append(
@@ -122,7 +122,7 @@ class TestPayAsClearMatchingAlgorithm:
         time_slot = "2021-10-06T12:00"
         current_time = str(pendulum.now())
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
-        matches = pac_algo._create_bid_offer_matches(
+        matches = pac_algo._create_orders_matches(
             offer_list, bid_list, market_id=market_id, time_slot=time_slot,
             current_time=current_time)
 
@@ -134,7 +134,7 @@ class TestPayAsClearMatchingAlgorithm:
         self.validate_matching(matches[5], 2, "offer_id2", "bid_id5")
         self.validate_matching(matches[6], 3, "offer_id3", "bid_id5")
 
-    def test_create_bid_offer_matches_can_handle_excessive_offer_energy(self):
+    def test_create_orders_matches_can_handle_excessive_offer_energy(self):
         bid_list = []
         for index in range(1, 6):
             bid_list.append(
@@ -151,7 +151,7 @@ class TestPayAsClearMatchingAlgorithm:
         time_slot = "2021-10-06T12:00"
         current_time = str(pendulum.now())
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
-        matches = pac_algo._create_bid_offer_matches(
+        matches = pac_algo._create_orders_matches(
             offer_list, bid_list, market_id=market_id, time_slot=time_slot,
             current_time=current_time)
 
@@ -164,7 +164,7 @@ class TestPayAsClearMatchingAlgorithm:
         self.validate_matching(matches[5], 2, "offer_id2", "bid_id5")
         self.validate_matching(matches[6], 3, "offer_id3", "bid_id5")
 
-    def test_create_bid_offer_matches_can_handle_excessive_bid_energy(self):
+    def test_create_orders_matches_can_handle_excessive_bid_energy(self):
         bid_list = []
         for index in range(1, 6):
             bid_list.append(
@@ -181,7 +181,7 @@ class TestPayAsClearMatchingAlgorithm:
         time_slot = "2021-10-06T12:00"
         current_time = str(pendulum.now())
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
-        matches = pac_algo._create_bid_offer_matches(
+        matches = pac_algo._create_orders_matches(
             offer_list, bid_list, market_id=market_id, time_slot=time_slot,
             current_time=current_time)
 
@@ -194,7 +194,7 @@ class TestPayAsClearMatchingAlgorithm:
         self.validate_matching(matches[5], 2, "offer_id2", "bid_id5")
         self.validate_matching(matches[6], 3, "offer_id3", "bid_id5")
 
-    def test_create_bid_offer_matches_can_match_with_only_one_offer(self):
+    def test_create_orders_matches_can_match_with_only_one_offer(self):
         bid_list = []
         for index in range(1, 6):
             bid_list.append(
@@ -209,7 +209,7 @@ class TestPayAsClearMatchingAlgorithm:
         current_time = str(pendulum.now())
         time_slot = "2021-10-06T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
-        matches = pac_algo._create_bid_offer_matches(
+        matches = pac_algo._create_orders_matches(
             offer_list, bid_list, market_id=market_id, time_slot=time_slot,
             current_time=current_time)
 
@@ -220,7 +220,7 @@ class TestPayAsClearMatchingAlgorithm:
         self.validate_matching(matches[3], 4, "offer_id1", "bid_id4")
         self.validate_matching(matches[4], 5, "offer_id1", "bid_id5")
 
-    def test_create_bid_offer_matches_can_match_with_only_one_bid(self):
+    def test_create_orders_matches_can_match_with_only_one_bid(self):
         bids_list = [
             Bid("bid_id1", pendulum.now(), 9, 90123456789, "B")._asdict()
         ]
@@ -235,7 +235,7 @@ class TestPayAsClearMatchingAlgorithm:
         current_time = str(pendulum.now())
         time_slot = "2021-10-06T12:00"
         pac_algo.state.clearing[market_id] = {current_time: Clearing(1, 15)}
-        matches = pac_algo._create_bid_offer_matches(
+        matches = pac_algo._create_orders_matches(
             offers_list, bids_list, market_id=market_id, time_slot=time_slot,
             current_time=current_time)
 

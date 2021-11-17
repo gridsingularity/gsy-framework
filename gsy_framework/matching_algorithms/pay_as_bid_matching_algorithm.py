@@ -17,7 +17,7 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
 
     @classmethod
     def get_matches_recommendations(cls, matching_data: Dict) -> List:
-        bid_offer_pairs = []
+        orders_pairs = []
         for market_id, time_slot_data in matching_data.items():
             for time_slot, data in time_slot_data.items():
                 bids = data.get("bids")
@@ -36,7 +36,7 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
                                 "energy_rate")) <= FLOATING_POINT_TOLERANCE:
                             already_selected_bids.add(bid.get("id"))
                             selected_energy = min(bid.get("energy"), offer.get("energy"))
-                            bid_offer_pairs.append(
+                            orders_pairs.append(
                                 OrdersMatch(
                                     market_id=market_id,
                                     time_slot=time_slot,
@@ -44,4 +44,4 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
                                     selected_energy=selected_energy,
                                     trade_rate=bid.get("energy_rate")).serializable_dict())
                             break
-        return bid_offer_pairs
+        return orders_pairs

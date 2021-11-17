@@ -46,7 +46,7 @@ class ConstSettings:
         SETUP_FILE_PATH = None  # Default path of the available setup files
         EXPORT_DEVICE_PLOTS = True
         EXPORT_ENERGY_TRADE_PROFILE_HR = False
-        EXPORT_OFFER_BID_TRADE_HR = False
+        EXPORT_ORDERS_TRADE_HR = False
         # Boolean flag which forces d3a to run in real-time
         RUN_REAL_TIME = False
         # Boolean flag which forces d3a to dispatch events via redis channels
@@ -166,8 +166,8 @@ class ConstSettings:
         MARKET_TYPE = SpotMarketTypeEnum.ONE_SIDED.value
         MARKET_TYPE_LIMIT = RangeLimit(1, 2)
 
-        BID_OFFER_MATCH_TYPE = OrdersMatchAlgoEnum.PAY_AS_BID.value
-        BID_OFFER_MATCH_TYPE_LIMIT = RangeLimit(1, 3)
+        ORDERS_MATCH_TYPE = OrdersMatchAlgoEnum.PAY_AS_BID.value
+        ORDERS_MATCH_TYPE_LIMIT = RangeLimit(1, 3)
 
         # Pay as clear offer and bid rate/energy aggregation algorithm
         # Default value 1 stands for line sweep algorithm
