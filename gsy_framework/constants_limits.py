@@ -30,6 +30,8 @@ PercentageRangeLimit = RangeLimit(0, 100)
 
 
 class ConstSettings:
+    """Parameters that affect the whole simulation (cannot be changed for individual areas)."""
+
     class GeneralSettings:
         # Max energy price (market maker rate) in ct / kWh
         DEFAULT_MARKET_MAKER_RATE = 30  # 0.3 Eur
@@ -211,6 +213,7 @@ class ConstSettings:
 
 
 class GlobalConfig:
+    """Parameters that affect each area individually."""
     # Default simulation settings d3a-web side
     START_DATE = date.today()
     SLOT_LENGTH_M = 15
@@ -236,6 +239,8 @@ class GlobalConfig:
     cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     grid_fee_type = ConstSettings.IAASettings.GRID_FEE_TYPE
+    # Allow orders to contain additional requirements and attributes
+    enable_degrees_of_freedom = True
 
 
 class HeartBeat:
