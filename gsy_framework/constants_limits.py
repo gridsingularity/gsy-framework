@@ -22,7 +22,7 @@ from datetime import date, datetime
 
 from pendulum import duration, instance
 
-from gsy_framework.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum
+from gsy_framework.enums import OrdersMatchAlgoEnum, SpotMarketTypeEnum
 
 RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
 RateRange = namedtuple('RateRange', ('initial', 'final'))
@@ -166,7 +166,7 @@ class ConstSettings:
         MARKET_TYPE = SpotMarketTypeEnum.ONE_SIDED.value
         MARKET_TYPE_LIMIT = RangeLimit(1, 2)
 
-        BID_OFFER_MATCH_TYPE = BidOfferMatchAlgoEnum.PAY_AS_BID.value
+        BID_OFFER_MATCH_TYPE = OrdersMatchAlgoEnum.PAY_AS_BID.value
         BID_OFFER_MATCH_TYPE_LIMIT = RangeLimit(1, 3)
 
         # Pay as clear offer and bid rate/energy aggregation algorithm
