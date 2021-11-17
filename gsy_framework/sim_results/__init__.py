@@ -15,42 +15,53 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from gsy_framework.utils import area_name_from_area_or_iaa_name
 
 
 def is_load_node_type(area):
-    return area['type'] in ["LoadHoursStrategy", "DefinedLoadStrategy",
+    """Check if the given asset is a load."""
+    return area["type"] in ["LoadHoursStrategy", "DefinedLoadStrategy",
                             "LoadHoursExternalStrategy", "LoadProfileExternalStrategy",
-                            "LoadForecastExternalStrategy", 'Load']
+                            "LoadForecastExternalStrategy", "Load"]
 
 
 def is_bulk_power_producer(area):
-    return area['type'] in ["CommercialStrategy", "MarketMakerStrategy"]
+    """Check if the given asset is a bulk power producer."""
+    return area["type"] in ["CommercialStrategy", "MarketMakerStrategy"]
 
 
 def is_pv_node_type(area):
-    return area['type'] in ["PVStrategy", "PVUserProfileStrategy", "PVPredefinedStrategy",
+    """Check if the given asset is a PV."""
+    return area["type"] in ["PVStrategy", "PVUserProfileStrategy", "PVPredefinedStrategy",
                             "PVExternalStrategy", "PVUserProfileExternalStrategy",
-                            "PVPredefinedExternalStrategy", "PVForecastExternalStrategy", 'PV']
+                            "PVPredefinedExternalStrategy", "PVForecastExternalStrategy", "PV"]
 
 
 def is_finite_power_plant_node_type(area):
-    return area['type'] in ['FinitePowerPlant', 'FiniteDieselGenerator']
+    """Check if the given asset is a Finite Power Plant."""
+    return area["type"] in ["FinitePowerPlant", "FiniteDieselGenerator"]
 
 
 def is_producer_node_type(area):
-    return is_bulk_power_producer(area) or is_pv_node_type(area) or \
-           is_finite_power_plant_node_type(area)
+    """Check if the given asset is a producer of any kind."""
+    return (
+        is_bulk_power_producer(area)
+        or is_pv_node_type(area)
+        or is_finite_power_plant_node_type(area))
 
 
 def is_prosumer_node_type(area):
-    return area['type'] in ["StorageStrategy", "StorageExternalStrategy", 'Storage']
+    """Check if the given asset is a prosumer."""
+    return area["type"] in ["StorageStrategy", "StorageExternalStrategy", "Storage"]
 
 
 def is_buffer_node_type(area):
-    return area['type'] == "InfiniteBusStrategy"
+    """Check if the given asset is an energy buffer."""
+    return area["type"] == "InfiniteBusStrategy"
 
 
 def has_grand_children(area):
+    """Check if the given area has grandchildren."""
     for child in area.get("children", []):
         if child.get("children", []):
             return True
@@ -58,34 +69,37 @@ def has_grand_children(area):
 
 
 def get_unified_area_type(area):
+    """Return the string that identifies the type of the given area."""
     if is_pv_node_type(area):
         return "PV"
-    elif is_load_node_type(area):
+    if is_load_node_type(area):
         return "Load"
-    elif is_prosumer_node_type(area):
+    if is_prosumer_node_type(area):
         return "Storage"
-    elif is_bulk_power_producer(area) or is_buffer_node_type(area):
+    if is_bulk_power_producer(area) or is_buffer_node_type(area):
         return "MarketMaker"
-    elif is_finite_power_plant_node_type(area):
+    if is_finite_power_plant_node_type(area):
         return "FinitePowerPlant"
-    else:
-        return "Area"
+
+    return "Area"
 
 
 def area_sells_to_child(trade, area_name, child_names):
-    return area_name_from_area_or_iaa_name(trade['seller']) == \
-            area_name and area_name_from_area_or_iaa_name(trade['buyer']) in child_names
+    """Check if the area sold energy to one of its children (in the given trade)."""
+    return (
+        area_name_from_area_or_iaa_name(trade["seller"]) == area_name
+        and area_name_from_area_or_iaa_name(trade["buyer"]) in child_names)
 
 
 def child_buys_from_area(trade, area_name, child_names):
-    return area_name_from_area_or_iaa_name(trade['buyer']) == \
-        area_name and area_name_from_area_or_iaa_name(trade['seller']) in child_names
+    """Check if the area bought energy from one of its children (in the given trade)."""
+    return (
+        area_name_from_area_or_iaa_name(trade["buyer"]) == area_name
+        and area_name_from_area_or_iaa_name(trade["seller"]) in child_names)
 
 
 def is_trade_external(trade, area_name, child_names):
-    return area_sells_to_child(trade, area_name, child_names) or \
-        child_buys_from_area(trade, area_name, child_names)
-
-
-def area_name_from_area_or_iaa_name(name):
-    return name[4:] if name[:4] == 'IAA ' else name
+    """Check if the given trade was conducted between the area and one if its children."""
+    return (
+        area_sells_to_child(trade, area_name, child_names)
+        or child_buys_from_area(trade, area_name, child_names))
