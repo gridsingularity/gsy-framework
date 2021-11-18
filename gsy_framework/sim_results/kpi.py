@@ -229,6 +229,8 @@ class SavingsKPI:
         Returns: key calculated parameters in dict type
         """
         return {"base_case_cost": self.base_case_cost,
+                "utility_bill": self.utility_bill,
+                "fit_revenue": self.fit_revenue,
                 "d3a_cost": self.d3a_cost,
                 "saving_absolute": self.saving_absolute,
                 "saving_percentage": self.saving_percentage}
@@ -323,6 +325,8 @@ class KPI(ResultsBaseClass):
                 "total_energy_produced_wh": area_kpis["total_energy_produced_wh"],
                 "total_self_consumption_wh": area_kpis["total_self_consumption_wh"],
                 "base_case_cost": area_kpis.get("base_case_cost"),
+                "utility_bill": area_kpis.get("utility_bill"),
+                "fit_revenue": area_kpis.get("fit_revenue"),
                 "d3a_cost": area_kpis.get("d3a_cost"),
                 "saving_absolute": area_kpis.get("saving_absolute"),
                 "saving_percentage": area_kpis.get("saving_percentage")
@@ -368,6 +372,17 @@ class KPI(ResultsBaseClass):
                 last_known_state_data["total_self_consumption_wh"]
             self.state[area_dict["uuid"]].self_consumption_buffer_wh = \
                 last_known_state_data["self_consumption_buffer_wh"]
+        if area_dict["uuid"] not in self.savings_state:
+            if not has_grand_children(area_dict):
+                self.savings_state[area_dict["uuid"]] = SavingsKPI()
+                self.savings_state[area_dict["uuid"]].base_case_cost = \
+                    last_known_state_data["base_case_cost"]
+                self.savings_state[area_dict["uuid"]].utility_bill = \
+                    last_known_state_data["utility_bill"]
+                self.savings_state[area_dict["uuid"]].fit_revenue = \
+                    last_known_state_data["fit_revenue"]
+                self.savings_state[area_dict["uuid"]].d3a_cost = \
+                    last_known_state_data["d3a_cost"]
 
     @staticmethod
     def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
