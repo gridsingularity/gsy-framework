@@ -362,7 +362,7 @@ def subtract_or_create_key(dictionary, key, value):
 
 def make_iaa_name_from_dict(owner: Dict) -> str:
     """Generate the name of the marget agent from the given owner."""
-    return f"IAA {owner['name']}"
+    return f"MA {owner['name']}"
 
 
 def limit_float_precision(number):
@@ -431,7 +431,7 @@ def area_name_from_area_or_iaa_name(name: str) -> str:
 
     The input can be either the area name itself or the name of the market agent of the area.
     """
-    return name[4:] if name[:4] == "IAA " else name
+    return name[3:] if name[:3] == "MA " else name
 
 
 def area_bought_from_child(trade: dict, area_name: str, child_names: list):
