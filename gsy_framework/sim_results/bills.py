@@ -20,10 +20,11 @@ from typing import Dict
 
 from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.sim_results import (
-    area_name_from_area_or_iaa_name, get_unified_area_type, is_load_node_type, is_pv_node_type)
+    get_unified_area_type, is_load_node_type, is_pv_node_type)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import (
-    get_area_uuid_name_mapping, key_in_dict_and_not_none, round_floats_for_ui)
+    area_name_from_area_or_iaa_name, get_area_uuid_name_mapping, key_in_dict_and_not_none,
+    round_floats_for_ui)
 
 
 # pylint: disable=arguments-renamed

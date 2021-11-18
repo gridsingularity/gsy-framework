@@ -18,10 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import Dict, List
 from copy import deepcopy
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
-from gsy_framework.utils import round_floats_for_ui, add_or_create_key, key_in_dict_and_not_none, \
-    ui_str_to_pendulum_datetime, convert_pendulum_to_str_in_dict, \
-    datetime_str_to_ui_formatted_datetime_str
-from gsy_framework.sim_results import area_name_from_area_or_iaa_name
+from gsy_framework.utils import (
+    area_name_from_area_or_iaa_name, round_floats_for_ui, add_or_create_key,
+    key_in_dict_and_not_none, ui_str_to_pendulum_datetime, convert_pendulum_to_str_in_dict,
+    datetime_str_to_ui_formatted_datetime_str)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 
 

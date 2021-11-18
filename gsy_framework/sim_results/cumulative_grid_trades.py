@@ -20,9 +20,10 @@ from typing import Dict
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
 from gsy_framework.sim_results import is_load_node_type, \
     is_producer_node_type, is_prosumer_node_type, is_buffer_node_type, area_sells_to_child, \
-    child_buys_from_area, area_name_from_area_or_iaa_name
-from gsy_framework.utils import add_or_create_key, \
-    make_iaa_name_from_dict, subtract_or_create_key, round_floats_for_ui
+    child_buys_from_area
+from gsy_framework.utils import (
+    add_or_create_key, area_name_from_area_or_iaa_name, make_iaa_name_from_dict,
+    subtract_or_create_key, round_floats_for_ui)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 
 
