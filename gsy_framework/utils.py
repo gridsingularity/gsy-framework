@@ -360,7 +360,7 @@ def subtract_or_create_key(dictionary, key, value):
     return dictionary
 
 
-def make_iaa_name_from_dict(owner: Dict) -> str:
+def make_ma_name_from_dict(owner: Dict) -> str:
     """Generate the name of the marget agent from the given owner."""
     return f"MA {owner['name']}"
 
@@ -426,7 +426,7 @@ def get_json_dict_memory_allocation_size(json_dict: Dict):
     return utf8len(json.dumps(json_dict)) / 1024.
 
 
-def area_name_from_area_or_iaa_name(name: str) -> str:
+def area_name_from_area_or_ma_name(name: str) -> str:
     """Retrieve the name of the area.
 
     The input can be either the area name itself or the name of the market agent of the area.
@@ -437,15 +437,15 @@ def area_name_from_area_or_iaa_name(name: str) -> str:
 def area_bought_from_child(trade: dict, area_name: str, child_names: list):
     """Check if the area with the given name bought energy from one of its children."""
     return (
-        area_name_from_area_or_iaa_name(trade["buyer"]) == area_name
-        and area_name_from_area_or_iaa_name(trade["seller"]) in child_names)
+        area_name_from_area_or_ma_name(trade["buyer"]) == area_name
+        and area_name_from_area_or_ma_name(trade["seller"]) in child_names)
 
 
 def area_sells_to_child(trade: dict, area_name: str, child_names: list):
     """Check if the area with the given name sold energy to one of its children."""
     return (
-        area_name_from_area_or_iaa_name(trade["seller"]) == area_name
-        and area_name_from_area_or_iaa_name(trade["buyer"]) in child_names)
+        area_name_from_area_or_ma_name(trade["seller"]) == area_name
+        and area_name_from_area_or_ma_name(trade["buyer"]) in child_names)
 
 
 # pylint: disable=invalid-name

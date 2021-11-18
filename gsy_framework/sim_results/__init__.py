@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from gsy_framework.utils import area_name_from_area_or_iaa_name
+from gsy_framework.utils import area_name_from_area_or_ma_name
 
 
 def is_load_node_type(area):
@@ -87,15 +87,15 @@ def get_unified_area_type(area):
 def area_sells_to_child(trade, area_name, child_names):
     """Check if the area sold energy to one of its children (in the given trade)."""
     return (
-        area_name_from_area_or_iaa_name(trade["seller"]) == area_name
-        and area_name_from_area_or_iaa_name(trade["buyer"]) in child_names)
+        area_name_from_area_or_ma_name(trade["seller"]) == area_name
+        and area_name_from_area_or_ma_name(trade["buyer"]) in child_names)
 
 
 def child_buys_from_area(trade, area_name, child_names):
     """Check if the area bought energy from one of its children (in the given trade)."""
     return (
-        area_name_from_area_or_iaa_name(trade["buyer"]) == area_name
-        and area_name_from_area_or_iaa_name(trade["seller"]) in child_names)
+        area_name_from_area_or_ma_name(trade["buyer"]) == area_name
+        and area_name_from_area_or_ma_name(trade["seller"]) in child_names)
 
 
 def is_trade_external(trade, area_name, child_names):

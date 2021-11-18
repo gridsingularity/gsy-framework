@@ -23,7 +23,7 @@ from gsy_framework.sim_results import (
     get_unified_area_type, is_load_node_type, is_pv_node_type)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import (
-    area_name_from_area_or_iaa_name, get_area_uuid_name_mapping, key_in_dict_and_not_none,
+    area_name_from_area_or_ma_name, get_area_uuid_name_mapping, key_in_dict_and_not_none,
     round_floats_for_ui)
 
 
@@ -254,18 +254,18 @@ class MarketEnergyBills(ResultsBaseClass):
         child_name_uuid_map = {c["name"]: c["uuid"] for c in area_dict["children"]}
 
         for trade in area_core_stats[area_dict["uuid"]]["trades"]:
-            buyer = area_name_from_area_or_iaa_name(trade["buyer"])
-            seller = area_name_from_area_or_iaa_name(trade["seller"])
+            buyer = area_name_from_area_or_ma_name(trade["buyer"])
+            seller = area_name_from_area_or_ma_name(trade["seller"])
             if buyer in child_name_uuid_map:
                 self._store_bought_trade(result[child_name_uuid_map[buyer]], trade)
             if seller in child_name_uuid_map:
                 self._store_sold_trade(result[child_name_uuid_map[seller]], trade)
             # Outgoing external trades
-            if buyer == area_name_from_area_or_iaa_name(area_dict["name"]) \
+            if buyer == area_name_from_area_or_ma_name(area_dict["name"]) \
                     and seller in child_name_uuid_map:
                 self._store_outgoing_external_trade(trade, area_dict)
             # Incoming external trades
-            if seller == area_name_from_area_or_iaa_name(area_dict["name"]) \
+            if seller == area_name_from_area_or_ma_name(area_dict["name"]) \
                     and buyer in child_name_uuid_map:
                 self._store_incoming_external_trade(trade, area_dict)
         for child in area_dict["children"]:

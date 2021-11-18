@@ -19,7 +19,7 @@ from typing import Dict, List
 from copy import deepcopy
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
 from gsy_framework.utils import (
-    area_name_from_area_or_iaa_name, round_floats_for_ui, add_or_create_key,
+    area_name_from_area_or_ma_name, round_floats_for_ui, add_or_create_key,
     key_in_dict_and_not_none, ui_str_to_pendulum_datetime, convert_pendulum_to_str_in_dict,
     datetime_str_to_ui_formatted_datetime_str)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
@@ -86,8 +86,8 @@ class EnergyTradeProfile(ResultsBaseClass):
             return
         area_core_trades = core_stats[area_result_dict['uuid']].get('trades', [])
         for trade in area_core_trades:
-            trade_seller = area_name_from_area_or_iaa_name(trade["seller"])
-            trade_buyer = area_name_from_area_or_iaa_name(trade["buyer"])
+            trade_seller = area_name_from_area_or_ma_name(trade["seller"])
+            trade_buyer = area_name_from_area_or_ma_name(trade["buyer"])
 
             if trade_seller not in res_dict["sold_energy"]:
                 res_dict["sold_energy"][trade_seller] = {"accumulated": {}}
