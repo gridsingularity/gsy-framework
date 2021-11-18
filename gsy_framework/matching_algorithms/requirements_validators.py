@@ -1,6 +1,6 @@
 """
 Copyright 2018 Grid Singularity
-This file is part of D3A.
+This file is part of Grid Singularity Exchange.
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -92,7 +92,7 @@ class PriceRequirement(Requirement):
                      selected_energy: Optional[float] = None) -> bool:
         bid_required_price = requirement.get("price")
         assert isinstance(bid_required_price, (int, float)), \
-            f"Invalid data type for energy {requirement}"
+            f"Invalid data type for price {requirement}"
         assert isinstance(selected_energy, (int, float)), \
             f"Invalid data type for selected_energy {selected_energy}"
         assert isinstance(clearing_rate, (int, float)), \
