@@ -93,9 +93,9 @@ def validate_global_settings(settings: Dict) -> None:
                                    f"({settings['relative_std_from_forecast_percent']}).")
 
     if ("orders_match_algo" in settings
-            and not ConstSettings.IAASettings.ORDERS_MATCH_TYPE_LIMIT[0]
+            and not ConstSettings.IAASettings.ORDERS_MATCH_TYPE_LIMIT.min
             <= settings["orders_match_algo"]
-            <= ConstSettings.IAASettings.ORDERS_MATCH_TYPE_LIMIT[1]):
+            <= ConstSettings.IAASettings.ORDERS_MATCH_TYPE_LIMIT.max):
         raise GSySettingsException(f"Invalid value ({settings['orders_match_algo']}) "
                                    "for bid offer match algo.")
 
