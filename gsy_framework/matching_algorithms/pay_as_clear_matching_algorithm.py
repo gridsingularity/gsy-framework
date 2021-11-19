@@ -99,12 +99,12 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                 return Clearing(rate, cumulative_bids[rate])
 
     @staticmethod
-    def _accumulated_energy_per_rate(orderss: List[Dict]) -> OrderedDict:
+    def _accumulated_energy_per_rate(orders: List[Dict]) -> OrderedDict:
         """Return an ordered dict with with key as energy rate and value as accumulated
         energy at that point"""
         energy_sum = 0
         accumulated = OrderedDict()
-        for orders in orderss:
+        for orders in orders:
             energy_sum += orders["energy"]
             accumulated[orders["energy_rate"]] = energy_sum
         return accumulated
