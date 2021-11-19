@@ -241,7 +241,7 @@ class CumulativeGridTrades(ResultsBaseClass):
 
         self._update_area_children_in_accumulated_trades_dict(accumulated_trades, area)
 
-        area_IAA_name = make_ma_name_from_dict(area)
+        area_MA_name = make_ma_name_from_dict(area)
         child_names = [area_name_from_area_or_ma_name(c['name']) for c in area['children']]
         area_trades = flattened_area_core_stats_dict.get(area['uuid'], {}).get('trades', [])
 
@@ -257,7 +257,7 @@ class CumulativeGridTrades(ResultsBaseClass):
                 accumulated_trades[area['uuid']]["spentTo"] = \
                     add_or_create_key(accumulated_trades[area['uuid']]["spentTo"],
                                       area['name'], trade['price'])
-            elif trade['buyer'] == area_IAA_name:
+            elif trade['buyer'] == area_MA_name:
                 accumulated_trades[area['uuid']]["earned"] += trade['price']
                 accumulated_trades[area['uuid']]["produced"] -= trade['energy']
         # for market in area_markets:
@@ -293,11 +293,11 @@ class CumulativeGridTrades(ResultsBaseClass):
                                 accumulated_trades):
         if not parent:
             return accumulated_trades
-        area_IAA_name = make_ma_name_from_dict(area)
+        area_MA_name = make_ma_name_from_dict(area)
         parent_trades = flattened_area_core_stats_dict.get(parent['uuid'], {}).get('trades', [])
 
         for trade in parent_trades:
-            if trade['buyer'] == area_IAA_name:
+            if trade['buyer'] == area_MA_name:
                 seller_id = area_name_from_area_or_ma_name(trade['seller'])
                 accumulated_trades[area['uuid']]["consumedFrom"] = \
                     add_or_create_key(accumulated_trades[area['uuid']]["consumedFrom"],
