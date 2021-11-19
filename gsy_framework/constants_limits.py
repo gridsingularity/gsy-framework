@@ -176,7 +176,7 @@ class ConstSettings:
         FINAL_SELLING_RATE = 0
         MAX_WIND_TURBINE_OUTPUT_W = 160
 
-    class IAASettings:
+    class MASettings:
         """Default settings for Market Agents."""
 
         # Grid fee type:
@@ -210,6 +210,13 @@ class ConstSettings:
             PRICING_SCHEME = 0
             FEED_IN_TARIFF_PERCENTAGE = 50
             ALT_PRICING_MARKET_MAKER_NAME = "AGENT"
+
+    class IAASettings(MASettings):
+        """Settings for Market Agents (formerly Inter Area Agents).
+
+        IMPORTANT: this class is deprecated and only kept for backwards-compatibility. Please use
+        MASettings instead.
+        """
 
     class BlockchainSettings:
         """Default settings for blockchain functionality."""
@@ -267,7 +274,7 @@ class GlobalConfig:
     future_market_duration = duration(hours=FUTURE_MARKET_DURATION_HOURS)
     cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
-    grid_fee_type = ConstSettings.IAASettings.GRID_FEE_TYPE
+    grid_fee_type = ConstSettings.MASettings.GRID_FEE_TYPE
     # Allow orders to contain additional requirements and attributes
     enable_degrees_of_freedom = True
 

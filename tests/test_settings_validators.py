@@ -74,26 +74,26 @@ class TestValidateGlobalSettings:
         """Validate that spot_market_type should be within the range limit."""
         with pytest.raises(GSySettingsException):
             validate_global_settings(
-                {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT.min - 1})
+                {"spot_market_type": ConstSettings.MASettings.MARKET_TYPE_LIMIT.min - 1})
         with pytest.raises(GSySettingsException):
             validate_global_settings(
-                {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT.max + 1})
+                {"spot_market_type": ConstSettings.MASettings.MARKET_TYPE_LIMIT.max + 1})
         validate_global_settings(
-            {"spot_market_type": ConstSettings.IAASettings.MARKET_TYPE_LIMIT.max})
+            {"spot_market_type": ConstSettings.MASettings.MARKET_TYPE_LIMIT.max})
 
     def test_wrong_bid_offer_match_algo(self):
         """Validate that bid_offer_match_algo should be within the range limit."""
         with pytest.raises(GSySettingsException):
             validate_global_settings(
                 {"bid_offer_match_algo":
-                 ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT.min - 1})
+                 ConstSettings.MASettings.BID_OFFER_MATCH_TYPE_LIMIT.min - 1})
         with pytest.raises(GSySettingsException):
             validate_global_settings(
                 {"bid_offer_match_algo":
-                 ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT.max + 1})
+                 ConstSettings.MASettings.BID_OFFER_MATCH_TYPE_LIMIT.max + 1})
         validate_global_settings(
             {"bid_offer_match_algo":
-             ConstSettings.IAASettings.BID_OFFER_MATCH_TYPE_LIMIT.max})
+             ConstSettings.MASettings.BID_OFFER_MATCH_TYPE_LIMIT.max})
 
     def test_wrong_cloud_coverage(self):
         with pytest.raises(GSySettingsException):
