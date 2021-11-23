@@ -30,7 +30,8 @@ from typing import List, Dict, Optional, Tuple, Union
 from pendulum import DateTime
 
 from gsy_framework.utils import (
-    datetime_to_string_incl_seconds, key_in_dict_and_not_none, str_to_pendulum_datetime)
+    limit_float_precision, datetime_to_string_incl_seconds, key_in_dict_and_not_none,
+    str_to_pendulum_datetime)
 
 
 def json_datetime_serializer(datetime_obj: DateTime) -> Optional[str]:
@@ -51,19 +52,19 @@ class BaseBidOffer:
         self.original_price = original_price or price
         self.price = price
         self.energy = energy
-        self.energy_rate = self.price / self.energy
+        self.energy_rate = limit_float_precision(self.price / self.energy)
         self.attributes = attributes
         self.requirements = requirements
 
     def update_price(self, price: float) -> None:
         """Update price member."""
         self.price = price
-        self.energy_rate = self.price / self.energy
+        self.energy_rate = limit_float_precision(self.price / self.energy)
 
     def update_energy(self, energy: float) -> None:
         """Update energy member."""
         self.energy = energy
-        self.energy_rate = self.price / self.energy
+        self.energy_rate = limit_float_precision(self.price / self.energy)
 
     def to_json_string(self, **kwargs) -> str:
         """Convert the Offer or Bid object into its JSON representation.
