@@ -174,9 +174,6 @@ class Offer(BaseBidOffer):
 
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
-                self.price == other.price and
-                self.original_price == other.original_price and
-                self.energy == other.energy and
                 self.seller == other.seller and
                 self.seller_origin_id == other.seller_origin_id and
                 self.attributes == other.attributes and
@@ -204,7 +201,7 @@ class Offer(BaseBidOffer):
 
 
 class Bid(BaseBidOffer):
-    "Bid class."
+    """Bid class."""
     def __init__(self, id: str, creation_time: DateTime, price: float,
                  energy: float, buyer: str,
                  original_price: Optional[float] = None,
@@ -278,9 +275,6 @@ class Bid(BaseBidOffer):
 
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
-                self.price == other.price and
-                self.original_price == other.original_price and
-                self.energy == other.energy and
                 self.buyer == other.buyer and
                 self.buyer_origin_id == other.buyer_origin_id and
                 self.attributes == other.attributes and
@@ -431,7 +425,6 @@ class Trade:
             self.offer_bid_trade_info == other.offer_bid_trade_info and
             self.seller_origin == other.seller_origin and
             self.buyer_origin == other.buyer_origin and
-            self.fee_price == other.fee_price and
             self.seller_origin_id == other.seller_origin_id and
             self.buyer_origin_id == other.buyer_origin_id and
             self.seller_id == other.seller_id and
