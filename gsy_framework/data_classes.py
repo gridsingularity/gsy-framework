@@ -30,7 +30,8 @@ from typing import List, Dict, Optional, Tuple, Union
 from pendulum import DateTime
 
 from gsy_framework.utils import (
-    datetime_to_string_incl_seconds, key_in_dict_and_not_none, str_to_pendulum_datetime)
+    limit_float_precision, datetime_to_string_incl_seconds, key_in_dict_and_not_none,
+    str_to_pendulum_datetime)
 
 
 def json_datetime_serializer(datetime_obj: DateTime) -> Optional[str]:
@@ -51,19 +52,19 @@ class BaseBidOffer:
         self.original_price = original_price or price
         self.price = price
         self.energy = energy
-        self.energy_rate = self.price / self.energy
+        self.energy_rate = limit_float_precision(self.price / self.energy)
         self.attributes = attributes
         self.requirements = requirements
 
     def update_price(self, price: float) -> None:
         """Update price member."""
         self.price = price
-        self.energy_rate = self.price / self.energy
+        self.energy_rate = limit_float_precision(self.price / self.energy)
 
     def update_energy(self, energy: float) -> None:
         """Update energy member."""
         self.energy = energy
-        self.energy_rate = self.price / self.energy
+        self.energy_rate = limit_float_precision(self.price / self.energy)
 
     def to_json_string(self, **kwargs) -> str:
         """Convert the Offer or Bid object into its JSON representation.
@@ -173,9 +174,6 @@ class Offer(BaseBidOffer):
 
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
-                self.price == other.price and
-                self.original_price == other.original_price and
-                self.energy == other.energy and
                 self.seller == other.seller and
                 self.seller_origin_id == other.seller_origin_id and
                 self.attributes == other.attributes and
@@ -203,7 +201,7 @@ class Offer(BaseBidOffer):
 
 
 class Bid(BaseBidOffer):
-    "Bid class."
+    """Bid class."""
     def __init__(self, id: str, creation_time: DateTime, price: float,
                  energy: float, buyer: str,
                  original_price: Optional[float] = None,
@@ -277,9 +275,6 @@ class Bid(BaseBidOffer):
 
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
-                self.price == other.price and
-                self.original_price == other.original_price and
-                self.energy == other.energy and
                 self.buyer == other.buyer and
                 self.buyer_origin_id == other.buyer_origin_id and
                 self.attributes == other.attributes and
@@ -430,7 +425,6 @@ class Trade:
             self.offer_bid_trade_info == other.offer_bid_trade_info and
             self.seller_origin == other.seller_origin and
             self.buyer_origin == other.buyer_origin and
-            self.fee_price == other.fee_price and
             self.seller_origin_id == other.seller_origin_id and
             self.buyer_origin_id == other.buyer_origin_id and
             self.seller_id == other.seller_id and
