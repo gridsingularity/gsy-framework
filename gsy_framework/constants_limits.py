@@ -24,8 +24,8 @@ from pendulum import duration, instance
 
 from gsy_framework.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum
 
-RangeLimit = namedtuple('RangeLimit', ('min', 'max'))
-RateRange = namedtuple('RateRange', ('initial', 'final'))
+RangeLimit = namedtuple("RangeLimit", ("min", "max"))
+RateRange = namedtuple("RateRange", ("initial", "final"))
 PercentageRangeLimit = RangeLimit(0, 100)
 
 
@@ -33,6 +33,8 @@ class ConstSettings:
     """Parameters that affect the whole simulation (cannot be changed for individual areas)."""
 
     class GeneralSettings:
+        """General settings that affect whole simulations."""
+
         # Max energy price (market maker rate) in ct / kWh
         DEFAULT_MARKET_MAKER_RATE = 30  # 0.3 Eur
         # interval between offer/bid postings
@@ -62,23 +64,33 @@ class ConstSettings:
         REDIS_PUBLISH_FULL_RESULTS = False
 
     class SettlementMarketSettings:
+        """Default settings for settlement markets."""
+
         MAX_AGE_SETTLEMENT_MARKET_HOURS = 1
         ENABLE_SETTLEMENT_MARKETS = False
         RELATIVE_STD_FROM_FORECAST_FLOAT = 10.0
 
     class FutureMarketSettings:
+        """Default settings for future markets."""
+
         # Duration between clearing in future markets
         FUTURE_MARKET_CLEARING_INTERVAL_MINUTES = 15
 
     class AreaSettings:
+        """Default settings for market areas."""
+
         PERCENTAGE_FEE_LIMIT = RangeLimit(0, 100)
         CONSTANT_FEE_LIMIT = RangeLimit(0, sys.maxsize)
 
     class CommercialProducerSettings:
+        """Default settings for settlement markets."""
+
         ENERGY_RATE_LIMIT = RangeLimit(0, 10000)
         MAX_POWER_KW_LIMIT = RangeLimit(0, 10000000)
 
     class StorageSettings:
+        """Default settings for storage assets."""
+
         # least possible state of charge
         MIN_SOC_LIMIT = RangeLimit(0, 99)
         # possible range of state of charge
@@ -113,6 +125,8 @@ class ConstSettings:
         LOSS_PER_HOUR_RELATIVE_LIMIT = RangeLimit(0, 1)
 
     class LoadSettings:
+        """Default settings for load assets."""
+
         AVG_POWER_LIMIT = RangeLimit(0, sys.maxsize)
         HOURS_LIMIT = RangeLimit(0, 24)
         # Min load energy rate, in ct/kWh
@@ -123,6 +137,8 @@ class ConstSettings:
         LOAD_PENALTY_RATE = 29.2
 
     class PVSettings:
+        """Default settings for PV assets."""
+
         DEFAULT_PANEL_COUNT = 1
         PANEL_COUNT_LIMIT = RangeLimit(1, 10000)
         FINAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
@@ -142,6 +158,8 @@ class ConstSettings:
         TILT_LIMIT = RangeLimit(0, 90)
 
     class SmartMeterSettings:
+        """Default settings for smart meter assets."""
+
         # Production constants
         SELLING_RATE_RANGE = RateRange(30, 0)
         INITIAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
@@ -152,11 +170,15 @@ class ConstSettings:
         FINAL_BUYING_RATE_LIMIT = RangeLimit(0, 10000)
 
     class WindSettings:
+        """Default settings for wind turbines."""
+
         # This price should be just above the marginal costs for a Wind Power Plant - unit is cent
         FINAL_SELLING_RATE = 0
         MAX_WIND_TURBINE_OUTPUT_W = 160
 
-    class IAASettings:
+    class MASettings:
+        """Default settings for Market Agents."""
+
         # Grid fee type:
         # Option 1: constant grid fee
         # Option 2: percentage grid fee
@@ -178,6 +200,8 @@ class ConstSettings:
         MIN_BID_AGE = 2
 
         class AlternativePricing:
+            """Default values for alternative pricing schemes."""
+
             # Option 0: D3A_trading
             # Option 1: no scheme (0 cents/kWh)
             # Option 2: feed-in-tariff (FEED_IN_TARIFF_PERCENTAGE / 100 * MMR)
@@ -187,7 +211,16 @@ class ConstSettings:
             FEED_IN_TARIFF_PERCENTAGE = 50
             ALT_PRICING_MARKET_MAKER_NAME = "AGENT"
 
+    class IAASettings(MASettings):
+        """Settings for Market Agents (formerly Inter Area Agents).
+
+        IMPORTANT: this class is deprecated and only kept for backwards-compatibility. Please use
+        MASettings instead.
+        """
+
     class BlockchainSettings:
+        """Default settings for blockchain functionality."""
+
         BC_INSTALLED = True
         # Blockchain URL, default is localhost.
         URL = "http://127.0.0.1:8545"
@@ -197,10 +230,12 @@ class ConstSettings:
         TIMEOUT = 30
 
     class BalancingSettings:
+        """Default settings for balancing markets."""
+
         # Enables/disables balancing market
         ENABLE_BALANCING_MARKET = False
         # Controls the percentage of the energy traded in the spot market that needs to be
-        # acquired by the balancing market on each IAA.
+        # acquired by the balancing market on each MA.
         SPOT_TRADE_RATIO = 0.2
         # Controls the percentage of demand that can be offered on the balancing markets
         # by devices that can offer demand. Range between [0, 1]
@@ -214,6 +249,7 @@ class ConstSettings:
 
 class GlobalConfig:
     """Parameters that affect each area individually."""
+
     # Default simulation settings d3a-web side
     START_DATE = date.today()
     SLOT_LENGTH_M = 15
@@ -238,12 +274,13 @@ class GlobalConfig:
     future_market_duration = duration(hours=FUTURE_MARKET_DURATION_HOURS)
     cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
-    grid_fee_type = ConstSettings.IAASettings.GRID_FEE_TYPE
+    grid_fee_type = ConstSettings.MASettings.GRID_FEE_TYPE
     # Allow orders to contain additional requirements and attributes
     enable_degrees_of_freedom = True
 
 
 class HeartBeat:
+    """Default settings for heartbeat functionalities (to check the liveness of simulations)."""
     CHANNEL_NAME = "d3a-heartbeat"
     RATE = 5  # in secs
     TOLERANCE = 16  # in secs
@@ -257,7 +294,7 @@ DATE_TIME_FORMAT = f"{DATE_FORMAT}T{TIME_FORMAT}"
 DATE_TIME_FORMAT_SECONDS = f"{DATE_FORMAT}T{TIME_FORMAT_SECONDS}"
 DATE_TIME_FORMAT_HOURS = f"{DATE_FORMAT}T{TIME_FORMAT_HOURS}"
 DATE_TIME_UI_FORMAT = "MMMM DD YYYY, HH:mm [h]"
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 PROFILE_EXPANSION_DAYS = 7
 
 JWT_TOKEN_EXPIRY_IN_SECS = 48 * 3600

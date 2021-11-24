@@ -29,13 +29,13 @@ from statistics import mean
 from threading import Timer
 from typing import Callable, Dict, List
 
-from pendulum import DateTime, datetime, duration, from_format, from_timestamp, instance
-from redis.exceptions import ConnectionError
+from pendulum import DateTime, datetime, duration, from_format, instance
+from redis.exceptions import ConnectionError  # pylint: disable=redefined-builtin
 
 from gsy_framework.constants_limits import (
-    PROFILE_EXPANSION_DAYS, DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
-    DEFAULT_PRECISION, TIME_FORMAT, TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS, TIME_ZONE,
-    DATE_TIME_FORMAT_HOURS, GlobalConfig)
+    DATE_TIME_FORMAT, DATE_TIME_FORMAT_HOURS, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
+    DEFAULT_PRECISION, PROFILE_EXPANSION_DAYS, TIME_FORMAT, TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS,
+    TIME_ZONE, GlobalConfig)
 
 
 def execute_function_util(function: callable, function_name: str):
@@ -45,7 +45,7 @@ def execute_function_util(function: callable, function_name: str):
     """
     try:
         function()
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         logging.exception("%s raised exception: %s.", function_name, ex)
 
 
@@ -99,7 +99,7 @@ def generate_market_slot_list(start_timestamp=None):
                                               if start_timestamp else GlobalConfig.start_date,
                                               slot_length=GlobalConfig.slot_length)
 
-    if not getattr(GlobalConfig, 'market_slot_list', []):
+    if not getattr(GlobalConfig, "market_slot_list", []):
         GlobalConfig.market_slot_list = market_slot_list
     return market_slot_list
 
@@ -125,16 +125,17 @@ def find_object_of_same_weekday_and_time(indict: Dict, time_slot: DateTime,
     add_days = time_slot.weekday() - start_time.weekday()
     if add_days < 0:
         add_days += 7
-    timestamp_key = datetime(year=start_time.year, month=start_time.month, day=start_time.day,
-                             hour=time_slot.hour, minute=time_slot.minute, tz=TIME_ZONE).add(
-        days=add_days)
+    timestamp_key = datetime(
+        year=start_time.year, month=start_time.month, day=start_time.day, hour=time_slot.hour,
+        minute=time_slot.minute, tz=TIME_ZONE).add(days=add_days)
 
     if timestamp_key in indict:
         return indict[timestamp_key]
-    else:
-        if not ignore_not_found:
-            logging.error(f"Weekday and time not found in dict for {time_slot}")
-        return
+
+    if not ignore_not_found:
+        logging.error("Weekday and time not found in dict for %s", time_slot)
+
+    return None
 
 
 def wait_until_timeout_blocking(functor: Callable, timeout: int = 10, polling_period: int = 0.01):
@@ -156,31 +157,28 @@ def wait_until_timeout_blocking(functor: Callable, timeout: int = 10, polling_pe
     assert functor()
 
 
-def key_in_dict_and_not_none(d, key):
-    return key in d and d[key] is not None
+def key_in_dict_and_not_none(dictionary, key):
+    """Check if the given dictionary contains the specified key."""
+    return key in dictionary and dictionary[key] is not None
 
 
-def key_in_dict_and_not_none_and_not_str_type(d, key):
-    return key_in_dict_and_not_none(d, key) and not isinstance(d[key], str)
+def key_in_dict_and_not_none_and_not_str_type(dictionary, key):
+    """Check if the given dictionary contains the specified key."""
+    return key_in_dict_and_not_none(dictionary, key) and not isinstance(dictionary[key], str)
 
 
-def key_in_dict_and_not_none_and_list_type(d, key):
-    return key_in_dict_and_not_none(d, key) and isinstance(d[key], list)
+def key_in_dict_and_not_none_and_greater_than_zero(dictionary, key):
+    """Check if the given dictionary contains the specified key and it is greater than 0."""
+    return key in dictionary and dictionary[key] is not None and dictionary[key] > 0
 
 
-def key_in_dict_and_not_none_and_dict_type(d, key):
-    return key_in_dict_and_not_none(d, key) and isinstance(d[key], dict)
+def key_in_dict_and_not_none_and_negative(dictionary, key):
+    """Check if the given dictionary contains the specified key and it is both not None and < 0."""
+    return key in dictionary and dictionary[key] is not None and dictionary[key] < 0
 
 
-def key_in_dict_and_not_none_and_greater_than_zero(d, key):
-    return key in d and d[key] is not None and d[key] > 0
-
-
-def key_in_dict_and_not_none_and_negative(d, key):
-    return key in d and d[key] is not None and d[key] < 0
-
-
-def str_to_pendulum_datetime(input_str):
+def str_to_pendulum_datetime(input_str: str) -> DateTime:
+    """Convert a string to pendulum datetime format."""
     if input_str is None:
         return None
 
@@ -195,41 +193,48 @@ def str_to_pendulum_datetime(input_str):
     raise Exception(f"Format of {input_str} is not one of {supported_formats}")
 
 
-def datetime_str_to_ui_formatted_datetime_str(input_str):
+def datetime_str_to_ui_formatted_datetime_str(input_str: str) -> str:
+    """Format a string using the format required by the UI."""
     return format_datetime(str_to_pendulum_datetime(input_str), ui_format=True)
 
 
-def ui_str_to_pendulum_datetime(input_str):
+def ui_str_to_pendulum_datetime(input_str) -> DateTime:
+    """Convert a string with UI format into a pendulum.datetime.Datetime object."""
     if input_str is None:
         return None
     try:
         pendulum_time = from_format(input_str, DATE_TIME_UI_FORMAT)
-    except ValueError:
-        raise Exception(f"Format is not '{DATE_TIME_UI_FORMAT}'.")
+    except ValueError as ex:
+        raise Exception(f'Format is not "{DATE_TIME_UI_FORMAT}".') from ex
     return pendulum_time
 
 
-def unix_time_to_str(unix_time, out_format):
-    return from_timestamp(unix_time).format(out_format)
-
-
 @lru_cache(maxsize=100, typed=False)
-def format_datetime(datetime, ui_format=False, unix_time=False):
+def format_datetime(datetime_object, ui_format=False, unix_time=False) -> str:
+    """Convert a datetime object into a string.
+
+    The format of the string can be one of the following: default datetime, UI format or unix time.
+    """
     if unix_time:
-        return datetime.timestamp()
-    elif ui_format:
-        return datetime.format(DATE_TIME_UI_FORMAT)
-    else:
-        return datetime.format(DATE_TIME_FORMAT)
+        return datetime_object.timestamp()
+    if ui_format:
+        return datetime_object.format(DATE_TIME_UI_FORMAT)
+
+    return datetime_object.format(DATE_TIME_FORMAT)
 
 
 def datetime_to_string_incl_seconds(date_time: DateTime) -> str:
+    """Convert a datetime object into a string that includes seconds."""
     if not date_time:
         return ""
     return date_time.format(DATE_TIME_FORMAT_SECONDS)
 
 
 def convert_pendulum_to_str_in_dict(indict, outdict=None, ui_format=False, unix_time=False):
+    """Convert occurrences of pendulum DateTime objects within the given dictionary into strings.
+
+    The strings format can be one of the following: default datetime, UI format or unix time.
+    """
     if outdict is None:
         outdict = {}
     for key, value in indict.items():
@@ -249,22 +254,41 @@ def convert_pendulum_to_str_in_dict(indict, outdict=None, ui_format=False, unix_
 
 
 def convert_str_to_pendulum_in_dict(indict):
+    """Convert datetime strings within the given dictionary into pendulum DateTime objects."""
     return {str_to_pendulum_datetime(k): v for k, v in indict.items()}
 
 
-def mkdir_from_str(directory: str, exist_ok=True, parents=True):
+def mkdir_from_str(directory: str, exist_ok=True, parents=True) -> str:
+    """Create a directory using the provided path."""
     out_dir = pathlib.Path(directory)
     out_dir.mkdir(exist_ok=exist_ok, parents=parents)
     return out_dir
 
 
-def create_or_update_subdict(indict, key, subdict):
+def create_or_update_subdict(indict: Dict, key, subdict: Dict):
+    """Update a dictionary with the contents of a specific key from another dictionary.
+
+    Args:
+        indict: the dictionary that will be updated.
+        key: the key to be moved into `indict` together with its value.
+        subdict: the original dictionary whose content will be used to updated the `indict`.
+    """
     if key not in indict.keys():
         indict[key] = {}
     indict[key].update(subdict)
 
 
+def create_subdict_or_update(indict, key, subdict):
+    """Update a dictionary with the contents of a specific key from another dictionary."""
+    if key in indict:
+        indict[key].update(subdict)
+    else:
+        indict[key] = subdict
+    return indict
+
+
 class RepeatingTimer(Timer):
+    """Threading timer that repeats the execution of a function at predefined intervals."""
     def run(self):
         while not self.finished.is_set():
             self.function(*self.args, **self.kwargs)
@@ -272,6 +296,7 @@ class RepeatingTimer(Timer):
 
 
 def check_redis_health(redis_db):
+    """Check the status of the Redis connectivity."""
     is_connected = False
     reconnect_needed = False
     while is_connected is False:
@@ -284,10 +309,12 @@ def check_redis_health(redis_db):
     return reconnect_needed
 
 
+# pylint: disable=dangerous-default-value
 def get_area_name_uuid_mapping(serialized_scenario, mapping={}):
+    """Return the mapping between area names and their UUIDs."""
     if key_in_dict_and_not_none(serialized_scenario, "name") and \
             key_in_dict_and_not_none(serialized_scenario, "uuid"):
-        mapping.update({serialized_scenario['name']: serialized_scenario['uuid']})
+        mapping.update({serialized_scenario["name"]: serialized_scenario["uuid"]})
     if key_in_dict_and_not_none(serialized_scenario, "children"):
         for child in serialized_scenario["children"]:
             new_mapping = get_area_name_uuid_mapping(child, mapping)
@@ -296,8 +323,8 @@ def get_area_name_uuid_mapping(serialized_scenario, mapping={}):
 
 
 def get_area_uuid_name_mapping(area_dict, results):
-    if key_in_dict_and_not_none(area_dict, "name") and \
-            key_in_dict_and_not_none(area_dict, "uuid"):
+    """Return the mapping between area UUIDs and their names."""
+    if key_in_dict_and_not_none(area_dict, "name") and key_in_dict_and_not_none(area_dict, "uuid"):
         results[area_dict["uuid"]] = area_dict["name"]
     if key_in_dict_and_not_none(area_dict, "children"):
         for child in area_dict["children"]:
@@ -306,51 +333,51 @@ def get_area_uuid_name_mapping(area_dict, results):
 
 
 def round_floats_for_ui(number):
+    """Round the given number using the scale required by the UI."""
     return round(number, 3)
 
 
 def round_prices_to_cents(number):
+    """Round the given number using 2-digits scale (to represent cents)."""
     return round(number, 2)
 
 
-def create_subdict_or_update(indict, key, subdict):
-    if key in indict:
-        indict[key].update(subdict)
+def add_or_create_key(dictionary, key, value):
+    """Increase the amount at the given key by the provided value."""
+    if key in dictionary:
+        dictionary[key] += value
     else:
-        indict[key] = subdict
-    return indict
+        dictionary[key] = value
+    return dictionary
 
 
-def add_or_create_key(dict, key, value):
-    if key in dict:
-        dict[key] += value
+def subtract_or_create_key(dictionary, key, value):
+    """Decrease the amount at the given key by the provided value."""
+    if key in dictionary:
+        dictionary[key] -= value
     else:
-        dict[key] = value
-    return dict
+        dictionary[key] = 0 - value
+    return dictionary
 
 
-def subtract_or_create_key(dict, key, value):
-    if key in dict:
-        dict[key] -= value
-    else:
-        dict[key] = 0 - value
-    return dict
-
-
-def make_iaa_name_from_dict(owner):
-    return f"IAA {owner['name']}"
+def make_ma_name_from_dict(owner: Dict) -> str:
+    """Generate the name of the marget agent from the given owner."""
+    return f"MA {owner['name']}"
 
 
 def limit_float_precision(number):
+    """Round a number to the default precision after the comma."""
     return round(number, DEFAULT_PRECISION)
 
 
 def if_not_in_list_append(target_list, obj):
+    """Append element to the list if it's not already part of it."""
     if obj not in target_list:
         target_list.append(obj)
 
 
 def iterate_over_all_modules(modules_path):
+    """Return all modules in the given path."""
     module_list = []
     for loader, module_name, is_pkg in walk_packages(modules_path):
         if is_pkg:
@@ -389,41 +416,58 @@ def deep_size_of(input_obj):
     return memory_size
 
 
-def utf8len(s):
-    return len(s.encode('utf-8'))
+def utf8len(string: str) -> int:
+    """Return the length of a string encoded in UTF-8 format."""
+    return len(string.encode("utf-8"))
 
 
-def get_json_dict_memory_allocation_size(json_dict):
+def get_json_dict_memory_allocation_size(json_dict: Dict):
+    """Return the memory allocation of the provided dictionary."""
     return utf8len(json.dumps(json_dict)) / 1024.
 
 
-def area_name_from_area_or_iaa_name(name):
-    return name[4:] if name[:4] == 'IAA ' else name
+def area_name_from_area_or_ma_name(name: str) -> str:
+    """Retrieve the name of the area.
+
+    The input can be either the area name itself or the name of the market agent of the area.
+    """
+    return name[3:] if name[:3] == "MA " else name
 
 
 def area_bought_from_child(trade: dict, area_name: str, child_names: list):
-    return area_name_from_area_or_iaa_name(trade['buyer']) == area_name and \
-           area_name_from_area_or_iaa_name(trade['seller']) in child_names
+    """Check if the area with the given name bought energy from one of its children."""
+    return (
+        area_name_from_area_or_ma_name(trade["buyer"]) == area_name
+        and area_name_from_area_or_ma_name(trade["seller"]) in child_names)
 
 
 def area_sells_to_child(trade: dict, area_name: str, child_names: list):
-    return area_name_from_area_or_iaa_name(trade['seller']) == area_name and \
-           area_name_from_area_or_iaa_name(trade['buyer']) in child_names
+    """Check if the area with the given name sold energy to one of its children."""
+    return (
+        area_name_from_area_or_ma_name(trade["seller"]) == area_name
+        and area_name_from_area_or_ma_name(trade["buyer"]) in child_names)
 
 
+# pylint: disable=invalid-name
 def convert_W_to_kWh(power_W, slot_length):
+    """Convert W power into energy in kWh (based on the duration of the market slot)."""
     return (slot_length / duration(hours=1)) * power_W / 1000
 
 
+# pylint: disable=invalid-name
 def convert_W_to_Wh(power_W, slot_length):
+    """Convert W power into energy in Wh (based on the duration of the market slot)."""
     return (slot_length / duration(hours=1)) * power_W
 
 
+# pylint: disable=invalid-name
 def convert_kW_to_kWh(power_W, slot_length):
+    """Convert kW power into kWh energy (based on the duration of the market slot)."""
     return convert_W_to_Wh(power_W, slot_length)
 
 
 def return_ordered_dict(function):
+    """Decorator to convert the dictionary returned by the wrapped function into an OrderedDict."""
     @wraps(function)
     def wrapper(*args, **kwargs):
         return OrderedDict(sorted(function(*args, **kwargs).items()))
@@ -431,11 +475,9 @@ def return_ordered_dict(function):
 
 
 def scenario_representation_traversal(sc_repr, parent=None):
-    """
-        Yields scenario representation in tuple form: ( child, parent )
-    """
+    """Yield scenario representation in tuple form: (child, parent)."""
     children = []
-    if type(sc_repr) == dict and "children" in sc_repr:
+    if isinstance(sc_repr, dict) and "children" in sc_repr:
         children = sc_repr["children"]
     elif hasattr(sc_repr, "children"):
         children = getattr(sc_repr, "children")
@@ -447,6 +489,7 @@ def scenario_representation_traversal(sc_repr, parent=None):
 
 
 class HomeRepresentationUtils:
+    """Class to calculate the stats of a home market."""
     @staticmethod
     def _is_home(representation):
         home_devices = ["PV", "Storage", "Load", "MarketMaker"]
@@ -454,16 +497,21 @@ class HomeRepresentationUtils:
                    for c in representation["children"])
 
     @classmethod
-    def is_home_area(cls, representation):
-        is_market_area = not key_in_dict_and_not_none(representation, "type") or \
-            representation["type"] == "Area"
-        has_home_devices = key_in_dict_and_not_none(representation, "children") and \
-            representation["children"] and \
-            cls._is_home(representation)
-        return is_market_area and has_home_devices
+    def is_home_area(cls, representation: Dict) -> bool:
+        """Check if the representation is a market."""
+        is_market_area = (
+            not key_in_dict_and_not_none(representation, "type")
+            or representation["type"] == "Area")
+        has_home_assets = (
+            key_in_dict_and_not_none(representation, "children")
+            and representation["children"]
+            and cls._is_home(representation))
+
+        return is_market_area and has_home_assets
 
     @classmethod
-    def calculate_home_area_stats_from_repr_dict(cls, representation):
+    def calculate_home_area_stats_from_repr_dict(cls, representation: Dict):
+        """Compute the stats of the home from its representation."""
         devices_per_home = [
             len(area["children"])
             for area, _ in scenario_representation_traversal(representation)
@@ -472,9 +520,7 @@ class HomeRepresentationUtils:
         return len(devices_per_home), mean(devices_per_home) if devices_per_home else None
 
 
-def sort_list_of_dicts_by_attribute(input_list: List[Dict],
-                                    attribute: str,
-                                    reverse_order=False):
+def sort_list_of_dicts_by_attribute(input_list: List[Dict], attribute: str, reverse_order=False):
     """Sorts a list of dicts by a given attribute.
 
     Args:
@@ -487,16 +533,14 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict],
     """
     if reverse_order:
         # Sorted bids in descending order
-        return list(reversed(sorted(
-            input_list,
-            key=lambda obj: obj.get(attribute))))
+        return list(
+            reversed(
+                sorted(input_list, key=lambda obj: obj.get(attribute))))
 
-    else:
-        # Sorted bids in ascending order
-        return sorted(
-            input_list,
-            key=lambda obj: obj.get(attribute))
+    # Sorted bids in ascending order
+    return sorted(input_list, key=lambda obj: obj.get(attribute))
 
 
 def convert_datetime_to_ui_str_format(data_time):
+    """Convert a datetime object into the format required by the UI."""
     return instance(data_time).format(DATE_TIME_UI_FORMAT)
