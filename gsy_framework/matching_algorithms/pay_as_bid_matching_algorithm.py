@@ -26,22 +26,59 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
                 sorted_bids = sort_list_of_dicts_by_attribute(bids, "energy_rate", True)
                 # Sorted offers in descending order
                 sorted_offers = sort_list_of_dicts_by_attribute(offers, "energy_rate", True)
-                already_selected_bids = set()
+                already_selected_order_energy = {}
                 for offer in sorted_offers:
                     for bid in sorted_bids:
-                        if (bid.get("id") in already_selected_bids or
-                                offer.get("seller") == bid.get("buyer")):
+                        if offer.get("seller") == bid.get("buyer"):
                             continue
+
                         if (offer.get("energy_rate") - bid.get(
                                 "energy_rate")) <= FLOATING_POINT_TOLERANCE:
-                            already_selected_bids.add(bid.get("id"))
-                            selected_energy = min(bid.get("energy"), offer.get("energy"))
-                            bid_offer_pairs.append(
-                                BidOfferMatch(
-                                    market_id=market_id,
-                                    time_slot=time_slot,
-                                    bids=[bid], offers=[offer],
-                                    selected_energy=selected_energy,
-                                    trade_rate=bid.get("energy_rate")).serializable_dict())
-                            break
-        return bid_offer_pairs
+                            already_selected = False
+                            if bid["id"] not in already_selected_order_energy:
+                                already_selected_order_energy[bid["id"]] = bid["energy"]
+                            else:
+                                already_selected = True
+                            if offer["id"] not in already_selected_order_energy:
+                                already_selected_order_energy[offer["id"]] = offer["energy"]
+                            else:
+                                already_selected = True
+                            offer_energy = already_selected_order_energy[offer["id"]]
+                            bid_energy = already_selected_order_energy[bid["id"]]
+
+                            selected_energy = min(offer_energy, bid_energy)
+                            if selected_energy <= FLOATING_POINT_TOLERANCE:
+                                continue
+
+                            already_selected_order_energy[bid["id"]] -= selected_energy
+                            already_selected_order_energy[offer["id"]] -= selected_energy
+                            assert all(v >= -FLOATING_POINT_TOLERANCE
+                                       for v in already_selected_order_energy.values())
+
+                            if not already_selected:
+                                bid_offer_pairs.append(
+                                    BidOfferMatch(
+                                        market_id=market_id,
+                                        time_slot=time_slot,
+                                        bids=[bid], offers=[offer],
+                                        selected_energy=selected_energy,
+                                        trade_rate=bid.get("energy_rate")))
+                            else:
+                                for pair in bid_offer_pairs:
+                                    if any(pair_bid["id"] == bid["id"] for pair_bid in pair.bids):
+                                        assert not any(pair_offer["id"] == offer["id"]
+                                                       for pair_offer in pair.offers)
+                                        pair.offers.append(offer)
+                                        pair.selected_energy += selected_energy
+
+                                    elif any(pair_offer["id"] == offer["id"] for pair_offer in pair.offers):
+                                        assert not any(pair_bid["id"] == bid["id"]
+                                                       for pair_bid in pair.bids)
+                                        pair.bids.append(bid)
+                                        pair.selected_energy += selected_energy
+
+                            if already_selected_order_energy[offer["id"]] <= FLOATING_POINT_TOLERANCE:
+                                break
+        return [
+            pair.serializable_dict() for pair in bid_offer_pairs
+        ]
