@@ -80,7 +80,7 @@ def generate_market_slot_list_from_config(sim_duration: duration, start_timestam
         start_timestamp + (slot_length * i) for i in range(
             (sim_duration + slot_length) //
             slot_length - 1)
-        if (slot_length * i) <= sim_duration]
+        if is_time_slot_in_simulation_duration(start_timestamp + (slot_length * i))]
 
 
 def generate_market_slot_list(start_timestamp=None):
@@ -544,3 +544,20 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict], attribute: str, reve
 def convert_datetime_to_ui_str_format(data_time):
     """Convert a datetime object into the format required by the UI."""
     return instance(data_time).format(DATE_TIME_UI_FORMAT)
+
+
+def is_time_slot_in_simulation_duration(time_slot: DateTime, config: "GlobalConfig" = None) -> bool:
+    """
+    Check whether a specific timeslot is inside the range of the simulation duration.
+    :param time_slot: Timeslot that is checked if it is in the simulation duration
+    :param config: Optional configuration settings object that is used for the start / end date parameters. In case it
+                   is not provided, GlobalConfig object is used isntead
+    :return: True if the timeslot is in the simulation duration, false otherwise
+    """
+    if config is None:
+        start_date = GlobalConfig.start_date
+        end_date = GlobalConfig.start_date + GlobalConfig.sim_duration
+    else:
+        start_date = config.start_date
+        end_date = config.end_date
+    return start_date <= time_slot < end_date or GlobalConfig.IS_CANARY_NETWORK
