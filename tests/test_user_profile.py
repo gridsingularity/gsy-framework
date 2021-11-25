@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+# pylint: disable=missing-function-docstring
 import unittest
 
 from pendulum import datetime, duration, today
@@ -27,15 +28,17 @@ from gsy_framework.unit_test_utils import assert_dicts_identical
 
 
 class TestReadUserProfile(unittest.TestCase):
+    """Test reading the user profiles."""
 
-    def _validate_timedeltas_are_followed(self, profile):
+    @staticmethod
+    def _validate_timedeltas_are_followed(profile):
         timestamps_list = list(profile.keys())
         assert timestamps_list[0] == datetime(2021, 2, 12, 0, 0, 0)
         assert timestamps_list[-1] == datetime(2021, 2, 14, 23, 45, 0)
 
-        for index, t in enumerate(timestamps_list):
+        for index, timestamp in enumerate(timestamps_list):
             if index + 1 < len(timestamps_list):
-                assert timestamps_list[index + 1] - t == duration(minutes=15)
+                assert timestamps_list[index + 1] - timestamp == duration(minutes=15)
 
     def test_generate_slot_based_zero_values_dict_from_profile(self):
         profile_dict = {
@@ -56,7 +59,8 @@ class TestReadUserProfile(unittest.TestCase):
         assert all(v == 1234.0 for v in filled_profile.values())
         self._validate_timedeltas_are_followed(filled_profile)
 
-    def test_interpolate_profile_values_to_slot(self):
+    @staticmethod
+    def test_interpolate_profile_values_to_slot():
         profile_dict = {
             datetime(2021, 2, 12, 0, 0, 0): 150.0,
             datetime(2021, 2, 12, 0, 5, 0): 100.0,
@@ -77,7 +81,8 @@ class TestReadUserProfile(unittest.TestCase):
         assert interp_profile[1] == 0.5
         assert interp_profile[2] == 0.1
 
-    def test_read_profile_for_player(self):
+    @staticmethod
+    def test_read_profile_for_player():
         profile_dict = {
             datetime(2021, 2, 12, 0, 0, 0): 150.0,
             datetime(2021, 2, 12, 0, 5, 0): 100.0,
@@ -96,7 +101,8 @@ class TestReadUserProfile(unittest.TestCase):
             datetime(2021, 2, 12, 0, 30, 0): 0.1
         })
 
-    def test_read_arbitrary_profile_returns_profile_with_correct_time_expansion(self):
+    @staticmethod
+    def test_read_arbitrary_profile_returns_profile_with_correct_time_expansion():
         market_maker_rate = 30
         if GlobalConfig.IS_CANARY_NETWORK:
             GlobalConfig.sim_duration = duration(hours=3)
@@ -122,5 +128,4 @@ class TestReadUserProfile(unittest.TestCase):
             GlobalConfig.sim_duration = duration(hours=1)
             mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
             time_diff = list(mmr.keys())[-1] - today(tz=TIME_ZONE)
-            assert time_diff.hours == 0
-            assert time_diff.days == 1
+            assert time_diff.minutes == 45
