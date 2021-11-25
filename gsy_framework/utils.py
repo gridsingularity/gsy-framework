@@ -549,11 +549,14 @@ def convert_datetime_to_ui_str_format(data_time):
 def is_time_slot_in_simulation_duration(
         time_slot: DateTime, config: "GlobalConfig" = None) -> bool:
     """
-    Check whether a specific timeslot is inside the range of the simulation duration.
-    :param time_slot: Timeslot that is checked if it is in the simulation duration
-    :param config: Optional configuration settings object that is used for the start / end date
-                   parameters. In case it is not provided, GlobalConfig object is used instead
-    :return: True if the timeslot is in the simulation duration, false otherwise
+        Check whether a specific timeslot is inside the range of the simulation duration.
+
+    Args:
+        time_slot: Timeslot that is checked if it is in the simulation duration
+        config: Optional configuration settings object that is used for the start / end date
+                parameters. In case it is not provided, GlobalConfig object is used instead
+
+    Returns: True if the timeslot is in the simulation duration, false otherwise
     """
     if config is None:
         start_date = GlobalConfig.start_date
