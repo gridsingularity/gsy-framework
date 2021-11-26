@@ -63,9 +63,9 @@ def validate_global_settings(settings: Dict) -> None:
         raise GSySettingsException("Invalid cloud coverage value "
                                    f"({settings['cloud_coverage']}).")
     if ("spot_market_type" in settings
-            and not ConstSettings.IAASettings.MARKET_TYPE_LIMIT[0]
+            and not ConstSettings.MASettings.MARKET_TYPE_LIMIT[0]
             <= settings["spot_market_type"]
-            <= ConstSettings.IAASettings.MARKET_TYPE_LIMIT[1]):
+            <= ConstSettings.MASettings.MARKET_TYPE_LIMIT[1]):
         raise GSySettingsException(f"Invalid value ({settings['spot_market_type']}) "
                                    "for spot market type.")
 
@@ -81,7 +81,7 @@ def validate_global_settings(settings: Dict) -> None:
                                    f"({settings['capacity_kW']}).")
 
     if ("grid_fee_type" in settings and
-            int(settings["grid_fee_type"]) not in ConstSettings.IAASettings.VALID_FEE_TYPES):
+            int(settings["grid_fee_type"]) not in ConstSettings.MASettings.VALID_FEE_TYPES):
         raise GSySettingsException("Invalid value for grid_fee_type "
                                    f"({settings['grid_fee_type']}).")
 
@@ -93,9 +93,9 @@ def validate_global_settings(settings: Dict) -> None:
                                    f"({settings['relative_std_from_forecast_percent']}).")
 
     if ("orders_match_algo" in settings
-            and not ConstSettings.IAASettings.ORDERS_MATCH_TYPE_LIMIT.min
+            and not ConstSettings.MASettings.ORDERS_MATCH_TYPE_LIMIT.min
             <= settings["orders_match_algo"]
-            <= ConstSettings.IAASettings.ORDERS_MATCH_TYPE_LIMIT.max):
+            <= ConstSettings.MASettings.ORDERS_MATCH_TYPE_LIMIT.max):
         raise GSySettingsException(f"Invalid value ({settings['orders_match_algo']}) "
                                    "for bid offer match algo.")
 
