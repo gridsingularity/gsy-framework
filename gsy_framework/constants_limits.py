@@ -211,13 +211,6 @@ class ConstSettings:
             FEED_IN_TARIFF_PERCENTAGE = 50
             ALT_PRICING_MARKET_MAKER_NAME = "AGENT"
 
-    class IAASettings(MASettings):
-        """Settings for Market Agents (formerly Inter Area Agents).
-
-        IMPORTANT: this class is deprecated and only kept for backwards-compatibility. Please use
-        MASettings instead.
-        """
-
     class BlockchainSettings:
         """Default settings for blockchain functionality."""
 
