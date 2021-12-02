@@ -68,19 +68,26 @@ def convert_datetime_to_str_in_list(in_list: List, ui_format: bool = False):
 
 
 def generate_market_slot_list_from_config(sim_duration: duration, start_timestamp: DateTime,
-                                          slot_length: duration):
+                                          slot_length: duration, ignore_duration_check=False):
     """
-    Returns a list of all slot times in Datetime format
-    @param sim_duration: Total simulation duration
-    @param start_timestamp: Start datetime of the simulation
-    @param slot_length: Market slot length
-    @return: List with market slot datetimes
+    Returns a list of all slot times in Datetime format.
+
+    Args:
+        sim_duration: Total simulation duration
+        start_timestamp: Start datetime of the simulation
+        slot_length: Market slot length
+        ignore_duration_check: Ignores the check if each timestamp is in the simulation duration.
+                               Useful for calling the method from context where no config has been
+                               set
+
+    Returns: List with market slot datetimes
     """
     return [
         start_timestamp + (slot_length * i) for i in range(
             (sim_duration + slot_length) //
             slot_length - 1)
-        if is_time_slot_in_simulation_duration(start_timestamp + (slot_length * i))]
+        if (ignore_duration_check or
+            is_time_slot_in_simulation_duration(start_timestamp + (slot_length * i)))]
 
 
 def generate_market_slot_list(start_timestamp=None):
