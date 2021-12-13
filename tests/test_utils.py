@@ -18,13 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 from unittest.mock import patch, MagicMock
-
 import pytest
-from pendulum import datetime, today
+from pendulum import datetime, today, duration
 
-from gsy_framework.utils import (HomeRepresentationUtils, convert_datetime_to_ui_str_format,
-                                 execute_function_util, scenario_representation_traversal,
-                                 sort_list_of_dicts_by_attribute, str_to_pendulum_datetime)
+from gsy_framework.constants_limits import GlobalConfig
+from gsy_framework.utils import (
+    HomeRepresentationUtils, convert_datetime_to_ui_str_format, execute_function_util,
+    scenario_representation_traversal, sort_list_of_dicts_by_attribute, str_to_pendulum_datetime,
+    is_time_slot_in_simulation_duration
+)
 
 
 @pytest.fixture(name="scenario_repr")
@@ -103,3 +105,17 @@ class TestUtils:
 
         logging_mock.exception.assert_called_once_with(
             "%s raised exception: %s.", "function_mock_name", raised_exception)
+
+    @staticmethod
+    def test_is_time_slot_in_simulation_duration():
+        time_slot = GlobalConfig.start_date + duration(minutes=10)
+        assert is_time_slot_in_simulation_duration(time_slot) is True
+
+        time_slot = GlobalConfig.start_date - duration(minutes=1)
+        assert is_time_slot_in_simulation_duration(time_slot) is False
+
+        time_slot = GlobalConfig.start_date + GlobalConfig.sim_duration - duration(minutes=1)
+        assert is_time_slot_in_simulation_duration(time_slot) is True
+
+        time_slot = GlobalConfig.start_date + GlobalConfig.sim_duration + duration(minutes=1)
+        assert is_time_slot_in_simulation_duration(time_slot) is False

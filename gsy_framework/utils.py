@@ -68,19 +68,26 @@ def convert_datetime_to_str_in_list(in_list: List, ui_format: bool = False):
 
 
 def generate_market_slot_list_from_config(sim_duration: duration, start_timestamp: DateTime,
-                                          slot_length: duration):
+                                          slot_length: duration, ignore_duration_check=False):
     """
-    Returns a list of all slot times in Datetime format
-    @param sim_duration: Total simulation duration
-    @param start_timestamp: Start datetime of the simulation
-    @param slot_length: Market slot length
-    @return: List with market slot datetimes
+    Returns a list of all slot times in Datetime format.
+
+    Args:
+        sim_duration: Total simulation duration
+        start_timestamp: Start datetime of the simulation
+        slot_length: Market slot length
+        ignore_duration_check: Ignores the check if each timestamp is in the simulation duration.
+                               Useful for calling the method from context where no config has been
+                               set
+
+    Returns: List with market slot datetimes
     """
     return [
         start_timestamp + (slot_length * i) for i in range(
             (sim_duration + slot_length) //
             slot_length - 1)
-        if (slot_length * i) <= sim_duration]
+        if (ignore_duration_check or
+            is_time_slot_in_simulation_duration(start_timestamp + (slot_length * i)))]
 
 
 def generate_market_slot_list(start_timestamp=None):
@@ -544,3 +551,24 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict], attribute: str, reve
 def convert_datetime_to_ui_str_format(data_time):
     """Convert a datetime object into the format required by the UI."""
     return instance(data_time).format(DATE_TIME_UI_FORMAT)
+
+
+def is_time_slot_in_simulation_duration(
+        time_slot: DateTime, config: "GlobalConfig" = None) -> bool:
+    """
+        Check whether a specific timeslot is inside the range of the simulation duration.
+
+    Args:
+        time_slot: Timeslot that is checked if it is in the simulation duration
+        config: Optional configuration settings object that is used for the start / end date
+                parameters. In case it is not provided, GlobalConfig object is used instead
+
+    Returns: True if the timeslot is in the simulation duration, false otherwise
+    """
+    if config is None:
+        start_date = GlobalConfig.start_date
+        end_date = GlobalConfig.start_date + GlobalConfig.sim_duration
+    else:
+        start_date = config.start_date
+        end_date = config.end_date
+    return start_date <= time_slot < end_date or GlobalConfig.IS_CANARY_NETWORK

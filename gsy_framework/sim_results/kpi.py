@@ -159,7 +159,7 @@ class SavingsKPI:
         self.fit_revenue = 0.  # revenue achieved by producing selling energy via FIT scheme
         self.utility_bill = 0.  # cost of energy purchase from energy supplier
         self.base_case_cost = 0.  # standard cost of a house participating in FIT scheme
-        self.d3a_cost = 0.  # standard cost of a house participating in D3A
+        self.gsy_e_cost = 0.  # standard cost of a house participating in GSy Exchange
         self.saving_absolute = 0.  # savings achieved by a house via participating in D3A
         self.saving_percentage = 0.  # savings in percentage wrt FIT via participating in D3A
 
@@ -180,15 +180,16 @@ class SavingsKPI:
         mmr_incl_gf_alp = self.get_market_maker_rate_including_path_grid_fees(
             core_stats.get(area_dict["uuid"], {}), gf_alp)
         for trade in core_stats.get(area_dict["uuid"], {}).get("trades", []):
-            if trade["seller_origin_id"] in self.producer_ess_set:
+            if (trade["seller_origin_id"] in self.producer_ess_set and
+                    trade["buyer_origin_id"] not in self.consumer_ess_set):
                 self.fit_revenue += fir_excl_gf_alp * trade["energy"]
-                self.d3a_cost -= trade["price"]
+                self.gsy_e_cost -= trade["price"]
             if trade["buyer_origin_id"] in self.consumer_ess_set and \
                     trade["seller_origin_id"] not in self.producer_ess_set:
                 self.utility_bill += mmr_incl_gf_alp * trade["energy"]
-                self.d3a_cost += trade["price"]
+                self.gsy_e_cost += trade["price"]
         self.base_case_cost = self.utility_bill - self.fit_revenue
-        self.saving_absolute = self.base_case_cost - self.d3a_cost
+        self.saving_absolute = self.base_case_cost - self.gsy_e_cost
         self.saving_percentage = ((self.saving_absolute / self.base_case_cost) * 100
                                   if self.base_case_cost else 0.)
 
@@ -236,7 +237,7 @@ class SavingsKPI:
         return {"base_case_cost": self.base_case_cost,
                 "utility_bill": self.utility_bill,
                 "fit_revenue": self.fit_revenue,
-                "d3a_cost": self.d3a_cost,
+                "gsy_e_cost": self.gsy_e_cost,
                 "saving_absolute": self.saving_absolute,
                 "saving_percentage": self.saving_percentage}
 
@@ -336,7 +337,7 @@ class KPI(ResultsBaseClass):
                 "base_case_cost": area_kpis.get("base_case_cost"),
                 "utility_bill": area_kpis.get("utility_bill"),
                 "fit_revenue": area_kpis.get("fit_revenue"),
-                "d3a_cost": area_kpis.get("d3a_cost"),
+                "gsy_e_cost": area_kpis.get("gsy_e_cost"),
                 "saving_absolute": area_kpis.get("saving_absolute"),
                 "saving_percentage": area_kpis.get("saving_percentage")
                 }
@@ -393,8 +394,8 @@ class KPI(ResultsBaseClass):
                     last_known_state_data["utility_bill"])
                 self.savings_state[area_dict["uuid"]].fit_revenue = (
                     last_known_state_data["fit_revenue"])
-                self.savings_state[area_dict["uuid"]].d3a_cost = (
-                    last_known_state_data["d3a_cost"])
+                self.savings_state[area_dict["uuid"]].gsy_e_cost = (
+                    last_known_state_data["gsy_e_cost"] or last_known_state_data["d3a_cost"])
 
     # pylint: disable=(arguments-differ
     @staticmethod
