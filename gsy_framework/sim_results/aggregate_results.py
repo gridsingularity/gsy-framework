@@ -17,8 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from datetime import timedelta, date  # NOQA
 from typing import Dict, List
-from gsy_framework.utils import generate_market_slot_list_from_config, \
-    convert_datetime_to_str_in_list
 from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
 from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
 from gsy_framework.sim_results.market_price_energy_day import MarketPriceEnergyDay
@@ -41,15 +39,10 @@ REQUESTED_FIELDS_CLASS_MAP = {
 
 def merge_last_market_results_to_global(
         market_results: Dict, global_results: Dict,
-        sim_duration: timedelta, start_date: date, slot_length: timedelta,
-        requested_fields: List = None
+        slot_list_ui_format: List = None, requested_fields: List = None
 ):
     if requested_fields is None:
         requested_fields = REQUESTED_FIELDS_LIST
-
-    slot_list_ui_format = convert_datetime_to_str_in_list(
-        generate_market_slot_list_from_config(sim_duration, start_date, slot_length),
-        ui_format=True)
 
     for field in requested_fields:
         global_results[field] = REQUESTED_FIELDS_CLASS_MAP[field].merge_results_to_global(
