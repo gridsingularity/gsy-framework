@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
 from gsy_framework.data_classes import BidOfferMatch
@@ -16,10 +16,14 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
     """
 
     @staticmethod
-    def _match_one_bid_one_offer(offer, bid, already_selected_order_energy,
-                                 market_id, time_slot):
-        if (offer.get("energy_rate") - bid.get(
-                "energy_rate")) > FLOATING_POINT_TOLERANCE:
+    def _match_one_bid_one_offer(offer: Dict, bid: Dict, already_selected_order_energy: Dict,
+                                 market_id: str, time_slot: str) -> Optional[BidOfferMatch]:
+        """
+        Try to match one bid with one offer, and at the same time update the dict with the
+        already selected order energy in order to be able to reuse the same order in future
+        matches.
+        """
+        if (offer.get("energy_rate") - bid.get("energy_rate")) > FLOATING_POINT_TOLERANCE:
             return None
 
         if bid["id"] not in already_selected_order_energy:
@@ -36,7 +40,7 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
         already_selected_order_energy[bid["id"]] -= selected_energy
         already_selected_order_energy[offer["id"]] -= selected_energy
         assert all(v >= -FLOATING_POINT_TOLERANCE
-                   for v in already_selected_order_energy.values()), f"{already_selected_order_energy}"
+                   for v in already_selected_order_energy.values())
 
         return BidOfferMatch(
             market_id=market_id,
@@ -46,31 +50,43 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
             trade_rate=bid.get("energy_rate"))
 
     @classmethod
+    def _calculate_bid_offer_matches_for_one_market_timeslot(
+            cls, market_id: str, time_slot: str, data: Dict) -> List[BidOfferMatch]:
+        """
+        Calculate all possible matches for one market slot.
+        """
+        bid_offer_matches = []
+        bids = data.get("bids")
+        offers = data.get("offers")
+        # Sorted bids in descending orders
+        sorted_bids = sort_list_of_dicts_by_attribute(bids, "energy_rate", True)
+        # Sorted offers in descending order
+        sorted_offers = sort_list_of_dicts_by_attribute(offers, "energy_rate", True)
+        already_selected_order_energy = {}
+        for offer in sorted_offers:
+            for bid in sorted_bids:
+                if offer.get("seller") == bid.get("buyer"):
+                    continue
+
+                possible_match = cls._match_one_bid_one_offer(
+                    offer, bid, already_selected_order_energy, market_id, time_slot
+                )
+                if possible_match:
+                    bid_offer_matches.append(possible_match)
+
+                if (offer["id"] in already_selected_order_energy and
+                        already_selected_order_energy[offer["id"]] <= FLOATING_POINT_TOLERANCE):
+                    break
+        return bid_offer_matches
+
+    @classmethod
     def get_matches_recommendations(cls, matching_data: Dict) -> List:
-        bid_offer_pairs = []
+        bid_offer_matches = []
         for market_id, time_slot_data in matching_data.items():
             for time_slot, data in time_slot_data.items():
-                bids = data.get("bids")
-                offers = data.get("offers")
-                # Sorted bids in descending orders
-                sorted_bids = sort_list_of_dicts_by_attribute(bids, "energy_rate", True)
-                # Sorted offers in descending order
-                sorted_offers = sort_list_of_dicts_by_attribute(offers, "energy_rate", True)
-                already_selected_order_energy = {}
-                for offer in sorted_offers:
-                    for bid in sorted_bids:
-                        if offer.get("seller") == bid.get("buyer"):
-                            continue
-
-                        possible_pair = cls._match_one_bid_one_offer(
-                            offer, bid, already_selected_order_energy, market_id, time_slot
-                        )
-                        if possible_pair:
-                            bid_offer_pairs.append(possible_pair)
-
-                        if offer["id"] in already_selected_order_energy and \
-                                already_selected_order_energy[offer["id"]] <= FLOATING_POINT_TOLERANCE:
-                            break
+                bid_offer_matches.extend(cls._calculate_bid_offer_matches_for_one_market_timeslot(
+                    market_id, time_slot, data
+                ))
         return [
-            pair.serializable_dict() for pair in bid_offer_pairs
+            match.serializable_dict() for match in bid_offer_matches
         ]
