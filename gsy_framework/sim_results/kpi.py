@@ -400,7 +400,7 @@ class KPI(ResultsBaseClass):
                         last_known_state_data["gsy_e_cost"])
                 elif last_known_state_data.get("d3a_cost"):
                     self.savings_state[area_dict["uuid"]].gsy_e_cost = (
-                        last_known_state_data["gsy_e_cost"])
+                        last_known_state_data["d3a_cost"])
                 else:
                     self.savings_state[area_dict["uuid"]].gsy_e_cost = 0.
 
