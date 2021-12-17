@@ -1,7 +1,7 @@
 import unittest
 from math import isclose
-from d3a_interface.sim_results.market_summary_info import MarketSummaryInfo
-from d3a_interface.unit_test_utils import assert_dicts_identical
+from gsy_framework.sim_results.market_summary_info import MarketSummaryInfo
+from gsy_framework.unit_test_utils import assert_dicts_identical
 
 
 class TestMarketSummaryInfo(unittest.TestCase):

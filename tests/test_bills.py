@@ -1,7 +1,7 @@
 import unittest
 from uuid import uuid4
-from d3a_interface.sim_results.bills import MarketEnergyBills
-from d3a_interface.unit_test_utils import assert_dicts_identical
+from gsy_framework.sim_results.bills import MarketEnergyBills
+from gsy_framework.unit_test_utils import assert_dicts_identical
 
 ACCUMULATED_KEYS_LIST = ["Accumulated Trades", "External Trades", "Totals", "Market Fees"]
 

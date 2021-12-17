@@ -1,6 +1,6 @@
 """
 Copyright 2018 Grid Singularity
-This file is part of D3A.
+This file is part of Grid Singularity Exchange.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@ from uuid import uuid4
 
 import pytest
 
-from d3a_interface.constants_limits import ConstSettings
-from d3a_interface.exceptions import D3ADeviceException
-from d3a_interface.validators import (
+from gsy_framework.constants_limits import ConstSettings
+from gsy_framework.exceptions import GSyDeviceException
+from gsy_framework.validators import (
     SmartMeterValidator, LoadValidator, PVValidator, StorageValidator, CommercialProducerValidator,
     InfiniteBusValidator, MarketMakerValidator, FiniteDieselGeneratorValidator)
 
@@ -75,7 +75,7 @@ class TestValidateDeviceSettings:
     ])
     def test_load_device_setting_fails(failing_arguments):
         """The load device validation fails when incompatible arguments are provided."""
-        with pytest.raises(D3ADeviceException):
+        with pytest.raises(GSyDeviceException):
             LoadValidator.validate(**failing_arguments)
 
     @staticmethod
@@ -111,7 +111,7 @@ class TestValidateDeviceSettings:
     ])
     def test_pv_device_setting_fails(failing_arguments):
         """The PV device validation fails when incompatible arguments are provided."""
-        with pytest.raises(D3ADeviceException):
+        with pytest.raises(GSyDeviceException):
             PVValidator.validate(**failing_arguments)
 
     @staticmethod
@@ -168,7 +168,7 @@ class TestValidateDeviceSettings:
     ])
     def test_storage_device_setting_fails(failing_arguments):
         """The storage validation fails when incompatible arguments are provided."""
-        with pytest.raises(D3ADeviceException):
+        with pytest.raises(GSyDeviceException):
             StorageValidator.validate(**failing_arguments)
 
     @staticmethod
@@ -179,7 +179,7 @@ class TestValidateDeviceSettings:
     @staticmethod
     def test_commercial_producer_setting_fails():
         """The commercial producer validation fails when incompatible arguments are provided."""
-        with pytest.raises(D3ADeviceException):
+        with pytest.raises(GSyDeviceException):
             CommercialProducerValidator.validate(energy_rate=-5)
 
     @staticmethod
@@ -205,7 +205,7 @@ class TestValidateDeviceSettings:
     ])
     def test_market_maker_setting_fails(failing_arguments):
         """The market maker validation fails when incompatible arguments are provided."""
-        with pytest.raises(D3ADeviceException):
+        with pytest.raises(GSyDeviceException):
             MarketMakerValidator.validate(**failing_arguments)
 
     @staticmethod
@@ -234,7 +234,7 @@ class TestValidateDeviceSettings:
     ])
     def test_infinite_bus_setting_fails(failing_arguments):
         """The infinite bus validation fails when incompatible arguments are provided."""
-        with pytest.raises(D3ADeviceException):
+        with pytest.raises(GSyDeviceException):
             InfiniteBusValidator.validate(**failing_arguments)
 
     @staticmethod
@@ -253,7 +253,7 @@ class TestValidateDeviceSettings:
         {"energy_rate": -1}])
     def test_finite_diesel_generator_fails(failing_arguments):
         """The FiniteDiesel validation fails when incompatible arguments are provided."""
-        with pytest.raises(D3ADeviceException):
+        with pytest.raises(GSyDeviceException):
             FiniteDieselGeneratorValidator.validate(**failing_arguments)
 
 
@@ -292,5 +292,25 @@ class TestSmartMeterValidator:
     ])
     def test_validate_price_fails(failing_arguments):
         """The validation fails when incompatible arguments are provided."""
-        with pytest.raises(D3ADeviceException):
+        with pytest.raises(GSyDeviceException):
             SmartMeterValidator.validate_rate(**failing_arguments)
+
+    @staticmethod
+    @pytest.mark.parametrize("failing_arguments", [
+        {"tilt": 10, "geo_tag_location": None},
+        {"azimuth": 500},
+        {"tilt": 600},
+    ])
+    def test_pv_orientation_setting_fails(failing_arguments):
+        """The pv device validation fails when incompatible arguments are provided."""
+        with pytest.raises(GSyDeviceException):
+            PVValidator.validate(**failing_arguments)
+
+    @staticmethod
+    @pytest.mark.parametrize("valid_arguments", [
+        {"azimuth": 10, "tilt": 10, "geo_tag_location": [30, 30]},
+        {"tilt": 10, "geo_tag_location": [30, 30]},
+    ])
+    def test_pv_orientation_setting_succeeds(valid_arguments):
+        """The PV device validation succeeds when valid arguments are provided."""
+        assert PVValidator.validate(**valid_arguments) is None
