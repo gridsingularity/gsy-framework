@@ -1,6 +1,6 @@
 """
 Copyright 2018 Grid Singularity
-This file is part of D3A.
+This file is part of Grid Singularity Exchange.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # flake8: noqa
 import unittest
 from jsonschema import ValidationError
-from d3a_interface.results_validator import results_validator
+from gsy_framework.results_validator import results_validator
 
 
 class TestValidateResults(unittest.TestCase):

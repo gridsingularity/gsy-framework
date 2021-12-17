@@ -1,6 +1,6 @@
 """
 Copyright 2018 Grid Singularity
-This file is part of D3A.
+This file is part of Grid Singularity Exchange.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,9 +22,9 @@ from uuid import uuid4
 import pendulum
 import pytest
 
-from d3a_interface.constants_limits import FLOATING_POINT_TOLERANCE
-from d3a_interface.data_classes import Clearing
-from d3a_interface.matching_algorithms import PayAsClearMatchingAlgorithm
+from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
+from gsy_framework.data_classes import Clearing
+from gsy_framework.matching_algorithms import PayAsClearMatchingAlgorithm
 
 Offer = namedtuple("Offer", ["id", "time", "price", "energy", "seller"])
 Bid = namedtuple("Bid", ["id", "time", "price", "energy", "buyer"])
