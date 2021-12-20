@@ -149,7 +149,7 @@ class ConstSettings:
         # Applies to the predefined PV strategy, where a PV profile is selected out of 3 predefined
         # ones. Available values 0: sunny, 1: partial cloudy, 2: cloudy, 3: Gaussian
         DEFAULT_POWER_PROFILE = 0
-        CLOUD_COVERAGE_LIMIT = RangeLimit(0, 4)
+        CLOUD_COVERAGE_LIMIT = RangeLimit(0, 5)
         # Power rating for PVs (Gaussian and Predefined)
         DEFAULT_CAPACITY_KW = 5
         MAX_PANEL_OUTPUT_W = 160  # needed for backward compatibility
