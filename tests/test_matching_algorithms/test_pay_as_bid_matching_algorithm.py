@@ -48,8 +48,8 @@ class TestPayAsBidMatchingAlgorithm:
                 }
             }
         }
-        trades = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
-        expected_trades = [
+        recommendations = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
+        expected_recommendations = [
             {"market_id": "market1",
              "time_slot": "2021-10-06T12:00",
              "bids": [{"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20}],
@@ -87,7 +87,7 @@ class TestPayAsBidMatchingAlgorithm:
              "selected_energy": 10, "trade_rate": 1.5},
 
         ]
-        assert trades == expected_trades
+        assert recommendations == expected_recommendations
 
     @staticmethod
     def test_perform_pay_as_bid_match_single_offer_bid():
@@ -102,19 +102,19 @@ class TestPayAsBidMatchingAlgorithm:
                 }
             },
         }
-        trades = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
-        assert not trades
+        recommendations = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
+        assert not recommendations
         # Adapting the offer energy rate to a value that can match with the bid
         data["market1"]["2021-10-06T12:00"]["offers"][0]["energy_rate"] = 1
-        trades = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
-        expected_trades = [
+        recommendations = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
+        expected_recommendations = [
             {"market_id": "market1",
              "time_slot": "2021-10-06T12:00",
              "bids": [{"id": 1, "buyer": "B", "energy_rate": 3, "energy": 20}],
              "offers": [{"id": 2, "seller": "A", "energy_rate": 1, "energy": 30}],
              "selected_energy": 20, "trade_rate": 3}
         ]
-        assert trades == expected_trades
+        assert recommendations == expected_recommendations
 
     @staticmethod
     def test_perform_pay_as_bid_match_single_offer_multiple_bids():
@@ -133,9 +133,9 @@ class TestPayAsBidMatchingAlgorithm:
                 }
             },
         }
-        trades = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
+        recommendations = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
         # The bid-id 3 will not match because it has the same buyer as the seller
-        expected_trades = [
+        expected_recommendations = [
             {"market_id": "market1",
              "time_slot": "2021-10-06T12:00",
              "bids": [{"id": 2, "buyer": "C", "energy_rate": 3, "energy": 20}],
@@ -147,7 +147,7 @@ class TestPayAsBidMatchingAlgorithm:
              "offers": [{"id": 4, "seller": "A", "energy_rate": 1, "energy": 70}],
              "selected_energy": 20, "trade_rate": 3},
         ]
-        assert trades == expected_trades
+        assert recommendations == expected_recommendations
 
     @staticmethod
     def test_perform_pay_as_bid_match_single_bid_multiple_offers():
@@ -166,9 +166,9 @@ class TestPayAsBidMatchingAlgorithm:
                 }
             },
         }
-        trades = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
+        recommendations = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
         # The offer-id 11 will not match because it has the same seller as the bid buyer
-        expected_trades = [
+        expected_recommendations = [
             {"market_id": "market1",
              "time_slot": "2021-10-06T12:00",
              "bids": [{"id": 1, "buyer": "B", "energy_rate": 3, "energy": 70}],
@@ -180,5 +180,4 @@ class TestPayAsBidMatchingAlgorithm:
              "offers": [{"id": 10, "seller": "A", "energy_rate": 1, "energy": 20}],
              "selected_energy": 20, "trade_rate": 3},
         ]
-        print(trades)
-        assert trades == expected_trades
+        assert recommendations == expected_recommendations

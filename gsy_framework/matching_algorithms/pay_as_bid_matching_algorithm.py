@@ -16,7 +16,7 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
     """
 
     @staticmethod
-    def _match_one_bid_one_offer(offer: Dict, bid: Dict, already_selected_order_energy: Dict,
+    def _match_one_bid_one_offer(offer: Dict, bid: Dict, available_order_energy: Dict,
                                  market_id: str, time_slot: str) -> Optional[BidOfferMatch]:
         """
         Try to match one bid with one offer, and at the same time update the dict with the
@@ -26,21 +26,21 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
         if (offer.get("energy_rate") - bid.get("energy_rate")) > FLOATING_POINT_TOLERANCE:
             return None
 
-        if bid["id"] not in already_selected_order_energy:
-            already_selected_order_energy[bid["id"]] = bid["energy"]
-        if offer["id"] not in already_selected_order_energy:
-            already_selected_order_energy[offer["id"]] = offer["energy"]
-        offer_energy = already_selected_order_energy[offer["id"]]
-        bid_energy = already_selected_order_energy[bid["id"]]
+        if bid["id"] not in available_order_energy:
+            available_order_energy[bid["id"]] = bid["energy"]
+        if offer["id"] not in available_order_energy:
+            available_order_energy[offer["id"]] = offer["energy"]
+        offer_energy = available_order_energy[offer["id"]]
+        bid_energy = available_order_energy[bid["id"]]
 
         selected_energy = min(offer_energy, bid_energy)
         if selected_energy <= FLOATING_POINT_TOLERANCE:
             return None
 
-        already_selected_order_energy[bid["id"]] -= selected_energy
-        already_selected_order_energy[offer["id"]] -= selected_energy
+        available_order_energy[bid["id"]] -= selected_energy
+        available_order_energy[offer["id"]] -= selected_energy
         assert all(v >= -FLOATING_POINT_TOLERANCE
-                   for v in already_selected_order_energy.values())
+                   for v in available_order_energy.values())
 
         return BidOfferMatch(
             market_id=market_id,
@@ -62,20 +62,20 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
         sorted_bids = sort_list_of_dicts_by_attribute(bids, "energy_rate", True)
         # Sorted offers in descending order
         sorted_offers = sort_list_of_dicts_by_attribute(offers, "energy_rate", True)
-        already_selected_order_energy = {}
+        available_order_energy = {}
         for offer in sorted_offers:
             for bid in sorted_bids:
                 if offer.get("seller") == bid.get("buyer"):
                     continue
 
                 possible_match = cls._match_one_bid_one_offer(
-                    offer, bid, already_selected_order_energy, market_id, time_slot
+                    offer, bid, available_order_energy, market_id, time_slot
                 )
                 if possible_match:
                     bid_offer_matches.append(possible_match)
 
-                if (offer["id"] in already_selected_order_energy and
-                        already_selected_order_energy[offer["id"]] <= FLOATING_POINT_TOLERANCE):
+                if (offer["id"] in available_order_energy and
+                        available_order_energy[offer["id"]] <= FLOATING_POINT_TOLERANCE):
                     break
         return bid_offer_matches
 
