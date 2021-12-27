@@ -45,7 +45,8 @@ class BaseBidOffer:
     """Base class defining shared functionality of Bid and Offer market structures."""
     def __init__(self, id: str, creation_time: DateTime, price: float, energy: float,
                  original_price: Optional[float] = None, time_slot: DateTime = None,
-                 attributes: Dict = None, requirements: List[Dict] = None):
+                 attributes: Dict = None, requirements: List[Dict] = None,
+                 selected_requirement: Optional[Dict] = None):
         self.id = str(id)
         self.creation_time = creation_time
         self.time_slot = time_slot  # market slot of creation
@@ -55,6 +56,7 @@ class BaseBidOffer:
         self.energy_rate = limit_float_precision(self.price / self.energy)
         self.attributes = attributes
         self.requirements = requirements
+        self.selected_requirement = selected_requirement
 
     def update_price(self, price: float) -> None:
         """Update price member."""
@@ -91,7 +93,8 @@ class BaseBidOffer:
             "creation_time": datetime_to_string_incl_seconds(self.creation_time),
             "time_slot": datetime_to_string_incl_seconds(self.time_slot),
             "attributes": self.attributes,
-            "requirements": self.requirements
+            "requirements": self.requirements,
+            "selected_requirement": self.selected_requirement
         }
 
     @classmethod
@@ -124,10 +127,12 @@ class Offer(BaseBidOffer):
                  seller_id: str = None,
                  attributes: Dict = None,
                  requirements: List[Dict] = None,
-                 time_slot: DateTime = None):
+                 time_slot: DateTime = None,
+                 selected_requirement: Optional[Dict] = None):
         super().__init__(id=id, creation_time=creation_time, price=price, energy=energy,
                          original_price=original_price,
-                         attributes=attributes, requirements=requirements, time_slot=time_slot)
+                         attributes=attributes, requirements=requirements, time_slot=time_slot,
+                         selected_requirement=selected_requirement)
         self.seller = seller
         self.seller_origin = seller_origin
         self.seller_origin_id = seller_origin_id
@@ -170,7 +175,8 @@ class Offer(BaseBidOffer):
             seller_origin_id=offer.get("seller_origin_id"),
             seller_id=offer.get("seller_id"),
             attributes=offer.get("attributes"),
-            requirements=offer.get("requirements"))
+            requirements=offer.get("requirements"),
+            selected_requirement=offer.get("selected_requirement"))
 
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
@@ -197,7 +203,7 @@ class Offer(BaseBidOffer):
         return Offer(offer.id, offer.creation_time, offer.price, offer.energy, offer.seller,
                      offer.original_price, offer.seller_origin, offer.seller_origin_id,
                      offer.seller_id, attributes=offer.attributes, requirements=offer.requirements,
-                     time_slot=offer.time_slot)
+                     time_slot=offer.time_slot, selected_requirement=offer.selected_requirement)
 
 
 class Bid(BaseBidOffer):
@@ -210,11 +216,12 @@ class Bid(BaseBidOffer):
                  buyer_id: str = None,
                  attributes: Dict = None,
                  requirements: List[Dict] = None,
-                 time_slot: Optional[DateTime] = None
-                 ):
+                 time_slot: Optional[DateTime] = None,
+                 selected_requirement: Optional[Dict] = None):
         super().__init__(id=id, creation_time=creation_time, price=price, energy=energy,
                          original_price=original_price,
-                         attributes=attributes, requirements=requirements, time_slot=time_slot)
+                         attributes=attributes, requirements=requirements, time_slot=time_slot,
+                         selected_requirement=selected_requirement)
         self.buyer = buyer
         self.buyer_origin = buyer_origin
         self.buyer_origin_id = buyer_origin_id
@@ -260,8 +267,8 @@ class Bid(BaseBidOffer):
             buyer_id=bid.get("buyer_id"),
             attributes=bid.get("attributes"),
             requirements=bid.get("requirements"),
-            time_slot=str_to_pendulum_datetime(bid.get("time_slot"))
-        )
+            time_slot=str_to_pendulum_datetime(bid.get("time_slot"),),
+            selected_requirement=bid.get("selected_requirement"))
 
     def csv_values(self) -> Tuple:
         """Return values of class members that are needed for creation of CSV export."""

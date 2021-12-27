@@ -190,7 +190,8 @@ class TestBaseBidOffer:
             "creation_time": datetime_to_string_incl_seconds(bid_offer.creation_time),
             "attributes": bid_offer.attributes,
             "requirements": bid_offer.requirements,
-            "time_slot": datetime_to_string_incl_seconds(bid_offer.time_slot)
+            "time_slot": datetime_to_string_incl_seconds(bid_offer.time_slot),
+            "selected_requirement": bid_offer.selected_requirement
         }
 
     def test_from_json(self):
@@ -305,7 +306,8 @@ class TestOffer:
             "seller_origin": offer.seller_origin,
             "seller_origin_id": offer.seller_origin_id,
             "seller_id": offer.seller_id,
-            "time_slot": datetime_to_string_incl_seconds(offer.time_slot)
+            "time_slot": datetime_to_string_incl_seconds(offer.time_slot),
+            "selected_requirement": offer.selected_requirement
         }
 
     def test_from_dict(self):
@@ -419,7 +421,8 @@ class TestBid:
             "buyer_origin": bid.buyer_origin,
             "buyer_origin_id": bid.buyer_origin_id,
             "buyer_id": bid.buyer_id,
-            "time_slot": datetime_to_string_incl_seconds(bid.time_slot)
+            "time_slot": datetime_to_string_incl_seconds(bid.time_slot),
+            "selected_requirement": bid.selected_requirement
         }
 
     def test_from_dict(self):
