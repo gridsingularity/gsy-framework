@@ -163,7 +163,7 @@ class SavingsKPI:
         self.saving_absolute = 0.  # savings achieved by a house via participating in D3A
         self.saving_percentage = 0.  # savings in percentage wrt FIT via participating in D3A
 
-    def calculate_savings_kpi(self, area_dict: dict, core_stats: dict, gf_alp: float):
+    def calculate_home_savings_kpi(self, area_dict: dict, core_stats: dict, gf_alp: float):
         """Calculates the referenced saving from feed-in tariff based participation vs D3A
         Args:
             area_dict: contain nested area info
@@ -188,10 +188,32 @@ class SavingsKPI:
                     trade["seller_origin_id"] not in self.producer_ess_set:
                 self.utility_bill += mmr_incl_gf_alp * trade["energy"]
                 self.gsy_e_cost += trade["price"]
-        self.base_case_cost = self.utility_bill - self.fit_revenue
-        self.saving_absolute = self.base_case_cost - self.gsy_e_cost
+        self.calculate_savings_kpi(self.utility_bill, self.fit_revenue, self.gsy_e_cost)
+
+    def calculate_savings_kpi(self, utility_bill, fit_revenue, gsy_e_cost):
+        self.base_case_cost = utility_bill - fit_revenue
+        self.saving_absolute = self.base_case_cost - gsy_e_cost
         self.saving_percentage = ((self.saving_absolute / self.base_case_cost) * 100
                                   if self.base_case_cost else 0.)
+
+    def calculate_device_savings_kpi(self, area_dict: dict, core_stats: dict, gf_alp: float):
+        # fir_excl_gf_alp: feed-in tariff rate excluding grid fee along path
+        fir_excl_gf_alp = self.get_feed_in_tariff_rate_excluding_path_grid_fees(
+            core_stats.get(area_dict["uuid"], {}), gf_alp)
+        # mmr_incl_gf_alp: market maker rate include grid fee along path
+        mmr_incl_gf_alp = self.get_market_maker_rate_including_path_grid_fees(
+            core_stats.get(area_dict["uuid"], {}), gf_alp)
+        for trade in core_stats.get(area_dict["parent_uuid"], {}).get("trades", []):
+            if trade["seller_origin_id"] == area_dict["uuid"]:
+                comparision_rate = (mmr_incl_gf_alp if is_prosumer_node_type(area_dict)
+                                    else fir_excl_gf_alp)
+                self.fit_revenue += comparision_rate * trade["energy"]
+                self.gsy_e_cost -= trade["price"]
+            if trade["buyer_origin_id"] == area_dict["uuid"]:
+                comparision_rate = (mmr_incl_gf_alp if is_prosumer_node_type(area_dict)
+                                    else fir_excl_gf_alp)
+                self.utility_bill += comparision_rate * trade["energy"]
+                self.gsy_e_cost += trade["price"]
 
     def populate_consumer_producer_sets(self, area_dict: dict):
         """
@@ -271,11 +293,24 @@ class KPI(ResultsBaseClass):
 
         # initialization of house saving state
         if area_dict["uuid"] not in self.savings_state:
-            if not has_grand_children(area_dict):
-                self.savings_state[area_dict["uuid"]] = SavingsKPI()
-        if area_dict["uuid"] in self.savings_state:
-            self.savings_state[area_dict["uuid"]].calculate_savings_kpi(
+            self.savings_state[area_dict["uuid"]] = SavingsKPI()
+
+        if not has_grand_children(area_dict):
+            self.savings_state[area_dict["uuid"]].calculate_home_savings_kpi(
                 area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
+        elif area_dict.get("type") not in ["Area", None]:
+            self.savings_state[area_dict["uuid"]].calculate_device_savings_kpi(
+                area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
+        else:
+            utility_bill = 0.
+            fit_revenue = 0.
+            gsy_e_cost = 0.
+            for child in area_dict["children"]:
+                utility_bill += self.savings_state[child["uuid"]].utility_bill
+                fit_revenue += self.savings_state[child["uuid"]].fit_revenue
+                gsy_e_cost += self.savings_state[child["uuid"]].gsy_e_cost
+            self.savings_state[area_dict["uuid"]].calculate_savings_kpi(
+                utility_bill, fit_revenue, gsy_e_cost)
 
         self.state[area_dict["uuid"]].accumulate_devices(area_dict)
 
@@ -347,17 +382,17 @@ class KPI(ResultsBaseClass):
         """Entrypoint to iteratively updates all area's KPI"""
         if not self._has_update_parameters(area_dict, core_stats, current_market_slot):
             return
-
         self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]] = (
             self._accumulate_root_to_target_area_grid_fee(area_dict, core_stats))
-        self.performance_indices[area_dict["uuid"]] = self.area_performance_indices(
-            area_dict, core_stats)
-        self.performance_indices_redis[area_dict["uuid"]] = self._kpi_ratio_to_percentage(
-            area_dict["uuid"])
 
         for child in area_dict["children"]:
             if len(child["children"]) > 0:
                 self.update(child, core_stats, current_market_slot)
+
+        self.performance_indices[area_dict["uuid"]] = self.area_performance_indices(
+            area_dict, core_stats)
+        self.performance_indices_redis[area_dict["uuid"]] = self._kpi_ratio_to_percentage(
+            area_dict["uuid"])
 
     def _accumulate_root_to_target_area_grid_fee(self, area_dict, core_stats):
         parent_fee = self.area_uuid_cum_grid_fee_mapping.get(

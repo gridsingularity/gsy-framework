@@ -34,6 +34,8 @@ class FakeEndpointBuffer:
                         "parent_uuid": house2_uuid, "children": []},
                 ]}
         ]}
+    import logging
+    logging.error(f"area_dict: {area_dict}")
     core_stats = {
         grid_uuid: {"const_fee_rate": 1, "feed_in_tariff": 20.0, "market_maker_rate": 30.0},
         house1_uuid: {"const_fee_rate": 0.5, "feed_in_tariff": 20.0, "market_maker_rate": 30.0}
@@ -71,6 +73,7 @@ def test_populate_consumer_producer_sets_are_correct(savings_kpi):
 
 def test_root_to_target_area_grid_fee_accumulation(kpi):
     endpoint_buffer = FakeEndpointBuffer()
+    print(f"endpoint_buffer.area_dict: {endpoint_buffer.area_dict}")
 
     kpi.update(endpoint_buffer.area_dict,
                endpoint_buffer.core_stats,
