@@ -20,7 +20,7 @@ filelock==3.3.2
     # via
     #   tox
     #   virtualenv
-flake8==3.9.2
+flake8==4.0.1
     # via
     #   -r requirements/base.ini
     #   flake8-tuple
@@ -50,9 +50,9 @@ pre-commit==2.15.0
     # via -r requirements/base.ini
 py==1.10.0
     # via tox
-pycodestyle==2.7.0
+pycodestyle==2.8.0
     # via flake8
-pyflakes==2.3.1
+pyflakes==2.4.0
     # via flake8
 pyparsing==2.4.7
     # via packaging
