@@ -395,7 +395,8 @@ class KPI(ResultsBaseClass):
                 self.savings_state[area_dict["uuid"]].fit_revenue = (
                     last_known_state_data["fit_revenue"])
                 self.savings_state[area_dict["uuid"]].gsy_e_cost = (
-                    last_known_state_data["gsy_e_cost"] or last_known_state_data["d3a_cost"])
+                    last_known_state_data.get("gsy_e_cost")
+                    or last_known_state_data.get("d3a_cost"))
 
     # pylint: disable=(arguments-differ
     @staticmethod
