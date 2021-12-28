@@ -16,13 +16,11 @@ chardet==4.0.0
     # via requests
 distlib==0.3.3
     # via virtualenv
-entrypoints==0.3
-    # via flake8
 filelock==3.3.2
     # via
     #   tox
     #   virtualenv
-flake8==3.7.9
+flake8==3.9.2
     # via
     #   -r requirements/base.ini
     #   flake8-tuple
@@ -52,9 +50,9 @@ pre-commit==2.15.0
     # via -r requirements/base.ini
 py==1.10.0
     # via tox
-pycodestyle==2.5.0
+pycodestyle==2.7.0
     # via flake8
-pyflakes==2.1.1
+pyflakes==2.3.1
     # via flake8
 pyparsing==2.4.7
     # via packaging
