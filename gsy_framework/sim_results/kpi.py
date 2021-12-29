@@ -389,13 +389,14 @@ class KPI(ResultsBaseClass):
             if not has_grand_children(area_dict):
                 self.savings_state[area_dict["uuid"]] = SavingsKPI()
                 self.savings_state[area_dict["uuid"]].base_case_cost = (
-                    last_known_state_data["base_case_cost"])
+                    last_known_state_data.get("base_case_cost", 0))
                 self.savings_state[area_dict["uuid"]].utility_bill = (
-                    last_known_state_data["utility_bill"])
+                    last_known_state_data.get("utility_bill", 0))
                 self.savings_state[area_dict["uuid"]].fit_revenue = (
-                    last_known_state_data["fit_revenue"])
+                    last_known_state_data.get("fit_revenue", 0))
                 self.savings_state[area_dict["uuid"]].gsy_e_cost = (
-                    last_known_state_data["gsy_e_cost"] or last_known_state_data["d3a_cost"])
+                    last_known_state_data.get("gsy_e_cost", 0)
+                    or last_known_state_data.get("d3a_cost", 0))
 
     # pylint: disable=(arguments-differ
     @staticmethod
