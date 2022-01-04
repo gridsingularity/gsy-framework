@@ -152,8 +152,8 @@ class EnergyTradeProfile(ResultsBaseClass):
             for sold_bought in ("sold_energy", "bought_energy"):
                 if sold_bought not in area_energy_mapping:
                     continue
-                for trades_mapping in area_energy_mapping[sold_bought].items():
-                    for trades_timestamps in trades_mapping.items():
+                for trades_mapping in area_energy_mapping[sold_bought].values():
+                    for trades_timestamps in trades_mapping.values():
                         for timestamp in trades_timestamps.keys():
                             trades_timestamps[timestamp] = round_floats_for_ui(
                                 trades_timestamps[timestamp])
