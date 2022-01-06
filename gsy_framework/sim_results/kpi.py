@@ -190,13 +190,15 @@ class SavingsKPI:
                 self.gsy_e_cost += trade["price"]
         self.calculate_savings_kpi(self.utility_bill, self.fit_revenue, self.gsy_e_cost)
 
-    def calculate_savings_kpi(self, utility_bill, fit_revenue, gsy_e_cost):
+    def calculate_savings_kpi(self, utility_bill: float, fit_revenue: float, gsy_e_cost: float):
+        """Core formula to calculate area Savings KPI."""
         self.base_case_cost = utility_bill - fit_revenue
         self.saving_absolute = self.base_case_cost - gsy_e_cost
         self.saving_percentage = ((self.saving_absolute / self.base_case_cost) * 100
                                   if self.base_case_cost else 0.)
 
     def calculate_device_savings_kpi(self, area_dict: dict, core_stats: dict, gf_alp: float):
+        """Document savings metrics for devices"""
         # fir_excl_gf_alp: feed-in tariff rate excluding grid fee along path
         fir_excl_gf_alp = self.get_feed_in_tariff_rate_excluding_path_grid_fees(
             core_stats.get(area_dict["uuid"], {}), gf_alp)
@@ -291,26 +293,7 @@ class KPI(ResultsBaseClass):
         if area_dict["uuid"] not in self.state:
             self.state[area_dict["uuid"]] = KPIState()
 
-        # initialization of house saving state
-        if area_dict["uuid"] not in self.savings_state:
-            self.savings_state[area_dict["uuid"]] = SavingsKPI()
-
-        if not has_grand_children(area_dict):
-            self.savings_state[area_dict["uuid"]].calculate_home_savings_kpi(
-                area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
-        elif area_dict.get("type") not in ["Area", None]:
-            self.savings_state[area_dict["uuid"]].calculate_device_savings_kpi(
-                area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
-        else:
-            utility_bill = 0.
-            fit_revenue = 0.
-            gsy_e_cost = 0.
-            for child in area_dict["children"]:
-                utility_bill += self.savings_state[child["uuid"]].utility_bill
-                fit_revenue += self.savings_state[child["uuid"]].fit_revenue
-                gsy_e_cost += self.savings_state[child["uuid"]].gsy_e_cost
-            self.savings_state[area_dict["uuid"]].calculate_savings_kpi(
-                utility_bill, fit_revenue, gsy_e_cost)
+        self.trigger_area_saving(area_dict, core_stats)
 
         self.state[area_dict["uuid"]].accumulate_devices(area_dict)
 
@@ -350,6 +333,30 @@ class KPI(ResultsBaseClass):
             kpi_parm_dict.update(self.savings_state[area_dict["uuid"]].to_dict())
         return kpi_parm_dict
 
+    def trigger_area_saving(self, area_dict, core_stats):
+        """Initialization of area saving state"""
+        if area_dict["uuid"] not in self.savings_state:
+            self.savings_state[area_dict["uuid"]] = SavingsKPI()
+        if not has_grand_children(area_dict):
+            self.savings_state[area_dict["uuid"]].calculate_home_savings_kpi(
+                area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
+        elif area_dict.get("type") not in ["Area", None]:
+            self.savings_state[area_dict["uuid"]].calculate_device_savings_kpi(
+                area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
+        else:
+            utility_bill = 0.
+            fit_revenue = 0.
+            gsy_e_cost = 0.
+            for child in area_dict["children"]:
+                utility_bill += getattr(self.savings_state.get(
+                    child["uuid"], {}), "utility_bill", 0.)
+                fit_revenue += getattr(self.savings_state.get(
+                    child["uuid"], {}), "fit_revenue", 0.)
+                gsy_e_cost += getattr(self.savings_state.get(
+                    child["uuid"], {}), "gsy_e_cost", 0.)
+            self.savings_state[area_dict["uuid"]].calculate_savings_kpi(
+                utility_bill, fit_revenue, gsy_e_cost)
+
     def _kpi_ratio_to_percentage(self, area_name: str):
         area_kpis = self.performance_indices[area_name]
         if area_kpis["self_sufficiency"] is not None:
@@ -374,8 +381,7 @@ class KPI(ResultsBaseClass):
                 "fit_revenue": area_kpis.get("fit_revenue"),
                 "gsy_e_cost": area_kpis.get("gsy_e_cost"),
                 "saving_absolute": area_kpis.get("saving_absolute"),
-                "saving_percentage": area_kpis.get("saving_percentage")
-                }
+                "saving_percentage": area_kpis.get("saving_percentage")}
 
     # pylint: disable=arguments-renamed
     def update(self, area_dict: Dict, core_stats: Dict, current_market_slot: str):
@@ -430,8 +436,8 @@ class KPI(ResultsBaseClass):
                 self.savings_state[area_dict["uuid"]].fit_revenue = (
                     last_known_state_data.get("fit_revenue", 0))
                 self.savings_state[area_dict["uuid"]].gsy_e_cost = (
-                    last_known_state_data.get("gsy_e_cost", 0)
-                    or last_known_state_data.get("d3a_cost", 0))
+                        last_known_state_data.get("gsy_e_cost", 0)
+                        or last_known_state_data.get("d3a_cost", 0))
 
     # pylint: disable=(arguments-differ
     @staticmethod
