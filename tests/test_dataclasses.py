@@ -63,7 +63,8 @@ class TestBidOfferMatch:
                          "bids": [{"type": "bid"}],
                          "offers": [{"type": "offer"}],
                          "selected_energy": 1,
-                         "trade_rate": 1}
+                         "trade_rate": 1,
+                         "matching_requirements": None}
         assert bid_offer_match.serializable_dict() == expected_dict
 
     @staticmethod

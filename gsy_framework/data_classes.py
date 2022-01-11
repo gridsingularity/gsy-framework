@@ -464,6 +464,7 @@ class BidOfferMatch:
     selected_energy: float
     offers: List[Dict]
     trade_rate: float
+    matching_requirements: Optional[Dict] = None
 
     def serializable_dict(self) -> Dict:
         """Return a json serializable representation of the class."""
@@ -473,7 +474,8 @@ class BidOfferMatch:
             "bids": self.bids,
             "offers": self.offers,
             "selected_energy": self.selected_energy,
-            "trade_rate": self.trade_rate
+            "trade_rate": self.trade_rate,
+            "matching_requirements": self.matching_requirements
         }
 
     @classmethod
@@ -487,9 +489,9 @@ class BidOfferMatch:
     def is_valid_dict(cls, bid_offer_match: Dict) -> bool:
         """Check whether a serialized dict can be a valid BidOfferMatch instance."""
         is_valid = True
-        if len(bid_offer_match.keys()) != len(cls.__annotations__.keys()):
-            is_valid = False
-        elif not all(attribute in bid_offer_match for attribute in cls.__annotations__):
+        required_arguments = (
+            "market_id", "time_slot", "bids", "offers", "selected_energy", "trade_rate")
+        if not all(key in bid_offer_match for key in required_arguments):
             is_valid = False
         elif not isinstance(bid_offer_match["market_id"], str):
             is_valid = False
@@ -502,6 +504,9 @@ class BidOfferMatch:
         elif not isinstance(bid_offer_match["selected_energy"], (int, float)):
             is_valid = False
         elif not isinstance(bid_offer_match["trade_rate"], (int, float)):
+            is_valid = False
+        elif not (bid_offer_match.get("matching_requirements") is None or
+                  isinstance(bid_offer_match.get("matching_requirements"), Dict)):
             is_valid = False
         return is_valid
 
