@@ -45,7 +45,7 @@ class PayAsBidMatchingAlgorithm(BaseMatchingAlgorithm):
         return BidOfferMatch(
             market_id=market_id,
             time_slot=time_slot,
-            bids=[bid], offers=[offer],
+            bid=bid, offer=offer,
             selected_energy=selected_energy,
             trade_rate=bid.get("energy_rate"))
 
