@@ -460,9 +460,9 @@ class BidOfferMatch:
     """Representation of a market match."""
     market_id: str
     time_slot: str
-    bids: List[Dict]
+    bid: Bid.serializable_dict
     selected_energy: float
-    offers: List[Dict]
+    offer: Offer.serializable_dict
     trade_rate: float
 
     def serializable_dict(self) -> Dict:
@@ -470,8 +470,8 @@ class BidOfferMatch:
         return {
             "market_id": self.market_id,
             "time_slot": self.time_slot,
-            "bids": self.bids,
-            "offers": self.offers,
+            "bid": self.bid,
+            "offer": self.offer,
             "selected_energy": self.selected_energy,
             "trade_rate": self.trade_rate
         }
@@ -492,12 +492,6 @@ class BidOfferMatch:
         elif not all(attribute in bid_offer_match for attribute in cls.__annotations__):
             is_valid = False
         elif not isinstance(bid_offer_match["market_id"], str):
-            is_valid = False
-        elif not (isinstance(bid_offer_match["bids"], list) and
-                  all(isinstance(bid, Dict) for bid in bid_offer_match["bids"])):
-            is_valid = False
-        elif not (isinstance(bid_offer_match["offers"], list) and
-                  all(isinstance(offer, Dict) for offer in bid_offer_match["offers"])):
             is_valid = False
         elif not isinstance(bid_offer_match["selected_energy"], (int, float)):
             is_valid = False
