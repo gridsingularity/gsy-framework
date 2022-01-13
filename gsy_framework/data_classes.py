@@ -490,7 +490,7 @@ class BidOfferMatch:
         """Check whether a serialized dict can be a valid BidOfferMatch instance."""
         is_valid = True
         required_arguments = (
-            "market_id", "time_slot", "bids", "offers", "selected_energy", "trade_rate")
+            "market_id", "time_slot", "bid", "offer", "selected_energy", "trade_rate")
         if not all(key in bid_offer_match for key in required_arguments):
             is_valid = False
         elif not isinstance(bid_offer_match["market_id"], str):
