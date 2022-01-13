@@ -27,10 +27,9 @@ class StorageValidator(BaseValidator):
 
     @classmethod
     def validate(cls, **kwargs):
-        """Validate energy and rate values and the loss function configuration of the device."""
+        """Validate energy and rate values of the device."""
         cls.validate_energy(**kwargs)
         cls.validate_rate(**kwargs)
-        cls._validate_loss_function(**kwargs)
 
     @classmethod
     def validate_energy(cls, **kwargs):
@@ -173,42 +172,3 @@ class StorageValidator(BaseValidator):
             fit_to_limit=kwargs.get("fit_to_limit"),
             energy_rate_increase_per_update=kwargs.get("energy_rate_increase_per_update"),
             energy_rate_decrease_per_update=kwargs.get("energy_rate_decrease_per_update"))
-
-    @staticmethod
-    def _validate_loss_function(**kwargs):
-        if kwargs.get("loss_function") is None:
-            return
-
-        error_message = {"misconfiguration": [
-            "loss_function should either be "
-            f"{StorageSettings.LOSS_FUNCTION_LIMIT.min} or "
-            f"{StorageSettings.LOSS_FUNCTION_LIMIT.max}."]}
-        utils.validate_range_limit(
-            StorageSettings.LOSS_FUNCTION_LIMIT.min, kwargs["loss_function"],
-            StorageSettings.LOSS_FUNCTION_LIMIT.max, error_message)
-
-        if kwargs.get("loss_per_hour") is None:
-            return
-
-        if kwargs["loss_function"] == 1:
-            error_message = {
-                "misconfiguration": [
-                    "loss_per_hour should be in between "
-                    f"{StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.min} & "
-                    f"{StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.max}."]}
-            utils.validate_range_limit(
-                StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.min,
-                kwargs["loss_per_hour"],
-                StorageSettings.LOSS_PER_HOUR_RELATIVE_LIMIT.max,
-                error_message)
-        else:
-            error_message = {
-                "misconfiguration": [
-                    "loss_per_hour should be in between "
-                    f"{StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.min} & "
-                    f"{StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.max}."]}
-            utils.validate_range_limit(
-                StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.min,
-                kwargs["loss_per_hour"],
-                StorageSettings.LOSS_PER_HOUR_ABSOLUTE_LIMIT.max,
-                error_message)

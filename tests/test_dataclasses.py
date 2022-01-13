@@ -54,14 +54,14 @@ class TestBidOfferMatch:
         bid_offer_match = BidOfferMatch(
             market_id="market_id",
             time_slot="2021-10-06T12:00",
-            bids=[{"type": "bid"}],
-            offers=[{"type": "offer"}],
+            bid={"type": "bid"},
+            offer={"type": "offer"},
             selected_energy=1,
             trade_rate=1)
         expected_dict = {"market_id": "market_id",
                          "time_slot": "2021-10-06T12:00",
-                         "bids": [{"type": "bid"}],
-                         "offers": [{"type": "offer"}],
+                         "bid": {"type": "bid"},
+                         "offer": {"type": "offer"},
                          "selected_energy": 1,
                          "trade_rate": 1,
                          "matching_requirements": None}
@@ -72,8 +72,8 @@ class TestBidOfferMatch:
         """Test the is_valid_dict method of BidOfferMatch dataclass."""
         bid_offer_match = {"market_id": "market_id",
                            "time_slot": "2021-10-06T12:00",
-                           "bids": [{"type": "bid"}],
-                           "offers": [{"type": "offer"}],
+                           "bid": {"type": "bid"},
+                           "offer": {"type": "offer"},
                            "selected_energy": 1,
                            "trade_rate": 1}
         assert BidOfferMatch.is_valid_dict(bid_offer_match)
@@ -81,8 +81,8 @@ class TestBidOfferMatch:
         # Key does not exist
         bid_offer_match = {"market_id": "market_id",
                            "time_slot": "2021-10-06T12:00",
-                           "bids": [{"type": "bid"}],
-                           "offers": [{"type": "offer"}],
+                           "bid": {"type": "bid"},
+                           "offer": {"type": "offer"},
                            "selected_energy": 1,
                            }
         assert not BidOfferMatch.is_valid_dict(bid_offer_match)
@@ -90,8 +90,8 @@ class TestBidOfferMatch:
         # Wrong type
         bid_offer_match = {"market_id": "market_id",
                            "time_slot": "2021-10-06T12:00",
-                           "bids": [{"type": "bid"}],
-                           "offers": [{"type": "offer"}],
+                           "bid": {"type": "bid"},
+                           "offer": {"type": "offer"},
                            "selected_energy": 1,
                            "trade_rate": ""}
         assert not BidOfferMatch.is_valid_dict(bid_offer_match)
@@ -101,15 +101,15 @@ class TestBidOfferMatch:
         """Test the from_dict method of BidOfferMatch dataclass."""
         expected_dict = {"market_id": "market_id",
                          "time_slot": "2021-10-06T12:00",
-                         "bids": [{"type": "bid"}],
-                         "offers": [{"type": "offer"}],
+                         "bid": {"type": "bid"},
+                         "offer": {"type": "offer"},
                          "selected_energy": 1,
                          "trade_rate": 1}
         bid_offer_match = BidOfferMatch.from_dict(expected_dict)
         assert bid_offer_match.market_id == expected_dict["market_id"]
         assert bid_offer_match.time_slot == expected_dict["time_slot"]
-        assert bid_offer_match.bids == expected_dict["bids"]
-        assert bid_offer_match.offers == expected_dict["offers"]
+        assert bid_offer_match.bid == expected_dict["bid"]
+        assert bid_offer_match.offer == expected_dict["offer"]
         assert bid_offer_match.selected_energy == expected_dict["selected_energy"]
         assert bid_offer_match.trade_rate == expected_dict["trade_rate"]
 
