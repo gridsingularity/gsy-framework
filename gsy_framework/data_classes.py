@@ -504,6 +504,33 @@ class BidOfferMatch:
             is_valid = False
         return is_valid
 
+    @property
+    def bid_energy(self):
+        """
+        Return the to-be considered bid's energy.
+
+        A bid can have different energy requirements that are prioritized over its energy member.
+        """
+        if "bid_requirement" in (self.matching_requirements or {}):
+            return (
+                    self.matching_requirements["bid_requirement"].get("energy")
+                    or self.bid["energy"])
+        return self.bid["energy"]
+
+    @property
+    def bid_energy_rate(self):
+        """
+        Return the to-be considered bid's energy.
+
+        A bid can have different energy requirements that are prioritized over its energy member.
+        """
+        if "bid_requirement" in (self.matching_requirements or {}):
+            if "price" in self.matching_requirements["bid_requirement"]:
+                return (
+                        self.matching_requirements["bid_requirement"].get("price") /
+                        self.bid_energy)
+        return self.bid["energy_rate"]
+
 
 @dataclass
 class Clearing:
