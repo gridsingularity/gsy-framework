@@ -63,7 +63,8 @@ class TestBidOfferMatch:
                          "bid": {"type": "bid"},
                          "offer": {"type": "offer"},
                          "selected_energy": 1,
-                         "trade_rate": 1}
+                         "trade_rate": 1,
+                         "matching_requirements": None}
         assert bid_offer_match.serializable_dict() == expected_dict
 
     @staticmethod
@@ -111,6 +112,29 @@ class TestBidOfferMatch:
         assert bid_offer_match.offer == expected_dict["offer"]
         assert bid_offer_match.selected_energy == expected_dict["selected_energy"]
         assert bid_offer_match.trade_rate == expected_dict["trade_rate"]
+
+    @staticmethod
+    def test_bid_energy():
+        """Test whether the bid_energy property returns the correct value."""
+        orders_match = BidOfferMatch(bid={"energy": 10}, offer={}, market_id="",
+                                     time_slot="", selected_energy=1, trade_rate=1)
+        assert orders_match.bid_energy == 10
+
+        # When there is a bid_requirement, it should be prioritized
+        orders_match.matching_requirements = {"bid_requirement": {"energy": 5}}
+        assert orders_match.bid_energy == 5
+
+    @staticmethod
+    def test_bid_energy_rate():
+        orders_match = BidOfferMatch(bid={"energy_rate": 2,
+                                          "energy": 1}, offer={}, market_id="",
+                                     time_slot="", selected_energy=1, trade_rate=1)
+        assert orders_match.bid_energy_rate == 2
+        # When there is a bid_requirement, it should be prioritized
+        orders_match.matching_requirements = {"bid_requirement": {"price": 4}}
+        assert orders_match.bid_energy_rate == (
+            orders_match.matching_requirements["bid_requirement"]["price"]
+            / orders_match.selected_energy)
 
 
 class TestBaseBidOffer:

@@ -464,6 +464,7 @@ class BidOfferMatch:
     selected_energy: float
     offer: Offer.serializable_dict
     trade_rate: float
+    matching_requirements: Optional[Dict] = None
 
     def serializable_dict(self) -> Dict:
         """Return a json serializable representation of the class."""
@@ -473,7 +474,8 @@ class BidOfferMatch:
             "bid": self.bid,
             "offer": self.offer,
             "selected_energy": self.selected_energy,
-            "trade_rate": self.trade_rate
+            "trade_rate": self.trade_rate,
+            "matching_requirements": self.matching_requirements
         }
 
     @classmethod
@@ -487,9 +489,9 @@ class BidOfferMatch:
     def is_valid_dict(cls, bid_offer_match: Dict) -> bool:
         """Check whether a serialized dict can be a valid BidOfferMatch instance."""
         is_valid = True
-        if len(bid_offer_match.keys()) != len(cls.__annotations__.keys()):
-            is_valid = False
-        elif not all(attribute in bid_offer_match for attribute in cls.__annotations__):
+        required_arguments = (
+            "market_id", "time_slot", "bid", "offer", "selected_energy", "trade_rate")
+        if not all(key in bid_offer_match for key in required_arguments):
             is_valid = False
         elif not isinstance(bid_offer_match["market_id"], str):
             is_valid = False
@@ -497,7 +499,37 @@ class BidOfferMatch:
             is_valid = False
         elif not isinstance(bid_offer_match["trade_rate"], (int, float)):
             is_valid = False
+        elif not (bid_offer_match.get("matching_requirements") is None or
+                  isinstance(bid_offer_match.get("matching_requirements"), Dict)):
+            is_valid = False
         return is_valid
+
+    @property
+    def bid_energy(self):
+        """
+        Return the to-be considered bid's energy.
+
+        A bid can have different energy requirements that are prioritized over its energy member.
+        """
+        if "bid_requirement" in (self.matching_requirements or {}):
+            return (
+                    self.matching_requirements["bid_requirement"].get("energy")
+                    or self.bid["energy"])
+        return self.bid["energy"]
+
+    @property
+    def bid_energy_rate(self):
+        """
+        Return the to-be considered bid's energy.
+
+        A bid can have different energy requirements that are prioritized over its energy member.
+        """
+        if "bid_requirement" in (self.matching_requirements or {}):
+            if "price" in self.matching_requirements["bid_requirement"]:
+                return (
+                        self.matching_requirements["bid_requirement"].get("price") /
+                        self.bid_energy)
+        return self.bid["energy_rate"]
 
 
 @dataclass
