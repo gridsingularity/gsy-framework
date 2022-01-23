@@ -3,6 +3,9 @@ from time import time
 
 from typing import Dict
 
+from pendulum import Date, DateTime
+
+
 from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
 from gsy_framework.sim_results.bills import MarketEnergyBills, CumulativeBills
 from gsy_framework.sim_results.cumulative_grid_trades import CumulativeGridTrades
@@ -16,7 +19,7 @@ from gsy_framework.sim_results.simulation_assets_info import SimulationAssetsInf
 
 
 class ResultsHandler:
-    def __init__(self, should_export_plots: bool = False):
+    def __init__(self, should_export_plots: bool = False, start_date: Date = None):
         self.should_export_plots = should_export_plots
         self.bids_offers_trades = {}
         self.results_mapping = {
@@ -33,6 +36,9 @@ class ResultsHandler:
             'assets_info': SimulationAssetsInfo()
         }
         self._total_memory_utilization_kb = 0.0
+        self.start_date_time = (
+            DateTime(year=start_date.year, month=start_date.month, day=start_date.day)
+            if start_date is not None else None)
 
     @property
     def _results_name_to_db_name_mapping(self):
