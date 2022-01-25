@@ -62,6 +62,9 @@ class ConstSettings:
         MIN_TICK_LENGTH_S = 1
 
         REDIS_PUBLISH_FULL_RESULTS = False
+        SDK_COM_QUEUE_NAME = "sdk-events-responses"
+        CN_JOB_QUEUE_NAME = "canary_network"
+        SIM_JOB_QUEUE_NAME = "exchange"
 
     class SettlementMarketSettings:
         """Default settings for settlement markets."""
