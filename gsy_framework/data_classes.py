@@ -306,7 +306,9 @@ class TradeBidOfferInfo:
 class Trade:
     """Trade class."""
     def __init__(self, id: str, creation_time: DateTime, offer_bid: Union[Offer, Bid],
-                 seller: str, buyer: str, residual: Optional[Union[Offer, Bid]] = None,
+                 seller: str, buyer: str,
+                 traded_energy: float, trade_price: float,
+                 residual: Optional[Union[Offer, Bid]] = None,
                  already_tracked: bool = False,
                  offer_bid_trade_info: Optional[TradeBidOfferInfo] = None,
                  seller_origin: Optional[str] = None, buyer_origin: Optional[str] = None,
@@ -320,6 +322,8 @@ class Trade:
         self.offer_bid = offer_bid
         self.seller = seller
         self.buyer = buyer
+        self.traded_energy = traded_energy
+        self.trade_price = trade_price
         self.residual = residual
         self.already_tracked = already_tracked
         self.offer_bid_trade_info = offer_bid_trade_info
@@ -334,8 +338,8 @@ class Trade:
     def __str__(self) -> str:
         return (
             f"{{{self.id!s:.6s}}} [origin: {self.seller_origin} -> {self.buyer_origin}] "
-            f"[{self.seller} -> {self.buyer}] {self.offer_bid.energy} kWh @ {self.offer_bid.price}"
-            f" {round(self.offer_bid.energy_rate, 8)} "
+            f"[{self.seller} -> {self.buyer}] {self.traded_energy} kWh @ {self.trade_price}"
+            f" {round(self.trade_rate, 8)} "
             f"{self.offer_bid.id} [fee: {self.fee_price} cts.]")
 
     @classmethod
@@ -345,8 +349,8 @@ class Trade:
 
     def csv_values(self) -> Tuple:
         """Return values of class members that are needed for creation of CSV export."""
-        rate = round(self.offer_bid.energy_rate, 4)
-        return self.creation_time, rate, self.offer_bid.energy, self.seller, self.buyer
+        rate = round(self.trade_rate, 4)
+        return self.creation_time, rate, self.traded_energy, self.seller, self.buyer
 
     def to_json_string(self) -> str:
         """Return json string of the representation."""
@@ -388,6 +392,11 @@ class Trade:
         """Check if the instance is an offer trade."""
         return isinstance(self.offer_bid, Offer)
 
+    @property
+    def trade_rate(self):
+        """Return the energy rate of the trade."""
+        return round(self.trade_price / self.traded_energy, 8)
+
     def serializable_dict(self) -> Dict:
         """Return a json serializable representation of the class."""
         return {
@@ -396,9 +405,9 @@ class Trade:
             "id": self.id,
             "offer_bid_id": self.offer_bid.id,
             "residual_id": self.residual.id if self.residual is not None else None,
-            "energy": self.offer_bid.energy,
-            "energy_rate": self.offer_bid.energy_rate,
-            "price": self.offer_bid.price,
+            "energy": self.traded_energy,
+            "energy_rate": self.trade_rate,
+            "price": self.trade_price,
             "buyer": self.buyer,
             "buyer_origin": self.buyer_origin,
             "seller_origin": self.seller_origin,
@@ -418,6 +427,8 @@ class Trade:
             self.creation_time == other.creation_time and
             self.time_slot == other.time_slot and
             self.offer_bid == other.offer_bid and
+            self.traded_energy == other.traded_energy and
+            self.trade_price == other.trade_price and
             self.seller == other.seller and
             self.buyer == other.buyer and
             self.residual == other.residual and
@@ -450,8 +461,8 @@ class BalancingTrade(Trade):
     def __str__(self) -> str:
         return (
             f"{{{self.id!s:.6s}}} [{self.seller} -> {self.buyer}] "
-            f"{self.offer_bid.energy} kWh @ {self.offer_bid.price}"
-            f" {self.offer_bid.energy_rate} {self.offer_bid.id}"
+            f"{self.traded_energy} kWh @ {self.trade_price}"
+            f" {self.trade_rate} {self.offer_bid.id}"
         )
 
 
