@@ -356,12 +356,18 @@ class TestOffer:
         )
         rate = round(offer.energy_rate, 4)
         assert offer.csv_values() == (
-            offer.creation_time, rate, offer.energy, offer.price, offer.seller)
+            offer.creation_time, rate, offer.energy, offer.price, offer.seller, offer.seller_id)
 
     @staticmethod
     def test_csv_fields():
-        assert (Offer.csv_fields() ==
-                ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"))
+        assert (
+            Offer.csv_fields() == (
+                "creation_time",
+                "rate [ct./kWh]",
+                "energy [kWh]",
+                "price [ct.]",
+                "seller",
+                "seller_id"))
 
     def test_copy(self):
         offer = Offer(
@@ -469,12 +475,19 @@ class TestBid:
             **self.initial_data
         )
         rate = round(bid.energy_rate, 4)
-        assert bid.csv_values() == (bid.creation_time, rate, bid.energy, bid.price, bid.buyer)
+        assert (bid.csv_values() ==
+                (bid.creation_time, rate, bid.energy, bid.price, bid.buyer, bid.buyer_id))
 
     @staticmethod
     def test_csv_fields():
-        assert (Bid.csv_fields() ==
-                ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
+        assert (
+            Bid.csv_fields() == (
+                "creation_time",
+                "rate [ct./kWh]",
+                "energy [kWh]",
+                "price [ct.]",
+                "buyer",
+                "buyer_id"))
 
 
 class TestTradeBidOfferInfo:
@@ -516,13 +529,26 @@ class TestTrade:
     @staticmethod
     def test_csv_fields():
         assert Trade.csv_fields() == (
-            "creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer")
+            "creation_time",
+            "rate [ct./kWh]",
+            "energy [kWh]",
+            "seller",
+            "buyer",
+            "seller_id",
+            "buyer_id")
 
     def test_csv_values(self):
         trade = Trade(**self.initial_data)
         rate = round(trade.offer_bid.energy_rate, 4)
-        assert (trade.csv_values() ==
-                (trade.creation_time, rate, trade.offer_bid.energy, trade.seller, trade.buyer))
+        assert (
+            trade.csv_values() == (
+                trade.creation_time,
+                rate,
+                trade.offer_bid.energy,
+                trade.seller,
+                trade.buyer,
+                trade.seller_id,
+                trade.buyer_id))
 
     def test_to_json_string(self):
         trade = Trade(**self.initial_data)
