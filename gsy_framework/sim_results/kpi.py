@@ -203,11 +203,9 @@ class SavingsKPI:
         fir_excl_gf_alp = self.get_feed_in_tariff_rate_excluding_path_grid_fees(
             core_stats.get(area_dict["uuid"], {}), gf_alp)
         fir_excl_gf_alp = 0. if fir_excl_gf_alp < 0 else fir_excl_gf_alp
-        print(f"fir_excl_gf_alp: {fir_excl_gf_alp}")
         # mmr_incl_gf_alp: market maker rate include grid fee along path
         mmr_incl_gf_alp = self.get_market_maker_rate_including_path_grid_fees(
             core_stats.get(area_dict["uuid"], {}), gf_alp)
-        print(f"mmr_incl_gf_alp: {mmr_incl_gf_alp}")
         for trade in core_stats.get(area_dict["parent_uuid"], {}).get("trades", []):
             if trade["seller_origin_id"] == area_dict["uuid"]:
                 comparision_rate = (mmr_incl_gf_alp if is_prosumer_node_type(area_dict)
@@ -215,9 +213,7 @@ class SavingsKPI:
                 self.fit_revenue += comparision_rate * trade["energy"]
                 self.gsy_e_cost -= trade["price"]
             if trade["buyer_origin_id"] == area_dict["uuid"]:
-                print(f"ENERGY: {trade['energy']}")
                 self.utility_bill += mmr_incl_gf_alp * trade["energy"]
-                print(f"self.utility_bill: {self.utility_bill}")
                 self.gsy_e_cost += trade["price"]
         self.calculate_savings_kpi(self.utility_bill, self.fit_revenue, self.gsy_e_cost)
 
@@ -341,16 +337,17 @@ class KPI(ResultsBaseClass):
         """Initialization of area saving state"""
         if area_dict["uuid"] not in self.savings_state:
             self.savings_state[area_dict["uuid"]] = SavingsKPI()
-        print(f"type: {area_dict.get('type')} -- name: {area_dict.get('name')}")
 
+        # is a home
         if not has_grand_children(area_dict) and area_dict.get("type") in ["Area", None]:
             self.savings_state[area_dict["uuid"]].calculate_home_savings_kpi(
                 area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
+        # is a device
         elif area_dict.get("type") not in ["Area", None]:
             self.savings_state[area_dict["uuid"]].calculate_device_savings_kpi(
                 area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
-            print(f"base_cas_cost: {self.savings_state[area_dict['uuid']].base_case_cost}")
-        else:
+        # is an intermediate area
+        elif area_dict.get("type") in ["Area", None]:
             utility_bill = 0.
             fit_revenue = 0.
             gsy_e_cost = 0.
