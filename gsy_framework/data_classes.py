@@ -29,6 +29,7 @@ from typing import List, Dict, Optional, Tuple, Union
 
 from pendulum import DateTime
 
+from gsy_framework.constants_limits import DEFAULT_PRECISION
 from gsy_framework.utils import (
     limit_float_precision, datetime_to_string_incl_seconds, key_in_dict_and_not_none,
     str_to_pendulum_datetime)
@@ -395,7 +396,7 @@ class Trade:
     @property
     def trade_rate(self):
         """Return the energy rate of the trade."""
-        return round(self.trade_price / self.traded_energy, 8)
+        return round(self.trade_price / self.traded_energy, DEFAULT_PRECISION)
 
     def serializable_dict(self) -> Dict:
         """Return a json serializable representation of the class."""
