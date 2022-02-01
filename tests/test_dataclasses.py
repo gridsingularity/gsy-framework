@@ -503,14 +503,16 @@ class TestTrade:
             "creation_time": DEFAULT_DATETIME,
             "offer_bid": Offer("id", DEFAULT_DATETIME, 1, 2, "seller"),
             "seller": "seller",
-            "buyer": "buyer"}
+            "buyer": "buyer",
+            "traded_energy": 1,
+            "trade_price": 1}
 
     def test_str(self):
         trade = Trade(**self.initial_data)
         assert (str(trade) ==
                 f"{{{trade.id!s:.6s}}} [origin: {trade.seller_origin} -> {trade.buyer_origin}] "
-                f"[{trade.seller} -> {trade.buyer}] {trade.offer_bid.energy} kWh"
-                f" @ {trade.offer_bid.price} {round(trade.offer_bid.energy_rate, 8)} "
+                f"[{trade.seller} -> {trade.buyer}] {trade.traded_energy} kWh"
+                f" @ {trade.trade_price} {round(trade.trade_rate, 8)} "
                 f"{trade.offer_bid.id} [fee: {trade.fee_price} cts.]")
 
     @staticmethod
@@ -520,9 +522,9 @@ class TestTrade:
 
     def test_csv_values(self):
         trade = Trade(**self.initial_data)
-        rate = round(trade.offer_bid.energy_rate, 4)
+        rate = round(trade.trade_rate, 4)
         assert (trade.csv_values() ==
-                (trade.creation_time, rate, trade.offer_bid.energy, trade.seller, trade.buyer))
+                (trade.creation_time, rate, trade.traded_energy, trade.seller, trade.buyer))
 
     def test_to_json_string(self):
         trade = Trade(**self.initial_data)
@@ -598,6 +600,8 @@ class TestTrade:
                 "seller_id": "seller_id",
                 "buyer_id": "buyer_id",
                 "seller": "seller",
+                "traded_energy": 1,
+                "trade_price": 1,
                 "fee_price": 2,
                 "creation_time": DEFAULT_DATETIME,
                 "time_slot": DEFAULT_DATETIME
@@ -609,9 +613,9 @@ class TestTrade:
             "id": trade.id,
             "offer_bid_id": trade.offer_bid.id,
             "residual_id": trade.residual.id if trade.residual is not None else None,
-            "energy": trade.offer_bid.energy,
-            "energy_rate": trade.offer_bid.energy_rate,
-            "price": trade.offer_bid.price,
+            "energy": trade.traded_energy,
+            "energy_rate": trade.trade_rate,
+            "price": trade.trade_price,
             "buyer": trade.buyer,
             "buyer_origin": trade.buyer_origin,
             "seller_origin": trade.seller_origin,
@@ -660,8 +664,8 @@ class TestBalancingTrade(TestTrade):
         trade = BalancingTrade(**self.initial_data)
         assert (str(trade) ==
                 f"{{{trade.id!s:.6s}}} [{trade.seller} -> {trade.buyer}] "
-                f"{trade.offer_bid.energy} kWh @ {trade.offer_bid.price}"
-                f" {trade.offer_bid.energy_rate} {trade.offer_bid.id}")
+                f"{trade.traded_energy} kWh @ {trade.trade_price}"
+                f" {trade.trade_rate} {trade.offer_bid.id}")
 
 
 class TestClearing:
