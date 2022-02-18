@@ -7,16 +7,17 @@ from gsy_framework.data_classes import Offer, Bid
 from gsy_framework.matching_algorithms.requirements_validators import (
     EnergyTypeRequirement,
     TradingPartnersRequirement,
-    RequirementsSatisfiedChecker, SelectedEnergyRequirement, PriceRequirement)
+    RequirementsSatisfiedChecker, SelectedEnergyRequirement, PriceRequirement,
+    OriginalPriceRequirement)
 
 
-@pytest.fixture
-def offer():
+@pytest.fixture(name="offer")
+def fixture_offer():
     return Offer("id", now(), 2, 2, "other", 2)
 
 
-@pytest.fixture
-def bid():
+@pytest.fixture(name="bid")
+def fixture_bid():
     return Bid("bid_id", now(), 9, 10, "B", 9)
 
 
@@ -106,6 +107,16 @@ class TestRequirementsValidator:
         bid.requirements = [requirement]
         assert PriceRequirement.is_satisfied(
             offer, bid, requirement, clearing_rate=8, selected_energy=1) is True
+
+    def test_original_price_requirement(self, offer, bid):
+        requirement = {"original_price": "1"}
+        with pytest.raises(AssertionError):
+            # original price is not of type float
+            OriginalPriceRequirement.is_satisfied(
+                offer, bid, requirement)
+        requirement = {"original_price": 1}
+        assert OriginalPriceRequirement.is_satisfied(
+            offer, bid, requirement) is True
 
     @patch(
         "gsy_framework.matching_algorithms.requirements_validators."

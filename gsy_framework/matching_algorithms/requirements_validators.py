@@ -101,6 +101,19 @@ class PriceRequirement(Requirement):
         return bid_required_price >= selected_energy * clearing_rate
 
 
+class OriginalPriceRequirement(Requirement):
+    """Check if price requirement of bid is satisfied."""
+
+    @classmethod
+    def is_satisfied(cls, offer: Offer, bid: Bid, requirement: Dict,
+                     clearing_rate: Optional[float] = None,
+                     selected_energy: Optional[float] = None) -> bool:
+        bid_original_price = requirement.get("original_price")
+        assert isinstance(bid_original_price, (int, float)), \
+            f"Invalid data type for original price {requirement}"
+        return True
+
+
 # Supported offers/bids requirements
 # To add a new requirement create a class extending the Requirement abstract class and add it below
 
@@ -112,7 +125,8 @@ SUPPORTED_BID_REQUIREMENTS = {
     "trading_partners": TradingPartnersRequirement,
     "energy_type": EnergyTypeRequirement,
     "energy": SelectedEnergyRequirement,
-    "price": PriceRequirement
+    "price": PriceRequirement,
+    "original_price": OriginalPriceRequirement
 }
 
 
