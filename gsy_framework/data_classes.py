@@ -200,7 +200,7 @@ class Offer(BaseBidOffer):
     @property
     def accumulated_grid_fees(self):
         """Return the accumulated grid fees alongside the path of the offer."""
-        return self.original_price - self.price
+        return self.price - self.original_price
 
     @staticmethod
     def copy(offer: "Offer") -> "Offer":
@@ -287,7 +287,7 @@ class Bid(BaseBidOffer):
     @property
     def accumulated_grid_fees(self):
         """Return the accumulated grid fees alongside the path of the bid."""
-        return self.price - self.original_price
+        return self.original_price - self.price
 
     def __eq__(self, other) -> bool:
         return (self.id == other.id and

@@ -372,7 +372,7 @@ class TestOffer:
 
     def test_accumulated_grid_fees(self):
         offer = Offer(**self.initial_data)
-        assert offer.accumulated_grid_fees == offer.original_price - offer.price
+        assert offer.accumulated_grid_fees == offer.price - offer.original_price
 
 
 class TestBid:
@@ -482,7 +482,7 @@ class TestBid:
 
     def test_accumulated_grid_fees(self):
         bid = Bid(**self.initial_data)
-        assert bid.accumulated_grid_fees == bid.price - bid.original_price
+        assert bid.accumulated_grid_fees == bid.original_price - bid.price
 
 
 class TestTradeBidOfferInfo:
