@@ -370,6 +370,10 @@ class TestOffer:
         second_offer = Offer.copy(offer)
         assert offer == second_offer
 
+    def test_accumulated_grid_fees(self):
+        offer = Offer(**self.initial_data)
+        assert offer.accumulated_grid_fees == offer.original_price - offer.price
+
 
 class TestBid:
     def setup_method(self):
@@ -475,6 +479,10 @@ class TestBid:
     def test_csv_fields():
         assert (Bid.csv_fields() ==
                 ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
+
+    def test_accumulated_grid_fees(self):
+        bid = Bid(**self.initial_data)
+        assert bid.accumulated_grid_fees == bid.price - bid.original_price
 
 
 class TestTradeBidOfferInfo:

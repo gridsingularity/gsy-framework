@@ -116,6 +116,11 @@ class BaseBidOffer:
             return Bid(**offer_bid_dict)
         assert False, "the type member needs to be set to one of ('Bid', 'Offer')."
 
+    @property
+    def accumulated_grid_fees(self):
+        """Return the accumulated grid fees alongside the path of the order."""
+        return 0
+
 
 class Offer(BaseBidOffer):
     """Offer class"""
@@ -191,6 +196,11 @@ class Offer(BaseBidOffer):
     def csv_fields(cls) -> Tuple:
         """Return labels for csv_values for CSV export."""
         return "creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"
+
+    @property
+    def accumulated_grid_fees(self):
+        """Return the accumulated grid fees alongside the path of the offer."""
+        return self.original_price - self.price
 
     @staticmethod
     def copy(offer: "Offer") -> "Offer":
@@ -273,6 +283,11 @@ class Bid(BaseBidOffer):
     def csv_fields(cls) -> Tuple:
         """Return labels for csv_values for CSV export."""
         return "creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"
+
+    @property
+    def accumulated_grid_fees(self):
+        """Return the accumulated grid fees alongside the path of the bid."""
+        return self.price - self.original_price
 
     def __eq__(self, other) -> bool:
         return (self.id == other.id and
