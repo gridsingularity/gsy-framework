@@ -192,8 +192,8 @@ class SavingsKPI:
                 self.gsy_e_cost += trade["price"]
         self.base_case_cost = self.utility_bill - self.fit_revenue
         self.saving_absolute = self.base_case_cost - self.gsy_e_cost
-        self.saving_percentage = ((self.saving_absolute / self.base_case_cost) * 100
-                                  if self.base_case_cost else 0.)
+        self.saving_percentage = (abs((self.saving_absolute / self.base_case_cost) * 100)
+                                  if self.base_case_cost else None)
 
     def populate_consumer_producer_sets(self, area_dict: Dict):
         """
