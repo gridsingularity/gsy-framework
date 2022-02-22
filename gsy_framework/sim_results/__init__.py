@@ -60,14 +60,6 @@ def is_buffer_node_type(area):
     return area["type"] == "InfiniteBusStrategy"
 
 
-def has_grand_children(area):
-    """Check if the given area has grandchildren."""
-    for child in area.get("children", []):
-        if child.get("children", []):
-            return True
-    return False
-
-
 def get_unified_area_type(area):
     """Return the string that identifies the type of the given area."""
     if is_pv_node_type(area):

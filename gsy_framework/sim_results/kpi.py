@@ -18,8 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import Dict
 from gsy_framework.utils import if_not_in_list_append
 from gsy_framework.sim_results import (
-    is_load_node_type, is_buffer_node_type, is_prosumer_node_type, is_producer_node_type,
-    has_grand_children)
+    is_load_node_type, is_buffer_node_type, is_prosumer_node_type, is_producer_node_type)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 
 
@@ -271,8 +270,7 @@ class KPI(ResultsBaseClass):
 
         # initialization of house saving state
         if area_dict["uuid"] not in self.savings_state:
-            if not has_grand_children(area_dict):
-                self.savings_state[area_dict["uuid"]] = SavingsKPI()
+            self.savings_state[area_dict["uuid"]] = SavingsKPI()
         if area_dict["uuid"] in self.savings_state:
             self.savings_state[area_dict["uuid"]].calculate_savings_kpi(
                 area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
@@ -386,17 +384,16 @@ class KPI(ResultsBaseClass):
             self.state[area_dict["uuid"]].self_consumption_buffer_wh = \
                 last_known_state_data["self_consumption_buffer_wh"]
         if area_dict["uuid"] not in self.savings_state:
-            if not has_grand_children(area_dict):
-                self.savings_state[area_dict["uuid"]] = SavingsKPI()
-                self.savings_state[area_dict["uuid"]].base_case_cost = (
-                    last_known_state_data.get("base_case_cost", 0))
-                self.savings_state[area_dict["uuid"]].utility_bill = (
-                    last_known_state_data.get("utility_bill", 0))
-                self.savings_state[area_dict["uuid"]].fit_revenue = (
-                    last_known_state_data.get("fit_revenue", 0))
-                self.savings_state[area_dict["uuid"]].gsy_e_cost = (
-                    last_known_state_data.get("gsy_e_cost", 0)
-                    or last_known_state_data.get("d3a_cost", 0))
+            self.savings_state[area_dict["uuid"]] = SavingsKPI()
+            self.savings_state[area_dict["uuid"]].base_case_cost = (
+                last_known_state_data.get("base_case_cost", 0))
+            self.savings_state[area_dict["uuid"]].utility_bill = (
+                last_known_state_data.get("utility_bill", 0))
+            self.savings_state[area_dict["uuid"]].fit_revenue = (
+                last_known_state_data.get("fit_revenue", 0))
+            self.savings_state[area_dict["uuid"]].gsy_e_cost = (
+                last_known_state_data.get("gsy_e_cost", 0)
+                or last_known_state_data.get("d3a_cost", 0))
 
     # pylint: disable=(arguments-differ
     @staticmethod
