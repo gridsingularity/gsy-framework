@@ -1,7 +1,7 @@
 import ssl
 from os import environ
 
-DEFAULT_KAFKA_URL = "localhost:9092"
+DEFAULT_KAFKA_URL = environ.get("DEFAULT_KAFKA_URL", "localhost:9092")
 KAFKA_URL = environ.get("KAFKA_URL", DEFAULT_KAFKA_URL)
 KAFKA_USERNAME = environ.get("KAFKA_USERNAME", None)
 KAFKA_PASSWORD = environ.get("KAFKA_PASSWORD", None)
