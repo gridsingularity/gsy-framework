@@ -2,7 +2,7 @@ import ssl
 from os import environ
 
 
-IS_KAFKA_RUNNING_LOCALLY = environ.get("IS_KAFKA_RUNNING_LOCALLY", "false") == "false"
+IS_KAFKA_RUNNING_LOCALLY = environ.get("IS_KAFKA_RUNNING_LOCALLY", "true") == "true"
 KAFKA_URL = environ.get("KAFKA_URL", "localhost:9092")
 KAFKA_USERNAME = environ.get("KAFKA_USERNAME", None)
 KAFKA_PASSWORD = environ.get("KAFKA_PASSWORD", None)
