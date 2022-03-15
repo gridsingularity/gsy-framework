@@ -6,7 +6,7 @@ from zlib import compress
 from kafka import KafkaProducer
 
 from gsy_framework.kafka_communication import (
-    KAFKA_URL, DEFAULT_KAFKA_URL, KAFKA_USERNAME, KAFKA_PASSWORD,
+    KAFKA_URL, IS_KAFKA_RUNNING_LOCALLY, KAFKA_USERNAME, KAFKA_PASSWORD,
     KAFKA_COMMUNICATION_SECURITY_PROTOCOL, KAFKA_SASL_AUTH_MECHANISM, KAFKA_API_VERSION,
     create_kafka_new_ssl_context, KAFKA_RESULTS_TOPIC)
 
@@ -38,7 +38,9 @@ class DisabledKafkaConnection:
 class KafkaConnection(DisabledKafkaConnection):
     def __init__(self):
         super().__init__()
-        if KAFKA_URL != DEFAULT_KAFKA_URL:
+        if IS_KAFKA_RUNNING_LOCALLY:
+            kwargs = {"bootstrap_servers": KAFKA_URL}
+        else:
             kwargs = {"bootstrap_servers": KAFKA_URL,
                       "sasl_plain_username": KAFKA_USERNAME,
                       "sasl_plain_password": KAFKA_PASSWORD,
@@ -49,8 +51,6 @@ class KafkaConnection(DisabledKafkaConnection):
                       "retries": KAFKA_PUBLISH_RETRIES,
                       "buffer_memory": KAFKA_BUFFER_MEMORY_BYTES,
                       "max_request_size": KAFKA_MAX_REQUEST_SIZE_BYTES}
-        else:
-            kwargs = {"bootstrap_servers": KAFKA_URL}
 
         self.producer = KafkaProducer(**kwargs)
 
