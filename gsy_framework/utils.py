@@ -367,11 +367,6 @@ def subtract_or_create_key(dictionary, key, value):
     return dictionary
 
 
-def make_ma_name_from_dict(owner: Dict) -> str:
-    """Generate the name of the marget agent from the given owner."""
-    return f"MA {owner['name']}"
-
-
 def limit_float_precision(number):
     """Round a number to the default precision after the comma."""
     return round(number, DEFAULT_PRECISION)

@@ -63,6 +63,12 @@ class ConstSettings:
 
         REDIS_PUBLISH_FULL_RESULTS = False
 
+        SDK_COM_QUEUE_NAME = "sdk-events-responses"
+        CN_JOB_QUEUE_NAME = "canary_network"
+        SIM_JOB_QUEUE_NAME = "exchange"
+
+        EXCHANGE_ERROR_CHANNEL = "gsy-e-errors"
+
     class SettlementMarketSettings:
         """Default settings for settlement markets."""
 
@@ -114,15 +120,6 @@ class ConstSettings:
         FINAL_SELLING_RATE_LIMIT = RangeLimit(0, 10000)
         # Min allowed battery SOC, range is [0, 100] %.
         MIN_ALLOWED_SOC = 10
-
-        # Controls the energy loss of the storage over time#
-        # LOSS_FUNCTION = 1 ==> relative loss
-        # LOSS_FUNCTION = 2 ==> absolute loss
-        LOSS_FUNCTION = 1
-        LOSS_FUNCTION_LIMIT = RangeLimit(1, 2)
-        LOSS_PER_HOUR = 0
-        LOSS_PER_HOUR_ABSOLUTE_LIMIT = RangeLimit(0, 10000)
-        LOSS_PER_HOUR_RELATIVE_LIMIT = RangeLimit(0, 1)
 
     class LoadSettings:
         """Default settings for load assets."""

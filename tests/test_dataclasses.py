@@ -54,16 +54,17 @@ class TestBidOfferMatch:
         bid_offer_match = BidOfferMatch(
             market_id="market_id",
             time_slot="2021-10-06T12:00",
-            bids=[{"type": "bid"}],
-            offers=[{"type": "offer"}],
+            bid={"type": "bid"},
+            offer={"type": "offer"},
             selected_energy=1,
             trade_rate=1)
         expected_dict = {"market_id": "market_id",
                          "time_slot": "2021-10-06T12:00",
-                         "bids": [{"type": "bid"}],
-                         "offers": [{"type": "offer"}],
+                         "bid": {"type": "bid"},
+                         "offer": {"type": "offer"},
                          "selected_energy": 1,
-                         "trade_rate": 1}
+                         "trade_rate": 1,
+                         "matching_requirements": None}
         assert bid_offer_match.serializable_dict() == expected_dict
 
     @staticmethod
@@ -71,8 +72,8 @@ class TestBidOfferMatch:
         """Test the is_valid_dict method of BidOfferMatch dataclass."""
         bid_offer_match = {"market_id": "market_id",
                            "time_slot": "2021-10-06T12:00",
-                           "bids": [{"type": "bid"}],
-                           "offers": [{"type": "offer"}],
+                           "bid": {"type": "bid"},
+                           "offer": {"type": "offer"},
                            "selected_energy": 1,
                            "trade_rate": 1}
         assert BidOfferMatch.is_valid_dict(bid_offer_match)
@@ -80,8 +81,8 @@ class TestBidOfferMatch:
         # Key does not exist
         bid_offer_match = {"market_id": "market_id",
                            "time_slot": "2021-10-06T12:00",
-                           "bids": [{"type": "bid"}],
-                           "offers": [{"type": "offer"}],
+                           "bid": {"type": "bid"},
+                           "offer": {"type": "offer"},
                            "selected_energy": 1,
                            }
         assert not BidOfferMatch.is_valid_dict(bid_offer_match)
@@ -89,8 +90,8 @@ class TestBidOfferMatch:
         # Wrong type
         bid_offer_match = {"market_id": "market_id",
                            "time_slot": "2021-10-06T12:00",
-                           "bids": [{"type": "bid"}],
-                           "offers": [{"type": "offer"}],
+                           "bid": {"type": "bid"},
+                           "offer": {"type": "offer"},
                            "selected_energy": 1,
                            "trade_rate": ""}
         assert not BidOfferMatch.is_valid_dict(bid_offer_match)
@@ -100,17 +101,40 @@ class TestBidOfferMatch:
         """Test the from_dict method of BidOfferMatch dataclass."""
         expected_dict = {"market_id": "market_id",
                          "time_slot": "2021-10-06T12:00",
-                         "bids": [{"type": "bid"}],
-                         "offers": [{"type": "offer"}],
+                         "bid": {"type": "bid"},
+                         "offer": {"type": "offer"},
                          "selected_energy": 1,
                          "trade_rate": 1}
         bid_offer_match = BidOfferMatch.from_dict(expected_dict)
         assert bid_offer_match.market_id == expected_dict["market_id"]
         assert bid_offer_match.time_slot == expected_dict["time_slot"]
-        assert bid_offer_match.bids == expected_dict["bids"]
-        assert bid_offer_match.offers == expected_dict["offers"]
+        assert bid_offer_match.bid == expected_dict["bid"]
+        assert bid_offer_match.offer == expected_dict["offer"]
         assert bid_offer_match.selected_energy == expected_dict["selected_energy"]
         assert bid_offer_match.trade_rate == expected_dict["trade_rate"]
+
+    @staticmethod
+    def test_bid_energy():
+        """Test whether the bid_energy property returns the correct value."""
+        orders_match = BidOfferMatch(bid={"energy": 10}, offer={}, market_id="",
+                                     time_slot="", selected_energy=1, trade_rate=1)
+        assert orders_match.bid_energy == 10
+
+        # When there is a bid_requirement, it should be prioritized
+        orders_match.matching_requirements = {"bid_requirement": {"energy": 5}}
+        assert orders_match.bid_energy == 5
+
+    @staticmethod
+    def test_bid_energy_rate():
+        orders_match = BidOfferMatch(bid={"energy_rate": 2,
+                                          "energy": 1}, offer={}, market_id="",
+                                     time_slot="", selected_energy=1, trade_rate=1)
+        assert orders_match.bid_energy_rate == 2
+        # When there is a bid_requirement, it should be prioritized
+        orders_match.matching_requirements = {"bid_requirement": {"price": 4}}
+        assert orders_match.bid_energy_rate == (
+            orders_match.matching_requirements["bid_requirement"]["price"]
+            / orders_match.selected_energy)
 
 
 class TestBaseBidOffer:
@@ -346,6 +370,10 @@ class TestOffer:
         second_offer = Offer.copy(offer)
         assert offer == second_offer
 
+    def test_accumulated_grid_fees(self):
+        offer = Offer(**self.initial_data)
+        assert offer.accumulated_grid_fees == offer.price - offer.original_price
+
 
 class TestBid:
     def setup_method(self):
@@ -452,6 +480,10 @@ class TestBid:
         assert (Bid.csv_fields() ==
                 ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
 
+    def test_accumulated_grid_fees(self):
+        bid = Bid(**self.initial_data)
+        assert bid.accumulated_grid_fees == bid.original_price - bid.price
+
 
 class TestTradeBidOfferInfo:
     @staticmethod
@@ -479,14 +511,16 @@ class TestTrade:
             "creation_time": DEFAULT_DATETIME,
             "offer_bid": Offer("id", DEFAULT_DATETIME, 1, 2, "seller"),
             "seller": "seller",
-            "buyer": "buyer"}
+            "buyer": "buyer",
+            "traded_energy": 1,
+            "trade_price": 1}
 
     def test_str(self):
         trade = Trade(**self.initial_data)
         assert (str(trade) ==
                 f"{{{trade.id!s:.6s}}} [origin: {trade.seller_origin} -> {trade.buyer_origin}] "
-                f"[{trade.seller} -> {trade.buyer}] {trade.offer_bid.energy} kWh"
-                f" @ {trade.offer_bid.price} {round(trade.offer_bid.energy_rate, 8)} "
+                f"[{trade.seller} -> {trade.buyer}] {trade.traded_energy} kWh"
+                f" @ {trade.trade_price} {round(trade.trade_rate, 8)} "
                 f"{trade.offer_bid.id} [fee: {trade.fee_price} cts.]")
 
     @staticmethod
@@ -496,9 +530,9 @@ class TestTrade:
 
     def test_csv_values(self):
         trade = Trade(**self.initial_data)
-        rate = round(trade.offer_bid.energy_rate, 4)
+        rate = round(trade.trade_rate, 4)
         assert (trade.csv_values() ==
-                (trade.creation_time, rate, trade.offer_bid.energy, trade.seller, trade.buyer))
+                (trade.creation_time, rate, trade.traded_energy, trade.seller, trade.buyer))
 
     def test_to_json_string(self):
         trade = Trade(**self.initial_data)
@@ -574,6 +608,8 @@ class TestTrade:
                 "seller_id": "seller_id",
                 "buyer_id": "buyer_id",
                 "seller": "seller",
+                "traded_energy": 1,
+                "trade_price": 1,
                 "fee_price": 2,
                 "creation_time": DEFAULT_DATETIME,
                 "time_slot": DEFAULT_DATETIME
@@ -585,9 +621,9 @@ class TestTrade:
             "id": trade.id,
             "offer_bid_id": trade.offer_bid.id,
             "residual_id": trade.residual.id if trade.residual is not None else None,
-            "energy": trade.offer_bid.energy,
-            "energy_rate": trade.offer_bid.energy_rate,
-            "price": trade.offer_bid.price,
+            "energy": trade.traded_energy,
+            "energy_rate": trade.trade_rate,
+            "price": trade.trade_price,
             "buyer": trade.buyer,
             "buyer_origin": trade.buyer_origin,
             "seller_origin": trade.seller_origin,
@@ -636,8 +672,8 @@ class TestBalancingTrade(TestTrade):
         trade = BalancingTrade(**self.initial_data)
         assert (str(trade) ==
                 f"{{{trade.id!s:.6s}}} [{trade.seller} -> {trade.buyer}] "
-                f"{trade.offer_bid.energy} kWh @ {trade.offer_bid.price}"
-                f" {trade.offer_bid.energy_rate} {trade.offer_bid.id}")
+                f"{trade.traded_energy} kWh @ {trade.trade_price}"
+                f" {trade.trade_rate} {trade.offer_bid.id}")
 
 
 class TestClearing:
