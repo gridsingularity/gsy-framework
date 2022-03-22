@@ -42,10 +42,8 @@ class TestPayAsClearMatchingAlgorithm:
             AssertionError
         """
         assert matching["selected_energy"] == matched_energy
-        assert len(matching["offers"]) == 1
-        assert len(matching["bids"]) == 1
-        assert matching["offers"][0]["id"] == offer_id
-        assert matching["bids"][0]["id"] == bid_id
+        assert matching["offer"]["id"] == offer_id
+        assert matching["bid"]["id"] == bid_id
 
     @pytest.mark.parametrize(
         "energy_values,clearing_energy", [
@@ -280,23 +278,26 @@ class TestPayAsClearMatchingAlgorithm:
         trades = PayAsClearMatchingAlgorithm().get_matches_recommendations(data)
         expected_trades = [{"market_id": "market1",
                             "time_slot": "2021-10-06T12:00",
-                            "bids": [{"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20}],
-                            "offers": [{"id": 4, "seller": "A", "energy_rate": 1.00001,
-                                        "energy": 25}], "selected_energy": 20, "trade_rate": 3},
+                            "bid": {"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20},
+                            "offer": {"id": 4, "seller": "A", "energy_rate": 1.00001,
+                                      "energy": 25}, "selected_energy": 20, "trade_rate": 3,
+                            "matching_requirements": None},
                            {"market_id": "market2",
                             "time_slot": "2021-10-06T12:00",
-                            "bids": [{"id": 9, "buyer": "C", "energy_rate": 6, "energy": 50}],
-                            "offers": [{"id": 10, "seller": "A", "energy_rate": 1,
-                                        "energy": 55}], "selected_energy": 50, "trade_rate": 2},
+                            "bid": {"id": 9, "buyer": "C", "energy_rate": 6, "energy": 50},
+                            "offer": {"id": 10, "seller": "A", "energy_rate": 1,
+                                      "energy": 55}, "selected_energy": 50, "trade_rate": 2,
+                            "matching_requirements": None},
                            {"market_id": "market2",
                             "time_slot": "2021-10-06T12:00",
-                            "bids": [{"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45}],
-                            "offers": [{"id": 10, "seller": "A", "energy_rate": 1, "energy": 55}],
-                            "selected_energy": 5, "trade_rate": 2},
+                            "bid": {"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45},
+                            "offer": {"id": 10, "seller": "A", "energy_rate": 1, "energy": 55},
+                            "selected_energy": 5, "trade_rate": 2, "matching_requirements": None},
                            {"market_id": "market2",
                             "time_slot": "2021-10-06T12:00",
-                            "bids": [{"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45}],
-                            "offers": [{"id": 12, "seller": "C", "energy_rate": 1,
-                                        "energy": 65}], "selected_energy": 40, "trade_rate": 2},
+                            "bid": {"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45},
+                            "offer": {"id": 12, "seller": "C", "energy_rate": 1,
+                                      "energy": 65}, "selected_energy": 40, "trade_rate": 2,
+                            "matching_requirements": None},
                            ]
         assert trades == expected_trades
