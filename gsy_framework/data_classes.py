@@ -493,6 +493,10 @@ class BidOfferMatch:
     trade_rate: float
     matching_requirements: Optional[Dict] = None
 
+    def __post_init__(self):
+        self.bid = deepcopy(self.bid)
+        self.offer = deepcopy(self.offer)
+
     def serializable_dict(self) -> Dict:
         """Return a json serializable representation of the class."""
         return {
