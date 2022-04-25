@@ -4,7 +4,7 @@ from zlib import decompress
 from kafka import KafkaConsumer
 
 from gsy_framework.kafka_communication import (
-    KAFKA_URL, DEFAULT_KAFKA_URL, KAFKA_USERNAME,
+    KAFKA_URL, IS_KAFKA_RUNNING_LOCALLY, KAFKA_USERNAME,
     KAFKA_PASSWORD, KAFKA_COMMUNICATION_SECURITY_PROTOCOL,
     KAFKA_SASL_AUTH_MECHANISM,
     KAFKA_API_VERSION, create_kafka_new_ssl_context, KAFKA_RESULTS_TOPIC, KAFKA_CONSUMER_GROUP_ID)
@@ -16,7 +16,10 @@ KAFKA_CONSUMER_TIMEOUT_MS = 50
 
 class KafkaConnection:
     def __init__(self, callback):
-        if KAFKA_URL != DEFAULT_KAFKA_URL:
+        if IS_KAFKA_RUNNING_LOCALLY:
+            kwargs = {"bootstrap_servers": KAFKA_URL,
+                      "consumer_timeout_ms": KAFKA_CONSUMER_TIMEOUT_MS}
+        else:
             kwargs = {"bootstrap_servers": KAFKA_URL,
                       "sasl_plain_username": KAFKA_USERNAME,
                       "sasl_plain_password": KAFKA_PASSWORD,
@@ -29,9 +32,6 @@ class KafkaConnection:
                       "max_poll_records": KAFKA_MAX_POLL_RECORDS,
                       "consumer_timeout_ms": KAFKA_CONSUMER_TIMEOUT_MS,
                       "group_id": KAFKA_CONSUMER_GROUP_ID}
-        else:
-            kwargs = {"bootstrap_servers": DEFAULT_KAFKA_URL,
-                      "consumer_timeout_ms": KAFKA_CONSUMER_TIMEOUT_MS}
 
         self._consumer = KafkaConsumer(KAFKA_RESULTS_TOPIC, **kwargs)
         self._callback = callback

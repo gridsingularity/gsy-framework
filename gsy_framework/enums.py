@@ -10,3 +10,4 @@ class BidOfferMatchAlgoEnum(Enum):
 class SpotMarketTypeEnum(Enum):
     ONE_SIDED = 1
     TWO_SIDED = 2
+    COEFFICIENTS = 3
