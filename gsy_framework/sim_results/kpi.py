@@ -155,16 +155,12 @@ class KPIState:
 class SavingsKPI:
     """Responsible for generating comparative savings from feed-in tariff vs GSY-E"""
 
-    # pylint: disable=too-many-instance-attributes
     def __init__(self):
         self.producer_ess_set = set()  # keeps set of house's producing/ess devices
         self.consumer_ess_set = set()  # keeps set of house's consuming/ess devices
         self.fit_revenue = 0.  # revenue achieved by producing selling energy via FIT scheme
         self.utility_bill = 0.  # cost of energy purchase from energy supplier
-        self.base_case_cost = 0.  # standard cost of a house participating in FIT scheme
         self.gsy_e_cost = 0.  # standard cost of a house participating in GSy Exchange
-        self.saving_absolute = 0.  # savings achieved by a house via participating in GSY-E
-        self.saving_percentage = 0.  # savings in percentage wrt FIT via participating in GSY-E
 
     def calculate_savings_kpi(self, area_dict: Dict, core_stats: Dict, grid_fee_along_path: float):
         """Calculates the referenced saving from feed-in tariff based participation vs GSY-E
@@ -175,29 +171,23 @@ class SavingsKPI:
             cumulative grid fee from root to target area
 
         """
-        self.populate_consumer_producer_sets(area_dict)
+        self._populate_consumer_producer_sets(area_dict)
 
-        # fir_excl_gf_alp: feed-in tariff rate excluding grid fee along path
-        fir_excl_gf_alp = self.get_feed_in_tariff_rate_excluding_path_grid_fees(
+        feed_in_tariff = self._get_feed_in_tariff_rate_excluding_path_grid_fees(
             core_stats.get(area_dict["uuid"], {}), grid_fee_along_path)
-        # mmr_incl_gf_alp: market maker rate include grid fee along path
-        mmr_incl_gf_alp = self.get_market_maker_rate_including_path_grid_fees(
+        market_maker_rate = self._get_market_maker_rate_including_path_grid_fees(
             core_stats.get(area_dict["uuid"], {}), grid_fee_along_path)
+
         for trade in core_stats.get(area_dict["uuid"], {}).get("trades", []):
-            if (trade["seller_origin_id"] in self.producer_ess_set and
-                    trade["buyer_origin_id"] not in self.consumer_ess_set):
-                self.fit_revenue += fir_excl_gf_alp * trade["energy"]
-                self.gsy_e_cost -= trade["price"]
-            if (trade["buyer_origin_id"] in self.consumer_ess_set and
-                    trade["seller_origin_id"] not in self.producer_ess_set):
-                self.utility_bill += mmr_incl_gf_alp * trade["energy"]
+            if trade["seller_origin_id"] in self.producer_ess_set:
+                if feed_in_tariff > 0:
+                    self.fit_revenue += feed_in_tariff * trade["energy"]
+                self.gsy_e_cost -= trade["price"] - trade["fee_price"]
+            if trade["buyer_origin_id"] in self.consumer_ess_set:
+                self.utility_bill += market_maker_rate * trade["energy"]
                 self.gsy_e_cost += trade["price"]
-        self.base_case_cost = self.utility_bill - self.fit_revenue
-        self.saving_absolute = self.base_case_cost - self.gsy_e_cost
-        self.saving_percentage = (abs((self.saving_absolute / self.base_case_cost) * 100)
-                                  if self.base_case_cost else None)
 
-    def populate_consumer_producer_sets(self, area_dict: Dict):
+    def _populate_consumer_producer_sets(self, area_dict: Dict):
         """
         Populate sets of device classes.
         Args:
@@ -213,7 +203,7 @@ class SavingsKPI:
                 self.consumer_ess_set.add(child["uuid"])
 
     @staticmethod
-    def get_feed_in_tariff_rate_excluding_path_grid_fees(
+    def _get_feed_in_tariff_rate_excluding_path_grid_fees(
             area_core_stat: Dict, path_grid_fee: float):
         """
         Args:
@@ -224,7 +214,7 @@ class SavingsKPI:
         return area_core_stat.get("feed_in_tariff", 0.) - path_grid_fee
 
     @staticmethod
-    def get_market_maker_rate_including_path_grid_fees(
+    def _get_market_maker_rate_including_path_grid_fees(
             area_core_stat: Dict, path_grid_fee: float):
         """
         Args:
@@ -238,12 +228,9 @@ class SavingsKPI:
         """
         Returns: key calculated parameters in dict type
         """
-        return {"base_case_cost": self.base_case_cost,
-                "utility_bill": self.utility_bill,
+        return {"utility_bill": self.utility_bill,
                 "fit_revenue": self.fit_revenue,
-                "gsy_e_cost": self.gsy_e_cost,
-                "saving_absolute": self.saving_absolute,
-                "saving_percentage": self.saving_percentage}
+                "gsy_e_cost": self.gsy_e_cost}
 
 
 class KPI(ResultsBaseClass):
@@ -271,7 +258,8 @@ class KPI(ResultsBaseClass):
     def _init_states(self, area_dict: Dict):
         if area_dict["uuid"] not in self.state:
             self.state[area_dict["uuid"]] = KPIState()
-        if area_dict["uuid"] not in self.savings_state:
+        if area_dict["uuid"] not in self.savings_state and area_dict.get("parent_uuid"):
+            # only savings KPIs for non-root areas are of interested
             self.savings_state[area_dict["uuid"]] = SavingsKPI()
 
     def _calculate_area_performance_indices(self, area_dict: Dict, core_stats: Dict) -> Dict:
@@ -279,9 +267,6 @@ class KPI(ResultsBaseClass):
         respective area's KPIs"""
 
         self._init_states(area_dict)
-
-        self.savings_state[area_dict["uuid"]].calculate_savings_kpi(
-            area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
 
         self.state[area_dict["uuid"]].accumulate_devices(area_dict)
 
@@ -319,7 +304,10 @@ class KPI(ResultsBaseClass):
             "total_self_consumption_wh": self.state[area_dict["uuid"]].total_self_consumption_wh,
         }
 
-        kpi_parm_dict.update(self.savings_state[area_dict["uuid"]].to_dict())
+        if area_dict["uuid"] in self.savings_state:
+            self.savings_state[area_dict["uuid"]].calculate_savings_kpi(
+                area_dict, core_stats, self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]])
+            kpi_parm_dict.update(self.savings_state[area_dict["uuid"]].to_dict())
 
         return kpi_parm_dict
 
@@ -356,8 +344,46 @@ class KPI(ResultsBaseClass):
             if len(child["children"]) > 0:
                 self.update(child, core_stats, current_market_slot)
 
+        self._post_process_savings_kpis(area_dict)
+
         self.performance_indices_redis[area_dict["uuid"]] = (
             self._get_ui_formatted_results(area_dict["uuid"]))
+
+    def _post_process_savings_kpis(self, area_dict: Dict) -> None:
+        """
+        Post process savings KPIs, that are also dependent on the savings KPIs of the children
+            1. add utility_bill, fit_revenue, gsy_e_cost of child markets to the areas' values
+            2. calculate base_case_cost, saving_absolute, saving_percentage for the area and
+               add them to the self.performance_indices
+        """
+        if not area_dict.get("children"):
+            return
+        if not area_dict.get("parent_uuid"):
+            # savings KPIs for the root area are not of interest and are removed
+            self.performance_indices[area_dict["uuid"]].pop("utility_bill", None)
+            self.performance_indices[area_dict["uuid"]].pop("fit_revenue", None)
+            self.performance_indices[area_dict["uuid"]].pop("gsy_e_cost", None)
+            return
+
+        for child in area_dict["children"]:
+            if child["uuid"] in self.savings_state:
+                self.performance_indices[area_dict["uuid"]]["utility_bill"] += (
+                    self.savings_state[child["uuid"]].utility_bill)
+                self.performance_indices[area_dict["uuid"]]["fit_revenue"] += (
+                    self.savings_state[child["uuid"]].fit_revenue)
+                self.performance_indices[area_dict["uuid"]]["gsy_e_cost"] += (
+                    self.savings_state[child["uuid"]].gsy_e_cost)
+
+        base_case_cost = (self.performance_indices[area_dict["uuid"]]["utility_bill"] -
+                          self.performance_indices[area_dict["uuid"]]["fit_revenue"])
+        saving_absolute = (base_case_cost -
+                           self.performance_indices[area_dict["uuid"]]["gsy_e_cost"])
+        saving_percentage = (abs((saving_absolute / base_case_cost) * 100)
+                             if base_case_cost else None)
+
+        self.performance_indices[area_dict["uuid"]]["base_case_cost"] = base_case_cost
+        self.performance_indices[area_dict["uuid"]]["saving_absolute"] = saving_absolute
+        self.performance_indices[area_dict["uuid"]]["saving_percentage"] = saving_percentage
 
     def _accumulate_root_to_target_area_grid_fee(self, area_dict, core_stats):
         parent_fee = self.area_uuid_cum_grid_fee_mapping.get(
