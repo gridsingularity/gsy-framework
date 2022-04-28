@@ -259,7 +259,8 @@ class KPI(ResultsBaseClass):
         if area_dict["uuid"] not in self.state:
             self.state[area_dict["uuid"]] = KPIState()
         if area_dict["uuid"] not in self.savings_state and area_dict.get("parent_uuid"):
-            # only savings KPIs for non-root areas are of interested
+            # savings KPI for the root area is not interesting,
+            # because the market maker usually resides there. Therefor the calculation is skipped
             self.savings_state[area_dict["uuid"]] = SavingsKPI()
 
     def _calculate_area_performance_indices(self, area_dict: Dict, core_stats: Dict) -> Dict:
