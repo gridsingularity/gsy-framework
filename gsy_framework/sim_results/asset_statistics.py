@@ -27,7 +27,8 @@ from gsy_framework.utils import create_or_update_subdict, limit_float_precision
 FILL_VALUE = None
 
 
-class DeviceStatistics(ResultsBaseClass):
+class AssetStatistics(ResultsBaseClass):
+    # The words `Asset` and `Device` are used interchangeably.
 
     def __init__(self, should_export_plots):
         self.device_stats_dict = {}

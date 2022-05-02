@@ -33,7 +33,10 @@ class TestValidateResults(unittest.TestCase):
                         "eta_seconds": 0,
                         "elapsed_time_seconds": 0,
                         "percentage_completed": 0
-                    }
+                    },
+                   # TODO: remove `device_statistics`; It's only kept for backward compatibility.
+                   "device_statistics": {},
+                   "asset_statistics": {}
         }
         results_validator(results)
 
@@ -45,7 +48,9 @@ class TestValidateResults(unittest.TestCase):
                     'cumulative_grid_trades': {},
                     'bills': {},
                     'cumulative_bills': {},
+                    # TODO: remove `device_statistics`; It's only kept for backward compatibility.
                     'device_statistics': {},
+                    'asset_statistics': {},
                     'energy_trade_profile': {}
                     }
         self.assertRaises(ValidationError, results_validator, results)
@@ -58,7 +63,9 @@ class TestValidateResults(unittest.TestCase):
                     'cumulative_bills': {},
                     'progress_info': {},
                     'status': 'running',
+                    # TODO: remove `device_statistics`; It's only kept for backward compatibility.
                     'device_statistics': {},
+                    'asset_statistics': {},
                     'not_a_parameter': {}
                     }
         self.assertRaises(ValidationError, results_validator, results)

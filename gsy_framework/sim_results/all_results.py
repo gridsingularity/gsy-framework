@@ -7,7 +7,7 @@ from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
 from gsy_framework.sim_results.bills import MarketEnergyBills, CumulativeBills
 from gsy_framework.sim_results.cumulative_grid_trades import CumulativeGridTrades
 from gsy_framework.sim_results.cumulative_net_energy_flow import CumulativeNetEnergyFlow
-from gsy_framework.sim_results.device_statistics import DeviceStatistics
+from gsy_framework.sim_results.asset_statistics import AssetStatistics
 from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
 from gsy_framework.sim_results.kpi import KPI
 from gsy_framework.sim_results.market_price_energy_day import MarketPriceEnergyDay
@@ -26,12 +26,15 @@ class ResultsHandler:
             'price_energy_day': MarketPriceEnergyDay(should_export_plots),
             'cumulative_bills': CumulativeBills(),
             'cumulative_grid_trades': CumulativeGridTrades(),
-            'device_statistics': DeviceStatistics(should_export_plots),
+            'asset_statistics': AssetStatistics(should_export_plots),
             'trade_profile': EnergyTradeProfile(should_export_plots),
             'area_throughput': AreaThroughputStats(),
             'market_summary': MarketSummaryInfo(should_export_plots),
             'assets_info': SimulationAssetsInfo()
         }
+
+        # TODO: remove `device_statistics`; It's only kept for backward compatibility.
+        self.results_mapping['device_statistics'] = self.results_mapping['asset_statistics']
         self._total_memory_utilization_kb = 0.0
 
     @property

@@ -199,7 +199,9 @@ class ResultsSchemas:
                                 "elapsed_time_seconds": {"type": "number"},
                                 "percentage_completed": {"type": "number"},
                             },
+                            # TODO: remove `device_statistics`; only kept for b-ward compatibility.
                             "device_statistics": {"type": "object"},
+                            "asset_statistics": {"type": "object"},
                             "energy_trade_profile": {"type": "object"},
                             "last_energy_trade_profile": {"type": "object"},
                             "last_device_statistics": {"type": "object"},
