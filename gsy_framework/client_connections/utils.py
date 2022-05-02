@@ -77,7 +77,9 @@ class RestCommunicationMixin:
 
     def _create_jwt_refresh_timer(self, sim_api_domain_name):
         self.jwt_refresh_timer = RepeatingTimer(
-            JWT_TOKEN_EXPIRY_IN_SECS - 30, self._refresh_jwt_token, [sim_api_domain_name]
+            # By refreshing 3 times during the lifetime of a token,
+            # we assure that we always have a working JWT token.
+            JWT_TOKEN_EXPIRY_IN_SECS / 4, self._refresh_jwt_token, [sim_api_domain_name]
         )
         self.jwt_refresh_timer.daemon = True
         self.jwt_refresh_timer.start()
