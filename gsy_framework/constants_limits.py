@@ -186,7 +186,7 @@ class ConstSettings:
         MARKET_TYPE_LIMIT = RangeLimit(1, 2)
 
         BID_OFFER_MATCH_TYPE = BidOfferMatchAlgoEnum.PAY_AS_BID.value
-        BID_OFFER_MATCH_TYPE_LIMIT = RangeLimit(1, 3)
+        BID_OFFER_MATCH_TYPE_LIMIT = RangeLimit(1, 4)
 
         # Pay as clear offer and bid rate/energy aggregation algorithm
         # Default value 1 stands for line sweep algorithm
