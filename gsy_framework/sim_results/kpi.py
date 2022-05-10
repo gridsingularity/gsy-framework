@@ -357,13 +357,7 @@ class KPI(ResultsBaseClass):
             2. calculate base_case_cost, saving_absolute, saving_percentage for the area and
                add them to the self.performance_indices
         """
-        if not area_dict.get("children"):
-            return
-        if not area_dict.get("parent_uuid"):
-            # savings KPIs for the root area are not of interest and are removed
-            self.performance_indices[area_dict["uuid"]].pop("utility_bill", None)
-            self.performance_indices[area_dict["uuid"]].pop("fit_revenue", None)
-            self.performance_indices[area_dict["uuid"]].pop("gsy_e_cost", None)
+        if not area_dict.get("children") or area_dict["uuid"] not in self.savings_state:
             return
 
         for child in area_dict["children"]:
