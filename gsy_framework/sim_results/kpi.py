@@ -405,12 +405,12 @@ class KPI(ResultsBaseClass):
         if area_dict["uuid"] not in self.savings_state:
             self.savings_state[area_dict["uuid"]] = SavingsKPI()
             self.savings_state[area_dict["uuid"]].utility_bill = (
-                last_known_state_data.get("utility_bill", 0))
+                last_known_state_data.get("utility_bill", 0)) or 0
             self.savings_state[area_dict["uuid"]].fit_revenue = (
-                last_known_state_data.get("fit_revenue", 0))
+                last_known_state_data.get("fit_revenue", 0)) or 0
             self.savings_state[area_dict["uuid"]].gsy_e_cost = (
                 last_known_state_data.get("gsy_e_cost", 0)
-                or last_known_state_data.get("d3a_cost", 0))
+                or last_known_state_data.get("d3a_cost", 0)) or 0
 
     @staticmethod
     def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
