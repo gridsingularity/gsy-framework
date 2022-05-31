@@ -196,8 +196,6 @@ class CumulativeGridTrades(ResultsBaseClass):
         ]
         for child in area.get("children", []):
             if child["uuid"] not in current_child_uuids:
-                if accumulated_trades[area["uuid"]].get("children") is None:
-                    accumulated_trades[area["uuid"]]["children"] = []
                 accumulated_trades[area["uuid"]]["children"].append(
                     self._generate_accumulated_trades_child_dict(
                         accumulated_trades, child
