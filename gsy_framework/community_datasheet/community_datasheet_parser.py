@@ -49,6 +49,11 @@ class CommunityDatasheetParser:
         members_to_details = CommunityMembersSheetParser(workbook["Community Members"]).parse()
         print(json.dumps(members_to_details, indent=4))
 
+        if any((missing := member) not in members_to_details for member in members_to_assets):
+            raise CommunityDatasheetException(
+                f'Member "{missing}" was defined in one of the asset sheets'  # noqa: F821
+                'but not in the "Community Members" sheet.')
+
         # - [ ] Put the 3 dicts together to create a grid structure
 
         # Parse the profile sheet
