@@ -15,19 +15,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-# pylint: disable=missing-function-docstring
-import unittest
-
 from pendulum import datetime, duration, today
 
-from gsy_framework.constants_limits import GlobalConfig, TIME_ZONE, PROFILE_EXPANSION_DAYS
+from gsy_framework.constants_limits import PROFILE_EXPANSION_DAYS, TIME_ZONE, GlobalConfig
 from gsy_framework.read_user_profile import (
-    _generate_slot_based_zero_values_dict_from_profile, read_arbitrary_profile, InputProfileTypes,
-    _fill_gaps_in_profile, _interpolate_profile_values_to_slot, read_profile_without_config)
+    InputProfileTypes, _fill_gaps_in_profile, _generate_slot_based_zero_values_dict_from_profile,
+    _interpolate_profile_values_to_slot, read_arbitrary_profile, read_profile_without_config)
 from gsy_framework.unit_test_utils import assert_dicts_identical
 
 
-class TestReadUserProfile(unittest.TestCase):
+class TestReadUserProfile:
     """Test reading the user profiles."""
 
     @staticmethod
