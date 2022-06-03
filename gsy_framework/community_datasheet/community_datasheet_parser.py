@@ -2,6 +2,7 @@
 
 import json
 from collections import defaultdict
+from copy import deepcopy
 from itertools import chain
 
 from openpyxl import load_workbook
@@ -35,6 +36,37 @@ class CommunityDatasheetParser:
                 f"The datasheet should contain the following sheets: {self.SHEETNAMES}."
                 f"Found: {current_sheetnames}.")
 
+        # Parse the general settings sheet
+        settings = GeneralSettingsSheetParser(workbook["General settings"]).parse()
+        # print(json.dumps(settings, indent=4))
+
+        members_to_details = CommunityMembersSheetParser(workbook["Community Members"]).parse()
+        # print(json.dumps(members_to_details, indent=4))
+
+        members_to_assets = self._parse_asset_sheets(workbook)
+        # print(json.dumps(members_to_assets, indent=4))
+
+        if any((missing := member) not in members_to_details for member in members_to_assets):
+            raise CommunityDatasheetException(
+                f'Member "{missing}" was defined in one of the asset sheets'  # noqa: F821
+                'but not in the "Community Members" sheet.')
+
+        # Parse the profile sheet
+        profiles = ProfileSheetParser(workbook["Profiles"]).parse()
+        # print(json.dumps(profiles, indent=4))
+
+        members_to_assets = self._merge_profiles_into_assets(profiles, members_to_assets)
+        # print(json.dumps(members_to_assets, indent=4))
+
+        output = {
+            "settings": settings,
+            "members": self._merge_members_details_and_assets(
+                members_to_details, members_to_assets)
+        }
+        print(json.dumps(output, indent=4))
+
+    @staticmethod
+    def _parse_asset_sheets(workbook):
         members_to_loads = LoadSheetParser(workbook["Load"]).parse()
         members_to_pvs = PVSheetParser(workbook["PV"]).parse()
         members_to_storages = StorageSheetParser(workbook["Storage"]).parse()
@@ -45,32 +77,23 @@ class CommunityDatasheetParser:
         for member_name, assets in chain.from_iterable(dict_items):
             members_to_assets[member_name].extend(assets)
 
-        print(json.dumps(members_to_assets, indent=4))
-        members_to_details = CommunityMembersSheetParser(workbook["Community Members"]).parse()
-        print(json.dumps(members_to_details, indent=4))
+        return members_to_assets
 
-        if any((missing := member) not in members_to_details for member in members_to_assets):
-            raise CommunityDatasheetException(
-                f'Member "{missing}" was defined in one of the asset sheets'  # noqa: F821
-                'but not in the "Community Members" sheet.')
+    @staticmethod
+    def _merge_members_details_and_assets(members_to_details, members_to_assets):
+        """Merge together the details of each member and the representation of their assets."""
+        output = {}  # RENAME
+        for member_name, info in members_to_details.items():
+            output[member_name] = info
+            output[member_name]["assets"] = members_to_assets.get(member_name, [])
 
-        # - [ ] Put the 3 dicts together to create a grid structure
-
-        # Parse the profile sheet
-        profiles = ProfileSheetParser(workbook["Profiles"]).parse()
-        print(json.dumps(profiles, indent=4))
-
-        self._merge_profiles_into_assets(profiles, members_to_assets)
-        print(json.dumps(members_to_assets, indent=4))
-
-        # Parse the general settings sheet
-        settings = GeneralSettingsSheetParser(workbook["General settings"]).parse()
-        print(json.dumps(settings, indent=4))
+        return output
 
     @staticmethod
     def _merge_profiles_into_assets(profiles, members_to_assets):
         """Merge each energy profile into the representation of its own asset."""
-        for asset in chain.from_iterable(members_to_assets.values()):
+        output = deepcopy(members_to_assets)
+        for asset in chain.from_iterable(output.values()):
             asset_name = asset["name"]
             if asset_name not in profiles:
                 continue
@@ -81,6 +104,8 @@ class CommunityDatasheetParser:
                 raise CommunityDatasheetException(
                     f'Asset type "{asset_type}" is not supported.') from ex
             asset[profile_key] = profiles[asset_name]
+
+        return output
 
 
 def parse_community_datasheet(filename):
