@@ -80,6 +80,7 @@ class BaseBidOffer:
             obj_dict = {**obj_dict, **kwargs}
 
         obj_dict["type"] = self.__class__.__name__
+        obj_dict["energy_rate"] = self.energy_rate
 
         return json.dumps(obj_dict, default=json_datetime_serializer)
 
