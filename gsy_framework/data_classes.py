@@ -53,19 +53,21 @@ class BaseBidOffer:
         self.original_price = original_price or price
         self.price = price
         self.energy = energy
-        self.energy_rate = limit_float_precision(self.price / self.energy)
         self.attributes = attributes
         self.requirements = requirements
+
+    @property
+    def energy_rate(self) -> float:
+        """Dynamically calculate rate of energy."""
+        return limit_float_precision(self.price / self.energy)
 
     def update_price(self, price: float) -> None:
         """Update price member."""
         self.price = price
-        self.energy_rate = limit_float_precision(self.price / self.energy)
 
     def update_energy(self, energy: float) -> None:
         """Update energy member."""
         self.energy = energy
-        self.energy_rate = limit_float_precision(self.price / self.energy)
 
     def to_json_string(self, **kwargs) -> str:
         """Convert the Offer or Bid object into its JSON representation.
@@ -544,8 +546,8 @@ class BidOfferMatch:
         """
         if "bid_requirement" in (self.matching_requirements or {}):
             return (
-                    self.matching_requirements["bid_requirement"].get("energy")
-                    or self.bid["energy"])
+                self.matching_requirements["bid_requirement"].get("energy")
+                or self.bid["energy"])
         return self.bid["energy"]
 
     @property
@@ -558,8 +560,8 @@ class BidOfferMatch:
         if "bid_requirement" in (self.matching_requirements or {}):
             if "price" in self.matching_requirements["bid_requirement"]:
                 return (
-                        self.matching_requirements["bid_requirement"].get("price") /
-                        self.bid_energy)
+                    self.matching_requirements["bid_requirement"].get("price") /
+                    self.bid_energy)
         return self.bid["energy_rate"]
 
 
