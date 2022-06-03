@@ -20,12 +20,21 @@ from pendulum import datetime, duration, today
 from gsy_framework.constants_limits import PROFILE_EXPANSION_DAYS, TIME_ZONE, GlobalConfig
 from gsy_framework.read_user_profile import (
     InputProfileTypes, _fill_gaps_in_profile, _generate_slot_based_zero_values_dict_from_profile,
-    _interpolate_profile_values_to_slot, read_arbitrary_profile, read_profile_without_config)
+    _interpolate_profile_values_to_slot, read_arbitrary_profile, read_profile_without_config,
+    read_and_convert_identity_profile_to_float)
 from gsy_framework.unit_test_utils import assert_dicts_identical
 
 
 class TestReadUserProfile:
     """Test reading the user profiles."""
+
+    @staticmethod
+    def test_read_and_convert_identity_profile_to_float():
+        profile = "30.4"
+        output_profile = read_and_convert_identity_profile_to_float(profile)
+        # All slots are generated (96 slots of 15 minutes each in one day)
+        assert len(output_profile) == 96
+        assert all(value == 30.4 for value in output_profile.values())
 
     @staticmethod
     def _validate_timedeltas_are_followed(profile):
