@@ -523,7 +523,7 @@ class TestTrade:
                 f"[{trade.seller} -> {trade.buyer}] {trade.traded_energy} kWh"
                 f" @ {trade.trade_price} {round(trade.trade_rate, 8)} "
                 f"{trade.offer_bid.id} [fee: {trade.fee_price} cts.] "
-                f"{trade.matching_requirements if trade.matching_requirements else ''}")
+                f"{trade.matching_requirements or ''}")
 
     @staticmethod
     def test_csv_fields():

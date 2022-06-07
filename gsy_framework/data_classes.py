@@ -360,7 +360,7 @@ class Trade:
             f"[{self.seller} -> {self.buyer}] {self.traded_energy} kWh @ {self.trade_price}"
             f" {round(self.trade_rate, 8)} "
             f"{self.offer_bid.id} [fee: {self.fee_price} cts.] "
-            f"{self.matching_requirements if self.matching_requirements else ''}")
+            f"{self.matching_requirements or ''}")
 
     @classmethod
     def csv_fields(cls) -> Tuple:
