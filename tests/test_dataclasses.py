@@ -518,7 +518,8 @@ class TestTrade:
             "seller": "seller",
             "buyer": "buyer",
             "traded_energy": 1,
-            "trade_price": 1}
+            "trade_price": 1,
+            "matching_requirements": {"requirement": "value"}}
 
     def test_str(self):
         trade = Trade(**self.initial_data)
@@ -526,18 +527,21 @@ class TestTrade:
                 f"{{{trade.id!s:.6s}}} [origin: {trade.seller_origin} -> {trade.buyer_origin}] "
                 f"[{trade.seller} -> {trade.buyer}] {trade.traded_energy} kWh"
                 f" @ {trade.trade_price} {round(trade.trade_rate, 8)} "
-                f"{trade.offer_bid.id} [fee: {trade.fee_price} cts.]")
+                f"{trade.offer_bid.id} [fee: {trade.fee_price} cts.] "
+                f"{trade.matching_requirements or ''}")
 
     @staticmethod
     def test_csv_fields():
         assert Trade.csv_fields() == (
-            "creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer")
+            "creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer",
+            "matching_requirements")
 
     def test_csv_values(self):
         trade = Trade(**self.initial_data)
         rate = round(trade.trade_rate, 4)
         assert (trade.csv_values() ==
-                (trade.creation_time, rate, trade.traded_energy, trade.seller, trade.buyer))
+                (trade.creation_time, rate, trade.traded_energy, trade.seller, trade.buyer,
+                 trade.matching_requirements))
 
     def test_to_json_string(self):
         trade = Trade(**self.initial_data)
