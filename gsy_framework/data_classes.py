@@ -302,11 +302,12 @@ class Bid(BaseBidOffer):
 @dataclass
 class TradeBidOfferInfo:
     """Class that contains information about the original bid or offer."""
-    original_bid_rate: float
-    propagated_bid_rate: float
-    original_offer_rate: float
-    propagated_offer_rate: float
-    trade_rate: float
+    original_bid_rate: Optional[float]
+    propagated_bid_rate: Optional[float]
+    original_offer_rate: Optional[float]
+    propagated_offer_rate: Optional[float]
+    trade_rate: Optional[float]
+    matching_requirements: Optional[Dict] = None
 
     def to_json_string(self) -> str:
         """Return json string of the representation."""
@@ -330,7 +331,8 @@ class Trade:
                  seller_origin: Optional[str] = None, buyer_origin: Optional[str] = None,
                  fee_price: Optional[float] = None, seller_origin_id: Optional[str] = None,
                  buyer_origin_id: Optional[str] = None, seller_id: Optional[str] = None,
-                 buyer_id: Optional[str] = None, time_slot: Optional[DateTime] = None):
+                 buyer_id: Optional[str] = None, time_slot: Optional[DateTime] = None,
+                 matching_requirements: Optional[Dict] = None):
 
         self.id = str(id)
         self.creation_time = creation_time
@@ -350,23 +352,27 @@ class Trade:
         self.buyer_origin_id = buyer_origin_id
         self.seller_id = seller_id
         self.buyer_id = buyer_id
+        self.matching_requirements = matching_requirements
 
     def __str__(self) -> str:
         return (
             f"{{{self.id!s:.6s}}} [origin: {self.seller_origin} -> {self.buyer_origin}] "
             f"[{self.seller} -> {self.buyer}] {self.traded_energy} kWh @ {self.trade_price}"
             f" {round(self.trade_rate, 8)} "
-            f"{self.offer_bid.id} [fee: {self.fee_price} cts.]")
+            f"{self.offer_bid.id} [fee: {self.fee_price} cts.] "
+            f"{self.matching_requirements or ''}")
 
     @classmethod
     def csv_fields(cls) -> Tuple:
         """Return labels for csv_values for CSV export."""
-        return "creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer"
+        return ("creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer",
+                "matching_requirements")
 
     def csv_values(self) -> Tuple:
         """Return values of class members that are needed for creation of CSV export."""
         rate = round(self.trade_rate, 4)
-        return self.creation_time, rate, self.traded_energy, self.seller, self.buyer
+        return (self.creation_time, rate, self.traded_energy, self.seller, self.buyer,
+                self.matching_requirements)
 
     def to_json_string(self) -> str:
         """Return json string of the representation."""
