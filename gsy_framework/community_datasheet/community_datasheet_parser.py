@@ -6,6 +6,7 @@ import uuid
 from itertools import chain
 from typing import Dict
 
+from jsonschema.exceptions import ValidationError
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 
@@ -13,6 +14,7 @@ from gsy_framework.community_datasheet.exceptions import CommunityDatasheetExcep
 from gsy_framework.community_datasheet.sheet_parsers import (
     CommunityMembersSheetParser, GeneralSettingsSheetParser, LoadSheetParser, ProfileSheetParser,
     PVSheetParser, StorageSheetParser)
+from gsy_framework.scenario_validators import scenario_validator
 
 logger = logging.getLogger(__name__)
 
@@ -53,12 +55,14 @@ class CommunityDatasheetParser:
         self._merge_profiles_into_assets(self.profiles, assets_by_member)
         grid = self._create_grid(assets_by_member)
 
+        self._validate_grid(grid)
+
         return {
             "settings": self.settings,
             "grid": grid
         }
 
-    def as_json(self):
+    def as_json(self) -> str:
         """Return the JSON representation of the datasheet."""
         return json.dumps(self.parse(), indent=4)
 
@@ -79,6 +83,13 @@ class CommunityDatasheetParser:
             raise CommunityDatasheetException(
                 f"The datasheet should contain the following sheets: {cls.SHEETNAMES}."
                 f"Found: {current_sheetnames}.")
+
+    @staticmethod
+    def _validate_grid(grid):
+        try:
+            scenario_validator(grid)
+        except ValidationError as ex:
+            raise CommunityDatasheetException(ex) from ex
 
     def _parse_sheets(self, workbook) -> None:
         self.settings = GeneralSettingsSheetParser(workbook["General settings"]).parse()

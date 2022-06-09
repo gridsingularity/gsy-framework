@@ -184,7 +184,7 @@ class ProfileSheetParser(MembersSheetParser):
                     f'Check sheet "{self._worksheet.title}".')
 
             for asset_name, energy_value in row_dict.items():
-                output[asset_name][date_time] = energy_value
+                output[asset_name][date_time] = energy_value or 0.0
 
             already_parsed_date_times.append(date_time)
 
