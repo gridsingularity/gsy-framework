@@ -15,20 +15,41 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-# pylint: disable=missing-function-docstring
-import unittest
-
+import pytest
 from pendulum import datetime, duration, today
 
-from gsy_framework.constants_limits import GlobalConfig, TIME_ZONE, PROFILE_EXPANSION_DAYS
+from gsy_framework.constants_limits import PROFILE_EXPANSION_DAYS, TIME_ZONE, GlobalConfig
 from gsy_framework.read_user_profile import (
-    _generate_slot_based_zero_values_dict_from_profile, read_arbitrary_profile, InputProfileTypes,
-    _fill_gaps_in_profile, _interpolate_profile_values_to_slot, read_profile_without_config)
+    InputProfileTypes, _fill_gaps_in_profile, _generate_slot_based_zero_values_dict_from_profile,
+    _interpolate_profile_values_to_slot, read_and_convert_identity_profile_to_float,
+    read_arbitrary_profile, read_profile_without_config)
 from gsy_framework.unit_test_utils import assert_dicts_identical
 
 
-class TestReadUserProfile(unittest.TestCase):
+@pytest.fixture(name="set_is_canary_network")
+def set_is_canary_network_fixture():
+    """Change the GlobalConfig value and then restore it at the end of the test."""
+    original_value = None
+
+    def _setup(value):
+        nonlocal original_value
+        original_value = GlobalConfig.IS_CANARY_NETWORK
+        GlobalConfig.IS_CANARY_NETWORK = value
+
+    yield _setup
+    GlobalConfig.IS_CANARY_NETWORK = original_value
+
+
+class TestReadUserProfile:
     """Test reading the user profiles."""
+
+    @staticmethod
+    def test_read_and_convert_identity_profile_to_float():
+        profile = "30.4"
+        output_profile = read_and_convert_identity_profile_to_float(profile)
+        # All slots are generated (96 slots of 15 minutes each in one day)
+        assert len(output_profile) == 96
+        assert all(value == 30.4 for value in output_profile.values())
 
     @staticmethod
     def _validate_timedeltas_are_followed(profile):
@@ -102,30 +123,35 @@ class TestReadUserProfile(unittest.TestCase):
         })
 
     @staticmethod
-    def test_read_arbitrary_profile_returns_profile_with_correct_time_expansion():
+    def test_read_arbitrary_profile_returns_correct_profile_in_canary_network(
+            set_is_canary_network):
+        set_is_canary_network(True)
         market_maker_rate = 30
-        if GlobalConfig.IS_CANARY_NETWORK:
-            GlobalConfig.sim_duration = duration(hours=3)
-            expected_last_time_slot = today(tz=TIME_ZONE).add(days=PROFILE_EXPANSION_DAYS - 1,
-                                                              hours=23, minutes=45)
-            mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
-            assert list(mmr.keys())[-1] == expected_last_time_slot
-            GlobalConfig.sim_duration = duration(hours=30)
-            expected_last_time_slot = today(tz=TIME_ZONE).add(days=PROFILE_EXPANSION_DAYS - 1,
-                                                              hours=23, minutes=45)
-            mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
-            assert list(mmr.keys())[-1] == expected_last_time_slot
-        else:
-            GlobalConfig.FUTURE_MARKET_DURATION_HOURS = 0
-            GlobalConfig.sim_duration = duration(hours=3)
-            mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
-            assert (list(mmr.keys())[-1] - today(tz=TIME_ZONE)).days == 0
-            GlobalConfig.sim_duration = duration(hours=36)
-            mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
-            assert (list(mmr.keys())[-1] - today(tz=TIME_ZONE)).days == 1
+        GlobalConfig.sim_duration = duration(hours=3)
+        expected_last_time_slot = today(tz=TIME_ZONE).add(days=PROFILE_EXPANSION_DAYS - 1,
+                                                          hours=23, minutes=45)
+        mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+        assert list(mmr.keys())[-1] == expected_last_time_slot
+        GlobalConfig.sim_duration = duration(hours=30)
+        expected_last_time_slot = today(tz=TIME_ZONE).add(days=PROFILE_EXPANSION_DAYS - 1,
+                                                          hours=23, minutes=45)
+        mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+        assert list(mmr.keys())[-1] == expected_last_time_slot
 
-            GlobalConfig.FUTURE_MARKET_DURATION_HOURS = 24
-            GlobalConfig.sim_duration = duration(hours=1)
-            mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
-            time_diff = list(mmr.keys())[-1] - today(tz=TIME_ZONE)
-            assert time_diff.minutes == 45
+    @staticmethod
+    def test_read_arbitrary_profile_returns_correct_profile(set_is_canary_network):
+        set_is_canary_network(False)
+        market_maker_rate = 30
+        GlobalConfig.FUTURE_MARKET_DURATION_HOURS = 0
+        GlobalConfig.sim_duration = duration(hours=3)
+        mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+        assert (list(mmr.keys())[-1] - today(tz=TIME_ZONE)).days == 0
+        GlobalConfig.sim_duration = duration(hours=36)
+        mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+        assert (list(mmr.keys())[-1] - today(tz=TIME_ZONE)).days == 1
+
+        GlobalConfig.FUTURE_MARKET_DURATION_HOURS = 24
+        GlobalConfig.sim_duration = duration(hours=1)
+        mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+        time_diff = list(mmr.keys())[-1] - today(tz=TIME_ZONE)
+        assert time_diff.minutes == 45
