@@ -68,10 +68,13 @@ class ScenarioSchemas:
                                                                   {"type": "null"}]},
                     "capacity_kW": {"type": "number"},
                     "cloud_coverage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "power_profile": {"anyOf": [{"type": "number"},
-                                                {"type": "null"},
-                                                {"type": "array"},
-                                                {"type": "string"}]},
+                    "power_profile": {
+                        "anyOf": [
+                            {"type": "object"},
+                            {"type": "number"},
+                            {"type": "null"},
+                            {"type": "array"},
+                            {"type": "string"}]},
                     "use_market_maker_rate": {"type": "boolean"}
                 }
             },
@@ -120,9 +123,14 @@ class ScenarioSchemas:
                                                                   {"type": "null"}]},
                     "daily_load_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "use_market_maker_rate": {"type": "boolean"},
-                    "daily_load_profile": {"anyOf": [{"type": "array"},
-                                                     {"type": "null"},
-                                                     {"type": "string"}]}
+                    "daily_load_profile": {
+                        "anyOf": [
+                            {"type": "object"},
+                            {"type": "array"},
+                            {"type": "null"},
+                            {"type": "string"}
+                        ]
+                    }
                 }
             },
             "smart_meter": {
