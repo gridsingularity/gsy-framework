@@ -49,6 +49,7 @@ class CommunityDatasheetParser:
 
         self._validate_sheetnames(workbook)
         self._parse_sheets(workbook)
+        self._validate_missing_profiles()
 
         assets_by_member = self._get_assets_by_member()
 
@@ -90,6 +91,23 @@ class CommunityDatasheetParser:
             scenario_validator(grid)
         except ValidationError as ex:
             raise CommunityDatasheetException(ex) from ex
+
+    def _validate_missing_profiles(self):
+        asset_names = []
+        # Storage assets do not define profiles so we don't consider them
+        asset_items = [assets.values() for assets in [self.loads, self.pvs]]
+        for assets in chain.from_iterable(asset_items):
+            asset_names.extend(asset["name"] for asset in assets)
+
+        missing_profiles = [
+            asset_name for asset_name in asset_names
+            if asset_name not in self.profiles
+        ]
+
+        if missing_profiles:
+            raise CommunityDatasheetException(
+                "Each asset must explicitly define an energy profile in the datasheet. "
+                f"The following assets do not define a profile: {missing_profiles}.")
 
     def _parse_sheets(self, workbook) -> None:
         self.settings = GeneralSettingsSheetParser(workbook["General settings"]).parse()
