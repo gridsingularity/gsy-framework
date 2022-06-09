@@ -191,15 +191,20 @@ class TestBaseBidOffer:
         assert bid_offer.energy_rate == bid_offer.price / 40
 
     def test_to_json_string(self):
+        bid_offer_keys = {
+            "id", "creation_time", "time_slot", "original_price", "price", "energy", "attributes",
+            "requirements", "type", "energy_rate"}
         bid_offer = BaseBidOffer(
             **self.initial_data
         )
-        obj_dict = deepcopy(bid_offer.__dict__)
+        obj_dict = json.loads(bid_offer.to_json_string(my_extra_key=10))
+        assert obj_dict.pop("my_extra_key") == 10
+        assert set(obj_dict.keys()) == bid_offer_keys
 
-        obj_dict["type"] = "BaseBidOffer"
-        assert bid_offer.to_json_string() == json.dumps(obj_dict, default=json_datetime_serializer)
-        assert json.loads(
-            bid_offer.to_json_string(my_extra_key=10)).get("my_extra_key") == 10
+        assert json.dumps(obj_dict, sort_keys=True) == json.dumps(
+            {key: getattr(bid_offer, key) for key in bid_offer_keys}, sort_keys=True,
+            default=json_datetime_serializer
+        )
 
     def test_serializable_dict(self):
         bid_offer = BaseBidOffer(
