@@ -6,11 +6,14 @@ import uuid
 from itertools import chain
 from typing import Dict
 
+import requests
 from jsonschema.exceptions import ValidationError
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
+from gsy_framework.community_datasheet.location_converter import (
+    LocationConverter, LocationConverterException)
 from gsy_framework.community_datasheet.sheet_parsers import (
     CommunityMembersSheetParser, GeneralSettingsSheetParser, LoadSheetParser, ProfileSheetParser,
     PVSheetParser, StorageSheetParser)
@@ -49,6 +52,9 @@ class CommunityDatasheetParser:
 
         self._validate_sheetnames(workbook)
         self._parse_sheets(workbook)
+
+        self._fetch_pv_coordinates(self.pvs, self.members)
+
         self._validate_missing_profiles()
 
         assets_by_member = self._get_assets_by_member()
@@ -171,6 +177,37 @@ class CommunityDatasheetParser:
                 "uuid": str(uuid.uuid4()),
                 "children": []
             }}
+
+    @classmethod
+    def _fetch_pv_coordinates(cls, pvs_by_member, members_information):
+        try:
+            location_converter = LocationConverter()
+        except LocationConverterException as ex:
+            logger.warning(ex)
+            return
+
+        with requests.Session() as session:
+            for member_name, pv_assets in pvs_by_member.items():
+                coordinates = cls._get_member_coordinates(
+                    members_information[member_name],
+                    location_converter=location_converter,
+                    session=session)
+                for pv_details in pv_assets:
+                    pv_details["geo_tag_location"] = coordinates
+
+    @staticmethod
+    def _get_member_coordinates(
+            member_details: Dict, location_converter: LocationConverter, session=None):
+        address = member_details.get("Location/Address (optional)") or ""
+        zip_code = member_details.get("ZIP code") or ""
+        full_address = f"{address} {zip_code}"
+        if not full_address.strip():
+            return None
+
+        try:
+            return location_converter.convert(full_address, session=session)
+        except LocationConverterException as ex:
+            raise CommunityDatasheetException(ex) from ex
 
 
 def parse_community_datasheet(filename):
