@@ -2,9 +2,10 @@
 
 import json
 import logging
-from dataclasses import dataclass
+import pathlib
+from dataclasses import asdict, dataclass
 from itertools import chain
-from typing import Dict
+from typing import IO, Dict, Union
 
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
@@ -30,20 +31,21 @@ class CommunityDatasheet:
 
     def as_json(self) -> str:
         """Return the JSON representation of the datasheet."""
-        return json.dumps(self, indent=4)
+        return json.dumps(asdict(self), indent=4)
 
 
 class CommunityDatasheetReader:
-    """Parser for Community Datasheet files.
+    """Parser for Community Datasheet files."""
 
-    Args:
-        filename: the path to open or a file-like object.
-    """
     SHEETNAMES = {"General settings", "Community Members", "Load", "PV", "Storage", "Profiles"}
 
     @classmethod
-    def read(cls, filename) -> Dict:
-        """Parse the entire datasheet and return its representation as a dictionary."""
+    def read(cls, filename: Union[str, pathlib.Path, IO]) -> Dict:
+        """Parse the entire datasheet and return its dataclass.
+
+        Args:
+            filename: the path to open or a file-like object.
+        """
         workbook = cls._load_workbook(filename)
 
         cls._validate_sheetnames(workbook)
@@ -53,7 +55,7 @@ class CommunityDatasheetReader:
         return datasheet
 
     @staticmethod
-    def _load_workbook(filename: str):
+    def _load_workbook(filename: Union[str, pathlib.Path, IO]):
         try:
             return load_workbook(filename, read_only=True)
         except InvalidFileException as ex:

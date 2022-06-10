@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from datetime import datetime
 from typing import Dict, Optional, Tuple
 
@@ -81,7 +80,7 @@ class MembersSheetParser(SheetParserInterface):
         self._header: Optional[Tuple[str]] = None  # Column headers found in the file
 
     def _parse_rows(self) -> Dict:
-        output = defaultdict(list)
+        output = {}
         for row in self.rows:
             row_dict = self._row_to_dict(row)
             # The first header is the member name
@@ -91,6 +90,8 @@ class MembersSheetParser(SheetParserInterface):
                     f'member name cannot be None. Check sheet "{self._worksheet.title}".')
 
             member_name = member_name.strip()
+            if member_name not in output:
+                output[member_name] = []
             parsed_row = self._parse_row(row_dict)
             output[member_name].append(parsed_row)
 
@@ -173,7 +174,7 @@ class ProfileSheetParser(MembersSheetParser):
     def _parse_rows(self) -> Dict:
         """Parse a worksheet."""
         already_parsed_date_times = []
-        output = defaultdict(dict)
+        output = {}
         for row in self.rows:
             row_dict = self._row_to_dict(row)
 
@@ -184,6 +185,8 @@ class ProfileSheetParser(MembersSheetParser):
                     f'Check sheet "{self._worksheet.title}".')
 
             for asset_name, energy_value in row_dict.items():
+                if asset_name not in output:
+                    output[asset_name] = {}
                 output[asset_name][date_time] = energy_value or 0.0
 
             already_parsed_date_times.append(date_time)
