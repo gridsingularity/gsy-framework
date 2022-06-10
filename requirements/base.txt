@@ -20,6 +20,8 @@ decorator==5.1.1
     # via ratelim
 distlib==0.3.3
     # via virtualenv
+et-xmlfile==1.1.0
+    # via openpyxl
 filelock==3.3.2
     # via
     #   tox
@@ -44,6 +46,8 @@ mccabe==0.6.1
     # via flake8
 nodeenv==1.6.0
     # via pre-commit
+openpyxl==3.0.10
+    # via -r requirements/base.ini
 packaging==21.2
     # via tox
 pendulum==2.1.2
