@@ -1,5 +1,6 @@
 """Module for parsing SCM Community Datasheet Excel files."""
 
+import copy
 import logging
 import uuid
 from itertools import chain
@@ -27,12 +28,11 @@ PROFILE_KEYS_BY_TYPE = {
 class CommunityDatasheetParser:
     """Parser for the community datasheet."""
     def __init__(self, datasheet: CommunityDatasheet):
-        self._datasheet = datasheet
+        self._datasheet = copy.deepcopy(datasheet)  # Avoid modifying the original datasheet object
 
     def parse(self):
-        """Read the raw datasheet and convert it to grid-like items."""
-
-        self._fetch_pv_coordinates(self._datasheet.pvs, self._datasheet.members)
+        """Convert the datasheet to grid-like items."""
+        self._add_pv_coordinates(self._datasheet.pvs, self._datasheet.members)
         assets_by_member = self._get_assets_by_member()
 
         self._merge_profiles_into_assets(self._datasheet.profiles, assets_by_member)
@@ -43,6 +43,37 @@ class CommunityDatasheetParser:
             "settings": self._datasheet.settings,
             "grid": grid
         }
+
+    @classmethod
+    def _add_pv_coordinates(cls, pvs_by_member: Dict, members_information: Dict):
+        try:
+            location_converter = LocationConverter()
+        except LocationConverterException as ex:
+            logger.warning(ex)
+            return
+
+        with requests.Session() as session:
+            for member_name, pv_assets in pvs_by_member.items():
+                coordinates = cls._get_member_coordinates(
+                    members_information[member_name],
+                    location_converter=location_converter,
+                    session=session)
+                for pv_details in pv_assets:
+                    pv_details["geo_tag_location"] = coordinates
+
+    @staticmethod
+    def _get_member_coordinates(
+            member_details: Dict, location_converter: LocationConverter, session=None):
+        address = member_details["Location/Address (optional)"] or ""
+        zip_code = member_details["ZIP code"] or ""
+        full_address = f"{address} {zip_code}"
+        if not full_address.strip():
+            return None
+
+        try:
+            return location_converter.convert(full_address, session=session)
+        except LocationConverterException as ex:
+            raise CommunityDatasheetException(ex) from ex
 
     @staticmethod
     def _validate_grid(grid):
@@ -108,37 +139,6 @@ class CommunityDatasheetParser:
                 "uuid": str(uuid.uuid4()),
                 "children": []
             }}
-
-    @classmethod
-    def _fetch_pv_coordinates(cls, pvs_by_member, members_information):
-        try:
-            location_converter = LocationConverter()
-        except LocationConverterException as ex:
-            logger.warning(ex)
-            return
-
-        with requests.Session() as session:
-            for member_name, pv_assets in pvs_by_member.items():
-                coordinates = cls._get_member_coordinates(
-                    members_information[member_name],
-                    location_converter=location_converter,
-                    session=session)
-                for pv_details in pv_assets:
-                    pv_details["geo_tag_location"] = coordinates
-
-    @staticmethod
-    def _get_member_coordinates(
-            member_details: Dict, location_converter: LocationConverter, session=None):
-        address = member_details.get("Location/Address (optional)") or ""
-        zip_code = member_details.get("ZIP code") or ""
-        full_address = f"{address} {zip_code}"
-        if not full_address.strip():
-            return None
-
-        try:
-            return location_converter.convert(full_address, session=session)
-        except LocationConverterException as ex:
-            raise CommunityDatasheetException(ex) from ex
 
 
 def parse_community_datasheet(filename):

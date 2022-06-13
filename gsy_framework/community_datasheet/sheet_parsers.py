@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Dict, Optional, Tuple
 
 import pendulum
@@ -8,7 +7,7 @@ from pendulum.datetime import DateTime
 
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.community_datasheet.row_converters import (
-    LoadRowConverter, PVRowConverter, StorageRowConverter)
+    GeneralSettingsRowConverter, LoadRowConverter, PVRowConverter, StorageRowConverter)
 from gsy_framework.community_datasheet.sheet_headers import (
     CommunityMembersSheetHeader, LoadSheetHeader, PVSheetHeader, StorageSheetHeader)
 from gsy_framework.constants_limits import DATE_TIME_FORMAT
@@ -16,6 +15,8 @@ from gsy_framework.constants_limits import DATE_TIME_FORMAT
 
 class SheetParserInterface(ABC):
     """Interface for sheet parsers to be used with the Community Datasheet."""
+
+    ROW_CONVERTER_CLASS = None  # Class to convert rows into their representations/dictionaries
 
     def __init__(self, worksheet: Worksheet) -> Dict:
         self._worksheet = worksheet
@@ -49,19 +50,25 @@ class SheetParserInterface(ABC):
     def _parse_header(self):
         """Parse the header of the sheet."""
 
+    @classmethod
+    def _parse_row(cls, row):
+        """Convert the row dictionary to the asset representation used in GSy-E scenarios."""
+        if not cls.ROW_CONVERTER_CLASS:
+            return row
+
+        return cls.ROW_CONVERTER_CLASS.convert(row)
+
 
 class GeneralSettingsSheetParser(SheetParserInterface):
     """Parser for the "General settings" sheet of the Community Datasheet."""
 
+    ROW_CONVERTER_CLASS = GeneralSettingsRowConverter
+
     def _parse_rows(self) -> Dict:
         output = {}
         for row in self.rows:
-            # Each row contains three items: setting-name, legend, value
-            setting_name = row[0]
-            setting_value = row[2]
-            if isinstance(setting_value, datetime):
-                setting_value = pendulum.instance(setting_value).format(DATE_TIME_FORMAT)
-            output[setting_name] = setting_value
+            parsed_row = self._parse_row(row)
+            output.update(parsed_row)
 
         return output
 
@@ -73,7 +80,6 @@ class MembersSheetParser(SheetParserInterface):
     """Base class to parse sheets whose rows represent member names."""
 
     EXPECTED_HEADER: Tuple[str]  # Fields of the header of the sheet
-    ROW_CONVERTER_CLASS = None  # Class to convert rows into scenario representations
 
     def __init__(self, worksheet: Worksheet) -> Dict:
         super().__init__(worksheet)
@@ -107,14 +113,6 @@ class MembersSheetParser(SheetParserInterface):
         if not self._header == self.EXPECTED_HEADER:
             raise CommunityDatasheetException(
                 f"Could not find expected headers: {self.EXPECTED_HEADER}. Found: {self._header}.")
-
-    @classmethod
-    def _parse_row(cls, row):
-        """Convert the row dictionary to the asset representation used in GSy-E scenarios."""
-        if not cls.ROW_CONVERTER_CLASS:
-            return row
-
-        return cls.ROW_CONVERTER_CLASS.convert(row)
 
 
 class CommunityMembersSheetParser(MembersSheetParser):
