@@ -11,6 +11,8 @@ from jsonschema.exceptions import ValidationError
 
 from gsy_framework.community_datasheet.community_datasheet_reader import (
     CommunityDatasheet, CommunityDatasheetReader)
+from gsy_framework.community_datasheet.community_datasheet_validator import (
+    CommunityDatasheetValidator)
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.community_datasheet.location_converter import (
     LocationConverter, LocationConverterException)
@@ -144,6 +146,8 @@ class CommunityDatasheetParser:
 def parse_community_datasheet(filename):
     """Parse the content of the community datasheet and return a JSON representation."""
     datasheet = CommunityDatasheetReader.read(filename)
+    CommunityDatasheetValidator.validate(datasheet)
+
     parser = CommunityDatasheetParser(datasheet)
     print(parser.parse())
 

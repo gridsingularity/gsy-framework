@@ -4,7 +4,6 @@ import json
 import logging
 import pathlib
 from dataclasses import asdict, dataclass
-from itertools import chain
 from typing import IO, Dict, Union
 
 from openpyxl import load_workbook
@@ -33,9 +32,13 @@ class CommunityDatasheet:
         """Return the JSON representation of the datasheet."""
         return json.dumps(asdict(self), indent=4)
 
+    def as_dict(self) -> str:
+        """Return the dictionary representation of the datasheet."""
+        return asdict(self)
+
 
 class CommunityDatasheetReader:
-    """Parser for Community Datasheet files."""
+    """Reader for Community Datasheet files."""
 
     SHEETNAMES = {"General settings", "Community Members", "Load", "PV", "Storage", "Profiles"}
 
@@ -50,7 +53,6 @@ class CommunityDatasheetReader:
 
         cls._validate_sheetnames(workbook)
         datasheet = cls._parse_sheets(workbook)
-        cls._validate_missing_profiles(datasheet)
 
         return datasheet
 
@@ -82,21 +84,3 @@ class CommunityDatasheetReader:
             storages=StorageSheetParser(workbook["Storage"]).parse(),
             profiles=ProfileSheetParser(workbook["Profiles"]).parse()
         )
-
-    @staticmethod
-    def _validate_missing_profiles(datasheet):
-        asset_names = []
-        # Storage assets do not define profiles so we don't consider them
-        asset_items = [assets.values() for assets in [datasheet.loads, datasheet.pvs]]
-        for assets in chain.from_iterable(asset_items):
-            asset_names.extend(asset["name"] for asset in assets)
-
-        missing_profiles = [
-            asset_name for asset_name in asset_names
-            if asset_name not in datasheet.profiles
-        ]
-
-        if missing_profiles:
-            raise CommunityDatasheetException(
-                "Each asset must explicitly define an energy profile in the datasheet. "
-                f"The following assets do not define a profile: {missing_profiles}.")
