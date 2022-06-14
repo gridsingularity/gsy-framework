@@ -81,6 +81,7 @@ class ConstSettings:
 
         # Duration between clearing in future markets
         FUTURE_MARKET_CLEARING_INTERVAL_MINUTES = 15
+        DAY_AHEAD_CLEARING_DAYTIME_HOUR = 12
 
     class AreaSettings:
         """Default settings for market areas."""
@@ -247,6 +248,7 @@ class GlobalConfig:
     DURATION_D = 1
     MARKET_COUNT = 1
     FUTURE_MARKET_DURATION_HOURS = 0
+    DAY_AHEAD_DURATION_DAYS = 1
     CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = str(ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
