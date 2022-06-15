@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import pytest
 from pendulum import datetime, duration, today
 
-from gsy_framework.constants_limits import PROFILE_EXPANSION_DAYS, TIME_ZONE, GlobalConfig
+from gsy_framework.constants_limits import (PROFILE_EXPANSION_DAYS, TIME_ZONE, GlobalConfig,
+                                            ConstSettings)
 from gsy_framework.read_user_profile import (
     InputProfileTypes, _fill_gaps_in_profile, _generate_slot_based_zero_values_dict_from_profile,
     _interpolate_profile_values_to_slot, read_and_convert_identity_profile_to_float,
@@ -142,7 +143,7 @@ class TestReadUserProfile:
     def test_read_arbitrary_profile_returns_correct_profile(set_is_canary_network):
         set_is_canary_network(False)
         market_maker_rate = 30
-        GlobalConfig.FUTURE_MARKET_DURATION_HOURS = 0
+        ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS = 0
         GlobalConfig.sim_duration = duration(hours=3)
         mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
         assert (list(mmr.keys())[-1] - today(tz=TIME_ZONE)).days == 0
@@ -150,7 +151,7 @@ class TestReadUserProfile:
         mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
         assert (list(mmr.keys())[-1] - today(tz=TIME_ZONE)).days == 1
 
-        GlobalConfig.FUTURE_MARKET_DURATION_HOURS = 24
+        ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS = 24
         GlobalConfig.sim_duration = duration(hours=1)
         mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
         time_diff = list(mmr.keys())[-1] - today(tz=TIME_ZONE)
