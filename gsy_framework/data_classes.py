@@ -343,8 +343,8 @@ class Trade:
         self.seller = seller
         self.buyer = buyer
 
-        assert (traded_energy > FLOATING_POINT_TOLERANCE,
-                f"Traded energy should always be a positive nonzero value.")
+        assert traded_energy > FLOATING_POINT_TOLERANCE, ("Traded energy should always be a "
+                                                          "positive nonzero value.")
         self.traded_energy = traded_energy
         self.trade_price = trade_price
         self.residual = residual
