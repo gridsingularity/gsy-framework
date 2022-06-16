@@ -1,6 +1,5 @@
 """Module for parsing SCM Community Datasheet Excel files."""
 
-import copy
 import logging
 import uuid
 from itertools import chain
@@ -9,8 +8,7 @@ from typing import Dict
 import requests
 from jsonschema.exceptions import ValidationError
 
-from gsy_framework.community_datasheet.community_datasheet_reader import (
-    CommunityDatasheet, CommunityDatasheetReader)
+from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheetReader
 from gsy_framework.community_datasheet.community_datasheet_validator import (
     CommunityDatasheetValidator)
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
@@ -29,8 +27,10 @@ PROFILE_KEYS_BY_TYPE = {
 
 class CommunityDatasheetParser:
     """Parser for the community datasheet."""
-    def __init__(self, datasheet: CommunityDatasheet):
-        self._datasheet = copy.deepcopy(datasheet)  # Avoid modifying the original datasheet object
+
+    def __init__(self, filename):
+        self._filename = filename
+        self._datasheet = CommunityDatasheetReader.read(filename)
 
     def parse(self):
         """Convert the datasheet to grid-like items."""
