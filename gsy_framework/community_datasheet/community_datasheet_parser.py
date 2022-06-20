@@ -14,6 +14,7 @@ from gsy_framework.community_datasheet.community_datasheet_validator import (
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.community_datasheet.location_converter import (
     LocationConverter, LocationConverterException)
+from gsy_framework.enums import CloudCoverage
 from gsy_framework.scenario_validators import scenario_validator
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,8 @@ PROFILE_KEYS_BY_TYPE = {
     "PV": "power_profile",
     "SmartMeter": "smart_meter_profile"
 }
+
+FIELDS_REQUIRED_FOR_REBASE = ("capacity_kW", "tilt", "azimuth", "geo_tag_location")
 
 
 class CommunityDatasheetParser:
@@ -34,7 +37,7 @@ class CommunityDatasheetParser:
 
     def parse(self):
         """Convert the datasheet to grid-like items."""
-        self._add_pv_coordinates(self._datasheet.pvs, self._datasheet.members)
+        self._parse_pvs(self._datasheet.pvs, self._datasheet.members)
         assets_by_member = self._get_assets_by_member()
 
         self._merge_profiles_into_assets(self._datasheet.profiles, assets_by_member)
@@ -45,6 +48,32 @@ class CommunityDatasheetParser:
             "settings": self._datasheet.settings,
             "grid": grid
         }
+
+    def _parse_pvs(self, pvs_by_member: Dict, members_information: Dict):
+        self._add_pv_coordinates(pvs_by_member, members_information)
+
+        pv_assets = (
+            pv_asset for member_assets in pvs_by_member.values() for pv_asset in member_assets)
+        for pv_asset in pv_assets:
+            pv_asset["cloud_coverage"] = self._infer_pv_cloud_coverage(pv_asset)
+
+    def _infer_pv_cloud_coverage(self, pv_asset: Dict) -> int:
+        """Infer which type of profile generation should be used."""
+        asset_name = pv_asset["name"]
+        # The user explicitly provided a profile for the PV
+        if asset_name in self._datasheet.profiles:
+            return CloudCoverage.UPLOAD_PROFILE.value
+
+        # Each PV without profile must provide the parameters needed to call the Rebase API
+        missing_attributes = [
+            field for field in FIELDS_REQUIRED_FOR_REBASE if not pv_asset.get(field)]
+
+        if missing_attributes:
+            raise CommunityDatasheetException(
+                f'The asset "{asset_name}" does not define the following attributes: '
+                f"{missing_attributes}. Either add a profile or provide all the missing fields.")
+
+        return CloudCoverage.LOCAL_GENERATION_PROFILE.value
 
     @classmethod
     def _add_pv_coordinates(cls, pvs_by_member: Dict, members_information: Dict):
@@ -60,8 +89,8 @@ class CommunityDatasheetParser:
                     members_information[member_name],
                     location_converter=location_converter,
                     session=session)
-                for pv_details in pv_assets:
-                    pv_details["geo_tag_location"] = coordinates
+                for pv_asset in pv_assets:
+                    pv_asset["geo_tag_location"] = coordinates
 
     @staticmethod
     def _get_member_coordinates(
