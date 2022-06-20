@@ -1,5 +1,6 @@
 """Module for parsing SCM Community Datasheet Excel files."""
 
+import json
 import logging
 import uuid
 from itertools import chain
@@ -173,13 +174,11 @@ class CommunityDatasheetParser:
 
 def parse_community_datasheet(filename):
     """Parse the content of the community datasheet and return a JSON representation."""
-    datasheet = CommunityDatasheetReader.read(filename)
-    CommunityDatasheetValidator.validate(datasheet)
-
-    parser = CommunityDatasheetParser(datasheet)
-    print(parser.parse())
+    parser = CommunityDatasheetParser(filename)
+    print(json.dumps(parser.parse(), indent=4))
+    # NOTE: validate datasheet before or after parsing?
+    CommunityDatasheetValidator.validate(parser._datasheet)
 
 
 if __name__ == "__main__":
-    parse_community_datasheet(
-        "/Users/fievelk/Code/work/grid_singularity/Community_DataSheet_v2_ppp.xlsx")
+    parse_community_datasheet("./Community_DataSheet_v3.xlsx")
