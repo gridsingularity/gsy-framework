@@ -2,7 +2,7 @@ from jsonschema.validators import validate
 
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheet
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
-
+from gsy_framework.constants_limits import FIELDS_REQUIRED_FOR_REBASE
 
 COMMUNITY_DATASHEET_SCHEMA = {
     "type": "object",
@@ -37,8 +37,6 @@ COMMUNITY_DATASHEET_SCHEMA = {
 class CommunityDatasheetValidator:
     """Validator for the parsed community datasheet output."""
 
-    REQUIRED_FIELDS_FOR_PV_WITHOUT_PROFILE = ("capacity_kW", "tilt", "azimuth", "geo_tag_location")
-
     @classmethod
     def validate(cls, datasheet: CommunityDatasheet):
         """Validate the JSON output of the datasheet."""
@@ -72,7 +70,7 @@ class CommunityDatasheetValidator:
                 continue
 
             missing_attributes = [
-                field for field in cls.REQUIRED_FIELDS_FOR_PV_WITHOUT_PROFILE
+                field for field in FIELDS_REQUIRED_FOR_REBASE
                 if not asset.get(field)
             ]
 

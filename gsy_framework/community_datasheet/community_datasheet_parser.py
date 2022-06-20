@@ -14,6 +14,7 @@ from gsy_framework.community_datasheet.community_datasheet_validator import (
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.community_datasheet.location_converter import (
     LocationConverter, LocationConverterException)
+from gsy_framework.constants_limits import FIELDS_REQUIRED_FOR_REBASE
 from gsy_framework.enums import CloudCoverage
 from gsy_framework.scenario_validators import scenario_validator
 
@@ -24,8 +25,6 @@ PROFILE_KEYS_BY_TYPE = {
     "PV": "power_profile",
     "SmartMeter": "smart_meter_profile"
 }
-
-FIELDS_REQUIRED_FOR_REBASE = ("capacity_kW", "tilt", "azimuth", "geo_tag_location")
 
 
 class CommunityDatasheetParser:
