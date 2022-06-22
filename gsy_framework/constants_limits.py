@@ -49,9 +49,9 @@ class ConstSettings:
         EXPORT_DEVICE_PLOTS = True
         EXPORT_ENERGY_TRADE_PROFILE_HR = False
         EXPORT_OFFER_BID_TRADE_HR = False
-        # Boolean flag which forces d3a to run in real-time
+        # Boolean flag which forces gsy-e to run in real-time
         RUN_REAL_TIME = False
-        # Boolean flag which forces d3a to dispatch events via redis channels
+        # Boolean flag which forces gsy-e to dispatch events via redis channels
         EVENT_DISPATCHING_VIA_REDIS = False
         RATE_CHANGE_PER_UPDATE_LIMIT = RangeLimit(0, 1000)
         ENERGY_PROFILE_LIMIT = RangeLimit(0, sys.maxsize)
@@ -77,10 +77,21 @@ class ConstSettings:
         RELATIVE_STD_FROM_FORECAST_FLOAT = 10.0
 
     class FutureMarketSettings:
-        """Default settings for future markets."""
+        """Default settings for future markets"""
 
+        # time frame of open future markets
+        FUTURE_MARKET_DURATION_HOURS = 0
         # Duration between clearing in future markets
         FUTURE_MARKET_CLEARING_INTERVAL_MINUTES = 15
+
+    class ForwardMarketSettings:
+        """Default settings for forward markets"""
+        ENABLE_FORWARD_MARKETS = True
+
+        HOUR_FORWARD_CLEARING_INTERVAL_MINUTES = 60
+        WEEK_FORWARD_CLEARING_INTERVAL_MINUTES = 60 * 24 * 7
+        MONTH_FORWARD_CLEARING_INTERVAL_MINUTES = 60 * 24 * 30
+        YEAR_FORWARD_CLEARING_INTERVAL_MINUTES = 60 * 24 * 365
 
     class AreaSettings:
         """Default settings for market areas."""
@@ -202,7 +213,7 @@ class ConstSettings:
         BC_INSTALLED = True
         # Blockchain URL, default is localhost.
         URL = "http://127.0.0.1:8545"
-        # Controls whether a local Ganache blockchain will start automatically by D3A.
+        # Controls whether a local Ganache blockchain will start automatically by gsy-e.
         START_LOCAL_CHAIN = True
         # Timeout for blockchain operations, in seconds
         TIMEOUT = 30
@@ -228,13 +239,12 @@ class ConstSettings:
 class GlobalConfig:
     """Parameters that affect each area individually."""
 
-    # Default simulation settings d3a-web side
+    # Default simulation settings gsy-web side
     START_DATE = date.today()
     SLOT_LENGTH_M = 15
     TICK_LENGTH_S = 15
     DURATION_D = 1
     MARKET_COUNT = 1
-    FUTURE_MARKET_DURATION_HOURS = 0
     CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = str(ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE)
@@ -242,7 +252,7 @@ class GlobalConfig:
     IS_CANARY_NETWORK = False
     FEED_IN_TARIFF = 20
 
-    # Default simulation settings d3a side:
+    # Default simulation settings gsy-e side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))
     sim_duration = duration(days=DURATION_D)
     slot_length = duration(minutes=SLOT_LENGTH_M)
