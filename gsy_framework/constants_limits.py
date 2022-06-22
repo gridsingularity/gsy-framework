@@ -196,18 +196,6 @@ class ConstSettings:
         MIN_OFFER_AGE = 2
         MIN_BID_AGE = 2
 
-        class AlternativePricing:
-            """Default values for alternative pricing schemes."""
-
-            # Option 0: D3A_trading
-            # Option 1: no scheme (0 cents/kWh)
-            # Option 2: feed-in-tariff (FEED_IN_TARIFF_PERCENTAGE / 100 * MMR)
-            # Option 3: net-metering (MMR)
-            COMPARE_PRICING_SCHEMES = False
-            PRICING_SCHEME = 0
-            FEED_IN_TARIFF_PERCENTAGE = 50
-            ALT_PRICING_MARKET_MAKER_NAME = "AGENT"
-
     class BlockchainSettings:
         """Default settings for blockchain functionality."""
 
