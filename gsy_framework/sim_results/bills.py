@@ -36,7 +36,7 @@ class CumulativeBills(ResultsBaseClass):
 
     @classmethod
     def _calculate_device_penalties(cls, area, area_core_stats):
-        if len(area["children"]) > 0 or area_core_stats == {}:
+        if "children" in area and (len(area["children"]) > 0 or area_core_stats == {}):
             return 0.0
 
         if is_load_node_type(area):
@@ -79,8 +79,9 @@ class CumulativeBills(ResultsBaseClass):
         if not self._has_update_parameters(
                 area_dict, core_stats, current_market_slot):
             return
-        for child in area_dict["children"]:
-            self.update(child, core_stats, current_market_slot)
+        if area_dict.get("children"):
+            for child in area_dict["children"]:
+                self.update(child, core_stats, current_market_slot)
 
         if area_dict["uuid"] not in self.cumulative_bills_results:
             self.cumulative_bills_results[area_dict["uuid"]] = {
@@ -120,11 +121,11 @@ class CumulativeBills(ResultsBaseClass):
             )
 
             if is_load_node_type(area_dict):
-                penalty_cost = penalty_energy * \
-                               ConstSettings.LoadSettings.LOAD_PENALTY_RATE / 100.0
+                penalty_cost = (
+                        penalty_energy * ConstSettings.LoadSettings.LOAD_PENALTY_RATE / 100.0)
             elif is_pv_node_type(area_dict):
-                penalty_cost = penalty_energy * \
-                               ConstSettings.PVSettings.PV_PENALTY_RATE / 100.0
+                penalty_cost = (
+                        penalty_energy * ConstSettings.PVSettings.PV_PENALTY_RATE / 100.0)
             else:
                 penalty_cost = 0.0
 
