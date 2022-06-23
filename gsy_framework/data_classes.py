@@ -29,7 +29,7 @@ from typing import List, Dict, Optional, Tuple, Union
 
 from pendulum import DateTime
 
-from gsy_framework.constants_limits import DEFAULT_PRECISION, FLOATING_POINT_TOLERANCE
+from gsy_framework.constants_limits import DEFAULT_PRECISION
 from gsy_framework.utils import (
     limit_float_precision, datetime_to_string_incl_seconds, key_in_dict_and_not_none,
     str_to_pendulum_datetime)
@@ -342,9 +342,6 @@ class Trade:
         self.offer_bid = offer_bid
         self.seller = seller
         self.buyer = buyer
-
-        assert traded_energy > FLOATING_POINT_TOLERANCE, ("Traded energy should always be a "
-                                                          "positive nonzero value.")
         self.traded_energy = traded_energy
         self.trade_price = trade_price
         self.residual = residual
