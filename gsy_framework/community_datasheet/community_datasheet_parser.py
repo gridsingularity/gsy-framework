@@ -43,7 +43,9 @@ class CommunityDatasheetParser:
         self._merge_profiles_into_assets(self._datasheet.profiles, assets_by_member)
         grid = self._create_grid(assets_by_member)
 
+        CommunityDatasheetValidator.validate(self._datasheet)
         self._validate_grid(grid)
+
         return {
             "settings": self._datasheet.settings,
             "grid": grid
@@ -111,7 +113,11 @@ class CommunityDatasheetParser:
         try:
             scenario_validator(grid)
         except ValidationError as ex:
-            raise CommunityDatasheetException(ex) from ex
+            message = (
+                f"Validation error for the grid in path: {list(ex.absolute_path)}. "
+                f"Error: {ex.message}")
+            logger.exception(message)
+            raise CommunityDatasheetException(message) from ex
 
     def _get_assets_by_member(self) -> Dict:
         """Return a mapping between each member and their assets."""
@@ -176,8 +182,6 @@ def parse_community_datasheet(filename):
     """Parse the content of the community datasheet and return a JSON representation."""
     parser = CommunityDatasheetParser(filename)
     print(json.dumps(parser.parse(), indent=4))
-    # NOTE: validate datasheet before or after parsing?
-    CommunityDatasheetValidator.validate(parser._datasheet)
 
 
 if __name__ == "__main__":

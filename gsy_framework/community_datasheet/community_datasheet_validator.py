@@ -1,3 +1,4 @@
+from jsonschema.exceptions import ValidationError
 from jsonschema.validators import validate
 
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheet
@@ -41,7 +42,11 @@ class CommunityDatasheetValidator:
     def validate(cls, datasheet: CommunityDatasheet):
         """Validate the JSON output of the datasheet."""
 
-        validate(instance=datasheet.as_dict(), schema=COMMUNITY_DATASHEET_SCHEMA)
+        try:
+            validate(instance=datasheet.as_dict(), schema=COMMUNITY_DATASHEET_SCHEMA)
+        except ValidationError as ex:
+            raise CommunityDatasheetException(ex) from ex
+
         cls._validate_loads(datasheet)
         cls._validate_pvs(datasheet)
 
