@@ -97,8 +97,8 @@ class CommunityDatasheetParser:
     @staticmethod
     def _get_member_coordinates(
             member_details: Dict, location_converter: LocationConverter, session=None):
-        address = member_details["Location/Address (optional)"] or ""
-        zip_code = member_details["ZIP code"] or ""
+        address = member_details["address"] or ""
+        zip_code = member_details["zip_code"] or ""
         full_address = f"{address} {zip_code}"
         if not full_address.strip():
             return None

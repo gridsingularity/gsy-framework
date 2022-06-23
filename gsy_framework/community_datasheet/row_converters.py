@@ -26,6 +26,26 @@ class GeneralSettingsRowConverter:
         return {field_name.strip().lower(): value}
 
 
+class MembersRowConverter:
+    """Convert from the excel row to a dictionary representing member information."""
+
+    @classmethod
+    def convert(cls, row: Dict) -> Dict:
+        """Convert the row using keys that will be added to the grid representation."""
+        return {
+            "email": row["Email"],
+            "zip_code": row["ZIP code"],
+            "address": row["Location/Address (optional)"],
+            "market_maker_rate": row["Utility price"],
+            "feed_in_tariff": row["Feed-in Tariff"],
+            "grid_fee_constant": row["Grid fee"],
+            "taxes": row["Taxes and surcharges"],
+            "fixed_fee": row["Fixed fee"],
+            "marketplace_fee": row["Marketplace fee"],
+            "coefficient_percent": row["Coefficient"]
+        }
+
+
 class LoadRowConverter:
     """Convert from the excel row to a grid representation of a Load asset."""
 

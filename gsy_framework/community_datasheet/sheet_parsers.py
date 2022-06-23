@@ -7,7 +7,8 @@ from pendulum.datetime import DateTime
 
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.community_datasheet.row_converters import (
-    GeneralSettingsRowConverter, LoadRowConverter, PVRowConverter, StorageRowConverter)
+    GeneralSettingsRowConverter, LoadRowConverter, MembersRowConverter, PVRowConverter,
+    StorageRowConverter)
 from gsy_framework.community_datasheet.sheet_headers import (
     CommunityMembersSheetHeader, LoadSheetHeader, PVSheetHeader, StorageSheetHeader)
 from gsy_framework.constants_limits import DATE_TIME_FORMAT
@@ -80,6 +81,7 @@ class MembersSheetParser(SheetParserInterface):
     """Base class to parse sheets whose rows represent member names."""
 
     EXPECTED_HEADER: Tuple[str]  # Fields of the header of the sheet
+    ROW_CONVERTER_CLASS = MembersRowConverter
 
     def __init__(self, worksheet: Worksheet) -> Dict:
         super().__init__(worksheet)
