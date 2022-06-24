@@ -15,66 +15,33 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-# pylint: disable=missing-function-docstring, protected-access
-import uuid
-from typing import Optional
+# pylint: disable=protected-access
 
-from pendulum import DateTime
-
-from gsy_framework.data_classes import Offer, BidOfferMatch, Bid
+from tests.test_matching_algorithms import offer_factory, bid_factory
+from gsy_framework.data_classes import BidOfferMatch
 from gsy_framework.matching_algorithms.attributed_matching_algorithm import (
     AttributedMatchingAlgorithm)
 
 
 class TestAttributedMatchingAlgorithm:
     """Tester class for the PreferredPartnersMatchingAlgorithm."""
-    @staticmethod
-    def offer_factory(additional_data: Optional[dict] = None):
-        """Create and return an offer object from default and input values."""
-        additional_data = additional_data or {}
-        return Offer(
-            **{"id": str(uuid.uuid4()),
-               "creation_time": DateTime.now(),
-               "time_slot": DateTime.now(),
-               "price": 10,
-               "energy": 30,
-               "seller": "seller",
-               "seller_id": "seller_id",
-               "seller_origin": "seller",
-               "seller_origin_id": "seller_id",
-               **additional_data})
 
     @staticmethod
-    def bid_factory(additional_data: Optional[dict] = None):
-        """Create and return a bid object from default and input values."""
-        additional_data = additional_data or {}
-        return Bid(
-            **{"id": str(uuid.uuid4()),
-               "creation_time": DateTime.now(),
-               "time_slot": DateTime.now(),
-               "price": 10,
-               "energy": 30,
-               "buyer": "buyer",
-               "buyer_id": "buyer_id",
-               "buyer_origin": "buyer",
-               "buyer_origin_id": "buyer_id",
-               **additional_data})
-
-    def test_get_matches_recommendations_respects_trading_partners(self):
+    def test_get_matches_recommendations_respects_trading_partners():
         """Test the main interface of the algorithm.
          Pass supported format data and receive correct results
          """
-        offer = self.offer_factory().serializable_dict()
-        bid = self.bid_factory(
+        offer = offer_factory().serializable_dict()
+        bid = bid_factory(
             {"requirements": [{"trading_partners": [offer["seller_id"]]}]}
         ).serializable_dict()
 
-        offer2 = self.offer_factory()
+        offer2 = offer_factory()
         # Both the seller and seller_origin ids are used for preferred trading partner matching.
         offer2.seller_id = "second seller"
         offer2.seller_origin_id = "second seller"
         offer2 = offer2.serializable_dict()
-        bid2 = self.bid_factory().serializable_dict()
+        bid2 = bid_factory().serializable_dict()
         data = {"market": {"2021-10-06T12:00": {
             "bids": [bid, bid2], "offers": [offer, offer2]
         }}}
@@ -103,17 +70,18 @@ class TestAttributedMatchingAlgorithm:
             time_slot="2021-10-06T12:00",
             matching_requirements=None).serializable_dict()
 
-    def test_get_matches_recommendations_respects_green_energy(self):
+    @staticmethod
+    def test_get_matches_recommendations_respects_green_energy():
         """Test the main interface of the algorithm.
          Pass supported format data and receive correct results
          """
-        offer = self.offer_factory({"attributes": {"energy_type": "PV"}}).serializable_dict()
-        bid = self.bid_factory(
+        offer = offer_factory({"attributes": {"energy_type": "PV"}}).serializable_dict()
+        bid = bid_factory(
             {"requirements": [{"energy_type": ["PV"]}]}
         ).serializable_dict()
 
-        offer2 = self.offer_factory().serializable_dict()
-        bid2 = self.bid_factory().serializable_dict()
+        offer2 = offer_factory().serializable_dict()
+        bid2 = bid_factory().serializable_dict()
         data = {"market": {"2021-10-06T12:00": {
             "bids": [bid, bid2], "offers": [offer, offer2]
         }}}
