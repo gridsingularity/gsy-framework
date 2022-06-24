@@ -36,11 +36,10 @@ class TestAttributedMatchingAlgorithm:
             {"requirements": [{"trading_partners": [offer["seller_id"]]}]}
         ).serializable_dict()
 
-        offer2 = offer_factory()
+        offer2 = offer_factory(
+            {"seller_id": "second seller", "seller_origin_id": "second seller"}
+        ).serializable_dict()
         # Both the seller and seller_origin ids are used for preferred trading partner matching.
-        offer2.seller_id = "second seller"
-        offer2.seller_origin_id = "second seller"
-        offer2 = offer2.serializable_dict()
         bid2 = bid_factory().serializable_dict()
         data = {"market": {"2021-10-06T12:00": {
             "bids": [bid, bid2], "offers": [offer, offer2]
