@@ -28,6 +28,7 @@ from pkgutil import walk_packages
 from statistics import mean
 from threading import Timer
 from typing import Callable, Dict, List
+from uuid import UUID
 
 from pendulum import DateTime, datetime, duration, from_format, instance
 from redis.exceptions import ConnectionError  # pylint: disable=redefined-builtin
@@ -567,3 +568,13 @@ def is_time_slot_in_simulation_duration(
         start_date = config.start_date
         end_date = config.end_date
     return start_date <= time_slot < end_date or GlobalConfig.IS_CANARY_NETWORK
+
+
+def is_valid_uuid(uuid: str) -> bool:
+    """Return if the provided string is a valid uuid."""
+    try:
+        UUID(str(uuid), version=4)
+    except ValueError:
+        return False
+
+    return True

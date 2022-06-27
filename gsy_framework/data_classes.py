@@ -361,7 +361,7 @@ class Trade:
             f"{{{self.id!s:.6s}}} [origin: {self.seller_origin} -> {self.buyer_origin}] "
             f"[{self.seller} -> {self.buyer}] {self.traded_energy} kWh @ {self.trade_price}"
             f" {round(self.trade_rate, 8)} "
-            f"{self.offer_bid.id} [fee: {self.fee_price} cts.] "
+            f"{self.offer_bid.id if self.offer_bid else ''} [fee: {self.fee_price} cts.] "
             f"{self.matching_requirements or ''}")
 
     @classmethod
