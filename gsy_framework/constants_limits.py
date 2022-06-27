@@ -86,7 +86,7 @@ class ConstSettings:
 
     class ForwardMarketSettings:
         """Default settings for forward markets"""
-        ENABLE_FORWARD_MARKETS = True
+        ENABLE_FORWARD_MARKETS = False
 
     class AreaSettings:
         """Default settings for market areas."""
