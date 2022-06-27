@@ -68,7 +68,11 @@ class GeneralSettingsSheetParser(SheetParserInterface):
     def _parse_rows(self) -> Dict:
         output = {}
         for row in self.rows:
-            parsed_row = self._parse_row(row)
+            try:
+                parsed_row = self._parse_row(row)
+            except CommunityDatasheetException as ex:
+                raise ex
+
             output.update(parsed_row)
 
         return output

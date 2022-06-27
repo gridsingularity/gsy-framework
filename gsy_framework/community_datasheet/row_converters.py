@@ -1,16 +1,45 @@
+import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict
 
 import pendulum
 
+from gsy_framework.community_datasheet.exceptions import (
+    CommunityDatasheetException, StringToTimedeltaConversionException)
 from gsy_framework.community_datasheet.sheet_headers import (
     LoadSheetHeader, PVSheetHeader, StorageSheetHeader)
 from gsy_framework.constants_limits import DATE_TIME_FORMAT, ConstSettings
 
 
+class StringToTimedeltaConverter:
+    """Class to convert strings to timedelta objects."""
+
+    REGEX = re.compile(r"((?P<hours>\d+?):)?((?P<minutes>\d+?))?")
+
+    @classmethod
+    def parse(cls, time_string: str) -> timedelta:
+        """Parse a string in the format [h]:mm and return a timedelta object.
+
+        Example:
+            >>> StringToTimedeltaConverter.parse("1h1m")
+            datetime.timedelta(seconds=3660)
+        """
+        parts = cls.REGEX.fullmatch(time_string)
+        if not parts:
+            raise StringToTimedeltaConversionException(
+                f'Value "{time_string}" does not use the supported format. '
+                'Please use [h]:mm (e.g. "1h30m").')
+
+        parts = parts.groupdict(default=0)
+
+        return timedelta(
+            hours=int(parts["hours"]),
+            minutes=int(parts["minutes"]))
+
+
 class GeneralSettingsRowConverter:
-    """Convert from the excel row to a grid representation of a Load asset."""
+    """Convert from the excel row to settings of the community."""
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
@@ -20,8 +49,14 @@ class GeneralSettingsRowConverter:
         """
         field_name, value = row[0], row[2]  # Each row is a tuple (setting-name, legend, value)
         field_name = field_name.strip().lower().replace(" ", "_")
-        if isinstance(value, datetime):
+        if field_name in ("start_date", "end_date") and isinstance(value, datetime):
             value = pendulum.instance(value).format(DATE_TIME_FORMAT)
+        elif field_name == "slot_length":
+            try:
+                value = StringToTimedeltaConverter.parse(value)
+            except StringToTimedeltaConversionException as ex:
+                raise CommunityDatasheetException(
+                    f"Field can't be parsed ({field_name}). {ex}") from ex
 
         return {field_name.strip().lower(): value}
 
