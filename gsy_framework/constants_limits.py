@@ -88,11 +88,6 @@ class ConstSettings:
         """Default settings for forward markets"""
         ENABLE_FORWARD_MARKETS = True
 
-        HOUR_FORWARD_CLEARING_INTERVAL_MINUTES = 60
-        WEEK_FORWARD_CLEARING_INTERVAL_MINUTES = 60 * 24 * 7
-        MONTH_FORWARD_CLEARING_INTERVAL_MINUTES = 60 * 24 * 30
-        YEAR_FORWARD_CLEARING_INTERVAL_MINUTES = 60 * 24 * 365
-
     class AreaSettings:
         """Default settings for market areas."""
 
