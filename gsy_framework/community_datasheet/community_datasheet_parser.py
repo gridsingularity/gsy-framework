@@ -150,15 +150,21 @@ class CommunityDatasheetParser:
         }
 
     def _create_member_representation(self, member_name: str) -> Dict:
+        member = self._datasheet.members[member_name]
         return {
-            **self._datasheet.members[member_name],
-            **{
-                "name": member_name,
-                "tags": ["Home"],
-                "type": "Area",
-                "uuid": str(uuid.uuid4()),
-                "children": []
-            }}
+            "name": member_name,
+            "tags": ["Home"],
+            "type": "Area",
+            "uuid": str(uuid.uuid4()),
+            "market_maker_rate": member["market_maker_rate"],
+            "feed_in_tariff": member["feed_in_tariff"],
+            "grid_fee_constant": member["grid_fee_constant"],
+            "taxes": member["taxes"],
+            "fixed_fee": member["fixed_fee"],
+            "marketplace_fee": member["marketplace_fee"],
+            "coefficient_percent": member["coefficient_percent"],
+            "children": []
+        }
 
 
 def parse_community_datasheet(filename):
