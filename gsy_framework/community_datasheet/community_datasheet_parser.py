@@ -7,7 +7,6 @@ from itertools import chain
 from typing import Dict
 
 import requests
-from jsonschema.exceptions import ValidationError
 
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheetReader
 from gsy_framework.community_datasheet.community_datasheet_validator import (
@@ -17,7 +16,6 @@ from gsy_framework.community_datasheet.location_converter import (
     LocationConverter, LocationConverterException)
 from gsy_framework.constants_limits import FIELDS_REQUIRED_FOR_REBASE
 from gsy_framework.enums import CloudCoverage
-from gsy_framework.scenario_validators import scenario_validator
 
 logger = logging.getLogger(__name__)
 
@@ -36,20 +34,16 @@ class CommunityDatasheetParser:
         self._datasheet = CommunityDatasheetReader.read(filename)
 
     def parse(self):
-        """Convert the datasheet to grid-like items."""
+        """Parse the datasheet contents and create a grid representation."""
         self._parse_pvs(self._datasheet.pvs, self._datasheet.members)
         assets_by_member = self._get_assets_by_member()
 
         self._merge_profiles_into_assets(self._datasheet.profiles, assets_by_member)
-        grid = self._create_grid(assets_by_member)
+        self._datasheet.grid = self._create_grid(assets_by_member)
 
         CommunityDatasheetValidator.validate(self._datasheet)
-        self._validate_grid(grid)
 
-        return {
-            "settings": self._datasheet.settings,
-            "grid": grid
-        }
+        return self._datasheet
 
     def _parse_pvs(self, pvs_by_member: Dict, members_information: Dict):
         self._add_pv_coordinates(pvs_by_member, members_information)
@@ -107,17 +101,6 @@ class CommunityDatasheetParser:
             return location_converter.convert(full_address, session=session)
         except LocationConverterException as ex:
             raise CommunityDatasheetException(ex) from ex
-
-    @staticmethod
-    def _validate_grid(grid):
-        try:
-            scenario_validator(grid)
-        except ValidationError as ex:
-            message = (
-                f"Validation error for the grid in path: {list(ex.absolute_path)}. "
-                f"Error: {ex.message}")
-            logger.exception(message)
-            raise CommunityDatasheetException(message) from ex
 
     def _get_assets_by_member(self) -> Dict:
         """Return a mapping between each member and their assets."""

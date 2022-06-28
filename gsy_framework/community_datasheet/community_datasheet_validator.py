@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from jsonschema import Draft3Validator
@@ -7,6 +8,9 @@ from jsonschema.validators import extend
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheet
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.constants_limits import FIELDS_REQUIRED_FOR_REBASE
+from gsy_framework.scenario_validators import scenario_validator
+
+logger = logging.getLogger(__name__)
 
 COMMUNITY_DATASHEET_SCHEMA = {
     "type": "object",
@@ -33,7 +37,7 @@ COMMUNITY_DATASHEET_SCHEMA = {
             },
             "required": ["start_date", "end_date", "slot_length", "currency", "coefficient_type"]
         },
-        "grid": {"type": "object"}
+        "grid": {"type": ["object"]}
     }
 }
 
@@ -56,6 +60,7 @@ class CommunityDatasheetValidator:
 
         cls._validate_loads(datasheet)
         cls._validate_pvs(datasheet)
+        cls._validate_grid(datasheet.grid)
 
     @staticmethod
     def _is_timedelta(_checker, instance):
@@ -95,3 +100,14 @@ class CommunityDatasheetValidator:
                     f'The asset "{asset_name}" does not define the following attributes: '
                     f"{missing_attributes}. Either add a profile or provide all the "
                     "missing fields.")
+
+    @staticmethod
+    def _validate_grid(grid):
+        try:
+            scenario_validator(grid)
+        except ValidationError as ex:
+            message = (
+                f"Validation error for the grid in path: {list(ex.absolute_path)}. "
+                f"Error: {ex.message}")
+            logger.exception(message)
+            raise CommunityDatasheetException(message) from ex

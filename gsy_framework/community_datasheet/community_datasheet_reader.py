@@ -3,7 +3,7 @@
 import json
 import logging
 import pathlib
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import IO, Dict, Union
 
 from openpyxl import load_workbook
@@ -27,6 +27,7 @@ class CommunityDatasheet:
     pvs: Dict
     storages: Dict
     profiles: Dict
+    grid: Dict = field(default_factory=dict)
 
     def as_json(self) -> str:
         """Return the JSON representation of the datasheet."""
