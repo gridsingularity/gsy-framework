@@ -7,39 +7,11 @@ from jsonschema.validators import extend
 
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheet
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
+from gsy_framework.community_datasheet.schema import COMMUNITY_DATASHEET_SCHEMA
 from gsy_framework.constants_limits import FIELDS_REQUIRED_FOR_REBASE
 from gsy_framework.scenario_validators import scenario_validator
 
 logger = logging.getLogger(__name__)
-
-COMMUNITY_DATASHEET_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "settings": {"$ref": "#/$defs/settings"},
-        "grid": {"$ref": "#/$defs/grid"},
-    },
-    "$defs": {
-        "settings": {
-            "description": "General settings of the community.",
-            "type": "object",
-            "properties": {
-                "start_date": {"type": "string"},
-                "end_date": {"type": "string"},
-                "slot_length": {"type": "custom_timedelta"},
-                "currency": {
-                    "type": "string",
-                    "enum": ["USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CNY", "CHF"]
-                },
-                "coefficient_type": {
-                    "type": "string",
-                    "enum": ["constant", "dynamic"]
-                },
-            },
-            "required": ["start_date", "end_date", "slot_length", "currency", "coefficient_type"]
-        },
-        "grid": {"type": ["object"]}
-    }
-}
 
 
 class CommunityDatasheetValidator:
