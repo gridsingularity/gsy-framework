@@ -1,5 +1,8 @@
+from datetime import timedelta
+
+from jsonschema import Draft3Validator
 from jsonschema.exceptions import ValidationError
-from jsonschema.validators import validate
+from jsonschema.validators import extend
 
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheet
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
@@ -18,7 +21,7 @@ COMMUNITY_DATASHEET_SCHEMA = {
             "properties": {
                 "start_date": {"type": "string"},
                 "end_date": {"type": "string"},
-                "slot_length": {"type": "string"},
+                "slot_length": {"type": "custom_timedelta"},
                 "currency": {
                     "type": "string",
                     "enum": ["USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CNY", "CHF"]
@@ -41,14 +44,22 @@ class CommunityDatasheetValidator:
     @classmethod
     def validate(cls, datasheet: CommunityDatasheet):
         """Validate the JSON output of the datasheet."""
-
         try:
-            validate(instance=datasheet.as_dict(), schema=COMMUNITY_DATASHEET_SCHEMA)
+            # JSON schema doesn't work with datetime or custom objects, so we customise it
+            type_checker = Draft3Validator.TYPE_CHECKER.redefine(
+                "custom_timedelta", cls._is_timedelta)
+            CustomValidator = extend(Draft3Validator, type_checker=type_checker)
+            validator = CustomValidator(schema=COMMUNITY_DATASHEET_SCHEMA)
+            validator.validate(instance=datasheet.as_dict())
         except ValidationError as ex:
             raise CommunityDatasheetException(ex) from ex
 
         cls._validate_loads(datasheet)
         cls._validate_pvs(datasheet)
+
+    @staticmethod
+    def _is_timedelta(_checker, instance):
+        return isinstance(instance, timedelta)
 
     @staticmethod
     def _validate_loads(datasheet: CommunityDatasheet):
