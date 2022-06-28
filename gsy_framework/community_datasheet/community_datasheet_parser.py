@@ -41,7 +41,7 @@ class CommunityDatasheetParser:
         self._merge_profiles_into_assets(self._datasheet.profiles, assets_by_member)
         self._datasheet.grid = self._create_grid(assets_by_member)
 
-        CommunityDatasheetValidator.validate(self._datasheet)
+        CommunityDatasheetValidator().validate(self._datasheet)
 
         return self._datasheet
 

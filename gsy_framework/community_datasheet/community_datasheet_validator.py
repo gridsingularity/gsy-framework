@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from jsonschema import Draft3Validator
+from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 from jsonschema.validators import extend
 
@@ -17,22 +17,23 @@ logger = logging.getLogger(__name__)
 class CommunityDatasheetValidator:
     """Validator for the parsed community datasheet output."""
 
-    @classmethod
-    def validate(cls, datasheet: CommunityDatasheet):
+    def __init__(self):
+        # JSON schema doesn't work with datetime or custom objects, so we customise it
+        type_checker = Draft202012Validator.TYPE_CHECKER.redefine(
+            "custom_timedelta", self._is_timedelta)
+        CustomValidator = extend(Draft202012Validator, type_checker=type_checker)
+        self._validator = CustomValidator(schema=COMMUNITY_DATASHEET_SCHEMA)
+
+    def validate(self, datasheet: CommunityDatasheet):
         """Validate the JSON output of the datasheet."""
         try:
-            # JSON schema doesn't work with datetime or custom objects, so we customise it
-            type_checker = Draft3Validator.TYPE_CHECKER.redefine(
-                "custom_timedelta", cls._is_timedelta)
-            CustomValidator = extend(Draft3Validator, type_checker=type_checker)
-            validator = CustomValidator(schema=COMMUNITY_DATASHEET_SCHEMA)
-            validator.validate(instance=datasheet.as_dict())
+            self._validator.validate(instance=datasheet.as_dict())
         except ValidationError as ex:
             raise CommunityDatasheetException(ex) from ex
 
-        cls._validate_loads(datasheet)
-        cls._validate_pvs(datasheet)
-        cls._validate_grid(datasheet.grid)
+        self._validate_loads(datasheet)
+        self._validate_pvs(datasheet)
+        self._validate_grid(datasheet.grid)
 
     @staticmethod
     def _is_timedelta(_checker, instance):
