@@ -135,21 +135,21 @@ class CommunityDatasheetParser:
             asset[profile_key] = profiles[asset_name]
 
     def _create_grid(self, assets_by_member: Dict) -> Dict:
-        members_grid = []
+        grid = []
         for member_name, assets in assets_by_member.items():
-            member_representation = self._create_member_representation(member_name)
-            member_representation["children"] = assets
-            members_grid.append(member_representation)
+            home_representation = self._create_home_representation(member_name)
+            home_representation["children"] = assets
+            grid.append(home_representation)
 
         return {
             "name": "Community",
             "tags": None,
             "type": "Area",
             "uuid": str(uuid.uuid4()),
-            "children": members_grid
+            "children": grid
         }
 
-    def _create_member_representation(self, member_name: str) -> Dict:
+    def _create_home_representation(self, member_name: str) -> Dict:
         member = self._datasheet.members[member_name]
 
         # Commented lines are for parameters still not accepted by AreaOutput in gsy-web
