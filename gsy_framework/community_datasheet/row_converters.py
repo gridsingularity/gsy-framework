@@ -89,10 +89,6 @@ class LoadRowConverter:
         """
         Convert the row parsed from the Excel file to the asset representation used in scenarios.
         """
-        # One of the following:
-        # ["LoadHoursStrategy", "DefinedLoadStrategy",
-        # "LoadHoursExternalStrategy", "LoadProfileExternalStrategy",
-        # "LoadForecastExternalStrategy", "Load"]
         return {
             "name": row[LoadSheetHeader.LOAD_NAME],
             "type": "Load",
