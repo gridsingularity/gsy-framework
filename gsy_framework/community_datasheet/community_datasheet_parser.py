@@ -75,8 +75,8 @@ class CommunityDatasheetParser:
         try:
             location_converter = LocationConverter()
         except LocationConverterException as ex:
-            logger.warning(ex)
-            return
+            logger.error(ex)
+            raise ex
 
         with requests.Session() as session:
             for member_name, pv_assets in pvs_by_member.items():
