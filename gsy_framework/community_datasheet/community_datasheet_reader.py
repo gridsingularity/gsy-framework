@@ -4,6 +4,7 @@ import json
 import logging
 import pathlib
 from dataclasses import asdict, dataclass, field
+from itertools import chain
 from typing import IO, Dict, Union
 
 from openpyxl import load_workbook
@@ -36,6 +37,31 @@ class CommunityDatasheet:
     def as_dict(self) -> str:
         """Return the dictionary representation of the datasheet."""
         return asdict(self)
+
+    @property
+    def assets_by_member(self) -> Dict:
+        """Return a mapping between each member and their assets.
+
+        Example:
+            {
+                "Member 1": [
+                    {"name": "Load 1", "type": "Load", "uuid": <some-uuid>},
+                    {"name": "PV 1", "type": "PV", "uuid": <some-uuid>}
+                ],
+                "Member 2": [...]
+            }
+        """
+        assets_by_member = {member_name: [] for member_name in self.members}
+        asset_items = [assets.items() for assets in (self.loads, self.pvs, self.storages)]
+        for member_name, assets in chain.from_iterable(asset_items):
+            assets_by_member[member_name].extend(assets)
+
+        if any((missing := member) not in self.members for member in assets_by_member):
+            raise CommunityDatasheetException(
+                f'Member "{missing}" was defined in one of the asset sheets'  # noqa: F821
+                'but not in the "Community Members" sheet.')
+
+        return assets_by_member
 
 
 class CommunityDatasheetReader:

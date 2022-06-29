@@ -33,7 +33,7 @@ class CommunityDatasheetParser:
     def parse(self):
         """Parse the datasheet contents and create a grid representation."""
         self._parse_pvs(self._datasheet.pvs, self._datasheet.members)
-        assets_by_member = self._get_assets_by_member()
+        assets_by_member = self._datasheet.assets_by_member
 
         self._merge_profiles_into_assets(self._datasheet.profiles, assets_by_member)
         self._datasheet.grid = self._create_grid(assets_by_member)
@@ -67,23 +67,6 @@ class CommunityDatasheetParser:
                 f"{missing_attributes}. Either add a profile or provide all the missing fields.")
 
         return CloudCoverage.LOCAL_GENERATION_PROFILE.value
-
-    def _get_assets_by_member(self) -> Dict:
-        """Return a mapping between each member and their assets."""
-        assets_by_member = {member_name: [] for member_name in self._datasheet.members}
-        asset_items = [
-            assets.items()
-            for assets in [self._datasheet.loads, self._datasheet.pvs, self._datasheet.storages]
-        ]
-        for member_name, assets in chain.from_iterable(asset_items):
-            assets_by_member[member_name].extend(assets)
-
-        if any((missing := member) not in self._datasheet.members for member in assets_by_member):
-            raise CommunityDatasheetException(
-                f'Member "{missing}" was defined in one of the asset sheets'  # noqa: F821
-                'but not in the "Community Members" sheet.')
-
-        return assets_by_member
 
     @staticmethod
     def _merge_profiles_into_assets(profiles: Dict, assets_by_member: Dict) -> None:
