@@ -5,8 +5,6 @@ import uuid
 from itertools import chain
 from typing import Dict
 
-import requests
-
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheetReader
 from gsy_framework.community_datasheet.community_datasheet_validator import (
     CommunityDatasheetValidator)
@@ -45,7 +43,7 @@ class CommunityDatasheetParser:
         return self._datasheet
 
     def _parse_pvs(self, pvs_by_member: Dict, members_information: Dict):
-        self._add_pv_coordinates(pvs_by_member, members_information)
+        AssetCoordinatesBuilder().add_coordinates_to_assets(pvs_by_member, members_information)
 
         pv_assets = (
             pv_asset for member_assets in pvs_by_member.values() for pv_asset in member_assets)
@@ -69,37 +67,6 @@ class CommunityDatasheetParser:
                 f"{missing_attributes}. Either add a profile or provide all the missing fields.")
 
         return CloudCoverage.LOCAL_GENERATION_PROFILE.value
-
-    @classmethod
-    def _add_pv_coordinates(cls, pvs_by_member: Dict, members_information: Dict):
-        try:
-            location_converter = LocationConverter()
-        except LocationConverterException as ex:
-            logger.error(ex)
-            raise ex
-
-        with requests.Session() as session:
-            for member_name, pv_assets in pvs_by_member.items():
-                coordinates = cls._get_member_coordinates(
-                    members_information[member_name],
-                    location_converter=location_converter,
-                    session=session)
-                for pv_asset in pv_assets:
-                    pv_asset["geo_tag_location"] = coordinates
-
-    @staticmethod
-    def _get_member_coordinates(
-            member_details: Dict, location_converter: LocationConverter, session=None):
-        address = member_details["address"] or ""
-        zip_code = member_details["zip_code"] or ""
-        full_address = f"{address} {zip_code}"
-        if not full_address.strip():
-            return None
-
-        try:
-            return location_converter.convert(full_address, session=session)
-        except LocationConverterException as ex:
-            raise CommunityDatasheetException(ex) from ex
 
     def _get_assets_by_member(self) -> Dict:
         """Return a mapping between each member and their assets."""
@@ -166,3 +133,38 @@ class CommunityDatasheetParser:
             # "marketplace_fee": member["marketplace_fee"],
             # "coefficient_percent": member["coefficient_percent"],
         }
+
+
+class AssetCoordinatesBuilder:
+    """Build coordinates for assets using the location of their owner (member)."""
+
+    def __init__(self):
+        self._location_converter: LocationConverter = self._get_location_converter()
+
+    def add_coordinates_to_assets(self, assets_by_member: Dict, members_information: Dict):
+        """Add coordinates to the assets using the location of their owner."""
+        for member_name, assets in assets_by_member.items():
+            for asset in assets:
+                asset["geo_tag_location"] = self._get_member_coordinates(
+                    members_information[member_name])
+
+    def _get_member_coordinates(self, member_details: Dict):
+        address = member_details["address"] or ""
+        zip_code = member_details["zip_code"] or ""
+        full_address = f"{address} {zip_code}"
+        if not full_address.strip():
+            return None
+
+        try:
+            return self._location_converter.convert(full_address)
+        except LocationConverterException as ex:
+            raise CommunityDatasheetException(ex) from ex
+
+    @staticmethod
+    def _get_location_converter():
+        """Return an instance of a location converter."""
+        try:
+            return LocationConverter()
+        except LocationConverterException as ex:
+            logger.error(ex)
+            raise ex
