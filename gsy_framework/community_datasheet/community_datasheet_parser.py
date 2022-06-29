@@ -1,6 +1,5 @@
 """Module for parsing SCM Community Datasheet Excel files."""
 
-import json
 import logging
 import uuid
 from itertools import chain
@@ -167,13 +166,3 @@ class CommunityDatasheetParser:
             # "marketplace_fee": member["marketplace_fee"],
             # "coefficient_percent": member["coefficient_percent"],
         }
-
-
-def parse_community_datasheet(filename):
-    """Parse the content of the community datasheet and return a JSON representation."""
-    parser = CommunityDatasheetParser(filename)
-    print(json.dumps(parser.parse(), indent=4))
-
-
-if __name__ == "__main__":
-    parse_community_datasheet("./Community_DataSheet_v3.xlsx")
