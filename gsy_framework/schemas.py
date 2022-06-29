@@ -27,7 +27,11 @@ class ScenarioSchemas:
                     "name": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "const_fee_rate": {"type": "number"},
-                    "feed_in_tariff": {"type": "number"},
+                    "feed_in_tariff": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "taxes_surcharges": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "coefficient_percentage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "fixed_monthly_fee": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "marketplace_monthly_fee": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "market_maker_rate": {"type": "number"},
                     "grid_fee_percentage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "baseline_peak_energy_import_kWh":
