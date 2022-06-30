@@ -26,16 +26,16 @@ class CommunityDatasheetValidator:
         self._validator = CustomValidator(schema=COMMUNITY_DATASHEET_SCHEMA)
 
     def validate(self, datasheet: CommunityDatasheet):
-        """Validate the JSON output of the datasheet."""
+        """Validate the content of the datasheet."""
+        self._validate_unique_names(datasheet)
+        self._validate_loads(datasheet)
+        self._validate_pvs(datasheet)
+        self._validate_grid(datasheet.grid)
+
         try:
             self._validator.validate(instance=datasheet.as_dict())
         except ValidationError as ex:
             raise CommunityDatasheetException(ex) from ex
-
-        self._validate_loads(datasheet)
-        self._validate_pvs(datasheet)
-        self._validate_unique_names(datasheet)
-        self._validate_grid(datasheet.grid)
 
     @staticmethod
     def _is_timedelta(_checker, instance):
