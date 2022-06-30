@@ -32,7 +32,7 @@ class CommunityDatasheetParser:
 
     def parse(self):
         """Parse the datasheet contents and create a grid representation."""
-        self._parse_pvs(self._datasheet.pvs, self._datasheet.members)
+        self._datasheet.pvs = self._parse_pvs(self._datasheet.pvs, self._datasheet.members)
         assets_by_member = self._datasheet.assets_by_member
 
         self._merge_profiles_into_assets(self._datasheet.profiles, assets_by_member)
@@ -45,11 +45,12 @@ class CommunityDatasheetParser:
     def _parse_pvs(self, pvs_by_member: Dict, members_information: Dict):
         pvs_by_member = AssetCoordinatesBuilder().add_coordinates_to_assets(
             pvs_by_member, members_information)
-
         pv_assets = (
             pv_asset for member_assets in pvs_by_member.values() for pv_asset in member_assets)
         for pv_asset in pv_assets:
             pv_asset["cloud_coverage"] = self._infer_pv_cloud_coverage(pv_asset)
+
+        return pvs_by_member
 
     def _infer_pv_cloud_coverage(self, pv_asset: Dict) -> int:
         """Infer which type of profile generation should be used."""
