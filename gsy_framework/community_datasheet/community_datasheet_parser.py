@@ -43,7 +43,8 @@ class CommunityDatasheetParser:
         return self._datasheet
 
     def _parse_pvs(self, pvs_by_member: Dict, members_information: Dict):
-        AssetCoordinatesBuilder().add_coordinates_to_assets(pvs_by_member, members_information)
+        pvs_by_member = AssetCoordinatesBuilder().add_coordinates_to_assets(
+            pvs_by_member, members_information)
 
         pv_assets = (
             pv_asset for member_assets in pvs_by_member.values() for pv_asset in member_assets)
@@ -130,6 +131,8 @@ class AssetCoordinatesBuilder:
             for asset in assets:
                 asset["geo_tag_location"] = self._get_member_coordinates(
                     members_information[member_name])
+
+        return assets_by_member
 
     def _get_member_coordinates(self, member_details: Dict):
         address = member_details["address"] or ""
