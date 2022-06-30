@@ -74,10 +74,10 @@ class MembersRowConverter:
             "market_maker_rate": row["Utility price"],
             "feed_in_tariff": row["Feed-in Tariff"],
             "grid_fee_constant": row["Grid fee"],
-            "taxes": row["Taxes and surcharges"],
-            "fixed_fee": row["Fixed fee"],
-            "marketplace_fee": row["Marketplace fee"],
-            "coefficient_percent": row["Coefficient"]
+            "taxes_surcharges": row["Taxes and surcharges"],
+            "fixed_monthly_fee": row["Fixed fee"],
+            "marketplace_monthly_fee": row["Marketplace fee"],
+            "coefficient_percentage": row["Coefficient"]
         }
 
 

@@ -102,7 +102,6 @@ class CommunityDatasheetParser:
     def _create_home_representation(self, member_name: str) -> Dict:
         member = self._datasheet.members[member_name]
 
-        # Commented lines are for parameters still not accepted by AreaOutput in gsy-web
         return {
             "name": member_name,
             "tags": ["Home"],
@@ -110,12 +109,12 @@ class CommunityDatasheetParser:
             "uuid": str(uuid.uuid4()),
             "grid_fee_constant": member["grid_fee_constant"],
             "children": [],
-            # "market_maker_rate": member["market_maker_rate"],
-            # "feed_in_tariff": member["feed_in_tariff"],
-            # "taxes": member["taxes"],
-            # "fixed_fee": member["fixed_fee"],
-            # "marketplace_fee": member["marketplace_fee"],
-            # "coefficient_percent": member["coefficient_percent"],
+            "market_maker_rate": member["market_maker_rate"],
+            "feed_in_tariff": member["feed_in_tariff"],
+            "taxes_surcharges": member["taxes_surcharges"],
+            "fixed_monthly_fee": member["fixed_monthly_fee"],
+            "marketplace_monthly_fee": member["marketplace_monthly_fee"],
+            "coefficient_percentage": member["coefficient_percentage"],
         }
 
 
