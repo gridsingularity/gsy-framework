@@ -1,4 +1,5 @@
 import logging
+from collections import Counter
 from datetime import timedelta
 
 from jsonschema import Draft202012Validator
@@ -33,6 +34,7 @@ class CommunityDatasheetValidator:
 
         self._validate_loads(datasheet)
         self._validate_pvs(datasheet)
+        self._validate_unique_names(datasheet)
         self._validate_grid(datasheet.grid)
 
     @staticmethod
@@ -40,13 +42,20 @@ class CommunityDatasheetValidator:
         return isinstance(instance, timedelta)
 
     @staticmethod
-    def _validate_loads(datasheet: CommunityDatasheet):
-        asset_names = (
-            asset["name"] for member_assets in datasheet.loads.values() for asset in member_assets)
+    def _validate_unique_names(datasheet):
+        """Validate that there are no duplicate names among all assets and members."""
+        all_assets = datasheet.all_assets
+        asset_names = Counter(asset["name"] for asset in all_assets)
+        duplicates = [name for name, occurrences in asset_names.items() if occurrences > 1]
+        if duplicates:
+            raise CommunityDatasheetException(
+                f"Asset names must be unique. Foudn duplicate names: {duplicates}.")
 
+    @staticmethod
+    def _validate_loads(datasheet: CommunityDatasheet):
         missing_profiles = [
-            asset_name for asset_name in asset_names
-            if asset_name not in datasheet.profiles
+            load["name"] for load in datasheet.load_assets
+            if load["name"] not in datasheet.profiles
         ]
 
         if missing_profiles:
@@ -57,15 +66,14 @@ class CommunityDatasheetValidator:
     @classmethod
     def _validate_pvs(cls, datasheet: CommunityDatasheet):
         # Each PV without profile must provide the parameters needed to call the Rebase API.
-        assets = (asset for member_assets in datasheet.pvs.values() for asset in member_assets)
-        for asset in assets:
-            asset_name = asset["name"]
+        for pv_asset in datasheet.pv_assets:
+            asset_name = pv_asset["name"]
             if asset_name in datasheet.profiles:
                 continue
 
             missing_attributes = [
                 field for field in FIELDS_REQUIRED_FOR_REBASE
-                if not asset.get(field)
+                if not pv_asset.get(field)
             ]
 
             if missing_attributes:

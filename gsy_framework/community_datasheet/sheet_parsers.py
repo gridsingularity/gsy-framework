@@ -137,12 +137,15 @@ class CommunityMembersSheetParser(MembersSheetParser):
         for row in self.rows:
             row_dict = self._row_to_dict(row)
             # The first header is the member name
-            member_name = row_dict.pop(self.EXPECTED_HEADER[0])
+            member_name = row_dict.pop(self.EXPECTED_HEADER[0], "").strip()
             if not member_name:
                 raise CommunityDatasheetException(
                     f'member name cannot be None. Check sheet "{self._worksheet.title}".')
 
-            member_name = member_name.strip()
+            if member_name in output:
+                raise CommunityDatasheetException(
+                    f'Member names must be unique. Found duplicate name: "{member_name}".')
+
             parsed_row = self._parse_row(row_dict)
             output[member_name] = parsed_row
 

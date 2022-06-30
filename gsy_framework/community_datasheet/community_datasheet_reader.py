@@ -5,7 +5,7 @@ import logging
 import pathlib
 from dataclasses import asdict, dataclass, field
 from itertools import chain
-from typing import IO, Dict, Union
+from typing import IO, Dict, List, Union
 
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
@@ -24,9 +24,9 @@ class CommunityDatasheet:
 
     settings: Dict
     members: Dict
-    loads: Dict
-    pvs: Dict
-    storages: Dict
+    loads: Dict[str, List]  # Map member names to their loads
+    pvs: Dict[str, List]  # Map member names to their pvs
+    storages: Dict[str, List]  # Map member names to their storages
     profiles: Dict
     grid: Dict = field(default_factory=dict)
 
@@ -37,6 +37,41 @@ class CommunityDatasheet:
     def as_dict(self) -> str:
         """Return the dictionary representation of the datasheet."""
         return asdict(self)
+
+    @property
+    def load_assets(self) -> List:
+        """Return a list of the load assets defined in the datasheet."""
+        return [
+            asset
+            for member_assets in self.loads.values()
+            for asset in member_assets
+        ]
+
+    @property
+    def pv_assets(self) -> List:
+        """Return a list of the PV assets defined in the datasheet."""
+        return [
+            asset
+            for member_assets in self.pvs.values()
+            for asset in member_assets
+        ]
+
+    @property
+    def storage_assets(self) -> List:
+        """Return a list of the storage assets defined in the datasheet."""
+        return [
+            asset
+            for member_assets in self.storages.values()
+            for asset in member_assets
+        ]
+
+    @property
+    def all_assets(self) -> List:
+        """Return a list of all assets defined in the datasheet."""
+        return [
+            asset
+            for assets_group in (self.load_assets, self.pv_assets, self.storage_assets)
+            for asset in assets_group]
 
     @property
     def assets_by_member(self) -> Dict:
