@@ -12,18 +12,18 @@ from gsy_framework.community_datasheet.sheet_headers import (
 from gsy_framework.constants_limits import DATE_TIME_FORMAT, ConstSettings
 
 
-class StringToTimedeltaConverter:
+class StringToTimedeltaParser:
     """Class to convert strings to timedelta objects."""
 
-    REGEX = re.compile(r"((?P<hours>\d+?):)?((?P<minutes>\d+?))?")
+    REGEX = re.compile(r"((?P<hours>\d{1,2}):)?((?P<minutes>\d{1,2}))?")
 
     @classmethod
     def parse(cls, time_string: str) -> timedelta:
         """Parse a string in the format [h]:mm and return a timedelta object.
 
         Example:
-            >>> StringToTimedeltaConverter.parse("1h1m")
-            datetime.timedelta(seconds=3660)
+            >>> StringToTimedeltaParser.parse("24:01")
+            datetime.timedelta(days=1, seconds=60)
         """
         parts = cls.REGEX.fullmatch(time_string)
         if not parts:
@@ -53,7 +53,7 @@ class GeneralSettingsRowConverter:
             value = pendulum.instance(value).format(DATE_TIME_FORMAT)
         elif field_name == "slot_length":
             try:
-                value = StringToTimedeltaConverter.parse(value)
+                value = StringToTimedeltaParser.parse(value)
             except StringToTimedeltaConversionException as ex:
                 raise CommunityDatasheetException(
                     f"Field can't be parsed ({field_name}). {ex}") from ex
