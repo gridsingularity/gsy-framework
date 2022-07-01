@@ -9,7 +9,7 @@ from gsy_framework.community_datasheet.exceptions import (
     CommunityDatasheetException, StringToTimedeltaConversionException)
 from gsy_framework.community_datasheet.sheet_headers import (
     LoadSheetHeader, PVSheetHeader, StorageSheetHeader)
-from gsy_framework.constants_limits import DATE_TIME_FORMAT, ConstSettings
+from gsy_framework.constants_limits import ConstSettings
 
 
 class StringToTimedeltaParser:
@@ -50,7 +50,7 @@ class GeneralSettingsRowConverter:
         field_name, value = row[0], row[2]  # Each row is a tuple (setting-name, legend, value)
         field_name = field_name.strip().lower().replace(" ", "_")
         if field_name in ("start_date", "end_date") and isinstance(value, datetime):
-            value = pendulum.instance(value).format(DATE_TIME_FORMAT)
+            value = pendulum.instance(value)
         elif field_name == "slot_length":
             try:
                 value = StringToTimedeltaParser.parse(value)

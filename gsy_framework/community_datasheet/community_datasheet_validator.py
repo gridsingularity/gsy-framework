@@ -6,6 +6,7 @@ from typing import Dict
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 from jsonschema.validators import extend
+from pendulum.datetime import DateTime
 
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheet
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
@@ -25,8 +26,8 @@ COMMUNITY_DATASHEET_SCHEMA = {
             "description": "General settings of the community.",
             "type": "object",
             "properties": {
-                "start_date": {"type": "string"},
-                "end_date": {"type": "string"},
+                "start_date": {"type": "custom_pendulum_datetime"},
+                "end_date": {"type": "custom_pendulum_datetime"},
                 "slot_length": {"type": "custom_timedelta"},
                 "currency": {
                     "type": "string",
@@ -123,10 +124,11 @@ class CommunityDatasheetSchemaValidator:
 
     def __init__(self):
         # JSON schema doesn't work with datetime or custom objects, so we extend it to do so
-        type_checker = Draft202012Validator.TYPE_CHECKER.redefine(
-            "custom_timedelta", self._is_timedelta)
+        type_checker = Draft202012Validator.TYPE_CHECKER.redefine_many({
+            "custom_timedelta": self._is_timedelta,
+            "custom_pendulum_datetime": self._is_pendulum_datetime
+            })
         CustomValidator = extend(Draft202012Validator, type_checker=type_checker)
-
         self._schema_validator = CustomValidator(schema=COMMUNITY_DATASHEET_SCHEMA)
 
     def validate(self, instance: Dict):
@@ -136,3 +138,7 @@ class CommunityDatasheetSchemaValidator:
     @staticmethod
     def _is_timedelta(_checker, instance):
         return isinstance(instance, timedelta)
+
+    @staticmethod
+    def _is_pendulum_datetime(_checker, instance):
+        return isinstance(instance, DateTime)
