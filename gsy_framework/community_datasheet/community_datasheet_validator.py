@@ -1,6 +1,7 @@
 import logging
 from collections import Counter
 from datetime import timedelta
+from typing import Dict
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
@@ -8,22 +9,46 @@ from jsonschema.validators import extend
 
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheet
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
-from gsy_framework.community_datasheet.schema import COMMUNITY_DATASHEET_SCHEMA
 from gsy_framework.constants_limits import FIELDS_REQUIRED_FOR_REBASE
 from gsy_framework.scenario_validators import scenario_validator
 
 logger = logging.getLogger(__name__)
+
+COMMUNITY_DATASHEET_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "settings": {"$ref": "#/$defs/settings"},
+        "grid": {"$ref": "#/$defs/grid"},
+    },
+    "$defs": {
+        "settings": {
+            "description": "General settings of the community.",
+            "type": "object",
+            "properties": {
+                "start_date": {"type": "string"},
+                "end_date": {"type": "string"},
+                "slot_length": {"type": "custom_timedelta"},
+                "currency": {
+                    "type": "string",
+                    "enum": ["USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CNY", "CHF"]
+                },
+                "coefficient_type": {
+                    "type": "string",
+                    "enum": ["constant", "dynamic"]
+                },
+            },
+            "required": ["start_date", "end_date", "slot_length", "currency", "coefficient_type"]
+        },
+        "grid": {"type": ["object"]}
+    }
+}
 
 
 class CommunityDatasheetValidator:
     """Validator for the parsed community datasheet output."""
 
     def __init__(self):
-        # JSON schema doesn't work with datetime or custom objects, so we customise it
-        type_checker = Draft202012Validator.TYPE_CHECKER.redefine(
-            "custom_timedelta", self._is_timedelta)
-        CustomValidator = extend(Draft202012Validator, type_checker=type_checker)
-        self._validator = CustomValidator(schema=COMMUNITY_DATASHEET_SCHEMA)
+        self._validator = CommunityDatasheetSchemaValidator()
 
     def validate(self, datasheet: CommunityDatasheet):
         """Validate the content of the datasheet."""
@@ -36,10 +61,6 @@ class CommunityDatasheetValidator:
             self._validator.validate(instance=datasheet.as_dict())
         except ValidationError as ex:
             raise CommunityDatasheetException(ex) from ex
-
-    @staticmethod
-    def _is_timedelta(_checker, instance):
-        return isinstance(instance, timedelta)
 
     @staticmethod
     def _validate_unique_names(datasheet):
@@ -92,3 +113,26 @@ class CommunityDatasheetValidator:
                 f"Error: {ex.message}")
             logger.exception(message)
             raise CommunityDatasheetException(message) from ex
+
+
+class CommunityDatasheetSchemaValidator:
+    """JSON schema validator for Community Datasheet.
+
+    JSON schema doesn't support objects by default, so we extend the validator with new checkers.
+    """
+
+    def __init__(self):
+        # JSON schema doesn't work with datetime or custom objects, so we extend it to do so
+        type_checker = Draft202012Validator.TYPE_CHECKER.redefine(
+            "custom_timedelta", self._is_timedelta)
+        CustomValidator = extend(Draft202012Validator, type_checker=type_checker)
+
+        self._schema_validator = CustomValidator(schema=COMMUNITY_DATASHEET_SCHEMA)
+
+    def validate(self, instance: Dict):
+        """Validate an instance of community datasheet (in dict format) using JSON schema."""
+        self._schema_validator.validate(instance)
+
+    @staticmethod
+    def _is_timedelta(_checker, instance):
+        return isinstance(instance, timedelta)
