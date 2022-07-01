@@ -23,7 +23,7 @@ class ScenarioSchemas:
             "area": {
                 "type": "object",
                 "properties": {
-                    "type": {"anyOf": [{"enum": ["Area"]}, {"enum": ["null"]}]},
+                    "type": {"enum": ["Area", "null"]},
                     "name": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "const_fee_rate": {"type": "number"},
@@ -32,7 +32,7 @@ class ScenarioSchemas:
                     "coefficient_percentage": {"type": ["number", "null"]},
                     "fixed_monthly_fee": {"type": ["number", "null"]},
                     "marketplace_monthly_fee": {"type": ["number", "null"]},
-                    "market_maker_rate": {"type": "number"},
+                    "market_maker_rate": {"type": ["number", "null"]},
                     "grid_fee_percentage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "baseline_peak_energy_import_kWh":
                         {"anyOf": [{"type": "number"}, {"type": "null"}]},
