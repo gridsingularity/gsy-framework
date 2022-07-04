@@ -397,7 +397,7 @@ class TestCommunityDatasheetParser:
                             "type": "Storage",
                             "uuid": "mocked-uuid",
                             "battery_capacity_kWh": 0.5,
-                            "min_allowed_soc": 13,
+                            "min_allowed_soc": 10,
                             "max_abs_battery_power_kW": 0.005,
                         },
                     ],
