@@ -38,28 +38,28 @@ class TestCommunityDatasheetParser:
 
         members_information = {
             "Member 1": {
-                "email": None,
-                "zip_code": None,
-                "address": "10210 La Loge-Pomblin, France",
+                "email": "some-email-1@some-email.com",
+                "zip_code": 64508,
+                "address": "Am Werth 94, Wolffburg, Schleswig-Holstein, Germany",
                 "market_maker_rate": 1,
                 "feed_in_tariff": 7,
-                "grid_fee_constant": None,
-                "taxes_surcharges": None,
-                "fixed_monthly_fee": None,
-                "marketplace_monthly_fee": None,
-                "coefficient_percentage": None,
+                "grid_fee_constant": 0.3,
+                "taxes_surcharges": 0.5,
+                "fixed_monthly_fee": 0.5,
+                "marketplace_monthly_fee": 0.5,
+                "coefficient_percentage": 0.5,
             },
             "Member 2": {
-                "email": None,
-                "zip_code": None,
-                "address": "Carreg Winllan",
+                "email": "some-email-2@some-email.com",
+                "zip_code": 57441,
+                "address": "Heisterbachstr. 8, Ost Colin, Hamburg, Germany",
                 "market_maker_rate": 1,
                 "feed_in_tariff": 7,
-                "grid_fee_constant": None,
-                "taxes_surcharges": None,
-                "fixed_monthly_fee": None,
-                "marketplace_monthly_fee": None,
-                "coefficient_percentage": None,
+                "grid_fee_constant": 0.3,
+                "taxes_surcharges": 0.5,
+                "fixed_monthly_fee": 0.5,
+                "marketplace_monthly_fee": 0.5,
+                "coefficient_percentage": 0.5,
             },
         }
 
@@ -75,6 +75,7 @@ class TestCommunityDatasheetParser:
 
         datasheet = CommunityDatasheetParser(filename=filename).parse()
 
+        # import ipdb; ipdb.set_trace()
         asset_coordinates_builder_mock.add_coordinates_to_assets.assert_called_once_with(
             pvs_by_member, members_information)
 
@@ -191,7 +192,7 @@ class TestCommunityDatasheetParser:
                     "tags": ["Home"],
                     "type": "Area",
                     "uuid": "mocked-uuid",
-                    "grid_fee_constant": None,
+                    "grid_fee_constant": 0.3,
                     "children": [
                         {
                             "name": "Load 1",
@@ -362,24 +363,24 @@ class TestCommunityDatasheetParser:
                             "name": "Battery 1",
                             "type": "Storage",
                             "uuid": "mocked-uuid",
-                            "battery_capacity_kWh": 1.2,
+                            "battery_capacity_kWh": 0.7,
                             "min_allowed_soc": 10,
-                            "max_abs_battery_power_kW": 5,
+                            "max_abs_battery_power_kW": 0.005,
                         },
                     ],
                     "market_maker_rate": 1,
                     "feed_in_tariff": 7,
-                    "taxes_surcharges": None,
-                    "fixed_monthly_fee": None,
-                    "marketplace_monthly_fee": None,
-                    "coefficient_percentage": None,
+                    "taxes_surcharges": 0.5,
+                    "fixed_monthly_fee": 0.5,
+                    "marketplace_monthly_fee": 0.5,
+                    "coefficient_percentage": 0.5,
                 },
                 {
                     "name": "Member 2",
                     "tags": ["Home"],
                     "type": "Area",
                     "uuid": "mocked-uuid",
-                    "grid_fee_constant": None,
+                    "grid_fee_constant": 0.3,
                     "children": [
                         {
                             "name": "PV 3",
@@ -395,17 +396,17 @@ class TestCommunityDatasheetParser:
                             "name": "Battery 2",
                             "type": "Storage",
                             "uuid": "mocked-uuid",
-                            "battery_capacity_kWh": 1.2,
-                            "min_allowed_soc": 10,
-                            "max_abs_battery_power_kW": 5,
+                            "battery_capacity_kWh": 0.5,
+                            "min_allowed_soc": 13,
+                            "max_abs_battery_power_kW": 0.005,
                         },
                     ],
                     "market_maker_rate": 1,
                     "feed_in_tariff": 7,
-                    "taxes_surcharges": None,
-                    "fixed_monthly_fee": None,
-                    "marketplace_monthly_fee": None,
-                    "coefficient_percentage": None,
+                    "taxes_surcharges": 0.5,
+                    "fixed_monthly_fee": 0.5,
+                    "marketplace_monthly_fee": 0.5,
+                    "coefficient_percentage": 0.5,
                 },
             ],
         }
