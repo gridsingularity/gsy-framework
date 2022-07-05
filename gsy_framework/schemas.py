@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class ScenarioSchemas:
+    """JSON schema for validating scenarios."""
+
     scenario_schema = {
         "definitions": {
             "area": {
@@ -195,6 +197,8 @@ class ScenarioSchemas:
 
 
 class ResultsSchemas:
+    """JSON schema for validating results."""
+
     results_schema = {"type": "object",
                       "properties": {
                             "job_id":  {"type": "string"},
@@ -236,6 +240,8 @@ class ResultsSchemas:
 
 
 class ApiClientConfigSchema:
+    """JSON schema for validating data gathered from simulation configuration files."""
+
     simulation_config_schema = {"type": "object",
                                 "username": {"type": "string"},
                                 "name": {"type": "string"},
@@ -270,3 +276,33 @@ class ApiClientConfigSchema:
                                              "web_socket_domain_name", "global_settings",
                                              "registry"]
                                 }
+
+
+COMMUNITY_DATASHEET_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "settings": {"$ref": "#/$defs/settings"},
+        "grid": {"$ref": "#/$defs/grid"},
+    },
+    "$defs": {
+        "settings": {
+            "description": "General settings of the community.",
+            "type": "object",
+            "properties": {
+                "start_date": {"type": "custom_pendulum_datetime"},
+                "end_date": {"type": "custom_pendulum_datetime"},
+                "slot_length": {"type": "custom_timedelta"},
+                "currency": {
+                    "type": "string",
+                    "enum": ["USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CNY", "CHF"]
+                },
+                "coefficient_type": {
+                    "type": "string",
+                    "enum": ["constant", "dynamic"]
+                },
+            },
+            "required": ["start_date", "end_date", "slot_length", "currency", "coefficient_type"]
+        },
+        "grid": {"type": ["object"]}
+    }
+}
