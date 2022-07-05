@@ -34,7 +34,7 @@ class ScenarioSchemas:
                     "coefficient_percentage": {"type": ["number", "null"]},
                     "fixed_monthly_fee": {"type": ["number", "null"]},
                     "marketplace_monthly_fee": {"type": ["number", "null"]},
-                    "market_maker_rate": {"type": ["number", "null"]},
+                    "market_maker_rate": {"type": ["number"]},
                     "grid_fee_percentage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "baseline_peak_energy_import_kWh":
                         {"anyOf": [{"type": "number"}, {"type": "null"}]},
