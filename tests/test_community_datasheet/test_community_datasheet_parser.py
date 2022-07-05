@@ -75,7 +75,6 @@ class TestCommunityDatasheetParser:
 
         datasheet = CommunityDatasheetParser(filename=filename).parse()
 
-        # import ipdb; ipdb.set_trace()
         asset_coordinates_builder_mock.add_coordinates_to_assets.assert_called_once_with(
             pvs_by_member, members_information)
 
