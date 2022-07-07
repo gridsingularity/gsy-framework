@@ -425,9 +425,9 @@ class Trade:
         """Return a json serializable representation of the class."""
         return {
             "type": "Trade",
-            "match_type": type(self.offer_bid).__name__,
+            "match_type": type(self.offer_bid).__name__ if self.offer_bid else None,
             "id": self.id,
-            "offer_bid_id": self.offer_bid.id,
+            "offer_bid_id": self.offer_bid.id if self.offer_bid else None,
             "residual_id": self.residual.id if self.residual is not None else None,
             "energy": self.traded_energy,
             "energy_rate": self.trade_rate,
