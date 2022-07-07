@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Dict
 
+from gsy_framework.constants_limits import ConstSettings
+from gsy_framework.enums import SpotMarketTypeEnum
 from gsy_framework.sim_results import (
     is_buffer_node_type, is_bulk_power_producer, is_finite_power_plant_node_type,
     is_load_node_type, is_prosumer_node_type, is_pv_node_type)
@@ -207,7 +209,10 @@ class DeviceStatistics(ResultsBaseClass):
         if core_stats is None or core_stats.get(area_dict['uuid'], {}) == {}:
             return
 
-        if area_dict['type'] != "area_dict":
+        if (area_dict['type'] != "area_dict" and
+                ConstSettings.MASettings.MARKET_TYPE != SpotMarketTypeEnum.COEFFICIENTS.value):
+            # SCM does not handle trades on the asset level, therefore price / energy trade stats
+            # are not applicable.
             cls._device_price_stats(area_dict, subdict, core_stats, current_market_slot)
             cls._device_energy_stats(area_dict, subdict, core_stats, current_market_slot)
 

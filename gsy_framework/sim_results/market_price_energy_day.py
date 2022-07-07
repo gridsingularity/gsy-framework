@@ -58,7 +58,7 @@ class MarketPriceEnergyDay(ResultsBaseClass):
         trade_rates = [
             # Convert from cents to euro
             t['energy_rate'] / 100.0
-            for t in core_stats.get(area_dict['uuid'], {}).get('trades', [])
+            for t in cls._get_trades_from_core_stats(core_stats, area_dict["uuid"])
         ]
         price_lists[area_dict['uuid']][current_market_slot].extend(trade_rates)
 

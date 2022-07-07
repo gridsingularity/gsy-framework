@@ -50,7 +50,7 @@ class CumulativeNetEnergyFlow(ResultsBaseClass):
     def _accumulate_net_energy(self, area_dict, core_stats):
 
         child_names = [c['name'] for c in area_dict['children']]
-        for trade in core_stats.get(area_dict['uuid'], {}).get('trades', []):
+        for trade in self._get_trades_from_core_stats(core_stats, area_dict["uuid"]):
             if area_bought_from_child(trade, area_dict['name'], child_names):
                 add_or_create_key(
                     self.net_area_flow, area_dict['uuid'], trade['energy']

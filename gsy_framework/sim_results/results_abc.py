@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
+from gsy_framework.constants_limits import ConstSettings
+from gsy_framework.enums import SpotMarketTypeEnum
 from gsy_framework.utils import get_json_dict_memory_allocation_size
 
 
@@ -70,3 +72,10 @@ class ResultsBaseClass(ABC):
             get_json_dict_memory_allocation_size(o)
             for o in object_list
         )
+
+    @staticmethod
+    def _get_trades_from_core_stats(core_stats, area_uuid):
+        if ConstSettings.MASettings.MARKET_TYPE == SpotMarketTypeEnum.COEFFICIENTS.value:
+            return core_stats[area_uuid].get("after_meter_data", {}).get("trades", [])
+        else:
+            return core_stats[area_uuid].get("trades", [])
