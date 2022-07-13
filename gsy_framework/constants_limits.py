@@ -22,7 +22,7 @@ from datetime import date, datetime
 
 from pendulum import duration, instance
 
-from gsy_framework.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum
+from gsy_framework.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum, CoefficientAlgorithm
 
 RangeLimit = namedtuple("RangeLimit", ("min", "max"))
 RateRange = namedtuple("RateRange", ("initial", "final"))
@@ -227,6 +227,8 @@ class ConstSettings:
     class SCMSettings:
         """Default settings for the community manager."""
         GRID_FEES_REDUCTION = 0.28
+        MARKET_ALGORITHM = CoefficientAlgorithm.STATIC.value
+        MARKET_ALGORITHM_LIMIT = RangeLimit(1, 2)
 
 
 class GlobalConfig:
