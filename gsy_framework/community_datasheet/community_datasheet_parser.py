@@ -33,13 +33,11 @@ class CommunityDatasheetParser:
     def parse(self):
         """Parse the datasheet contents and create a grid representation."""
 
-        self._datasheet.members = self._parse_members(self._datasheet.members)
+        self._parse_members()
         self._add_coordinates_to_assets()
-        self._datasheet.pvs = self._parse_pvs(self._datasheet.pvs)
-        assets_by_member = self._datasheet.assets_by_member
-
-        self._merge_profiles_into_assets(self._datasheet.profiles, assets_by_member)
-        self._datasheet.grid = self._create_grid(assets_by_member)
+        self._parse_pvs()
+        self._merge_profiles_into_assets()
+        self._datasheet.grid = self._create_grid()
 
         CommunityDatasheetValidator().validate(self._datasheet)
 
@@ -51,22 +49,19 @@ class CommunityDatasheetParser:
                 asset["geo_tag_location"] = self._datasheet.members[
                     member_name]["geo_tag_location"]
 
-    @staticmethod
-    def _parse_members(members):
+    def _parse_members(self):
         """Parse the members to add geographical coordinates."""
-        for member_details in members.values():
+        for member_details in self._datasheet.members.values():
             coordinates = AssetCoordinatesBuilder().get_member_coordinates(member_details)
             member_details["geo_tag_location"] = coordinates
 
-        return members
-
-    def _parse_pvs(self, pvs_by_member: Dict):
+    def _parse_pvs(self):
         pv_assets = (
-            pv_asset for member_assets in pvs_by_member.values() for pv_asset in member_assets)
+            pv_asset
+            for member_assets in self._datasheet.pvs.values()
+            for pv_asset in member_assets)
         for pv_asset in pv_assets:
             pv_asset["cloud_coverage"] = self._infer_pv_cloud_coverage(pv_asset)
-
-        return pvs_by_member
 
     def _infer_pv_cloud_coverage(self, pv_asset: Dict) -> int:
         """Infer which type of profile generation should be used."""
@@ -86,12 +81,11 @@ class CommunityDatasheetParser:
 
         return CloudCoverage.LOCAL_GENERATION_PROFILE.value
 
-    @staticmethod
-    def _merge_profiles_into_assets(profiles: Dict, assets_by_member: Dict) -> None:
+    def _merge_profiles_into_assets(self) -> None:
         """Merge (in-place) each energy profile into the representation of its own asset."""
-        for asset in chain.from_iterable(assets_by_member.values()):
+        for asset in chain.from_iterable(self._datasheet.assets_by_member.values()):
             asset_name = asset["name"]
-            if asset_name not in profiles:
+            if asset_name not in self._datasheet.profiles:
                 continue
             asset_type = asset["type"]
             try:
@@ -99,11 +93,11 @@ class CommunityDatasheetParser:
             except KeyError as ex:
                 raise CommunityDatasheetException(
                     f'Asset type "{asset_type}" is not supported.') from ex
-            asset[profile_key] = profiles[asset_name]
+            asset[profile_key] = self._datasheet.profiles[asset_name]
 
-    def _create_grid(self, assets_by_member: Dict) -> Dict:
+    def _create_grid(self) -> Dict:
         grid = []
-        for member_name, assets in assets_by_member.items():
+        for member_name, assets in self._datasheet.assets_by_member.items():
             home_representation = self._create_home_representation(member_name)
             home_representation["children"] = assets
             grid.append(home_representation)
