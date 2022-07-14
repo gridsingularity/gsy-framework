@@ -85,7 +85,7 @@ class MembersRowConverter:
 
         return {
             "email": row["Email"],
-            "zip_code": row["ZIP code"],
+            "zip_code": cls._parse_zip_code(row["ZIP code"]),
             "address": row["Location/Address (optional)"],
             "market_maker_rate": row["Utility price"],
             "feed_in_tariff": row["Feed-in Tariff"],
@@ -95,6 +95,16 @@ class MembersRowConverter:
             "marketplace_monthly_fee": row["Marketplace fee"],
             "coefficient_percentage": row["Coefficient"]
         }
+
+    @staticmethod
+    def _parse_zip_code(zip_code: str) -> str:
+        """Force correct conversion to string to avoid strings like '12435.0'"""
+        try:
+            zip_code = str(int(zip_code))
+        except ValueError:
+            pass
+
+        return zip_code
 
     @classmethod
     def _validate_row(cls, row: Dict):
