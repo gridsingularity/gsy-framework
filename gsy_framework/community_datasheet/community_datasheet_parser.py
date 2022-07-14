@@ -51,8 +51,9 @@ class CommunityDatasheetParser:
 
     def _parse_members(self):
         """Parse the members to add geographical coordinates."""
+        coordinates_builder = AssetCoordinatesBuilder()
         for member_details in self._datasheet.members.values():
-            coordinates = AssetCoordinatesBuilder().get_member_coordinates(member_details)
+            coordinates = coordinates_builder.get_member_coordinates(member_details)
             member_details["geo_tag_location"] = coordinates
 
     def _parse_pvs(self):
