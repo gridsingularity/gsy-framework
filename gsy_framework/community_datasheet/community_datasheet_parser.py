@@ -11,7 +11,7 @@ from gsy_framework.community_datasheet.community_datasheet_validator import (
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.community_datasheet.location_converter import (
     LocationConverter, LocationConverterException)
-from gsy_framework.constants_limits import FIELDS_REQUIRED_FOR_REBASE
+from gsy_framework.constants_limits import ConstSettings, FIELDS_REQUIRED_FOR_REBASE
 from gsy_framework.enums import CloudCoverage
 
 logger = logging.getLogger(__name__)
@@ -104,11 +104,27 @@ class CommunityDatasheetParser:
             grid.append(home_representation)
 
         return {
-            "name": "Community",
-            "tags": None,
-            "type": "Area",
+            "name": "Grid Market",
+            "allow_external_connection": False,
             "uuid": str(uuid.uuid4()),
-            "children": grid
+            "type": "Area",
+            "children": [
+                {
+                    "name": "",
+                    "allow_external_connection": False,
+                    "uuid": str(uuid.uuid4()),
+                    "type": "InfiniteBus",
+                    "energy_rate": ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE,
+                    "energy_buy_rate": ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
+                },
+                {
+                    "name": "Community",
+                    "allow_external_connection": False,
+                    "uuid": str(uuid.uuid4()),
+                    "type": "Area",
+                    "children": grid
+                }
+            ]
         }
 
     def _create_home_representation(self, member_name: str) -> Dict:
