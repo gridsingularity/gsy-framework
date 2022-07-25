@@ -14,6 +14,7 @@ from gsy_framework.sim_results.kpi import KPI
 from gsy_framework.sim_results.market_price_energy_day import MarketPriceEnergyDay
 from gsy_framework.sim_results.market_summary_info import MarketSummaryInfo
 from gsy_framework.sim_results.scm.bills import SCMBills
+from gsy_framework.sim_results.scm.kpi import SCMKPI
 from gsy_framework.sim_results.simulation_assets_info import SimulationAssetsInfo
 
 
@@ -36,6 +37,7 @@ class ResultsHandler:
 
         if ConstSettings.MASettings.MARKET_TYPE == SpotMarketTypeEnum.COEFFICIENTS.value:
             self.results_mapping["bills"] = SCMBills()
+            self.results_mapping["kpi"] = SCMKPI()
         else:
             self.results_mapping["bills"] = MarketEnergyBills(should_export_plots)
             self.results_mapping["market_summary"] = MarketSummaryInfo(should_export_plots)
