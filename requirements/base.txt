@@ -6,7 +6,7 @@
 #
 attrs==21.2.0
     # via jsonschema
-backports-entry-points-selectable==1.1.0
+backports.entry-points-selectable==1.1.0
     # via virtualenv
 certifi==2021.10.8
     # via requests
