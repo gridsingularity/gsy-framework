@@ -37,6 +37,7 @@ class CommunityDatasheetParser:
         self._add_coordinates_to_assets()
         self._parse_pvs()
         self._merge_profiles_into_assets()
+        self._add_global_coordinates()
         self._datasheet.grid = self._create_grid()
 
         CommunityDatasheetValidator().validate(self._datasheet)
@@ -48,6 +49,10 @@ class CommunityDatasheetParser:
             for asset in assets:
                 asset["geo_tag_location"] = self._datasheet.members[
                     member_name]["geo_tag_location"]
+
+    def _add_global_coordinates(self):
+        first_member = next(iter(self._datasheet.members.values()))
+        self._datasheet.global_coordinates = first_member["geo_tag_location"]
 
     def _parse_members(self):
         """Parse the members to add geographical coordinates."""
