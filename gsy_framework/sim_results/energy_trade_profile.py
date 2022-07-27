@@ -121,7 +121,8 @@ class EnergyTradeProfile(ResultsBaseClass):
             return
         if core_stats[area_result_dict["uuid"]] == {}:
             return
-        area_core_trades = core_stats[area_result_dict["uuid"]].get("trades", [])
+        area_core_trades = EnergyTradeProfile._get_trades_from_core_stats(
+            core_stats, area_result_dict["uuid"])
         for trade in area_core_trades:
             trade_seller = area_name_from_area_or_ma_name(trade["seller"])
             trade_buyer = area_name_from_area_or_ma_name(trade["buyer"])
