@@ -248,6 +248,8 @@ class TestCommunityDatasheetParser:
             ],
         }
 
+        assert datasheet.global_coordinates == (4.137182, 48.058159)
+
 
 class TestAssetCoordinatesBuilder:
     @staticmethod
