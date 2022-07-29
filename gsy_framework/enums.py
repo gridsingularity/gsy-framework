@@ -17,6 +17,13 @@ class SpotMarketTypeEnum(Enum):
     COEFFICIENTS = 3
 
 
+class CoefficientAlgorithm(Enum):
+    """Coefficient algorithms supported by the GSY exchange."""
+
+    STATIC = 1
+    DYNAMIC = 2
+
+
 class CloudCoverage(Enum):
     """Available cloud coverage options for PV assets."""
 
