@@ -15,15 +15,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from copy import copy
-from typing import Dict, List
-from dataclasses import dataclass
 import logging
+from copy import copy
+from dataclasses import dataclass, asdict
+from typing import Dict
 
-from gsy_framework.sim_results import (
-    is_load_node_type, is_buffer_node_type, is_prosumer_node_type, is_producer_node_type)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
-from gsy_framework.utils import if_not_in_list_append
 
 
 @dataclass
@@ -45,6 +42,16 @@ class SCMKPIState:
     base_energy_cost_excl_revenue: float = 0.
     gsy_e_cost_excl_revenue: float = 0.
     fit_revenue: float = 0.
+
+    def to_dict(self):
+        output_dict = asdict(self)
+        output_dict.update({
+            "self_sufficiency": self.self_sufficiency,
+            "self_consumption": self.self_consumption,
+            "saving_absolute": self.saving_absolute,
+            "saving_precentage": self.saving_percentage
+        })
+        return output_dict
 
     def update(self, energy_demanded_wh: float, energy_produced_wh: float,
                self_consumption_wh: float, base_energy_cost: float,
@@ -69,12 +76,12 @@ class SCMKPIState:
 
     @property
     def saving_absolute(self):
-        return self.total_base_case_cost_excl_revenue - self.total_gsy_e_cost_excl_revenue
+        return self.total_base_energy_cost_excl_revenue - self.total_gsy_e_cost_excl_revenue
 
     @property
     def saving_percentage(self):
-        return (abs((self.saving_absolute / self.total_base_case_cost_excl_revenue) * 100)
-                if self.total_base_case_cost_excl_revenue else None)
+        return (abs((self.saving_absolute / self.total_base_energy_cost_excl_revenue) * 100)
+                if self.total_base_energy_cost_excl_revenue else None)
 
     @property
     def self_sufficiency(self):
@@ -123,7 +130,7 @@ class SCMKPI(ResultsBaseClass):
             return {}
 
         if area_dict["uuid"] not in self._state:
-            logging.warning(f"KPI state does not exist for this area, creating it.")
+            logging.warning("KPI state does not exist for this area, creating it.")
             self._state[area_dict["uuid"]] = SCMKPIState()
         state = self._state.get[area_dict["uuid"]]
 
@@ -131,7 +138,7 @@ class SCMKPI(ResultsBaseClass):
         self_consumption_wh = after_meter_data["self_consumed_energy_kWh"] * 1000.0
         energy_produced_wh = after_meter_data["production_kWh"] * 1000.0
         base_energy_cost = bills["base_energy_bill"]
-        base_case_cost_excl_revenue = bills["base_energy_bill_excl_revenue"]
+        base_energy_cost_excl_revenue = bills["base_energy_bill_excl_revenue"]
         gsy_e_cost = bills["gsy_energy_bill"]
         gsy_e_cost_excl_revenue = bills["gsy_energy_bill_excl_revenue"]
         fit_revenue = bills["sold_to_community"] * bills["sold_to_grid"]
@@ -142,24 +149,7 @@ class SCMKPI(ResultsBaseClass):
 
         return {
             "name": area_dict["name"],
-            "self_sufficiency": state.self_sufficiency,
-            "self_consumption": state.self_consumption,
-            "energy_demanded_wh": energy_demanded_wh,
-            "energy_produced_wh": energy_produced_wh,
-            "self_consumption_wh": self_consumption_wh,
-            "total_energy_demanded_wh": total_energy_demanded_wh,
-            "total_energy_produced_wh": total_energy_produced_wh,
-            "total_self_consumption_wh": total_self_consumption_wh,
-            "base_energy_cost": base_energy_cost,
-            "base_energy_cost_excl_revenue": base_energy_cost_excl_revenue,
-            "gsy_e_cost": gsy_e_cost,
-            "gsy_e_cost_excl_revenue": gsy_e_cost_excl_revenue,
-            "fit_revenue": fit_revenue,
-            "total_base_energy_cost": state.total_base_energy_cost,
-            "total_gsy_e_cost": state.total_gsy_e_cost,
-            "total_base_energy_cost_excl_revenue": state.total_base_energy_cost_excl_revenue,
-            "total_gsy_e_cost_excl_revenue": state.total_gsy_e_cost_excl_revenue,
-            "total_fit_revenue": state.total_fit_revenue
+            **state.to_dict()
         }
 
     def _get_ui_formatted_results(self, area_uuid: str) -> Dict:
@@ -207,11 +197,11 @@ class SCMKPI(ResultsBaseClass):
                 total_self_consumption_wh=last_known_state_data["total_self_consumption_wh"],
                 total_base_energy_cost=last_known_state_data.get("total_base_energy_cost", 0) or 0,
                 total_fit_revenue=last_known_state_data.get("total_fit_revenue", 0) or 0,
-                total_gsy_e_cost=last_known_state_data.get("total_gsy_e_cost", 0) or 0
+                total_gsy_e_cost=last_known_state_data.get("total_gsy_e_cost", 0) or 0,
                 total_base_energy_cost_excl_revenue=last_known_state_data.get(
                     "total_base_energy_cost_excl_revenue", 0) or 0,
                 total_gsy_e_cost_excl_revenue=last_known_state_data.get(
-                    "total_gsy_e_cost_excl_revenue", 0) or 0
+                    "total_gsy_e_cost_excl_revenue", 0) or 0,
                 energy_demanded_wh=last_known_state_data["energy_demanded_wh"],
                 energy_produced_wh=last_known_state_data["energy_produced_wh"],
                 self_consumption_wh=last_known_state_data["self_consumption_wh"],
