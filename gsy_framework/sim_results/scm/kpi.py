@@ -25,6 +25,7 @@ from gsy_framework.sim_results.results_abc import ResultsBaseClass
 
 @dataclass
 class SCMKPIState:
+    # pylint: disable=too-many-instance-attributes
     """Accumulates results that are needed for the KPI calculation of one area."""
     total_energy_demanded_wh: float = 0.
     total_energy_produced_wh: float = 0.
@@ -44,6 +45,7 @@ class SCMKPIState:
     fit_revenue: float = 0.
 
     def to_dict(self):
+        """Dict representation of the KPI state class."""
         output_dict = asdict(self)
         output_dict.update({
             "self_sufficiency": self.self_sufficiency,
@@ -57,6 +59,8 @@ class SCMKPIState:
                self_consumption_wh: float, base_energy_cost: float,
                base_energy_cost_excl_revenue: float, gsy_e_cost: float,
                gsy_e_cost_excl_revenue: float, fit_revenue: float):
+        # pylint: disable=too-many-arguments
+        """Update both the aggregated state members and the raw state members."""
         self.energy_demanded_wh = energy_demanded_wh
         self.energy_produced_wh = energy_produced_wh
         self.self_consumption_wh = self_consumption_wh
@@ -76,31 +80,35 @@ class SCMKPIState:
 
     @property
     def saving_absolute(self):
+        """Return absolute bill savings value for the area."""
         return self.total_base_energy_cost_excl_revenue - self.total_gsy_e_cost_excl_revenue
 
     @property
     def saving_percentage(self):
+        """Return percentage bill savings for the area."""
         return (abs((self.saving_absolute / self.total_base_energy_cost_excl_revenue) * 100)
                 if self.total_base_energy_cost_excl_revenue else None)
 
     @property
     def self_sufficiency(self):
+        """Calculate area self sufficiency. Value range 0.0-1.0."""
         if self.total_energy_demanded_wh <= 0:
             return None
 
-        elif self.total_self_consumption_wh >= self.total_energy_demanded_wh:
+        if self.total_self_consumption_wh >= self.total_energy_demanded_wh:
             return 1.0
-        else:
-            return self.total_self_consumption_wh / self.total_energy_demanded_wh
+
+        return self.total_self_consumption_wh / self.total_energy_demanded_wh
 
     @property
     def self_consumption(self):
+        """Calculate area self consumption. Value range 0.0-1.0."""
         if self.total_energy_produced_wh <= 0:
             return None
-        elif self.total_self_consumption_wh >= self.total_energy_produced_wh:
+        if self.total_self_consumption_wh >= self.total_energy_produced_wh:
             return 1.0
-        else:
-            return self.total_self_consumption_wh / self.total_energy_produced_wh
+
+        return self.total_self_consumption_wh / self.total_energy_produced_wh
 
 
 class SCMKPI(ResultsBaseClass):
@@ -132,7 +140,7 @@ class SCMKPI(ResultsBaseClass):
         if area_dict["uuid"] not in self._state:
             logging.warning("KPI state does not exist for this area, creating it.")
             self._state[area_dict["uuid"]] = SCMKPIState()
-        state = self._state.get[area_dict["uuid"]]
+        state = self._state[area_dict["uuid"]]
 
         energy_demanded_wh = after_meter_data["consumption_kWh"] * 1000.0
         self_consumption_wh = after_meter_data["self_consumed_energy_kWh"] * 1000.0
@@ -141,7 +149,7 @@ class SCMKPI(ResultsBaseClass):
         base_energy_cost_excl_revenue = bills["base_energy_bill_excl_revenue"]
         gsy_e_cost = bills["gsy_energy_bill"]
         gsy_e_cost_excl_revenue = bills["gsy_energy_bill_excl_revenue"]
-        fit_revenue = bills["sold_to_community"] * bills["sold_to_grid"]
+        fit_revenue = bills["sold_to_community"] + bills["sold_to_grid"]
 
         state.update(energy_demanded_wh, energy_produced_wh, self_consumption_wh,
                      base_energy_cost, base_energy_cost_excl_revenue, gsy_e_cost,
@@ -180,7 +188,7 @@ class SCMKPI(ResultsBaseClass):
             self._calculate_area_performance_indices(area_dict, core_stats))
 
         for child in area_dict["children"]:
-            if len(child["children"]) > 0:
+            if "children" in child and len(child["children"]) > 0:
                 self.update(child, core_stats, current_market_slot)
 
         self.performance_indices_redis[area_dict["uuid"]] = (
@@ -206,8 +214,12 @@ class SCMKPI(ResultsBaseClass):
                 energy_produced_wh=last_known_state_data["energy_produced_wh"],
                 self_consumption_wh=last_known_state_data["self_consumption_wh"],
                 base_energy_cost=last_known_state_data.get("base_energy_cost", 0) or 0,
+                base_energy_cost_excl_revenue=last_known_state_data.get(
+                    "base_energy_cost_excl_revenue", 0) or 0,
                 fit_revenue=last_known_state_data.get("fit_revenue", 0) or 0,
-                gsy_e_cost=last_known_state_data.get("gsy_e_cost", 0) or 0
+                gsy_e_cost=last_known_state_data.get("gsy_e_cost", 0) or 0,
+                gsy_e_cost_excl_revenue=last_known_state_data.get(
+                    "gsy_e_cost_excl_revenue", 0) or 0
             )
 
     @staticmethod
