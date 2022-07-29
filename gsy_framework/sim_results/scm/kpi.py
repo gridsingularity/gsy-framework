@@ -32,19 +32,68 @@ class SCMKPIState:
     total_energy_demanded_wh: float = 0.
     total_energy_produced_wh: float = 0.
     total_self_consumption_wh: float = 0.
-    utility_bill: float = 0.
+    total_base_energy_cost: float = 0.
+    total_gsy_e_cost: float = 0.
+    total_base_energy_cost_excl_revenue: float = 0.
+    total_gsy_e_cost_excl_revenue: float = 0.
+    total_fit_revenue: float = 0.
+    energy_demanded_wh: float = 0.
+    energy_produced_wh: float = 0.
+    self_consumption_wh: float = 0.
+    base_energy_cost: float = 0.
     gsy_e_cost: float = 0.
+    base_energy_cost_excl_revenue: float = 0.
+    gsy_e_cost_excl_revenue: float = 0.
     fit_revenue: float = 0.
 
     def update(self, energy_demanded_wh: float, energy_produced_wh: float,
-               self_consumption_wh: float, utility_bill: float, gsy_e_cost: float,
-               fit_revenue: float):
+               self_consumption_wh: float, base_energy_cost: float,
+               base_energy_cost_excl_revenue: float, gsy_e_cost: float,
+               gsy_e_cost_excl_revenue: float, fit_revenue: float):
+        self.energy_demanded_wh = energy_demanded_wh
+        self.energy_produced_wh = energy_produced_wh
+        self.self_consumption_wh = self_consumption_wh
+        self.base_energy_cost = base_energy_cost
+        self.gsy_e_cost = gsy_e_cost
+        self.base_energy_cost_excl_revenue = base_energy_cost_excl_revenue
+        self.gsy_e_cost_excl_revenue = gsy_e_cost_excl_revenue
+        self.fit_revenue = fit_revenue
         self.total_energy_demanded_wh += energy_demanded_wh
         self.total_energy_produced_wh += energy_produced_wh
         self.total_self_consumption_wh += self_consumption_wh
-        self.utility_bill += utility_bill
-        self.gsy_e_cost += gsy_e_cost
-        self.fit_revenue += fit_revenue
+        self.total_base_energy_cost += base_energy_cost
+        self.total_gsy_e_cost += gsy_e_cost
+        self.total_base_energy_cost_excl_revenue += base_energy_cost_excl_revenue
+        self.total_gsy_e_cost_excl_revenue += gsy_e_cost_excl_revenue
+        self.total_fit_revenue += fit_revenue
+
+    @property
+    def saving_absolute(self):
+        return self.base_case_cost_excl_revenue - self.gsy_e_cost_excl_revenue
+
+    @property
+    def saving_percentage(self):
+        return (abs((self.saving_absolute / self.base_case_cost_excl_revenue) * 100)
+                if self.base_case_cost_excl_revenue else None)
+
+    @property
+    def self_sufficiency(self):
+        if self.total_energy_demanded_wh <= 0:
+            return None
+
+        elif self.total_self_consumption_wh >= self.total_energy_demanded_wh:
+            return 1.0
+        else:
+            return self.total_self_consumption_wh / self.total_energy_demanded_wh
+
+    @property
+    def self_consumption(self):
+        if self.total_energy_produced_wh <= 0:
+            return None
+        elif self.total_self_consumption_wh >= self.total_energy_produced_wh:
+            return 1.0
+        else:
+            return self.total_self_consumption_wh / self.total_energy_produced_wh
 
 
 class SCMKPI(ResultsBaseClass):
@@ -81,42 +130,36 @@ class SCMKPI(ResultsBaseClass):
         energy_demanded_wh = after_meter_data["consumption_kWh"] * 1000.0
         self_consumption_wh = after_meter_data["self_consumed_energy_kWh"] * 1000.0
         energy_produced_wh = after_meter_data["production_kWh"] * 1000.0
-        utility_bill = after_meter_data["base_energy_bill"]
-        gsy_e_cost = after_meter_data["gsy_energy_bill"]
-        fit_revenue = after_meter_data["energy_surplus_kWh"] * after_meter_data["feed_in_tariff"]
+        base_energy_cost = bills["base_energy_bill"]
+        base_case_cost_excl_revenue = bills["base_energy_bill_excl_revenue"]
+        gsy_e_cost = bills["gsy_energy_bill"]
+        gsy_e_cost_excl_revenue = bills["gsy_energy_bill_excl_revenue"]
+        fit_revenue = bills["sold_to_community"] * bills["sold_to_grid"]
 
         state.update(energy_demanded_wh, energy_produced_wh, self_consumption_wh,
-                     utility_bill, gsy_e_cost, fit_revenue)
-
-        total_energy_demanded_wh = state.total_energy_demanded_wh
-        total_self_consumption_wh = state.total_self_consumption_wh
-        total_energy_produced_wh = state.total_energy_produced_wh
-        # in case when the area doesn"t have any load demand
-        if total_energy_demanded_wh <= 0:
-            self_sufficiency = None
-
-        elif total_self_consumption_wh >= total_energy_demanded_wh:
-            self_sufficiency = 1.0
-        else:
-            self_sufficiency = total_self_consumption_wh / total_energy_demanded_wh
-
-        if total_energy_produced_wh <= 0:
-            self_consumption = None
-        elif total_self_consumption_wh >= total_energy_produced_wh:
-            self_consumption = 1.0
-        else:
-            self_consumption = total_self_consumption_wh / total_energy_produced_wh
+                     base_energy_cost, base_energy_cost_excl_revenue, gsy_e_cost,
+                     gsy_e_cost_excl_revenue, fit_revenue)
 
         return {
             "name": area_dict["name"],
-            "self_sufficiency": self_sufficiency,
-            "self_consumption": self_consumption,
+            "self_sufficiency": state.self_sufficiency,
+            "self_consumption": state.self_consumption,
+            "energy_demanded_wh": energy_demanded_wh,
+            "energy_produced_wh": energy_produced_wh,
+            "self_consumption_wh": self_consumption_wh,
             "total_energy_demanded_wh": total_energy_demanded_wh,
             "total_energy_produced_wh": total_energy_produced_wh,
             "total_self_consumption_wh": total_self_consumption_wh,
-            "utility_bill": utility_bill,
+            "base_energy_cost": base_energy_cost,
+            "base_energy_cost_excl_revenue": base_energy_cost_excl_revenue,
             "gsy_e_cost": gsy_e_cost,
-            "fit_revenue": fit_revenue
+            "gsy_e_cost_excl_revenue": gsy_e_cost_excl_revenue,
+            "fit_revenue": fit_revenue,
+            "total_base_energy_cost": state.total_base_energy_cost,
+            "total_gsy_e_cost": state.total_gsy_e_cost,
+            "total_base_energy_cost_excl_revenue": state.total_base_energy_cost_excl_revenue,
+            "total_gsy_e_cost_excl_revenue": state.total_gsy_e_cost_excl_revenue,
+            "total_fit_revenue": state.total_fit_revenue
         }
 
     def _get_ui_formatted_results(self, area_uuid: str) -> Dict:
@@ -143,8 +186,6 @@ class SCMKPI(ResultsBaseClass):
                 not area_dict.get("children")):
             return
 
-        self.area_uuid_cum_grid_fee_mapping[area_dict["uuid"]] = (
-            self._accumulate_root_to_target_area_grid_fee(area_dict, core_stats))
         self.performance_indices[area_dict["uuid"]] = (
             self._calculate_area_performance_indices(area_dict, core_stats))
 
@@ -152,40 +193,8 @@ class SCMKPI(ResultsBaseClass):
             if len(child["children"]) > 0:
                 self.update(child, core_stats, current_market_slot)
 
-        self._post_process_savings_kpis(area_dict)
-
         self.performance_indices_redis[area_dict["uuid"]] = (
             self._get_ui_formatted_results(area_dict["uuid"]))
-
-    def _post_process_savings_kpis(self, area_dict: Dict) -> None:
-        """
-        Post process savings KPIs, that are also dependent on the savings KPIs of the children
-            1. add utility_bill, fit_revenue, gsy_e_cost of child markets to the areas' values
-            2. calculate base_case_cost, saving_absolute, saving_percentage for the area and
-               add them to the self.performance_indices
-        """
-        if not area_dict.get("children") or area_dict["uuid"] not in self.savings_state:
-            return
-
-        for child in area_dict["children"]:
-            if child["uuid"] in self.savings_state:
-                self.performance_indices[area_dict["uuid"]]["utility_bill"] += (
-                    self.savings_state[child["uuid"]].utility_bill)
-                self.performance_indices[area_dict["uuid"]]["fit_revenue"] += (
-                    self.savings_state[child["uuid"]].fit_revenue)
-                self.performance_indices[area_dict["uuid"]]["gsy_e_cost"] += (
-                    self.savings_state[child["uuid"]].gsy_e_cost)
-
-        base_case_cost = (self.performance_indices[area_dict["uuid"]]["utility_bill"] -
-                          self.performance_indices[area_dict["uuid"]]["fit_revenue"])
-        saving_absolute = (base_case_cost -
-                           self.performance_indices[area_dict["uuid"]]["gsy_e_cost"])
-        saving_percentage = (abs((saving_absolute / base_case_cost) * 100)
-                             if base_case_cost else None)
-
-        self.performance_indices[area_dict["uuid"]]["base_case_cost"] = base_case_cost
-        self.performance_indices[area_dict["uuid"]]["saving_absolute"] = saving_absolute
-        self.performance_indices[area_dict["uuid"]]["saving_percentage"] = saving_percentage
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         """Restore KPI for last known state"""
@@ -196,11 +205,19 @@ class SCMKPI(ResultsBaseClass):
                 total_energy_demanded_wh=last_known_state_data["total_energy_demanded_wh"],
                 total_energy_produced_wh=last_known_state_data["total_energy_produced_wh"],
                 total_self_consumption_wh=last_known_state_data["total_self_consumption_wh"],
-                utility_bill=last_known_state_data.get("utility_bill", 0) or 0,
+                total_base_energy_cost=last_known_state_data.get("total_base_energy_cost", 0) or 0,
+                total_fit_revenue=last_known_state_data.get("total_fit_revenue", 0) or 0,
+                total_gsy_e_cost=last_known_state_data.get("total_gsy_e_cost", 0) or 0
+                total_base_energy_cost_excl_revenue=last_known_state_data.get(
+                    "total_base_energy_cost_excl_revenue", 0) or 0,
+                total_gsy_e_cost_excl_revenue=last_known_state_data.get(
+                    "total_gsy_e_cost_excl_revenue", 0) or 0
+                energy_demanded_wh=last_known_state_data["energy_demanded_wh"],
+                energy_produced_wh=last_known_state_data["energy_produced_wh"],
+                self_consumption_wh=last_known_state_data["self_consumption_wh"],
+                base_energy_cost=last_known_state_data.get("base_energy_cost", 0) or 0,
                 fit_revenue=last_known_state_data.get("fit_revenue", 0) or 0,
-                gsy_e_cost=(
-                    last_known_state_data.get("gsy_e_cost", 0)
-                    or last_known_state_data.get("d3a_cost", 0) or 0)
+                gsy_e_cost=last_known_state_data.get("gsy_e_cost", 0) or 0
             )
 
     @staticmethod
