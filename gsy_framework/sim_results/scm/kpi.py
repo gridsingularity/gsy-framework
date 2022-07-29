@@ -69,12 +69,12 @@ class SCMKPIState:
 
     @property
     def saving_absolute(self):
-        return self.base_case_cost_excl_revenue - self.gsy_e_cost_excl_revenue
+        return self.total_base_case_cost_excl_revenue - self.total_gsy_e_cost_excl_revenue
 
     @property
     def saving_percentage(self):
-        return (abs((self.saving_absolute / self.base_case_cost_excl_revenue) * 100)
-                if self.base_case_cost_excl_revenue else None)
+        return (abs((self.saving_absolute / self.total_base_case_cost_excl_revenue) * 100)
+                if self.total_base_case_cost_excl_revenue else None)
 
     @property
     def self_sufficiency(self):
