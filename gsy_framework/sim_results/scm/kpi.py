@@ -162,11 +162,11 @@ class SCMKPI(ResultsBaseClass):
 
     def _get_ui_formatted_results(self, area_uuid: str) -> Dict:
         area_kpis = copy(self.performance_indices[area_uuid])
-        if area_kpis["self_sufficiency"] is not None:
+        if area_kpis.get("self_sufficiency") is not None:
             area_kpis["self_sufficiency"] = area_kpis["self_sufficiency"] * 100
         else:
             area_kpis["self_sufficiency"] = 0.0
-        if area_kpis["self_consumption"] is not None:
+        if area_kpis.get("self_consumption") is not None:
             area_kpis["self_consumption"] = area_kpis["self_consumption"] * 100
         else:
             area_kpis["self_consumption"] = 0.0

@@ -2,8 +2,6 @@ import logging
 from time import time
 from typing import Dict
 
-from gsy_framework.constants_limits import ConstSettings
-from gsy_framework.enums import SpotMarketTypeEnum
 from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
 from gsy_framework.sim_results.bills import MarketEnergyBills, CumulativeBills
 from gsy_framework.sim_results.cumulative_grid_trades import CumulativeGridTrades
@@ -20,7 +18,8 @@ from gsy_framework.sim_results.simulation_assets_info import SimulationAssetsInf
 
 class ResultsHandler:
     """Calculate all results for each market slot."""
-    def __init__(self, should_export_plots: bool = False):
+    def __init__(self, should_export_plots: bool = False, is_scm: bool = False):
+        self._is_scm = is_scm
         self.should_export_plots = should_export_plots
         self.bids_offers_trades = {}
         self.results_mapping = {
@@ -35,7 +34,7 @@ class ResultsHandler:
             "assets_info": SimulationAssetsInfo()
         }
 
-        if ConstSettings.MASettings.MARKET_TYPE == SpotMarketTypeEnum.COEFFICIENTS.value:
+        if is_scm:
             self.results_mapping["bills"] = SCMBills()
             self.results_mapping["kpi"] = SCMKPI()
         else:
@@ -126,8 +125,11 @@ class ResultsHandler:
             for k, v in self.results_mapping.items()
         }
         results["bids_offers_trades"] = self.bids_offers_trades
-        results["cumulative_market_fees"] = \
-            self.results_mapping["bills"].cumulative_fee_all_markets_whole_sim
+        if not self._is_scm:
+            results["cumulative_market_fees"] = \
+                self.results_mapping["bills"].cumulative_fee_all_markets_whole_sim
+        else:
+            results["cumulative_market_fees"] = 0.
         return results
 
     @property
