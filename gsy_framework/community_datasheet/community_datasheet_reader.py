@@ -6,6 +6,7 @@ import pathlib
 from dataclasses import asdict, dataclass, field
 from itertools import chain
 from typing import IO, Dict, List, Union
+from zipfile import BadZipFile
 
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
@@ -122,7 +123,9 @@ class CommunityDatasheetReader:
     def _load_workbook(filename: Union[str, pathlib.Path, IO]):
         try:
             return load_workbook(filename, read_only=True)
-        except InvalidFileException as ex:
+        except (InvalidFileException, BadZipFile) as ex:
+            # NOTE: openpyxl does not support the old .xls file format.
+            # BadZipFile is raised when the InMemoryUploadedFile passed by Django is of type xls
             logger.debug("Error while parsing community datasheet: %s", ex)
             raise CommunityDatasheetException(
                 "Community Datasheet format not supported. "
