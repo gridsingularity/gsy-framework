@@ -33,6 +33,8 @@ class TestCommunityDatasheetParser:
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
                 "coefficient_percentage": 0.5,
+                "uuid": "mocked-uuid",
+                "asset_count": 3
             },
             "Member 2": {
                 "email": "some-email-2@some-email.com",
@@ -45,6 +47,8 @@ class TestCommunityDatasheetParser:
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
                 "coefficient_percentage": 0.5,
+                "uuid": "mocked-uuid",
+                "asset_count": 2
             },
         }
 
