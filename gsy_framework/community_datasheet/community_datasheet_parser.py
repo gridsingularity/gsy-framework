@@ -105,6 +105,8 @@ class CommunityDatasheetParser:
         grid = []
         for member_name, assets in self._datasheet.assets_by_member.items():
             home_representation = self._create_home_representation(member_name)
+            self._datasheet.members[member_name]["uuid"] = home_representation["uuid"]
+            self._datasheet.members[member_name]["asset_count"] = len(assets)
             home_representation["children"] = assets
             grid.append(home_representation)
 
