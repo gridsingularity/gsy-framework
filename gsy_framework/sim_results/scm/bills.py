@@ -61,6 +61,8 @@ class SCMBills(ResultsBaseClass):
             if "bills" not in core_stats[area["uuid"]]:
                 continue
 
+            self.bills_redis_results["current"][area["uuid"]] = core_stats[area["uuid"]]["bills"]
+
             if area["uuid"] not in self.bills_redis_results["aggregated"]:
                 self.bills_redis_results["aggregated"][area["uuid"]] = self._empty_bills_dict()
 
