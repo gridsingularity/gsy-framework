@@ -9,14 +9,8 @@ class SCMBills(ResultsBaseClass):
     """Class to compute the energy bills of a home."""
 
     def __init__(self):
-        self.bills_results = {
-            "aggregated": {},
-            "current": {}
-        }
-        self.bills_redis_results = {
-            "aggregated": {},
-            "current": {}
-        }
+        self.bills_results = {}
+        self.bills_redis_results = {}
         self._cumulative_fee_all_markets_whole_sim = 0.
 
     def memory_allocation_size_kb(self):
@@ -61,14 +55,12 @@ class SCMBills(ResultsBaseClass):
             if "bills" not in core_stats[area["uuid"]]:
                 continue
 
-            self.bills_redis_results["current"][area["uuid"]] = core_stats[area["uuid"]]["bills"]
-
-            if area["uuid"] not in self.bills_redis_results["aggregated"]:
-                self.bills_redis_results["aggregated"][area["uuid"]] = self._empty_bills_dict()
+            if area["uuid"] not in self.bills_redis_results:
+                self.bills_redis_results[area["uuid"]] = self._empty_bills_dict()
 
             area_bills = {
                 k: v + core_stats[area["uuid"]]["bills"].get(k, 0.)
-                for k, v in self.bills_redis_results["aggregated"][area["uuid"]].items()
+                for k, v in self.bills_redis_results[area["uuid"]].items()
             }
             area_bills["savings"] = area_bills["base_energy_bill"] - area_bills["gsy_energy_bill"]
             area_bills["savings_percent"] = (
@@ -100,8 +92,8 @@ class SCMBills(ResultsBaseClass):
                         (area_bills["marketplace_fee"] / gsy_energy_bill_excl_revenue) * 100.
                 )
 
-            self.bills_redis_results["aggregated"][area["uuid"]] = area_bills
-            self.bills_results["aggregated"][area["name"]] = area_bills
+            self.bills_redis_results[area["uuid"]] = area_bills
+            self.bills_results[area["name"]] = area_bills
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         self.bills_redis_results[area_dict["uuid"]] = last_known_state_data
