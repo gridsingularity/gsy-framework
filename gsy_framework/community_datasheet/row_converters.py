@@ -85,6 +85,7 @@ class MembersRowConverter:
 
         return {
             "email": row["Email"],
+            "uuid": str(uuid.uuid4()),
             "zip_code": cls._parse_zip_code(row["ZIP code"]),
             "address": row["Location/Address (optional)"],
             "market_maker_rate": row["Utility price"],

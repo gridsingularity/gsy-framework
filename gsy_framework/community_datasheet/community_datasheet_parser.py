@@ -57,9 +57,10 @@ class CommunityDatasheetParser:
     def _parse_members(self):
         """Parse the members to add geographical coordinates."""
         coordinates_builder = AssetCoordinatesBuilder()
-        for member_details in self._datasheet.members.values():
+        for member_name, member_details in self._datasheet.members.items():
             coordinates = coordinates_builder.get_member_coordinates(member_details)
             member_details["geo_tag_location"] = coordinates
+            member_details["asset_count"] = len(self._datasheet.assets_by_member[member_name])
 
     def _parse_pvs(self):
         pv_assets = (
@@ -105,6 +106,7 @@ class CommunityDatasheetParser:
         grid = []
         for member_name, assets in self._datasheet.assets_by_member.items():
             home_representation = self._create_home_representation(member_name)
+            self._datasheet.members[member_name]["asset_count"] = len(assets)
             home_representation["children"] = assets
             grid.append(home_representation)
 
@@ -139,7 +141,7 @@ class CommunityDatasheetParser:
             "name": member_name,
             "tags": ["Home"],
             "type": "Area",
-            "uuid": str(uuid.uuid4()),
+            "uuid": member["uuid"],
             "geo_tag_location": member["geo_tag_location"],
             "grid_fee_constant": member["grid_fee_constant"],
             "children": [],
