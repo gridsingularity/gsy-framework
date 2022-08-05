@@ -1,9 +1,7 @@
 name: gsy-framework-ci
 on:
   pull_request:
-    branches:
-      - master
-      - staging
+
 jobs:
   test-build:
     runs-on: ubuntu-latest
