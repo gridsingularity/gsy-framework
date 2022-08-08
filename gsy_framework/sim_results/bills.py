@@ -278,7 +278,7 @@ class MarketEnergyBills(ResultsBaseClass):
     def _accumulate_market_fees(self, area_dict, area_core_stats):
         if area_dict["uuid"] not in self.market_fees:
             self.market_fees[area_dict["uuid"]] = 0.0
-        market_fee_eur = area_core_stats[area_dict["uuid"]]["market_fee"] / 100.0
+        market_fee_eur = area_core_stats[area_dict["uuid"]].get("market_fee", 0.) / 100.0
         self.market_fees[area_dict["uuid"]] += market_fee_eur
         self._cumulative_fee_all_markets_whole_sim += market_fee_eur
         for child in area_dict["children"]:
