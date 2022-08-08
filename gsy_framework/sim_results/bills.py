@@ -254,7 +254,7 @@ class MarketEnergyBills(ResultsBaseClass):
         result = self._get_child_data(area_dict)
         child_name_uuid_map = {c["name"]: c["uuid"] for c in area_dict["children"]}
 
-        for trade in area_core_stats[area_dict["uuid"]]["trades"]:
+        for trade in area_core_stats[area_dict["uuid"]].get("trades", []):
             buyer = area_name_from_area_or_ma_name(trade["buyer"])
             seller = area_name_from_area_or_ma_name(trade["seller"])
             if buyer in child_name_uuid_map:
