@@ -62,6 +62,10 @@ class SCMBills(ResultsBaseClass):
                 k: v + core_stats[area["uuid"]]["bills"].get(k, 0.)
                 for k, v in self.bills_redis_results[area["uuid"]].items()
             }
+
+            area_bills["energy_benchmark"] = core_stats[area["uuid"]]["bills"].get(
+                "energy_benchmark", 0.)
+
             area_bills["savings"] = area_bills["base_energy_bill"] - area_bills["gsy_energy_bill"]
             area_bills["savings_percent"] = (
                 (area_bills["savings"] / area_bills["base_energy_bill"]) * 100.0
