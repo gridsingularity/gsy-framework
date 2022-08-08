@@ -22,7 +22,8 @@ def is_load_node_type(area):
     """Check if the given asset is a load."""
     return area["type"] in ["LoadHoursStrategy", "DefinedLoadStrategy",
                             "LoadHoursExternalStrategy", "LoadProfileExternalStrategy",
-                            "LoadForecastExternalStrategy", "Load"]
+                            "LoadForecastExternalStrategy", "Load",
+                            "SCMLoadHoursStrategy", "SCMLoadProfile"]
 
 
 def is_bulk_power_producer(area):
@@ -34,7 +35,8 @@ def is_pv_node_type(area):
     """Check if the given asset is a PV."""
     return area["type"] in ["PVStrategy", "PVUserProfileStrategy", "PVPredefinedStrategy",
                             "PVExternalStrategy", "PVUserProfileExternalStrategy",
-                            "PVPredefinedExternalStrategy", "PVForecastExternalStrategy", "PV"]
+                            "PVPredefinedExternalStrategy", "PVForecastExternalStrategy", "PV",
+                            "SCMPVStrategy", "SCMPVPredefinedStrategy", "SCMPVUserProfile"]
 
 
 def is_finite_power_plant_node_type(area):
@@ -52,20 +54,13 @@ def is_producer_node_type(area):
 
 def is_prosumer_node_type(area):
     """Check if the given asset is a prosumer."""
-    return area["type"] in ["StorageStrategy", "StorageExternalStrategy", "Storage"]
+    return area["type"] in ["StorageStrategy", "StorageExternalStrategy", "Storage",
+                            "SCMStorageStrategy"]
 
 
 def is_buffer_node_type(area):
     """Check if the given asset is an energy buffer."""
     return area["type"] == "InfiniteBusStrategy"
-
-
-def has_grand_children(area):
-    """Check if the given area has grandchildren."""
-    for child in area.get("children", []):
-        if child.get("children", []):
-            return True
-    return False
 
 
 def get_unified_area_type(area):

@@ -28,6 +28,7 @@ from pkgutil import walk_packages
 from statistics import mean
 from threading import Timer
 from typing import Callable, Dict, List
+from uuid import UUID
 
 from pendulum import DateTime, datetime, duration, from_format, instance
 from redis.exceptions import ConnectionError  # pylint: disable=redefined-builtin
@@ -35,7 +36,7 @@ from redis.exceptions import ConnectionError  # pylint: disable=redefined-builti
 from gsy_framework.constants_limits import (
     DATE_TIME_FORMAT, DATE_TIME_FORMAT_HOURS, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
     DEFAULT_PRECISION, PROFILE_EXPANSION_DAYS, TIME_FORMAT, TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS,
-    TIME_ZONE, GlobalConfig)
+    TIME_ZONE, GlobalConfig, ConstSettings)
 
 
 def execute_function_util(function: callable, function_name: str):
@@ -99,7 +100,7 @@ def generate_market_slot_list(start_timestamp=None):
     time_span = duration(days=PROFILE_EXPANSION_DAYS)\
         if GlobalConfig.IS_CANARY_NETWORK \
         else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
-    time_span += duration(hours=GlobalConfig.FUTURE_MARKET_DURATION_HOURS)
+    time_span += duration(hours=ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS)
     market_slot_list = \
         generate_market_slot_list_from_config(sim_duration=time_span,
                                               start_timestamp=start_timestamp
@@ -567,3 +568,13 @@ def is_time_slot_in_simulation_duration(
         start_date = config.start_date
         end_date = config.end_date
     return start_date <= time_slot < end_date or GlobalConfig.IS_CANARY_NETWORK
+
+
+def is_valid_uuid(uuid: str) -> bool:
+    """Return if the provided string is a valid uuid."""
+    try:
+        UUID(str(uuid), version=4)
+    except ValueError:
+        return False
+
+    return True

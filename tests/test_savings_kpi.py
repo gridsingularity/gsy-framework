@@ -41,17 +41,18 @@ class FakeEndpointBuffer:
     current_market_slot = "2021-09-13T12:45"
 
 
-@pytest.fixture
-def savings_kpi():
+@pytest.fixture(name="savings_kpi")
+def savings_kpi_fixture():
     return SavingsKPI()
 
 
-@pytest.fixture
-def kpi():
+@pytest.fixture(name="kpi")
+def kpi_fixture():
     return KPI()
 
 
 def test_populate_consumer_producer_sets_are_correct(savings_kpi):
+    # pylint: disable=protected-access
     pv_uuid = str(uuid4())
     load_uuid = str(uuid4())
     ess_uuid = str(uuid4())
@@ -64,7 +65,7 @@ def test_populate_consumer_producer_sets_are_correct(savings_kpi):
              {"name": "storage1", "uuid": ess_uuid, "type": "StorageExternalStrategy"}
          ]
        }
-    savings_kpi.populate_consumer_producer_sets(test_area)
+    savings_kpi._populate_consumer_producer_sets(test_area)
     assert savings_kpi.producer_ess_set == {pv_uuid, ess_uuid}
     assert savings_kpi.consumer_ess_set == {load_uuid, ess_uuid}
 
@@ -81,12 +82,13 @@ def test_root_to_target_area_grid_fee_accumulation(kpi):
 
 
 def test_get_feed_in_tariff_rate_excluding_path_grid_fees(kpi, savings_kpi):
+    # pylint: disable=protected-access
     endpoint_buffer = FakeEndpointBuffer()
     kpi.update(endpoint_buffer.area_dict, endpoint_buffer.core_stats,
                endpoint_buffer.current_market_slot)
     house1_core_stats = endpoint_buffer.core_stats.get(endpoint_buffer.house1_uuid, {})
 
-    expected_fit_minus_glp = savings_kpi.get_feed_in_tariff_rate_excluding_path_grid_fees(
+    expected_fit_minus_glp = savings_kpi._get_feed_in_tariff_rate_excluding_path_grid_fees(
         house1_core_stats,
         kpi.area_uuid_cum_grid_fee_mapping[endpoint_buffer.house1_uuid])
 
@@ -98,12 +100,13 @@ def test_get_feed_in_tariff_rate_excluding_path_grid_fees(kpi, savings_kpi):
 
 
 def test_market_maker_rate_including_path_grid_fees(kpi, savings_kpi):
+    # pylint: disable=protected-access
     endpoint_buffer = FakeEndpointBuffer()
     kpi.update(endpoint_buffer.area_dict, endpoint_buffer.core_stats,
                endpoint_buffer.current_market_slot)
     house1_core_stats = endpoint_buffer.core_stats.get(endpoint_buffer.house1_uuid, {})
 
-    expected_mmr_minus_glp = savings_kpi.get_market_maker_rate_including_path_grid_fees(
+    expected_mmr_minus_glp = savings_kpi._get_market_maker_rate_including_path_grid_fees(
         house1_core_stats,
         kpi.area_uuid_cum_grid_fee_mapping[endpoint_buffer.house1_uuid])
 

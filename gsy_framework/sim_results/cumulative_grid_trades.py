@@ -133,7 +133,8 @@ class CumulativeGridTrades(ResultsBaseClass):
                              for child in producer.get("children", [])]
             }
 
-        area_trades = flattened_area_core_stats_dict.get(grid["uuid"], {}).get("trades", [])
+        area_trades = CumulativeGridTrades._get_trades_from_core_stats(
+            flattened_area_core_stats_dict, grid["uuid"])
         for trade in area_trades:
             if trade["seller"] == producer["name"]:
                 accumulated_trades[producer["uuid"]]["produced"] -= trade["energy"]
@@ -157,7 +158,8 @@ class CumulativeGridTrades(ResultsBaseClass):
                              for child in storage.get("children", [])]
             }
 
-        area_trades = flattened_area_core_stats_dict.get(area["uuid"], {}).get("trades", [])
+        area_trades = CumulativeGridTrades._get_trades_from_core_stats(
+            flattened_area_core_stats_dict, area["uuid"])
         for trade in area_trades:
             if trade["buyer"] == storage["name"]:
                 sell_id = area_name_from_area_or_ma_name(trade["seller"])
@@ -192,7 +194,7 @@ class CumulativeGridTrades(ResultsBaseClass):
         Returns: None
         """
         current_child_uuids = [
-            c["uuid"] for c in accumulated_trades[area["uuid"]]["children"]
+            child["uuid"] for child in accumulated_trades[area["uuid"]].get("children") or []
         ]
         for child in area.get("children", []):
             if child["uuid"] not in current_child_uuids:

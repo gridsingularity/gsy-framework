@@ -18,17 +18,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class ScenarioSchemas:
+    """JSON schema for validating scenarios."""
+
     scenario_schema = {
         "definitions": {
             "area": {
                 "type": "object",
                 "properties": {
-                    "type": {"anyOf": [{"enum": ["Area"]}, {"enum": ["null"]}]},
+                    "type": {"enum": ["Area", "null"]},
                     "name": {"type": "string"},
                     "number_of_clones": {"type": "number"},
                     "const_fee_rate": {"type": "number"},
-                    "feed_in_tariff": {"type": "number"},
-                    "market_maker_rate": {"type": "number"},
+                    "feed_in_tariff": {"type": ["number", "null"]},
+                    "taxes_surcharges": {"type": ["number", "null"]},
+                    "coefficient_percentage": {"type": ["number", "null"]},
+                    "fixed_monthly_fee": {"type": ["number", "null"]},
+                    "marketplace_monthly_fee": {"type": ["number", "null"]},
+                    "market_maker_rate": {"type": ["number", "null"]},
                     "grid_fee_percentage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "baseline_peak_energy_import_kWh":
                         {"anyOf": [{"type": "number"}, {"type": "null"}]},
@@ -68,10 +74,13 @@ class ScenarioSchemas:
                                                                   {"type": "null"}]},
                     "capacity_kW": {"type": "number"},
                     "cloud_coverage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "power_profile": {"anyOf": [{"type": "number"},
-                                                {"type": "null"},
-                                                {"type": "array"},
-                                                {"type": "string"}]},
+                    "power_profile": {
+                        "anyOf": [
+                            {"type": "object"},
+                            {"type": "number"},
+                            {"type": "null"},
+                            {"type": "array"},
+                            {"type": "string"}]},
                     "use_market_maker_rate": {"type": "boolean"}
                 }
             },
@@ -120,9 +129,14 @@ class ScenarioSchemas:
                                                                   {"type": "null"}]},
                     "daily_load_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "use_market_maker_rate": {"type": "boolean"},
-                    "daily_load_profile": {"anyOf": [{"type": "array"},
-                                                     {"type": "null"},
-                                                     {"type": "string"}]}
+                    "daily_load_profile": {
+                        "anyOf": [
+                            {"type": "object"},
+                            {"type": "array"},
+                            {"type": "null"},
+                            {"type": "string"}
+                        ]
+                    }
                 }
             },
             "smart_meter": {
@@ -183,6 +197,8 @@ class ScenarioSchemas:
 
 
 class ResultsSchemas:
+    """JSON schema for validating results."""
+
     results_schema = {"type": "object",
                       "properties": {
                             "job_id":  {"type": "string"},
@@ -224,6 +240,8 @@ class ResultsSchemas:
 
 
 class ApiClientConfigSchema:
+    """JSON schema for validating data gathered from simulation configuration files."""
+
     simulation_config_schema = {"type": "object",
                                 "username": {"type": "string"},
                                 "name": {"type": "string"},
@@ -258,3 +276,33 @@ class ApiClientConfigSchema:
                                              "web_socket_domain_name", "global_settings",
                                              "registry"]
                                 }
+
+
+COMMUNITY_DATASHEET_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "settings": {"$ref": "#/$defs/settings"},
+        "grid": {"$ref": "#/$defs/grid"},
+    },
+    "$defs": {
+        "settings": {
+            "description": "General settings of the community.",
+            "type": "object",
+            "properties": {
+                "start_date": {"type": "custom_pendulum_datetime"},
+                "end_date": {"type": "custom_pendulum_datetime"},
+                "slot_length": {"type": "custom_timedelta"},
+                "currency": {
+                    "type": "string",
+                    "enum": ["USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CNY", "CHF"]
+                },
+                "coefficient_type": {
+                    "type": "string",
+                    "enum": ["constant", "dynamic"]
+                },
+            },
+            "required": ["start_date", "end_date", "slot_length", "currency", "coefficient_type"]
+        },
+        "grid": {"type": ["object"]}
+    }
+}
