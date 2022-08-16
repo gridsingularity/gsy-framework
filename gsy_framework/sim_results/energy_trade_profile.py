@@ -15,15 +15,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from collections import defaultdict
 from copy import deepcopy
-from typing import Dict, List
+from datetime import datetime
+from typing import Dict, List, Union
 
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
-from gsy_framework.utils import (
-    round_floats_for_ui, add_or_create_key,
-    ui_str_to_pendulum_datetime, convert_pendulum_to_str_in_dict,
-    datetime_str_to_ui_formatted_datetime_str, area_name_from_area_or_ma_name)
+from gsy_framework.utils import (add_or_create_key,
+                                 area_name_from_area_or_ma_name,
+                                 convert_pendulum_to_str_in_dict,
+                                 datetime_str_to_ui_formatted_datetime_str,
+                                 round_floats_for_ui,
+                                 ui_str_to_pendulum_datetime)
 
 traded_energy_profile_example = {
     "area_uuid1": {
@@ -238,3 +242,117 @@ class EnergyTradeProfile(ResultsBaseClass):
         return self._calculate_memory_allocated_by_objects([
             self.traded_energy_current, self.traded_energy_profile
         ])
+
+
+class ForwardMarketEnergyTradeProfile(ResultsBaseClass):
+    """
+    Total energy traded for forward markets and energy asset and their penalty for not trading
+    their required energy.
+    """
+    def __init__(self, should_export_plots: bool):
+        self.traded_energy_profile: traded_energy_profile_example = {}
+        self.traded_energy_current: traded_energy_profile_example = {}
+        self.should_export_plots: bool = should_export_plots
+        self.last_update = None
+
+    def update(self, area_result_dict=None, core_stats=None, current_market_slot=None):
+        if not self._has_update_parameters(
+                area_result_dict, core_stats, current_market_slot):
+            return
+        current_market_slot = datetime.fromisoformat(current_market_slot)
+        self.traded_energy_current = {}
+        self.populate_energy_profile(area_result_dict, core_stats, current_market_slot)
+        self.last_update = current_market_slot
+
+    def populate_energy_profile(self, area_result_dict, core_stats,
+                                current_market_slot) -> None:
+        """Calculate energy profile for each area."""
+        for child in area_result_dict["children"]:
+            self.populate_energy_profile(child, core_stats, current_market_slot)
+
+        core_stat_key = "uuid" if area_result_dict["children"] else "parent_uuid"
+        forward_core_stats = core_stats[area_result_dict[core_stat_key]].get(
+            "forward_market_stats")
+
+        result = self._populate_energy_profile(
+            area_result_dict, forward_core_stats, current_market_slot)
+        if result is not None:
+            if self.should_export_plots:
+                self.merge_results_to_global(
+                    {area_result_dict["name"]: result}, self.traded_energy_profile, [])
+            else:
+                self.traded_energy_current[area_result_dict["uuid"]] = result
+
+    def _populate_energy_profile(self, area_results_dict, forward_core_stats,
+                                 current_market_time_slot) -> Union[Dict[str, Dict], None]:
+        if forward_core_stats is None:
+            return None
+
+        result = {}
+        for market_type, market in forward_core_stats.items():
+            market_trades = self._get_market_trades(
+                area_results_dict, market, current_market_time_slot)
+            result[market_type] = self._get_bought_sold_profile(market_trades)
+        return result
+
+    def _get_bought_sold_profile(self, market_trades):
+        result = {
+            "bought_energy": defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))),
+            "sold_energy": defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0)))
+        }
+        buyer_key = "buyer" if self.should_export_plots else "buyer_id"
+        seller_key = "seller" if self.should_export_plots else "seller_id"
+
+        for trade in market_trades["sell_trades"]:
+            result["sold_energy"][trade[seller_key]][trade[buyer_key]][
+                trade["time_slot"]] += trade["energy"]
+            result["sold_energy"][trade[seller_key]]["accumulated"][
+                trade["time_slot"]] += trade["energy"]
+
+        for trade in market_trades["buy_trades"]:
+            result["bought_energy"][trade[buyer_key]][trade[seller_key]][
+                trade["time_slot"]] += trade["energy"]
+            result["bought_energy"][trade[buyer_key]]["accumulated"][
+                trade["time_slot"]] += trade["energy"]
+
+        return result
+
+    def _get_market_trades(self, area_results_dict, market,
+                           current_market_time_slot) -> Dict[str, List]:
+        result = {"buy_trades": [], "sell_trades": []}
+        children = set(child["name"] for child in area_results_dict["children"])
+        for _, market_data in market.items():
+            for trade in market_data["trades"]:
+                if self.last_update is None or self.last_update <= \
+                        datetime.fromisoformat(trade["creation_time"]) < current_market_time_slot:
+                    if trade["seller"] == area_results_dict["name"] or trade["seller"] in children:
+                        result["sell_trades"].append(trade)
+                    if trade["buyer"] == area_results_dict["name"] or trade["buyer"] in children:
+                        result["buy_trades"].append(trade)
+        return result
+
+    def merge_results_to_global(self, market_results: Dict, global_results: Dict, slot_list: List):
+        for key, value in market_results.items():
+            if key not in global_results:
+                global_results[key] = value
+            else:
+                if isinstance(global_results[key], (int, float)):
+                    global_results[key] += value
+                else:
+                    self.merge_results_to_global(market_results[key], global_results[key], [])
+
+    @property
+    def raw_results(self):
+        return self.traded_energy_profile
+
+    @property
+    def ui_formatted_results(self):
+        return self.traded_energy_current
+
+    def memory_allocation_size_kb(self):
+        return self._calculate_memory_allocated_by_objects([
+            self.traded_energy_current, self.traded_energy_profile
+        ])
+
+    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
+        pass
