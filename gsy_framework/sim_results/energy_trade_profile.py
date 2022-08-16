@@ -323,8 +323,8 @@ class ForwardMarketEnergyTradeProfile(ResultsBaseClass):
         children = set(child["name"] for child in area_results_dict["children"])
         for _, market_data in market.items():
             for trade in market_data["trades"]:
-                if self.last_update is None or self.last_update <= \
-                        datetime.fromisoformat(trade["creation_time"]) < current_market_time_slot:
+                if self.last_update is None or self.last_update < \
+                        datetime.fromisoformat(trade["creation_time"]) <= current_market_time_slot:
                     if trade["seller"] == area_results_dict["name"] or trade["seller"] in children:
                         result["sell_trades"].append(trade)
                     if trade["buyer"] == area_results_dict["name"] or trade["buyer"] in children:
@@ -356,3 +356,23 @@ class ForwardMarketEnergyTradeProfile(ResultsBaseClass):
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         pass
+
+
+if __name__ == '__main__':
+    import json
+    import pprint
+
+    with open("../../results", "r") as file:
+        data = json.load(file)
+
+    fds = ForwardMarketEnergyTradeProfile(should_export_plots=True)
+    for slot_data in data:
+        fds.update(slot_data['area_result_dict'],
+                   slot_data['flattened_area_code_stats_dict'],
+                   slot_data['current_market_time_slot_str'])
+
+    pprint.pprint(fds.traded_energy_profile)
+        # res = fds.traded_energy_current.get("6ed96a93-8da4-4db9-9cba-9957777caaed", {}).get('4', {})
+        # res = res.get("bought_energy", {}).get("6ed96a93-8da4-4db9-9cba-9957777caaed", {})
+        # res = res.get("d0087c12-bd8e-4eeb-a3e3-3a0d330025f3")
+        # print(slot_data["current_market_time_slot_str"], res)
