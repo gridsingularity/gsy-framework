@@ -15,19 +15,20 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import ast
 import csv
 import os
-import ast
-from typing import Any
 from enum import Enum
-from pendulum import duration, from_format, from_timestamp, today, DateTime
-from typing import Dict
+from typing import Any, Dict
 
-from gsy_framework.constants_limits import TIME_FORMAT, DATE_TIME_FORMAT, GlobalConfig, \
-    DATE_TIME_FORMAT_SECONDS, TIME_ZONE
-from gsy_framework.utils import convert_kW_to_kWh, return_ordered_dict, \
-    generate_market_slot_list, find_object_of_same_weekday_and_time
+from pendulum import DateTime, duration, from_format, from_timestamp, today
+
+from gsy_framework.constants_limits import (
+    DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, TIME_FORMAT, TIME_ZONE, GlobalConfig)
 from gsy_framework.exceptions import GSyReadProfileException
+from gsy_framework.utils import (
+    convert_kW_to_kWh, find_object_of_same_weekday_and_time, generate_market_slot_list,
+    return_ordered_dict)
 
 """
 Exposes mixins that can be used from strategy classes.
