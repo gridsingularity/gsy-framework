@@ -270,6 +270,7 @@ class ForwardMarketDeviceStatistics(ResultsBaseClass):
                 area_result_dict, core_stats, current_market_slot):
             return
         current_market_slot = datetime.fromisoformat(current_market_slot)
+        self.current_stats_dict = {}
 
         if self.should_export_plots:
             self.gather_all_forward_market_stats(
