@@ -311,8 +311,8 @@ class ForwardMarketDeviceStatistics(ResultsBaseClass):
                         result[market_time_slot].append(trade)
                     else:
                         # only calculate trades that have happened inside the current time slot.
-                        if self.last_update <= datetime.fromisoformat(trade["creation_time"]) \
-                                < current_market_slot:
+                        if self.last_update < datetime.fromisoformat(trade["creation_time"]) \
+                                <= current_market_slot:
                             result[market_time_slot].append(trade)
         return result
 
