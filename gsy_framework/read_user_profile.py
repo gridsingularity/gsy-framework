@@ -38,8 +38,12 @@ DATE_TIME_FORMAT_SPACED = "YYYY-MM-DD HH:mm:ss"
 
 
 class InputProfileTypes(Enum):
-    IDENTITY = 1
-    POWER = 2
+    """Different types of input profiles."""
+
+    IDENTITY = 1  # Profile values are not converted (they're used as they are)
+    POWER = 2  # Profile values are treated as power values in W
+    # Profile values are treated as Rebase input. They are currently power values in W, but we want
+    # to be flexible to change in case they change it to some other unit
     REBASE = 3
 
 
