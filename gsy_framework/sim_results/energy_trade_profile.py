@@ -323,12 +323,15 @@ class ForwardMarketEnergyTradeProfile(ResultsBaseClass):
         children = set(child["name"] for child in area_results_dict["children"])
         for _, market_data in market.items():
             for trade in market_data["trades"]:
-                if self.last_update is None or self.last_update < \
-                        datetime.fromisoformat(trade["creation_time"]) <= current_market_time_slot:
-                    if trade["seller"] == area_results_dict["name"] or trade["seller"] in children:
-                        result["sell_trades"].append(trade)
-                    if trade["buyer"] == area_results_dict["name"] or trade["buyer"] in children:
-                        result["buy_trades"].append(trade)
+                creation_time = datetime.fromisoformat(trade["creation_time"])
+                if creation_time <= current_market_time_slot:
+                    if self.last_update is None or creation_time > self.last_update:
+                        if trade["seller"] == area_results_dict["name"] or \
+                                trade["seller"] in children:
+                            result["sell_trades"].append(trade)
+                        if trade["buyer"] == area_results_dict["name"] or \
+                                trade["buyer"] in children:
+                            result["buy_trades"].append(trade)
         return result
 
     def merge_results_to_global(self, market_results: Dict, global_results: Dict, slot_list: List):
