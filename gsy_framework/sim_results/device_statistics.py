@@ -271,34 +271,40 @@ class ForwardMarketDeviceStatistics(ResultsBaseClass):
             return
         current_market_slot = datetime.fromisoformat(current_market_slot)
         self.current_stats_dict = {}
-
-        if self.should_export_plots:
-            self.gather_all_forward_market_stats(
-                area_result_dict, self.device_stats_dict, {}, current_market_slot, core_stats)
-        else:
-            self.gather_all_forward_market_stats(
-                area_result_dict, {}, self.current_stats_dict, current_market_slot, core_stats)
-
+        self.populate_device_stats(area_result_dict, core_stats, current_market_slot)
         self.last_update = current_market_slot
 
-    def gather_all_forward_market_stats(self, area_dict: Dict, subdict: Dict,
-                                        flat_result_dict: Dict, current_market_slot,
-                                        core_stats=None):
-        """Calculate aggregated results for all forward markets."""
-        if core_stats is None:
-            core_stats = {}
-        for child in area_dict["children"]:
-            if child["name"] not in subdict.keys():
-                subdict.update({child["name"]: {}})
-            if child["children"] == [] and core_stats != {}:
-                forward_core_stats = core_stats[area_dict["uuid"]].get("forward_market_stats")
-                self._gather_all_forward_market_stats(
-                    child, subdict[child["name"]], flat_result_dict,
-                    current_market_slot, forward_core_stats)
+    def populate_device_stats(self, area_results_dict, core_stats,
+                              current_market_slot) -> None:
+        """Calculate device stats for each device."""
+        for child in area_results_dict["children"]:
+            self.populate_device_stats(child, core_stats, current_market_slot)
+
+        if area_results_dict["children"]:
+            return
+        forward_core_stats = core_stats[area_results_dict["parent_uuid"]].get(
+            "forward_market_stats")
+
+        result = self._populate_device_stats(
+            area_results_dict, forward_core_stats, current_market_slot)
+        if result is not None:
+            if self.should_export_plots:
+                self.merge_results_to_global(
+                    {area_results_dict["name"]: result}, self.device_stats_dict, [])
             else:
-                self.gather_all_forward_market_stats(
-                    child, subdict[child["name"]], flat_result_dict,
-                    current_market_slot, core_stats)
+                self.current_stats_dict[area_results_dict["uuid"]] = result
+
+    def _populate_device_stats(self, area_results_dict, forward_core_stats,
+                               current_market_time_slot):
+        if forward_core_stats is None:
+            return None
+
+        result = {}
+        for market_type, market in forward_core_stats.items():
+            market_trades = self._get_market_trades(area_results_dict, market,
+                                                    current_market_time_slot)
+            result[market_type] = self._gather_forward_market_stats(market_trades)
+        return result
 
     def _get_market_trades(self, area_dict, market, current_market_slot):
         """Filter market trades based on their creation_time and seller/owner.
@@ -307,27 +313,11 @@ class ForwardMarketDeviceStatistics(ResultsBaseClass):
         for market_time_slot, market_data in market.items():
             for trade in market_data["trades"]:
                 if trade["seller"] == area_dict["name"] or trade["buyer"] == area_dict["name"]:
-                    if self.should_export_plots or self.last_update is None:
-                        # calculate aggregated results of all trades.
-                        result[market_time_slot].append(trade)
-                    else:
-                        # only calculate trades that have happened inside the current time slot.
-                        if self.last_update < datetime.fromisoformat(trade["creation_time"]) \
-                                <= current_market_slot:
+                    creation_time = datetime.fromisoformat(trade["creation_time"])
+                    if creation_time <= current_market_slot:
+                        if self.last_update is None or creation_time > self.last_update:
                             result[market_time_slot].append(trade)
         return result
-
-    def _gather_all_forward_market_stats(self, area_dict: Dict, subdict: Dict,
-                                         flat_result_dict: Dict, current_market_slot,
-                                         forward_core_stats=None):
-        """Calculate aggregated results for all forward markets."""
-        if forward_core_stats is None:
-            return
-        for market_type, market in forward_core_stats.items():
-            market_trades = self._get_market_trades(area_dict, market, current_market_slot)
-            subdict[market_type] = self._gather_forward_market_stats(market_trades)
-
-        flat_result_dict[area_dict["uuid"]] = subdict.copy()
 
     def _gather_forward_market_stats(self, market_trades: Dict) -> Dict[str, Any]:
         """Calculate different aggregated results for each forward market."""
@@ -369,21 +359,29 @@ class ForwardMarketDeviceStatistics(ResultsBaseClass):
     def ui_formatted_results(self):
         return self.current_stats_dict
 
-    @staticmethod
-    def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
-        if not global_device:
-            global_device = market_device
-            return global_device
-        for area_uuid in market_device:
-            if area_uuid not in global_device:
-                global_device[area_uuid] = market_device[area_uuid]
+    def merge_results_to_global(self, market_results: Dict, global_results: Dict, *_):
+        merge_functions = {
+            "total_trade_price_eur": sum,
+            "min_trade_price_eur": min,
+            "max_trade_price_eur": max,
+            "total_trade_energy_kWh": sum,
+            "min_trade_energy_kWh": min,
+            "max_trade_energy_kWh": max
+        }
+        for key, value in market_results.items():
+            if key not in global_results:
+                global_results[key] = value
             else:
-                for stat in market_device[area_uuid]:
-                    if stat not in global_device[area_uuid]:
-                        global_device[area_uuid][stat] = market_device[area_uuid][stat]
-                    else:
-                        global_device[area_uuid][stat].update(market_device[area_uuid][stat])
-        return global_device
+                if key in merge_functions:
+                    for time_slot in value:
+                        if time_slot not in global_results[key]:
+                            merged_value = value[time_slot]
+                        else:
+                            merged_value = merge_functions[key](
+                                [value[time_slot], global_results[key][time_slot]])
+                        global_results[key][time_slot] = merged_value
+                else:
+                    self.merge_results_to_global(market_results[key], global_results[key], [])
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         pass
