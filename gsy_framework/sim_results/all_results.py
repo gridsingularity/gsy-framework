@@ -3,16 +3,22 @@ from time import time
 from typing import Dict
 
 from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
-from gsy_framework.sim_results.bills import MarketEnergyBills, CumulativeBills
-from gsy_framework.sim_results.cumulative_grid_trades import CumulativeGridTrades
-from gsy_framework.sim_results.cumulative_net_energy_flow import CumulativeNetEnergyFlow
-from gsy_framework.sim_results.device_statistics import DeviceStatistics
-from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
+from gsy_framework.sim_results.bills import CumulativeBills, MarketEnergyBills
+from gsy_framework.sim_results.cumulative_grid_trades import \
+    CumulativeGridTrades
+from gsy_framework.sim_results.cumulative_net_energy_flow import \
+    CumulativeNetEnergyFlow
+from gsy_framework.sim_results.device_statistics import (
+    DeviceStatistics, ForwardMarketDeviceStatistics)
+from gsy_framework.sim_results.energy_trade_profile import (
+    EnergyTradeProfile, ForwardMarketEnergyTradeProfile)
 from gsy_framework.sim_results.kpi import KPI
-from gsy_framework.sim_results.market_price_energy_day import MarketPriceEnergyDay
+from gsy_framework.sim_results.market_price_energy_day import \
+    MarketPriceEnergyDay
 from gsy_framework.sim_results.market_summary_info import MarketSummaryInfo
 from gsy_framework.sim_results.scm.kpi import SCMKPI
-from gsy_framework.sim_results.simulation_assets_info import SimulationAssetsInfo
+from gsy_framework.sim_results.simulation_assets_info import \
+    SimulationAssetsInfo
 
 
 class ResultsHandler:
@@ -28,7 +34,9 @@ class ResultsHandler:
             "cumulative_bills": CumulativeBills(),
             "cumulative_grid_trades": CumulativeGridTrades(),
             "device_statistics": DeviceStatistics(should_export_plots),
+            "forward_device_statistics": ForwardMarketDeviceStatistics(should_export_plots),
             "trade_profile": EnergyTradeProfile(should_export_plots),
+            "forward_trade_profile": ForwardMarketEnergyTradeProfile(should_export_plots),
             "area_throughput": AreaThroughputStats(),
             "assets_info": SimulationAssetsInfo()
         }
