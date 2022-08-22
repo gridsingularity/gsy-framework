@@ -34,9 +34,7 @@ class ResultsHandler:
             "cumulative_bills": CumulativeBills(),
             "cumulative_grid_trades": CumulativeGridTrades(),
             "device_statistics": DeviceStatistics(should_export_plots),
-            "forward_device_statistics": ForwardMarketDeviceStatistics(should_export_plots),
             "trade_profile": EnergyTradeProfile(should_export_plots),
-            "forward_trade_profile": ForwardMarketEnergyTradeProfile(should_export_plots),
             "area_throughput": AreaThroughputStats(),
             "assets_info": SimulationAssetsInfo()
         }
