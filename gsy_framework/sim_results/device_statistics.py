@@ -263,7 +263,6 @@ class ForwardMarketDeviceStatistics(ResultsBaseClass):
         self.device_stats_dict = {}
         self.current_stats_dict = {}
         self.should_export_plots = should_export_plots
-        self.last_update = None
 
     def update(self, area_result_dict, core_stats, current_market_slot):
         if not self._has_update_parameters(
@@ -272,7 +271,6 @@ class ForwardMarketDeviceStatistics(ResultsBaseClass):
         current_market_slot = datetime.fromisoformat(current_market_slot)
         self.current_stats_dict = {}
         self.populate_device_stats(area_result_dict, core_stats, current_market_slot)
-        self.last_update = current_market_slot
 
     def populate_device_stats(self, area_results_dict, core_stats,
                               current_market_slot) -> None:
@@ -313,10 +311,7 @@ class ForwardMarketDeviceStatistics(ResultsBaseClass):
         for market_time_slot, market_data in market.items():
             for trade in market_data["trades"]:
                 if trade["seller"] == area_dict["name"] or trade["buyer"] == area_dict["name"]:
-                    creation_time = datetime.fromisoformat(trade["creation_time"])
-                    if creation_time <= current_market_slot:
-                        if self.last_update is None or creation_time > self.last_update:
-                            result[market_time_slot].append(trade)
+                    result[market_time_slot].append(trade)
         return result
 
     def _gather_forward_market_stats(self, market_trades: Dict) -> Dict[str, Any]:
