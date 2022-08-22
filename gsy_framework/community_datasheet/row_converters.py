@@ -190,6 +190,13 @@ class StorageRowConverter:
         """
         cls._validate_row(row)
 
+        min_allowed_soc = (
+            row[StorageSheetHeader.MINIMUM_ALLOWED_SOC]
+            or ConstSettings.StorageSettings.MIN_ALLOWED_SOC)
+        # The community datasheet doesn't allow setting the initial SOC, so we intentionally set it
+        # to be equal to the min_allowed_soc specified by the user.
+        initial_soc = min_allowed_soc
+
         return {
             "name": row[StorageSheetHeader.BATTERY_NAME],
             "type": "Storage",
@@ -197,9 +204,8 @@ class StorageRowConverter:
             "battery_capacity_kWh": (
                 row[StorageSheetHeader.CAPACITY_KWH]
                 or ConstSettings.StorageSettings.CAPACITY),
-            "min_allowed_soc": (
-                row[StorageSheetHeader.MINIMUM_ALLOWED_SOC]
-                or ConstSettings.StorageSettings.MIN_ALLOWED_SOC),
+            "min_allowed_soc": min_allowed_soc,
+            "initial_soc": initial_soc,
             "max_abs_battery_power_kW": (
                 row[StorageSheetHeader.MAXIMUM_POWER_KW]
                 or ConstSettings.StorageSettings.MAX_ABS_POWER)
