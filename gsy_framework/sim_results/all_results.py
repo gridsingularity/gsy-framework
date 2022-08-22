@@ -8,10 +8,8 @@ from gsy_framework.sim_results.cumulative_grid_trades import \
     CumulativeGridTrades
 from gsy_framework.sim_results.cumulative_net_energy_flow import \
     CumulativeNetEnergyFlow
-from gsy_framework.sim_results.device_statistics import (
-    DeviceStatistics, ForwardMarketDeviceStatistics)
-from gsy_framework.sim_results.energy_trade_profile import (
-    EnergyTradeProfile, ForwardMarketEnergyTradeProfile)
+from gsy_framework.sim_results.device_statistics import DeviceStatistics
+from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
 from gsy_framework.sim_results.kpi import KPI
 from gsy_framework.sim_results.market_price_energy_day import \
     MarketPriceEnergyDay
