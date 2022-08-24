@@ -37,6 +37,7 @@ class MarketResultsAggregator:
         if not self.bids_offers_trades:
             return
 
+        # todo: add assertions to check no timeslot is missing with regards to the resolution
         sorted_market_timeslots = sorted(self.bids_offers_trades)
         start_time = sorted_market_timeslots[0]
         next_time = start_time + resolution
@@ -63,6 +64,7 @@ class MarketResultsAggregator:
         if aggregators is None:
             aggregators = {}
 
+        # todo: skip this for more performance!
         collected_data = {"bids": [], "offers": [], "trades": []}
         for timeslot in timeslots:
             for order, collected_order in collected_data.items():
@@ -86,6 +88,7 @@ class MarketResultsAggregator:
         if accumulators is None:
             accumulators = {}
 
+        # todo: check if the last_aggregated_result is the correct last_aggregated_result
         last_accumulated_results = self.last_aggregated_result.get(
             "accumulated_results", {})
 
