@@ -6,8 +6,10 @@ from pendulum import DateTime, Duration
 class MarketResultsAggregator:
     """Calculate aggregated market results in different resolutions."""
 
-    def __init__(self):
+    def __init__(self, last_aggregated_result=None):
         self.bids_offers_trades: Dict[DateTime, Dict] = {}
+        self.last_aggregated_result = last_aggregated_result if \
+            last_aggregated_result is not None else {}
 
     def update(self, current_timeslot: DateTime, market_stats) -> None:
         """Update the buffer of bids_offers_trades with the result
@@ -17,13 +19,16 @@ class MarketResultsAggregator:
 
         if current_timeslot not in self.bids_offers_trades:
             self.bids_offers_trades[current_timeslot] = {
-                "bids": [], "offers": [], "trades": []}
+                "bids": [], "offers": [], "trades": [],
+            }
 
         for market_data in market_stats.values():
             for order in self.bids_offers_trades[current_timeslot]:
                 self.bids_offers_trades[current_timeslot][order].extend(market_data[order])
 
-    def generate(self, resolution: Duration, aggregators: Dict[str, Callable] = None):
+    def generate(self, resolution: Duration,
+                 aggregators: Dict[str, Callable] = None,
+                 accumulators: Dict[str, Callable] = None):
         """Generate aggregated results in the specified resolution from the raw results.
         If no resolution is given, then the data in its original resolution will be aggregated.
         If the resolution is smaller than the timedelta between consequent, then the same data
@@ -39,14 +44,21 @@ class MarketResultsAggregator:
         for timeslot in sorted_market_timeslots:
             if timeslot >= next_time:
                 if timeslots_to_aggregate:
-                    yield self._aggregated_results(timeslots_to_aggregate, aggregators)
+                    yield self._aggregated_results(timeslots_to_aggregate,
+                                                   aggregators, accumulators)
+                    self._remove_processed_timeslots(timeslots_to_aggregate)
                     timeslots_to_aggregate = []
                 timeslots_to_aggregate.append(timeslot)
                 next_time += resolution
             else:
                 timeslots_to_aggregate.append(timeslot)
 
-    def _aggregated_results(self, timeslots: List[DateTime], aggregators):
+    def _remove_processed_timeslots(self, timeslots: List[DateTime]):
+        """Remove already processed timeslots from the buffer to save some memory."""
+        for timeslot in timeslots:
+            del self.bids_offers_trades[timeslot]
+
+    def _aggregated_results(self, timeslots: List[DateTime], aggregators, accumulators):
         """Call all the aggregation function on the grouped timeslots data."""
         if aggregators is None:
             aggregators = {}
@@ -56,51 +68,52 @@ class MarketResultsAggregator:
             for order, collected_order in collected_data.items():
                 collected_order.extend(self.bids_offers_trades[timeslot][order])
 
-        result = {}
+        aggregated_results = {}
         for aggregator_name, aggregator_fn in aggregators.items():
-            result[aggregator_name] = aggregator_fn(collected_data)
+            aggregated_results[aggregator_name] = aggregator_fn(collected_data)
 
-        return {
-            "start_time": timeslots[0],
-            **result
+        result = {
+            "current_results": {
+                "start_time": timeslots[0],
+                **aggregated_results
+            },
+            "accumulated_results": self._accumulated_results(collected_data, accumulators)
         }
+        self.last_aggregated_result = result
+        return result
+
+    def _accumulated_results(self, collected_data: Dict, accumulators) -> Dict:
+        if accumulators is None:
+            accumulators = {}
+
+        last_accumulated_results = self.last_aggregated_result.get(
+            "accumulated_results", {})
+
+        accumulated_results = {}
+        for accumulator_name, accumulator in accumulators.items():
+            accumulated_results[accumulator_name] = accumulator(
+                last_accumulated_results.get(accumulator_name), collected_data)
+        return accumulated_results
 
 
-class MarketResultsHandler:
-    """Keep track of all (area, market_type) aggregated results by utilizing an
-    instance of the MarketResultsHandler for each of them."""
+class AggregationTimeManager:
+    """Check if any aggregation is required for any given timeslot."""
+    def __init__(self, simulation_start_time: DateTime,
+                 simulation_slot_length: Duration,
+                 market_aggregations: Dict[str, Duration]):
+        self.simulation_start_time = simulation_start_time
+        self.simulation_slot_length = simulation_slot_length
+        self.market_aggregations = market_aggregations
 
-    AVAILABLE_RESOLUTIONS: Dict[str, Duration] = {}
-    RESOLUTION_AGGREGATORS: Dict[Duration, Dict[str, Callable]] = {}
+    def is_time_to_aggregate(self, current_time: DateTime, market_type: str) -> List:
+        """Check if any aggregation is required for the current_time."""
+        aggregation_resolutions = []
+        delta = current_time - self.simulation_start_time
+        for aggr_duration in self.market_aggregations.get(market_type, []):
+            if delta.total_seconds() % aggr_duration.total_seconds() == 0 and \
+                    current_time - aggr_duration >= self.simulation_start_time:
+                aggregation_resolutions.append(
+                    {"start_time": current_time - aggr_duration,
+                     "end_time": current_time, "resolution": aggr_duration})
 
-    def __init__(self):
-        self.markets: Dict[str, Dict[str, MarketResultsAggregator]] = {}
-
-    def update(self, area_uuid: str, market_type: str, current_timeslot: str, market_stats):
-        """Update the corresponding MarketResultsAggregator for each (area, market_type)."""
-        if not market_stats:
-            return
-
-        if area_uuid not in self.markets:
-            self.markets[area_uuid] = {}
-
-        if market_type not in self.markets[area_uuid]:
-            self.markets[area_uuid][market_type] = MarketResultsAggregator()
-
-        current_timeslot = DateTime.fromisoformat(current_timeslot)
-        self.markets[area_uuid][market_type].update(current_timeslot, market_stats)
-
-    def generate(self):
-        """Generate the appropriate aggregated results for each (area, market_type)."""
-        for area_uuid, markets in self.markets.items():
-            for market_type, market_results_aggregator in markets.items():
-                for resolution in self.AVAILABLE_RESOLUTIONS.get(market_type, []):
-                    aggregators = self.RESOLUTION_AGGREGATORS.get(resolution)
-                    for aggregated_results in market_results_aggregator.generate(resolution,
-                                                                                 aggregators):
-                        yield {
-                            "area_uuid": area_uuid,
-                            "market_type": market_type,
-                            "resolution": resolution,
-                            **aggregated_results
-                        }
+        return aggregation_resolutions
