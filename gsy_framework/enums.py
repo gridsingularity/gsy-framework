@@ -1,5 +1,7 @@
 from enum import Enum
 
+from pendulum import duration
+
 
 class BidOfferMatchAlgoEnum(Enum):
     """Matching algorithms supported by the GSY exchange."""
@@ -33,3 +35,21 @@ class CloudCoverage(Enum):
     GAUSSIAN = 3
     UPLOAD_PROFILE = 4
     LOCAL_GENERATION_PROFILE = 5  # Generate profiles using Rebase API
+
+
+class AggregationResolution(Enum):
+    """Available aggregation resolutions for forward markets."""
+
+    RES_1_DAY = 1
+    RES_1_WEEK = 2
+    RES_1_MONTH = 3
+    RES_1_YEAR = 4
+
+    def duration(self):
+        """Get duration object based on resolution."""
+        return {
+            self.RES_1_DAY: duration(days=1),
+            self.RES_1_WEEK: duration(weeks=1),
+            self.RES_1_MONTH: duration(months=1),
+            self.RES_1_YEAR: duration(years=1)
+        }[self]
