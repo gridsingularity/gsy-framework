@@ -95,8 +95,9 @@ class MarketResultsAggregator:
             return
         # time difference between the last result and the current one should be equal to
         # 1 duration. otherwise, it's obvious that some data is missing in the calculation.
-        delta = timeslots_to_aggregate[0] - self.last_aggregated_result["start_time"]
-        assert delta == self.resolution, "Invalid last_aggregated_result provided."
+        last_time = timeslots_to_aggregate[0] - self.resolution
+        assert last_time == self.last_aggregated_result["start_time"], \
+            "Invalid last_aggregated_result provided."
 
     def _prepare_results(self, timeslots: List[DateTime]):
         """Call all the aggregation/accumulation functions on the grouped timeslots data."""
