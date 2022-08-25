@@ -4,7 +4,6 @@ from pendulum import DateTime, Duration
 
 
 class MarketResultsAggregator:
-    # todo: add more docs for what accumulator/aggregators are how to write one.
     """Calculate aggregated/accumulated market results in different resolutions."""
 
     def __init__(self, resolution: Duration,  # pylint: disable=too-many-arguments
@@ -12,6 +11,25 @@ class MarketResultsAggregator:
                  last_aggregated_result: Dict = None,
                  aggregators: Dict[str, Callable] = None,
                  accumulators: Dict[str, Callable] = None):
+        """
+        - Aggregators are applied to collected raw data of each aggregation window.
+        Each aggregator function accepts one argument which is in the form of a dictionary
+        containing bids, offers and trades.
+        Here's an example of aggregators dictionary:
+        aggregators = {
+            "device_statistics": device_statistics_aggregator,
+            "energy_traded_profile": energy_traded_profile_aggregator
+        }
+        - Accumulators are applied to collected raw data of the current aggregation window
+        as well as the results from last calculation. And, they are written in a `reduce` manner.
+        Each accumulator function accepts two arguments which are the previously calculated data
+        of the same function and collected raw data of the current aggregation windows.
+        Here's an example of accumulators dictionary:
+        accumulators = {
+            "device_statistics": device_statistics_accumulator,
+            "energy_traded_profile": energy_traded_profile_accumulator
+        }
+        """
 
         self.bids_offers_trades: Dict[DateTime, Dict] = {}
         self.last_aggregated_result = last_aggregated_result if \
