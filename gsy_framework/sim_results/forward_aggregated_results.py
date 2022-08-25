@@ -39,9 +39,6 @@ class MarketResultsAggregator:
         self.aggregators = aggregators if aggregators else {}
         self.accumulators = accumulators if accumulators else {}
 
-        self.number_of_timeslots_per_window = (
-                resolution.total_seconds() // simulation_slot_length.total_seconds())
-
     def update(self, current_timeslot: DateTime, market_stats) -> None:
         """Update the buffer of bids_offers_trades with the result
         from the current market slot."""
@@ -89,8 +86,17 @@ class MarketResultsAggregator:
     def _check_timeslots(self, timeslots_to_aggregate: List[DateTime]):
         """Perform sanity checks on timeslots to avoid issues while
         aggregating or accumulating results."""
-        assert len(timeslots_to_aggregate) == self.number_of_timeslots_per_window, \
+
+        window_start_time = timeslots_to_aggregate[0]
+        window_end_time = window_start_time + self.resolution
+        number_of_required_timeslots = 0
+        while window_start_time < window_end_time:
+            number_of_required_timeslots += 1
+            window_start_time += self.simulation_slot_length
+
+        assert len(timeslots_to_aggregate) == number_of_required_timeslots, \
             "Invalid aggregation resolution or insufficient number of data points."
+
         if not self.last_aggregated_result:
             return
         # time difference between the last result and the current one should be equal to
