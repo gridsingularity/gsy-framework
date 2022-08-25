@@ -147,22 +147,22 @@ class MarketResultsAggregator:
 
 class AggregationTimeManager:
     """Check if any aggregation is required for any given timeslot."""
-    def __init__(self, simulation_start_time: DateTime,
-                 simulation_slot_length: Duration,
-                 market_aggregations: Dict[str, Duration]):
+    def __init__(self, simulation_start_time: DateTime):
         self.simulation_start_time = simulation_start_time
-        self.simulation_slot_length = simulation_slot_length
-        self.market_aggregations = market_aggregations
 
-    def is_time_to_aggregate(self, current_time: DateTime, market_type: str) -> List:
-        """Check if any aggregation is required for the current_time."""
-        aggregation_resolutions = []
-        delta = current_time - self.simulation_start_time
-        for aggr_duration in self.market_aggregations.get(market_type, []):
-            if delta.total_seconds() % aggr_duration.total_seconds() == 0 and \
-                    current_time - aggr_duration >= self.simulation_start_time:
-                aggregation_resolutions.append(
-                    {"start_time": current_time - aggr_duration,
-                     "end_time": current_time, "resolution": aggr_duration})
+    def get_aggregation_windows(self, current_time: DateTime, resolution: Duration,
+                                last_aggregation_time: DateTime = None) -> List:
+        """Check if any aggregation is required for the market."""
+        aggregation_windows = []
+        if last_aggregation_time is None:
+            next_aggregation_time = self.simulation_start_time + resolution
+        else:
+            next_aggregation_time = last_aggregation_time + resolution
 
-        return aggregation_resolutions
+        while next_aggregation_time <= current_time:
+            aggregation_windows.append(
+                {"start_time": next_aggregation_time - resolution,
+                 "end_time": next_aggregation_time})
+            next_aggregation_time += resolution
+
+        return aggregation_windows
