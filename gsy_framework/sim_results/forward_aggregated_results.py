@@ -6,11 +6,12 @@ from pendulum import DateTime, Duration
 class MarketResultsAggregator:
     """Calculate aggregated/accumulated market results in different resolutions."""
 
-    def __init__(self, resolution: Duration,  # pylint: disable=too-many-arguments
-                 simulation_slot_length: Duration,
-                 last_aggregated_result: Dict = None,
-                 aggregators: Dict[str, Callable] = None,
-                 accumulators: Dict[str, Callable] = None):
+    def __init__(
+            self, resolution: Duration,  # pylint: disable=too-many-arguments
+            simulation_slot_length: Duration,
+            last_aggregated_result: Dict = None,
+            aggregators: Dict[str, Callable] = None,
+            accumulators: Dict[str, Callable] = None):
         """
         - Aggregators are applied to collected raw data of each aggregation window.
         Each aggregator function accepts one argument which is in the form of a dictionary
@@ -150,8 +151,9 @@ class AggregationTimeManager:
     def __init__(self, simulation_start_time: DateTime):
         self.simulation_start_time = simulation_start_time
 
-    def get_aggregation_windows(self, current_time: DateTime, resolution: Duration,
-                                last_aggregation_time: DateTime = None) -> List:
+    def get_aggregation_windows(
+            self, current_time: DateTime, resolution: Duration,
+            last_aggregation_time: DateTime = None) -> List:
         """Check if any aggregation is required for the market."""
         aggregation_windows = []
         if last_aggregation_time is None:
