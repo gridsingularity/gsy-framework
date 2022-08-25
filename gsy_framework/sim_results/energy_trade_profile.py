@@ -15,10 +15,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from collections import defaultdict
 from copy import deepcopy
-from datetime import datetime
-from typing import Dict, List, Union
+from typing import Dict, List
 
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
