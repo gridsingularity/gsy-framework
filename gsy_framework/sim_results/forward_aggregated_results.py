@@ -4,17 +4,25 @@ from pendulum import DateTime, Duration
 
 
 class MarketResultsAggregator:
+    # todo: add more docs for what accumulator/aggregators are how to write one.
     """Calculate aggregated/accumulated market results in different resolutions."""
 
-    def __init__(self, resolution: Duration, last_aggregated_result: Dict = None,
+    def __init__(self, resolution: Duration,  # pylint: disable=too-many-arguments
+                 simulation_slot_length: Duration,
+                 last_aggregated_result: Dict = None,
                  aggregators: Dict[str, Callable] = None,
                  accumulators: Dict[str, Callable] = None):
+
         self.bids_offers_trades: Dict[DateTime, Dict] = {}
         self.last_aggregated_result = last_aggregated_result if \
             last_aggregated_result is not None else {}
         self.resolution = resolution
+        self.simulation_slot_length = simulation_slot_length
         self.aggregators = aggregators if aggregators else {}
         self.accumulators = accumulators if accumulators else {}
+
+        self.number_of_timeslots_per_window = (
+                resolution.total_seconds() // simulation_slot_length.total_seconds())
 
     def update(self, current_timeslot: DateTime, market_stats) -> None:
         """Update the buffer of bids_offers_trades with the result
@@ -39,7 +47,6 @@ class MarketResultsAggregator:
         if not self.bids_offers_trades:
             return
 
-        # todo: add assertions to check no timeslot is missing with regards to the resolution
         sorted_market_timeslots = sorted(self.bids_offers_trades)
         start_time = sorted_market_timeslots[0]
         next_time = start_time + self.resolution
@@ -47,6 +54,7 @@ class MarketResultsAggregator:
         for timeslot in sorted_market_timeslots:
             if timeslot >= next_time:
                 if timeslots_to_aggregate:
+                    self._check_timeslots(timeslots_to_aggregate)
                     yield self._prepare_results(timeslots_to_aggregate)
                     self._remove_processed_timeslots(timeslots_to_aggregate)
                     timeslots_to_aggregate = []
@@ -59,6 +67,18 @@ class MarketResultsAggregator:
         """Remove already processed timeslots from the buffer to save some memory."""
         for timeslot in timeslots:
             del self.bids_offers_trades[timeslot]
+
+    def _check_timeslots(self, timeslots_to_aggregate: List[DateTime]):
+        """Perform sanity checks on timeslots to avoid issues while
+        aggregating or accumulating results."""
+        assert len(timeslots_to_aggregate) == self.number_of_timeslots_per_window, \
+            "Invalid aggregation resolution or insufficient number of data points."
+        if not self.last_aggregated_result:
+            return
+        # time difference between the last result and the current one should be equal to
+        # 1 duration. otherwise, it's obvious that some data is missing in the calculation.
+        delta = timeslots_to_aggregate[0] - self.last_aggregated_result["start_time"]
+        assert delta == self.resolution, "Invalid last_aggregated_result provided."
 
     def _prepare_results(self, timeslots: List[DateTime]):
         """Call all the aggregation/accumulation functions on the grouped timeslots data."""
@@ -90,7 +110,6 @@ class MarketResultsAggregator:
         """Call all the accumulator functions to update global statistics of the whole market.
         Accumulated results are results calculated from the beginning of the simulation.
         """
-        # todo: check if the last_aggregated_result is the correct last_aggregated_result
         last_accumulated_results = self.last_aggregated_result.get(
             "accumulated_results", {})
 
