@@ -119,16 +119,23 @@ class MarketResultsAggregator:
         self.aggregators = aggregators if aggregators else {}
         self.accumulators = accumulators if accumulators else {}
 
-    def update(self, current_timeslot: DateTime, market_stats) -> None:
+    def update(self, current_timeslot: DateTime, market_stats: Dict[str, Dict[str, List]]) -> None:
         """Update the buffer of bids_offers_trades with the result
-        from the current market slot."""
+        from the current market slot.
+        Example of market stats:
+        market_stats = {
+            '2020-01-01T00:00:00': {'bids': [...], 'offers': [...], 'trades': [...]},
+            '2020-01-01T00:15:00': {'bids': [...], 'offers': [...], 'trades': [...]},
+            '2020-01-01T00:30:00': {'bids': [...], 'offers': [...], 'trades': [...]},
+            ...
+        }
+        """
         if not market_stats:
             return
 
-        if current_timeslot not in self.bids_offers_trades:
-            self.bids_offers_trades[current_timeslot] = {
-                "bids": [], "offers": [], "trades": [],
-            }
+        self.bids_offers_trades[current_timeslot] = {
+            "bids": [], "offers": [], "trades": [],
+        }
 
         for market_data in market_stats.values():
             for order in self.bids_offers_trades[current_timeslot]:
@@ -144,16 +151,15 @@ class MarketResultsAggregator:
 
         sorted_market_timeslots = sorted(self.bids_offers_trades)
         start_time = sorted_market_timeslots[0]
-        next_time = start_time + self.resolution
+        next_time = start_time + self.resolution - self.simulation_slot_length
         timeslots_to_aggregate = []
         for timeslot in sorted_market_timeslots:
             if timeslot >= next_time:
-                if timeslots_to_aggregate:
-                    self._check_timeslots(timeslots_to_aggregate)
-                    yield self._prepare_results(timeslots_to_aggregate)
-                    self._remove_processed_timeslots(timeslots_to_aggregate)
-                    timeslots_to_aggregate = []
                 timeslots_to_aggregate.append(timeslot)
+                self._check_timeslots(timeslots_to_aggregate)
+                yield self._prepare_results(timeslots_to_aggregate)
+                self._remove_processed_timeslots(timeslots_to_aggregate)
+                timeslots_to_aggregate = []
                 next_time += self.resolution
             else:
                 timeslots_to_aggregate.append(timeslot)
