@@ -37,6 +37,20 @@ class CloudCoverage(Enum):
     LOCAL_GENERATION_PROFILE = 5  # Generate profiles using Rebase API
 
 
+class AvailableMarketTypes(Enum):
+    """Collection of available market types."""
+
+    SPOT = 0
+    BALANCING = 1
+    SETTLEMENT = 2
+    FUTURE = 3
+    DAY_FORWARD = 4
+    WEEK_FORWARD = 5
+    MONTH_FORWARD = 6
+    YEAR_FORWARD = 7
+    INTRADAY = 8
+
+
 class AggregationResolution(Enum):
     """Available aggregation resolutions for forward markets."""
 
