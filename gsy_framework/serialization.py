@@ -1,6 +1,6 @@
 import pickle
 from typing import Dict
-from zlib import decompress, compress
+from zlib import compress, decompress
 
 
 class CompressSerialization:
