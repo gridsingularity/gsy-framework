@@ -20,6 +20,7 @@ from typing import Callable, Dict, List
 
 from pendulum import DateTime, Duration
 
+from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
 from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
 from gsy_framework.sim_results.device_statistics import DeviceStatistics
 from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
@@ -37,6 +38,27 @@ REQUESTED_FIELDS_CLASS_MAP = {
     "energy_trade_profile": EnergyTradeProfile,
     "area_throughput": AreaThroughputStats,
     "market_summary": MarketSummaryInfo
+}
+
+# Used by forward markets; the following dictionary defines
+# what aggregations are needed for each market type.
+MARKET_RESOLUTIONS = {
+    AvailableMarketTypes.YEAR_FORWARD: [AggregationResolution.RES_1_MONTH],
+    AvailableMarketTypes.MONTH_FORWARD: [AggregationResolution.RES_1_DAY],
+    AvailableMarketTypes.WEEK_FORWARD: [AggregationResolution.RES_1_DAY]
+}
+
+# Used by MarketResultsAggregator; the following dictionary defines
+# what aggregators/accumulators should be called for each resolution type.
+RESOLUTION_AGGREGATIONS = {
+    AggregationResolution.RES_1_MONTH: {
+        "aggregators": {},
+        "accumulators": {}
+    },
+    AggregationResolution.RES_1_DAY: {
+        "aggregators": {},
+        "accumulators": {}
+    },
 }
 
 
