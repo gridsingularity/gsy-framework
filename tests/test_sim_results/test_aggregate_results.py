@@ -74,3 +74,14 @@ class TestMarketResultsAggregator:
         assert len(list(market_results_aggr.generate())) == 1
         # data should be cleared from cache once it's processed.
         assert len(market_results_aggr.bids_offers_trades) == 0
+
+    # TODO: tests for aggregators.
+    # TODO: tests for accumulators.
+    # TODO: tests correct timeslots are being grouped.
+    # TODO: tests no results are being returned if not enough number of timeslots are provided.
+    # TODO: tests excess amount of timeslots remain in the buffer after calling generate.
+    # TODO: test invalid resolutions
+    # TODO: test leap years
+    # TODO: test with monthly resolutions
+    # TODO: test last_aggregated_result is being applied
+    # TODO: test last_aggregated_results raises error when it's incorrect
