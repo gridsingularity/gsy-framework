@@ -4,7 +4,9 @@ from typing import Dict
 
 
 class DataSerializer:
-    """Custom Serializer / Deserializer."""
+    """compression/de-compression
+       Encoding/decoding
+    """
     @staticmethod
     def encode_and_compress_dict(uncompressed_dict: Dict) -> bytes:
         """Convert a dict into str by pickling and compressing."""
