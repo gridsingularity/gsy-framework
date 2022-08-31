@@ -155,7 +155,7 @@ class TestMarketResultsAggregator:
         for _ in range(3):
             market_results_aggr.update(*next(market_stats_gen))
 
-        next(market_stats_gen) # missing timeslot
+        next(market_stats_gen)  # missing timeslot
         market_results_aggr.update(*next(market_stats_gen))
 
         try:
