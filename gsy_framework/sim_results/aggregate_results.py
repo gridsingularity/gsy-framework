@@ -111,6 +111,8 @@ class MarketResultsAggregator:
         }
         """
 
+        assert resolution >= simulation_slot_length
+
         self.bids_offers_trades: Dict[DateTime, Dict] = {}
         self.last_aggregated_result = last_aggregated_result if \
             last_aggregated_result is not None else {}

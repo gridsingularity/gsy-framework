@@ -45,7 +45,7 @@ class TestMarketResultsAggregator:
             simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
         )
         market_stats_gen = self.gen_market_stats(
-            DateTime(2020, 1, 1, 0, 0), slot_length=Duration(minutes=15))
+            DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
 
         added_timeslots = []
 
@@ -88,7 +88,7 @@ class TestMarketResultsAggregator:
         )
         simulation_start_time = DateTime(2020, 1, 1, 0, 0)
         market_stats_gen = self.gen_market_stats(
-            simulation_start_time, slot_length=Duration(minutes=15))
+            simulation_start_time, slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
 
         # collect market stats for 5 slots and reorder them
         market_stats = [next(market_stats_gen) for _ in range(5)]
@@ -130,11 +130,11 @@ class TestMarketResultsAggregator:
             resolution=resolution,
             simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
         )
-        slot_length = duration(minutes=15)
         market_stats_gen = self.gen_market_stats(
-            DateTime(2020, 1, 1, 0, 0), slot_length=slot_length)
+            DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
 
-        needed_data_points = int(resolution.total_seconds() / slot_length.total_seconds())
+        needed_data_points = int(resolution.total_seconds() /
+                                 DEFAULT_SIMULATION_SLOT_LENGTH.total_seconds())
         for _ in range(needed_data_points - 1):
             market_results_aggr.update(*next(market_stats_gen))
 
@@ -150,7 +150,7 @@ class TestMarketResultsAggregator:
             simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
         )
         market_stats_gen = self.gen_market_stats(
-            DateTime(2020, 1, 1, 0, 0), slot_length=Duration(minutes=15))
+            DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
 
         for _ in range(3):
             market_results_aggr.update(*next(market_stats_gen))
@@ -165,3 +165,121 @@ class TestMarketResultsAggregator:
                 "MarketResultsAggregator should not process insufficient number of data points.")
         except AssertionError:
             pass
+
+    def test_all_consumed_timeslots_are_given_to_aggregators_and_accumulators(self):
+        """Test timeslots are correctly grouped and then passed to accumulators/aggregators."""
+
+        def check_collected_raw_data(collected_raw_data):
+            collected_time_slots = set(
+                bid.creation_time for bid in collected_raw_data["bids"]
+            )
+            assert len(collected_time_slots) == 4
+            assert min(collected_time_slots) == simulation_start_time
+            assert max(collected_time_slots) - min(collected_time_slots) < duration(hours=1)
+
+            collected_time_slots = set(
+                bid.creation_time for bid in collected_raw_data["offers"]
+            )
+            assert len(collected_time_slots) == 4
+            assert min(collected_time_slots) == simulation_start_time
+            assert max(collected_time_slots) - min(collected_time_slots) < duration(hours=1)
+
+            collected_time_slots = set(
+                bid.creation_time for bid in collected_raw_data["trades"]
+            )
+            assert len(collected_time_slots) == 4
+            assert min(collected_time_slots) == simulation_start_time
+            assert max(collected_time_slots) - min(collected_time_slots) < duration(hours=1)
+
+        def aggregator(collected_raw_data):
+            check_collected_raw_data(collected_raw_data)
+            return "AGGREGATED_RESULTS"
+
+        def accumulator(last_result, collected_raw_data):
+            assert last_result is None
+            check_collected_raw_data(collected_raw_data)
+            return "ACCUMULATED_RESULTS"
+
+        market_results_aggr = MarketResultsAggregator(
+            resolution=duration(hours=1),
+            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH,
+            aggregators={"aggr1": aggregator},
+            accumulators={"accu1": accumulator}
+        )
+        simulation_start_time = DateTime(2020, 1, 1, 0, 0)
+        market_stats_gen = self.gen_market_stats(
+            simulation_start_time, slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
+
+        for _ in range(7):  # accu1/aggr1 should be called only once when calling generate
+            market_results_aggr.update(*next(market_stats_gen))
+
+        result = list(market_results_aggr.generate())[0]
+        assert result["aggregated_results"]["aggr1"] == "AGGREGATED_RESULTS"
+        assert result["accumulated_results"]["accu1"] == "ACCUMULATED_RESULTS"
+        assert result["start_time"] == simulation_start_time
+
+    @staticmethod
+    def test_invalid_resolution():
+        """Test the MarketResultsAggregator can detect invalid resolutions."""
+        try:
+            MarketResultsAggregator(
+                resolution=duration(hours=1),
+                simulation_slot_length=duration(hours=2)
+            )
+            pytest.fail("MarketResultsAggregator fails to detect invalid resolutions.")
+        except AssertionError:
+            pass
+
+    def test_leap_year(self):
+        """Test 2020 as a leap year."""
+        market_results_aggr = MarketResultsAggregator(
+            resolution=duration(months=1),
+            simulation_slot_length=duration(days=1)
+        )
+        simulation_start_time = DateTime(2020, 2, 1, 0, 0)
+        market_stats_gen = self.gen_market_stats(
+            simulation_start_time, slot_length=duration(days=1))
+
+        market_timeslot, market_stat = next(market_stats_gen)
+        while market_timeslot.month != 3:
+            market_results_aggr.update(market_timeslot, market_stat)
+            market_timeslot, market_stat = next(market_stats_gen)
+
+        assert len(market_results_aggr.bids_offers_trades) == 29
+        assert len(list(market_results_aggr.generate())) == 1
+        assert len(market_results_aggr.bids_offers_trades) == 0
+
+    def test_accumulator_functionality(self):
+        """Test last_aggregated_result is being passed to the accumulator."""
+        def accumulator(last_results, collected_raw_data):
+            assert collected_raw_data
+            return 1 if last_results is None else last_results + 1
+
+        market_results_aggr = MarketResultsAggregator(
+            resolution=duration(hours=1),
+            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH,
+            accumulators={
+                "accu1": accumulator
+            }
+        )
+        market_stats_gen = self.gen_market_stats(
+            DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
+
+        for _ in range(4):
+            market_results_aggr.update(*next(market_stats_gen))
+
+        last_aggregated_result = list(market_results_aggr.generate())[0]
+        market_results_aggr = MarketResultsAggregator(
+            resolution=duration(hours=1),
+            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH,
+            accumulators={
+                "accu1": accumulator
+            },
+            last_aggregated_result=last_aggregated_result
+        )
+        for _ in range(8):
+            market_results_aggr.update(*next(market_stats_gen))
+
+        generated_results = list(market_results_aggr.generate())
+        assert generated_results[0]["accumulated_results"]["accu1"] == 2
+        assert generated_results[1]["accumulated_results"]["accu1"] == 3
