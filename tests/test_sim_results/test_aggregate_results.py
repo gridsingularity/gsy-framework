@@ -4,7 +4,8 @@ from unittest.mock import MagicMock
 import pytest
 from pendulum import DateTime, Duration, duration
 
-from gsy_framework.sim_results.aggregate_results import MarketResultsAggregator
+from gsy_framework.sim_results.aggregate_results import (
+    AggregationTimeManager, MarketResultsAggregator)
 
 DEFAULT_SIMULATION_SLOT_LENGTH = duration(minutes=15)
 MARKET_TIMESLOTS = 10
@@ -283,3 +284,43 @@ class TestMarketResultsAggregator:
         generated_results = list(market_results_aggr.generate())
         assert generated_results[0]["accumulated_results"]["accu1"] == 2
         assert generated_results[1]["accumulated_results"]["accu1"] == 3
+
+
+class TestAggregationTimeManager:
+    @staticmethod
+    def test_aggregation_window_generator_works_correctly():
+        simulation_start_time = DateTime(2020, 2, 1, 0, 0)
+        resolution = duration(hours=1)
+        current_time = simulation_start_time + resolution
+
+        atm = AggregationTimeManager(simulation_start_time)
+        # Make sure that only one windows is generated when it's time.
+        generated_windows = atm.get_aggregation_windows(
+            resolution=resolution, current_time=current_time)
+        assert len(generated_windows) == 1
+        assert generated_windows[0]["end_time"] - generated_windows[0]["start_time"] == resolution
+
+        # Make sure that generated windows are consequent to each other and length of
+        # each one is exactly 1 resolution.
+        generated_windows = atm.get_aggregation_windows(
+            resolution=resolution, current_time=simulation_start_time + duration(months=1),
+            last_aggregation_time=simulation_start_time
+        )
+        assert len(generated_windows) == 29 * 24  # Feb 2020 has 29 days, each day 24 hours
+        assert generated_windows[0]["start_time"] == simulation_start_time
+        for i in range(len(generated_windows) - 1):
+            assert (generated_windows[i]["end_time"] - generated_windows[i]["start_time"]
+                    == resolution)
+            assert generated_windows[i]["end_time"] == generated_windows[i+1]["start_time"]
+
+    @staticmethod
+    def test_no_window_is_generated_when_is_not_time():
+        """Make sure that no window is generated when the end of the window is not reached yet."""
+        simulation_start_time = DateTime(2020, 2, 1, 0, 0)
+        resolution = duration(hours=1)
+        current_time = simulation_start_time + duration(minutes=30)
+
+        atm = AggregationTimeManager(simulation_start_time)
+        generated_windows = atm.get_aggregation_windows(
+            resolution=resolution, current_time=current_time)
+        assert len(generated_windows) == 0
