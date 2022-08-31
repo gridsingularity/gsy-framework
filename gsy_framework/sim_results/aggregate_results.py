@@ -154,7 +154,13 @@ class MarketResultsAggregator:
         next_time = start_time + self.resolution - self.simulation_slot_length
         timeslots_to_aggregate = []
         for timeslot in sorted_market_timeslots:
-            if timeslot >= next_time:
+            if timeslot > next_time:
+                self._check_timeslots(timeslots_to_aggregate)
+                yield self._prepare_results(timeslots_to_aggregate)
+                self._remove_processed_timeslots(timeslots_to_aggregate)
+                timeslots_to_aggregate = [timeslot]
+                next_time += self.resolution
+            elif timeslot == next_time:
                 timeslots_to_aggregate.append(timeslot)
                 self._check_timeslots(timeslots_to_aggregate)
                 yield self._prepare_results(timeslots_to_aggregate)
