@@ -23,6 +23,8 @@ from pendulum import DateTime, Duration
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
 from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
 from gsy_framework.sim_results.device_statistics import DeviceStatistics
+from gsy_framework.sim_results.electric_blue.accumulators import \
+    EBEnergyTradeProfile
 from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
 from gsy_framework.sim_results.market_price_energy_day import \
     MarketPriceEnergyDay
@@ -53,11 +55,11 @@ MARKET_RESOLUTIONS = {
 RESOLUTION_AGGREGATIONS = {
     AggregationResolution.RES_1_MONTH: {
         "aggregators": {},
-        "accumulators": {}
+        "accumulators": {"energy_trade_profile": EBEnergyTradeProfile()}
     },
     AggregationResolution.RES_1_DAY: {
         "aggregators": {},
-        "accumulators": {}
+        "accumulators": {"energy_trade_profile": EBEnergyTradeProfile()}
     },
 }
 
