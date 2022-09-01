@@ -3,16 +3,20 @@ from time import time
 from typing import Dict
 
 from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
-from gsy_framework.sim_results.bills import MarketEnergyBills, CumulativeBills
-from gsy_framework.sim_results.cumulative_grid_trades import CumulativeGridTrades
-from gsy_framework.sim_results.cumulative_net_energy_flow import CumulativeNetEnergyFlow
+from gsy_framework.sim_results.bills import CumulativeBills, MarketEnergyBills
+from gsy_framework.sim_results.cumulative_grid_trades import \
+    CumulativeGridTrades
+from gsy_framework.sim_results.cumulative_net_energy_flow import \
+    CumulativeNetEnergyFlow
 from gsy_framework.sim_results.device_statistics import DeviceStatistics
 from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
 from gsy_framework.sim_results.kpi import KPI
-from gsy_framework.sim_results.market_price_energy_day import MarketPriceEnergyDay
+from gsy_framework.sim_results.market_price_energy_day import \
+    MarketPriceEnergyDay
 from gsy_framework.sim_results.market_summary_info import MarketSummaryInfo
 from gsy_framework.sim_results.scm.kpi import SCMKPI
-from gsy_framework.sim_results.simulation_assets_info import SimulationAssetsInfo
+from gsy_framework.sim_results.simulation_assets_info import \
+    SimulationAssetsInfo
 
 
 class ResultsHandler:
