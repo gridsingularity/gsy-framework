@@ -36,4 +36,3 @@ class TestCompressDecompressDict:
         data = DataSerializer.encode_and_compress_dict({'key1': 'value1', 'key2': 'value2'})
         uncompressed_data = DataSerializer.decompress_and_decode(data)
         assert type(uncompressed_data) == dict
-
