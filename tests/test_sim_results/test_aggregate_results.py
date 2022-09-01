@@ -1,5 +1,5 @@
 from random import shuffle
-from unittest.mock import MagicMock
+from uuid import uuid4
 
 import pytest
 from pendulum import DateTime, Duration, duration
@@ -19,14 +19,15 @@ def gen_market_stats(start_time: DateTime, slot_length: Duration):
         market_timeslot = start_time
         for _ in range(MARKET_TIMESLOTS):
             market_stats[str(market_timeslot)] = {
-                "bids": [MagicMock(
-                    creation_time=start_time, timeslot=market_timeslot)
+                "bids": [
+                    {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4()}
                     for _ in range(ORDERS_PER_MARKET_SLOT)],
-                "offers": [MagicMock(
-                    creation_time=start_time, timeslot=market_timeslot)
+                "offers": [
+                    {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4()}
                     for _ in range(ORDERS_PER_MARKET_SLOT)],
-                "trades": [MagicMock(
-                    creation_time=start_time, timeslot=market_timeslot)
+                "trades": [
+                    {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4(),
+                     "price": 30, "energy": 1, "seller_id": "SELLER", "buyer_id": "BUYER"}
                     for _ in range(ORDERS_PER_MARKET_SLOT)]
             }
             market_timeslot += slot_length
@@ -58,8 +59,10 @@ class TestMarketResultsAggregator:
 
             for order in ("bids", "offers", "trades"):
                 # check correct number of orders are saved per timeslot
-                assert len(set(market_results_aggr.bids_offers_trades[current_timeslot][order])
-                           ) == ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS
+                assert len(
+                    set(o["uuid"] for o in
+                        market_results_aggr.bids_offers_trades[current_timeslot][order])
+                ) == ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS
 
             # check all the added timeslots are still there.
             assert all(timeslot in market_results_aggr.bids_offers_trades for
@@ -69,10 +72,10 @@ class TestMarketResultsAggregator:
 
         # check no duplicated entries are added for each timeslot
         for order in ("bids", "offers", "trades"):
-            buffered_orders = set()
+            buff_orders = set()
             for market_stats in market_results_aggr.bids_offers_trades.values():
-                buffered_orders = buffered_orders.union(set(market_stats[order]))
-            assert len(buffered_orders) == 4 * MARKET_TIMESLOTS * ORDERS_PER_MARKET_SLOT
+                buff_orders = buff_orders.union(set(o["uuid"] for o in market_stats[order]))
+            assert len(buff_orders) == 4 * MARKET_TIMESLOTS * ORDERS_PER_MARKET_SLOT
 
         # only one result should be generated for slot_length=15m and resolution=1h.
         assert len(list(market_results_aggr.generate())) == 1
@@ -177,21 +180,21 @@ class TestMarketResultsAggregator:
 
         def check_collected_raw_data(collected_raw_data):
             collected_time_slots = set(
-                bid.creation_time for bid in collected_raw_data["bids"]
+                bid["creation_time"] for bid in collected_raw_data["bids"]
             )
             assert len(collected_time_slots) == 4
             assert min(collected_time_slots) == simulation_start_time
             assert max(collected_time_slots) - min(collected_time_slots) < duration(hours=1)
 
             collected_time_slots = set(
-                bid.creation_time for bid in collected_raw_data["offers"]
+                bid["creation_time"] for bid in collected_raw_data["offers"]
             )
             assert len(collected_time_slots) == 4
             assert min(collected_time_slots) == simulation_start_time
             assert max(collected_time_slots) - min(collected_time_slots) < duration(hours=1)
 
             collected_time_slots = set(
-                bid.creation_time for bid in collected_raw_data["trades"]
+                bid["creation_time"] for bid in collected_raw_data["trades"]
             )
             assert len(collected_time_slots) == 4
             assert min(collected_time_slots) == simulation_start_time
