@@ -35,5 +35,4 @@ class TestDataSerializer:
         """Assert if data is dict type"""
         data = b'x\x9ck`\x99*\xcc\x00\x01\xb5Sz\xb8\x8a\xf3sSu\xcb\x12sJS\xa7xW\x17\xeb\x01\x00p\x08\x08\xcd'
         uncompressed_data = DataSerializer.decompress_and_decode(data)
-        # assert type(uncompressed_data) == dict
         assert uncompressed_data == {'some-value': 123}
