@@ -20,19 +20,20 @@ from typing import Dict
 from gsy_framework.data_serializer import DataSerializer
 
 
-class TestCompressDecompressDict:
+class TestDataSerializer:
     """Test compress and decompress dictionaries"""
 
     @staticmethod
-    def test_compress() -> bytes:
+    def test_encode_and_compress_dict():
         """Assert if data is bytes type"""
         data = {'key1': 'value1', 'key2': 'value2'}
         compressed_data = DataSerializer.encode_and_compress_dict(data)
         assert type(compressed_data) == bytes
 
     @staticmethod
-    def test_decompress() -> Dict:
+    def test_decompress_and_decode():
         """Assert if data is dict type"""
-        data = DataSerializer.encode_and_compress_dict({'key1': 'value1', 'key2': 'value2'})
+        data = b'x\x9ck`\x99*\xcc\x00\x01\xb5Sz\xb8\x8a\xf3sSu\xcb\x12sJS\xa7xW\x17\xeb\x01\x00p\x08\x08\xcd'
         uncompressed_data = DataSerializer.decompress_and_decode(data)
-        assert type(uncompressed_data) == dict
+        # assert type(uncompressed_data) == dict
+        assert uncompressed_data == {'some-value': 123}
