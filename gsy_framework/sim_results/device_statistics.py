@@ -15,14 +15,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-
 from typing import Dict
 
 from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.enums import SpotMarketTypeEnum
-from gsy_framework.sim_results import (
-    is_buffer_node_type, is_bulk_power_producer, is_finite_power_plant_node_type,
-    is_load_node_type, is_prosumer_node_type, is_pv_node_type)
+from gsy_framework.sim_results import (is_buffer_node_type,
+                                       is_bulk_power_producer,
+                                       is_finite_power_plant_node_type,
+                                       is_load_node_type,
+                                       is_prosumer_node_type, is_pv_node_type)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import create_or_update_subdict, limit_float_precision
 
@@ -30,6 +31,7 @@ FILL_VALUE = None
 
 
 class DeviceStatistics(ResultsBaseClass):
+    """Collect device statistics for spot markets."""
 
     def __init__(self, should_export_plots):
         self.device_stats_dict = {}
@@ -67,13 +69,13 @@ class DeviceStatistics(ResultsBaseClass):
     @classmethod
     def _device_price_stats(cls, area_dict: Dict, subdict: Dict, core_stats, current_market_slot):
         key_name = "trade_price_eur"
-        if core_stats[area_dict['uuid']] == {}:
+        if core_stats[area_dict["uuid"]] == {}:
             return
-        area_core_trades = core_stats[area_dict['uuid']].get('trades', [])
+        area_core_trades = core_stats[area_dict["uuid"]].get("trades", [])
         trade_price_list = []
         for t in area_core_trades:
-            if t['seller'] == area_dict['name'] or t['buyer'] == area_dict['name']:
-                trade_price_list.append(t['energy_rate'] / 100.0)
+            if t["seller"] == area_dict["name"] or t["buyer"] == area_dict["name"]:
+                trade_price_list.append(t["energy_rate"] / 100.0)
         if trade_price_list:
             create_or_update_subdict(
                 subdict, key_name,
@@ -98,16 +100,16 @@ class DeviceStatistics(ResultsBaseClass):
     @classmethod
     def calculate_stats_for_device(cls, area_dict, subdict, core_stats, current_market_slot):
         key_name = "trade_energy_kWh"
-        if core_stats[area_dict['uuid']] == {}:
+        if core_stats[area_dict["uuid"]] == {}:
             return
-        area_core_trades = core_stats[area_dict['uuid']].get('trades', [])
+        area_core_trades = core_stats[area_dict["uuid"]].get("trades", [])
 
         traded_energy = 0
         for t in area_core_trades:
-            if t['seller'] == area_dict['name']:
-                traded_energy -= t['energy']
-            if t['buyer'] == area_dict['name']:
-                traded_energy += t['energy']
+            if t["seller"] == area_dict["name"]:
+                traded_energy -= t["energy"]
+            if t["buyer"] == area_dict["name"]:
+                traded_energy += t["energy"]
 
         create_or_update_subdict(
             subdict, key_name,
@@ -120,15 +122,15 @@ class DeviceStatistics(ResultsBaseClass):
         bought_key_name = "bought_trade_energy_kWh"
         sold_traded_energy = 0
         bought_traded_energy = 0
-        if core_stats[area_dict['uuid']] == {}:
+        if core_stats[area_dict["uuid"]] == {}:
             return
-        area_core_trades = core_stats[area_dict['uuid']].get('trades', [])
+        area_core_trades = core_stats[area_dict["uuid"]].get("trades", [])
 
         for t in area_core_trades:
-            if t['seller'] == area_dict['name']:
-                sold_traded_energy += t['energy']
-            if t['buyer'] == area_dict['name']:
-                bought_traded_energy += t['energy']
+            if t["seller"] == area_dict["name"]:
+                sold_traded_energy += t["energy"]
+            if t["buyer"] == area_dict["name"]:
+                bought_traded_energy += t["energy"]
         create_or_update_subdict(
             subdict, sold_key_name,
             {current_market_slot: sold_traded_energy})
@@ -162,7 +164,7 @@ class DeviceStatistics(ResultsBaseClass):
 
         if core_stats is None:
             core_stats = {}
-        if core_stats[area_dict['uuid']] == {}:
+        if core_stats[area_dict["uuid"]] == {}:
             return
 
         create_or_update_subdict(
@@ -190,26 +192,26 @@ class DeviceStatistics(ResultsBaseClass):
                                  core_stats=None, current_market_slot=None):
         if core_stats is None:
             core_stats = {}
-        for child in area_dict['children']:
-            if child['name'] not in subdict.keys():
-                subdict.update({child['name']: {}})
-            if child['children'] == [] and core_stats != {}:
+        for child in area_dict["children"]:
+            if child["name"] not in subdict.keys():
+                subdict.update({child["name"]: {}})
+            if child["children"] == [] and core_stats != {}:
                 cls._gather_device_statistics(
-                    child, subdict[child['name']], flat_result_dict,
+                    child, subdict[child["name"]], flat_result_dict,
                     core_stats, current_market_slot)
             else:
                 cls.gather_device_statistics(
-                    child, subdict[child['name']], flat_result_dict,
+                    child, subdict[child["name"]], flat_result_dict,
                     core_stats, current_market_slot)
 
     @classmethod
     def _gather_device_statistics(cls, area_dict: Dict, subdict: Dict,
                                   flat_result_dict: Dict,
                                   core_stats=None, current_market_slot=None):
-        if core_stats is None or core_stats.get(area_dict['uuid'], {}) == {}:
+        if core_stats is None or core_stats.get(area_dict["uuid"], {}) == {}:
             return
 
-        if (area_dict['type'] != "area_dict" and
+        if (area_dict["type"] != "area_dict" and
                 ConstSettings.MASettings.MARKET_TYPE != SpotMarketTypeEnum.COEFFICIENTS.value):
             # SCM does not handle trades on the asset level, therefore price / energy trade stats
             # are not applicable.

@@ -20,10 +20,12 @@ from typing import Dict, List
 
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
-from gsy_framework.utils import (
-    round_floats_for_ui, add_or_create_key,
-    ui_str_to_pendulum_datetime, convert_pendulum_to_str_in_dict,
-    datetime_str_to_ui_formatted_datetime_str, area_name_from_area_or_ma_name)
+from gsy_framework.utils import (add_or_create_key,
+                                 area_name_from_area_or_ma_name,
+                                 convert_pendulum_to_str_in_dict,
+                                 datetime_str_to_ui_formatted_datetime_str,
+                                 round_floats_for_ui,
+                                 ui_str_to_pendulum_datetime)
 
 traded_energy_profile_example = {
     "area_uuid1": {
