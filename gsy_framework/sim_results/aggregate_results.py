@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from datetime import date, timedelta  # NOQA
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Union
 
 from pendulum import DateTime, Duration
 
@@ -120,8 +120,9 @@ class MarketResultsAggregator:
         self.simulation_slot_length = simulation_slot_length
         self.aggregators = aggregators if aggregators else {}
         self.accumulators = accumulators if accumulators else {}
+        self.last_aggregation_time: Union[DateTime, None] = None
 
-    def update(self, current_timeslot: DateTime, market_stats: Dict[str, Dict[str, List]]) -> None:
+    def update(self, current_timeslot: str, market_stats: Dict[str, Dict[str, List]]) -> None:
         """Update the buffer of bids_offers_trades with the result
         from the current market slot.
         Example of market stats:
@@ -135,6 +136,7 @@ class MarketResultsAggregator:
         if not market_stats:
             return
 
+        current_timeslot = DateTime.fromisoformat(current_timeslot)
         self.bids_offers_trades[current_timeslot] = {
             "bids": [], "offers": [], "trades": [],
         }
@@ -215,6 +217,7 @@ class MarketResultsAggregator:
             "accumulated_results": self._accumulated_results(collected_raw_data)
         }
         self.last_aggregated_result = result
+        self.last_aggregation_time = timeslots[0]
         return result
 
     def _aggregated_results(self, collected_raw_data: Dict) -> Dict:

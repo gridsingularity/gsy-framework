@@ -50,6 +50,12 @@ class AvailableMarketTypes(Enum):
     YEAR_FORWARD = 7
     INTRADAY = 8
 
+    @classmethod
+    def forward_market_values(cls):
+        """Return all available types of forward market."""
+        return [str(item.value) for item in [
+            cls.INTRADAY, cls.DAY_FORWARD, cls.WEEK_FORWARD, cls.MONTH_FORWARD, cls.YEAR_FORWARD]]
+
 
 class AggregationResolution(Enum):
     """Available aggregation resolutions for forward markets."""
