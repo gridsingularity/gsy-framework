@@ -20,10 +20,12 @@ def gen_market_stats(start_time: DateTime, slot_length: Duration):
         for _ in range(MARKET_TIMESLOTS):
             market_stats[str(market_timeslot)] = {
                 "bids": [
-                    {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4()}
+                    {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4(),
+                     "price": 150, "energy": 5, "buyer_id": "BUYER"}
                     for _ in range(ORDERS_PER_MARKET_SLOT)],
                 "offers": [
-                    {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4()}
+                    {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4(),
+                     "price": 150, "energy": 5, "seller_id": "SELLER"}
                     for _ in range(ORDERS_PER_MARKET_SLOT)],
                 "trades": [
                     {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4(),

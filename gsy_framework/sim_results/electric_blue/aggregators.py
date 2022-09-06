@@ -10,7 +10,7 @@ class BaseAggregator(ABC):
         """Calculate and return accumulated results."""
 
 
-class EBEnergyTradeProfileAggregator(BaseAggregator):
+class EBEnergyProfileAggregator(BaseAggregator):
     """Aggregator class for EB energy trade profile."""
 
     DEFAULT_STATS = {
