@@ -25,6 +25,8 @@ from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
 from gsy_framework.sim_results.device_statistics import DeviceStatistics
 from gsy_framework.sim_results.electric_blue.accumulators import \
     EBEnergyTradeProfileAccumulator
+from gsy_framework.sim_results.electric_blue.aggregators import \
+    EBEnergyProfileAggregator
 from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
 from gsy_framework.sim_results.market_price_energy_day import \
     MarketPriceEnergyDay
@@ -54,11 +56,11 @@ MARKET_RESOLUTIONS = {
 # what aggregators/accumulators should be called for each resolution type.
 RESOLUTION_AGGREGATIONS = {
     AggregationResolution.RES_1_MONTH: {
-        "aggregators": {},
+        "aggregators": {"energy_profile": EBEnergyProfileAggregator()},
         "accumulators": {"energy_trade_profile": EBEnergyTradeProfileAccumulator()}
     },
     AggregationResolution.RES_1_DAY: {
-        "aggregators": {},
+        "aggregators": {"energy_profile": EBEnergyProfileAggregator()},
         "accumulators": {"energy_trade_profile": EBEnergyTradeProfileAccumulator()}
     },
 }
