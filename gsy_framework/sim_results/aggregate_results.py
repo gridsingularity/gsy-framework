@@ -92,6 +92,7 @@ class MarketResultsAggregator:
     def __init__(  # pylint: disable=too-many-arguments
             self, resolution: Duration,
             simulation_slot_length: Duration,
+            simulation_start_time: DateTime,
             last_aggregated_result: Dict = None,
             aggregators: Dict[str, Callable] = None,
             accumulators: Dict[str, Callable] = None):
@@ -122,6 +123,7 @@ class MarketResultsAggregator:
             last_aggregated_result is not None else {}
         self.resolution = resolution
         self.simulation_slot_length = simulation_slot_length
+        self.simulation_start_time = simulation_start_time
         self.aggregators = aggregators if aggregators else {}
         self.accumulators = accumulators if accumulators else {}
 
@@ -194,13 +196,15 @@ class MarketResultsAggregator:
         assert len(timeslots_to_aggregate) == required_timeslots, \
             "Invalid aggregation resolution or insufficient number of data points."
 
-        if not self.last_aggregated_result:
-            return
         # time difference between the last result and the current one should be equal to
         # 1 duration. otherwise, it's obvious that some data is missing in the calculation.
-        last_time = timeslots_to_aggregate[0] - self.resolution
-        assert last_time == self.last_aggregated_result["start_time"], \
-            "Invalid last_aggregated_result provided."
+        if self.last_aggregated_result:
+            last_time = timeslots_to_aggregate[0] - self.resolution
+            assert last_time == self.last_aggregated_result["start_time"], \
+                "Invalid last_aggregated_result provided."
+        else:
+            assert timeslots_to_aggregate[0] == self.simulation_start_time, \
+                "Invalid timeslots provided for the first aggregated result of the simulation."
 
     def _prepare_results(self, timeslots: List[DateTime]):
         """Call all the aggregation/accumulation functions on the grouped timeslots data."""

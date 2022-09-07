@@ -47,7 +47,8 @@ class TestMarketResultsAggregator:
         """
         market_results_aggr = MarketResultsAggregator(
             resolution=duration(hours=1),
-            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
+            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH,
+            simulation_start_time=DateTime(2020, 1, 1, 0, 0)
         )
         market_stats_gen = gen_market_stats(
             DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
@@ -94,7 +95,8 @@ class TestMarketResultsAggregator:
 
         market_results_aggr = MarketResultsAggregator(
             resolution=duration(hours=1),
-            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
+            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH,
+            simulation_start_time=DateTime(2020, 1, 1, 0, 0),
         )
         simulation_start_time = DateTime(2020, 1, 1, 0, 0)
         market_stats_gen = gen_market_stats(
@@ -139,7 +141,8 @@ class TestMarketResultsAggregator:
         resolution = duration(days=1)
         market_results_aggr = MarketResultsAggregator(
             resolution=resolution,
-            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
+            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH,
+            simulation_start_time=DateTime(2020, 1, 1, 0, 0),
         )
         market_stats_gen = gen_market_stats(
             DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
@@ -159,7 +162,8 @@ class TestMarketResultsAggregator:
         """Test time difference between collected timeslots is exactly one slot length."""
         market_results_aggr = MarketResultsAggregator(
             resolution=duration(hours=1),
-            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
+            simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH,
+            simulation_start_time=DateTime(2020, 1, 1, 0, 0),
         )
         market_stats_gen = gen_market_stats(
             DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
@@ -216,6 +220,7 @@ class TestMarketResultsAggregator:
         market_results_aggr = MarketResultsAggregator(
             resolution=duration(hours=1),
             simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH,
+            simulation_start_time=DateTime(2020, 1, 1, 0, 0),
             aggregators={"aggr1": aggregator},
             accumulators={"accu1": accumulator}
         )
@@ -237,7 +242,8 @@ class TestMarketResultsAggregator:
         try:
             MarketResultsAggregator(
                 resolution=duration(hours=1),
-                simulation_slot_length=duration(hours=2)
+                simulation_slot_length=duration(hours=2),
+                simulation_start_time=DateTime(2020, 1, 1, 0, 0),
             )
             pytest.fail("MarketResultsAggregator fails to detect invalid resolutions.")
         except AssertionError:
@@ -248,7 +254,8 @@ class TestMarketResultsAggregator:
         """Test 2020 as a leap year."""
         market_results_aggr = MarketResultsAggregator(
             resolution=duration(months=1),
-            simulation_slot_length=duration(days=1)
+            simulation_slot_length=duration(days=1),
+            simulation_start_time=DateTime(2020, 2, 1, 0, 0),
         )
         simulation_start_time = DateTime(2020, 2, 1, 0, 0)
         market_stats_gen = gen_market_stats(
@@ -273,6 +280,7 @@ class TestMarketResultsAggregator:
         market_results_aggr = MarketResultsAggregator(
             resolution=duration(hours=1),
             simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH,
+            simulation_start_time=DateTime(2020, 1, 1, 0, 0),
             accumulators={
                 "accu1": accumulator
             }
@@ -287,6 +295,7 @@ class TestMarketResultsAggregator:
         market_results_aggr = MarketResultsAggregator(
             resolution=duration(hours=1),
             simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH,
+            simulation_start_time=DateTime(2020, 1, 1, 0, 0),
             accumulators={
                 "accu1": accumulator
             },
