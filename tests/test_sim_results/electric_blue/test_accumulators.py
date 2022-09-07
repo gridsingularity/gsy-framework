@@ -17,6 +17,7 @@ class TestEBAccumulators:
         mra = MarketResultsAggregator(
             resolution=resolution,
             simulation_slot_length=simulation_slot_length,
+            simulation_start_time=DateTime(2020, 1, 1, 0, 0),
             accumulators={"energy_traded_profile": EBEnergyTradeProfileAccumulator()}
         )
         market_stats_gen = gen_market_stats(
