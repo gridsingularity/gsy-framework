@@ -75,6 +75,8 @@ class TestMarketResultsAggregator:
         # check no duplicated entries are added for each timeslot
         for order in ("bids", "offers", "trades"):
             buff_orders = set()
+            # ensure collected orders are unique and the same order is not repeatedly
+            # appended as a fault.
             for market_stats in market_results_aggr.bids_offers_trades.values():
                 buff_orders = buff_orders.union(set(o["uuid"] for o in market_stats[order]))
             assert len(buff_orders) == 4 * MARKET_TIMESLOTS * ORDERS_PER_MARKET_SLOT
