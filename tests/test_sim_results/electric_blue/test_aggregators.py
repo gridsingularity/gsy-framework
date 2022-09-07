@@ -29,18 +29,18 @@ class TestEBAggregator:
         aggregated_results = list(mra.generate())[0]
         aggregated_results = aggregated_results["aggregated_results"]["energy_profile"]
         assert aggregated_results["SELLER"] == {
-            "open_buy_orders": 0.0,
-            "open_sell_orders": 200.0,
-            "matched_buy_orders": 0.0,
-            "matched_sell_orders": 40.0,
-            "all_buy_orders": 0.0,
-            "all_sell_orders": 240.0
+            "open_buy_orders_kWh": 0.0,
+            "open_sell_orders_kWh": 200.0,
+            "matched_buy_orders_kWh": 0.0,
+            "matched_sell_orders_kWh": 40.0,
+            "all_buy_orders_kWh": 0.0,
+            "all_sell_orders_kWh": 240.0
         }
         assert aggregated_results["BUYER"] == {
-            "open_buy_orders": 200.0,
-            "open_sell_orders": 0.0,
-            "matched_buy_orders": 40.0,
-            "matched_sell_orders": 0.0,
-            "all_buy_orders": 240.0,
-            "all_sell_orders": 0.0
+            "open_buy_orders_kWh": 200.0,
+            "open_sell_orders_kWh": 0.0,
+            "matched_buy_orders_kWh": 40.0,
+            "matched_sell_orders_kWh": 0.0,
+            "all_buy_orders_kWh": 240.0,
+            "all_sell_orders_kWh": 0.0
         }
