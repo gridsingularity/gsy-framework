@@ -31,20 +31,20 @@ class TestEBAccumulators:
         assert aggregated_results["accumulated_results"]["energy_traded_profile"]["SELLER"] == {
             "total_buy_trade_count": 0,
             "total_earned_eur": 30 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 2,
-            "total_energy_bought": 0,
-            "total_energy_consumed": 0,
-            "total_energy_produced": 0,
-            "total_energy_sold": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 2,
+            "total_energy_bought_kWh": 0,
+            "total_energy_consumed_kWh": 0,
+            "total_energy_produced_kWh": 0,
+            "total_energy_sold_kWh": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 2,
             "total_sell_trade_count": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 2,
             "total_spent_eur": 0
         }
         assert aggregated_results["accumulated_results"]["energy_traded_profile"]["BUYER"] == {
             "total_buy_trade_count": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 2,
             "total_earned_eur": 0,
-            "total_energy_bought": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 2,
-            "total_energy_consumed": 0,
-            "total_energy_produced": 0,
-            "total_energy_sold": 0,
+            "total_energy_bought_kWh": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 2,
+            "total_energy_consumed_kWh": 0,
+            "total_energy_produced_kWh": 0,
+            "total_energy_sold_kWh": 0,
             "total_sell_trade_count": 0,
             "total_spent_eur": 30 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 2
         }
@@ -56,20 +56,20 @@ class TestEBAccumulators:
         assert aggregated_results["accumulated_results"]["energy_traded_profile"]["SELLER"] == {
             "total_buy_trade_count": 0,
             "total_earned_eur": 30 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 12,
-            "total_energy_bought": 0,
-            "total_energy_consumed": 0,
-            "total_energy_produced": 0,
-            "total_energy_sold": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 12,
+            "total_energy_bought_kWh": 0,
+            "total_energy_consumed_kWh": 0,
+            "total_energy_produced_kWh": 0,
+            "total_energy_sold_kWh": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 12,
             "total_sell_trade_count": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 12,
             "total_spent_eur": 0
         }
         assert aggregated_results["accumulated_results"]["energy_traded_profile"]["BUYER"] == {
             "total_buy_trade_count": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 12,
             "total_earned_eur": 0,
-            "total_energy_bought": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 12,
-            "total_energy_consumed": 0,
-            "total_energy_produced": 0,
-            "total_energy_sold": 0,
+            "total_energy_bought_kWh": 1 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 12,
+            "total_energy_consumed_kWh": 0,
+            "total_energy_produced_kWh": 0,
+            "total_energy_sold_kWh": 0,
             "total_sell_trade_count": 0,
             "total_spent_eur": 30 * ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS * 12
         }

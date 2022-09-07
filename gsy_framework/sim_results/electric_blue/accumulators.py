@@ -14,14 +14,14 @@ class EBEnergyTradeProfileAccumulator(BaseAccumulator):
 
     DEFAULT_STATS = {
         # SELLER
-        "total_energy_produced": 0,
+        "total_energy_produced_kWh": 0,
         "total_sell_trade_count": 0,
-        "total_energy_sold": 0,
+        "total_energy_sold_kWh": 0,
         "total_earned_eur": 0,
         # BUYER
-        "total_energy_consumed": 0,
+        "total_energy_consumed_kWh": 0,
         "total_buy_trade_count": 0,
-        "total_energy_bought": 0,
+        "total_energy_bought_kWh": 0,
         "total_spent_eur": 0,
     }
 
@@ -44,12 +44,12 @@ class EBEnergyTradeProfileAccumulator(BaseAccumulator):
                 current_results[buyer_id] = dict(self.DEFAULT_STATS)
 
             # SELLER
-            current_results[seller_id]["total_energy_sold"] += trade["energy"]
+            current_results[seller_id]["total_energy_sold_kWh"] += trade["energy"]
             current_results[seller_id]["total_earned_eur"] += trade["price"]
             current_results[seller_id]["total_sell_trade_count"] += 1
 
             # BUYER
-            current_results[buyer_id]["total_energy_bought"] += trade["energy"]
+            current_results[buyer_id]["total_energy_bought_kWh"] += trade["energy"]
             current_results[buyer_id]["total_spent_eur"] += trade["price"]
             current_results[buyer_id]["total_buy_trade_count"] += 1
 
