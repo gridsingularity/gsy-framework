@@ -23,6 +23,8 @@ from pendulum import DateTime, Duration
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
 from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
 from gsy_framework.sim_results.device_statistics import DeviceStatistics
+from gsy_framework.sim_results.electric_blue.accumulators import \
+    EBEnergyTradeProfileAccumulator
 from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
 from gsy_framework.sim_results.market_price_energy_day import \
     MarketPriceEnergyDay
@@ -53,11 +55,11 @@ MARKET_RESOLUTIONS = {
 RESOLUTION_AGGREGATIONS = {
     AggregationResolution.RES_1_MONTH: {
         "aggregators": {},
-        "accumulators": {}
+        "accumulators": {"energy_trade_profile": EBEnergyTradeProfileAccumulator()}
     },
     AggregationResolution.RES_1_DAY: {
         "aggregators": {},
-        "accumulators": {}
+        "accumulators": {"energy_trade_profile": EBEnergyTradeProfileAccumulator()}
     },
 }
 
@@ -183,12 +185,11 @@ class MarketResultsAggregator:
 
         window_start_time = timeslots_to_aggregate[0]
         window_end_time = window_start_time + self.resolution
-        number_of_required_timeslots = 0
-        while window_start_time < window_end_time:
-            number_of_required_timeslots += 1
-            window_start_time += self.simulation_slot_length
 
-        assert len(timeslots_to_aggregate) == number_of_required_timeslots, \
+        window_total_seconds = (window_end_time - window_start_time).total_seconds()
+        required_timeslots = window_total_seconds // self.simulation_slot_length.total_seconds()
+
+        assert len(timeslots_to_aggregate) == required_timeslots, \
             "Invalid aggregation resolution or insufficient number of data points."
 
         if not self.last_aggregated_result:

@@ -1,5 +1,5 @@
 from random import shuffle
-from unittest.mock import MagicMock
+from uuid import uuid4
 
 import pytest
 from pendulum import DateTime, Duration, duration
@@ -12,31 +12,33 @@ MARKET_TIMESLOTS = 10
 ORDERS_PER_MARKET_SLOT = 2
 
 
+def gen_market_stats(start_time: DateTime, slot_length: Duration):
+    """Simulate market stats{bids,offers,trades} for each timeslot."""
+    while True:
+        market_stats = {}
+        market_timeslot = start_time
+        for _ in range(MARKET_TIMESLOTS):
+            market_stats[str(market_timeslot)] = {
+                "bids": [
+                    {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4()}
+                    for _ in range(ORDERS_PER_MARKET_SLOT)],
+                "offers": [
+                    {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4()}
+                    for _ in range(ORDERS_PER_MARKET_SLOT)],
+                "trades": [
+                    {"creation_time": start_time, "timeslot": market_timeslot, "uuid": uuid4(),
+                     "price": 30, "energy": 1, "seller_id": "SELLER", "buyer_id": "BUYER"}
+                    for _ in range(ORDERS_PER_MARKET_SLOT)]
+            }
+            market_timeslot += slot_length
+        yield start_time, market_stats
+        start_time += slot_length
+
+
 class TestMarketResultsAggregator:
 
     @staticmethod
-    def gen_market_stats(start_time: DateTime, slot_length: Duration):
-        """Simulate market stats{bids,offers,trades} for each timeslot."""
-        while True:
-            market_stats = {}
-            market_timeslot = start_time
-            for _ in range(MARKET_TIMESLOTS):
-                market_stats[str(market_timeslot)] = {
-                    "bids": [MagicMock(
-                        creation_time=start_time, timeslot=market_timeslot)
-                        for _ in range(ORDERS_PER_MARKET_SLOT)],
-                    "offers": [MagicMock(
-                        creation_time=start_time, timeslot=market_timeslot)
-                        for _ in range(ORDERS_PER_MARKET_SLOT)],
-                    "trades": [MagicMock(
-                        creation_time=start_time, timeslot=market_timeslot)
-                        for _ in range(ORDERS_PER_MARKET_SLOT)]
-                }
-                market_timeslot += slot_length
-            yield start_time, market_stats
-            start_time += slot_length
-
-    def test_bids_offers_trades_buffer_gets_updated(self):
+    def test_bids_offers_trades_buffer_gets_updated():
         """Test if bids_offers_trades buffer of the MarketResultsAggregator gets
         updated on each call to its update()/generate() method.
         Also, check that the correct number of bids/offers/trades are stored at each timeslot.
@@ -45,7 +47,7 @@ class TestMarketResultsAggregator:
             resolution=duration(hours=1),
             simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
         )
-        market_stats_gen = self.gen_market_stats(
+        market_stats_gen = gen_market_stats(
             DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
 
         added_timeslots = []
@@ -57,8 +59,10 @@ class TestMarketResultsAggregator:
 
             for order in ("bids", "offers", "trades"):
                 # check correct number of orders are saved per timeslot
-                assert len(set(market_results_aggr.bids_offers_trades[current_timeslot][order])
-                           ) == ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS
+                assert len(
+                    set(o["uuid"] for o in
+                        market_results_aggr.bids_offers_trades[current_timeslot][order])
+                ) == ORDERS_PER_MARKET_SLOT * MARKET_TIMESLOTS
 
             # check all the added timeslots are still there.
             assert all(timeslot in market_results_aggr.bids_offers_trades for
@@ -68,17 +72,18 @@ class TestMarketResultsAggregator:
 
         # check no duplicated entries are added for each timeslot
         for order in ("bids", "offers", "trades"):
-            buffered_orders = set()
+            buff_orders = set()
             for market_stats in market_results_aggr.bids_offers_trades.values():
-                buffered_orders = buffered_orders.union(set(market_stats[order]))
-            assert len(buffered_orders) == 4 * MARKET_TIMESLOTS * ORDERS_PER_MARKET_SLOT
+                buff_orders = buff_orders.union(set(o["uuid"] for o in market_stats[order]))
+            assert len(buff_orders) == 4 * MARKET_TIMESLOTS * ORDERS_PER_MARKET_SLOT
 
         # only one result should be generated for slot_length=15m and resolution=1h.
         assert len(list(market_results_aggr.generate())) == 1
         # data should be cleared from cache once it's processed.
         assert len(market_results_aggr.bids_offers_trades) == 0
 
-    def test_correct_timeslots_are_being_consumed(self):
+    @staticmethod
+    def test_correct_timeslots_are_being_consumed():
         """Test that correct consequent timeslots are being consumed and
         others remain unused in the buffer. Also, make sure that the
         order of updates doesn't affect the final result."""
@@ -88,7 +93,7 @@ class TestMarketResultsAggregator:
             simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
         )
         simulation_start_time = DateTime(2020, 1, 1, 0, 0)
-        market_stats_gen = self.gen_market_stats(
+        market_stats_gen = gen_market_stats(
             simulation_start_time, slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
 
         # collect market stats for 5 slots and reorder them
@@ -122,7 +127,8 @@ class TestMarketResultsAggregator:
         # and the buffer should be empty now
         assert len(market_results_aggr.bids_offers_trades) == 0
 
-    def test_no_results_are_returned_if_timeslots_are_not_enough(self):
+    @staticmethod
+    def test_no_results_are_returned_if_timeslots_are_not_enough():
         """Test that calling generate with insufficient amount of data
         will not return any result."""
 
@@ -131,7 +137,7 @@ class TestMarketResultsAggregator:
             resolution=resolution,
             simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
         )
-        market_stats_gen = self.gen_market_stats(
+        market_stats_gen = gen_market_stats(
             DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
 
         needed_data_points = int(resolution.total_seconds() /
@@ -144,13 +150,14 @@ class TestMarketResultsAggregator:
         market_results_aggr.update(*next(market_stats_gen))
         assert len(list(market_results_aggr.generate())) == 1
 
-    def test_market_results_aggr_raises_when_some_timeslots_are_missing(self):
+    @staticmethod
+    def test_market_results_aggr_raises_when_some_timeslots_are_missing():
         """Test time difference between collected timeslots is exactly one slot length."""
         market_results_aggr = MarketResultsAggregator(
             resolution=duration(hours=1),
             simulation_slot_length=DEFAULT_SIMULATION_SLOT_LENGTH
         )
-        market_stats_gen = self.gen_market_stats(
+        market_stats_gen = gen_market_stats(
             DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
 
         for _ in range(3):
@@ -167,26 +174,27 @@ class TestMarketResultsAggregator:
         except AssertionError:
             pass
 
-    def test_all_consumed_timeslots_are_given_to_aggregators_and_accumulators(self):
+    @staticmethod
+    def test_all_consumed_timeslots_are_given_to_aggregators_and_accumulators():
         """Test timeslots are correctly grouped and then passed to accumulators/aggregators."""
 
         def check_collected_raw_data(collected_raw_data):
             collected_time_slots = set(
-                bid.creation_time for bid in collected_raw_data["bids"]
+                bid["creation_time"] for bid in collected_raw_data["bids"]
             )
             assert len(collected_time_slots) == 4
             assert min(collected_time_slots) == simulation_start_time
             assert max(collected_time_slots) - min(collected_time_slots) < duration(hours=1)
 
             collected_time_slots = set(
-                bid.creation_time for bid in collected_raw_data["offers"]
+                bid["creation_time"] for bid in collected_raw_data["offers"]
             )
             assert len(collected_time_slots) == 4
             assert min(collected_time_slots) == simulation_start_time
             assert max(collected_time_slots) - min(collected_time_slots) < duration(hours=1)
 
             collected_time_slots = set(
-                bid.creation_time for bid in collected_raw_data["trades"]
+                bid["creation_time"] for bid in collected_raw_data["trades"]
             )
             assert len(collected_time_slots) == 4
             assert min(collected_time_slots) == simulation_start_time
@@ -208,7 +216,7 @@ class TestMarketResultsAggregator:
             accumulators={"accu1": accumulator}
         )
         simulation_start_time = DateTime(2020, 1, 1, 0, 0)
-        market_stats_gen = self.gen_market_stats(
+        market_stats_gen = gen_market_stats(
             simulation_start_time, slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
 
         for _ in range(7):  # accu1/aggr1 should be called only once when calling generate
@@ -231,14 +239,15 @@ class TestMarketResultsAggregator:
         except AssertionError:
             pass
 
-    def test_leap_year(self):
+    @staticmethod
+    def test_leap_year():
         """Test 2020 as a leap year."""
         market_results_aggr = MarketResultsAggregator(
             resolution=duration(months=1),
             simulation_slot_length=duration(days=1)
         )
         simulation_start_time = DateTime(2020, 2, 1, 0, 0)
-        market_stats_gen = self.gen_market_stats(
+        market_stats_gen = gen_market_stats(
             simulation_start_time, slot_length=duration(days=1))
 
         market_timeslot, market_stat = next(market_stats_gen)
@@ -250,7 +259,8 @@ class TestMarketResultsAggregator:
         assert len(list(market_results_aggr.generate())) == 1
         assert len(market_results_aggr.bids_offers_trades) == 0
 
-    def test_accumulator_functionality(self):
+    @staticmethod
+    def test_accumulator_functionality():
         """Test last_aggregated_result is being passed to the accumulator."""
         def accumulator(last_results, collected_raw_data):
             assert collected_raw_data
@@ -263,7 +273,7 @@ class TestMarketResultsAggregator:
                 "accu1": accumulator
             }
         )
-        market_stats_gen = self.gen_market_stats(
+        market_stats_gen = gen_market_stats(
             DateTime(2020, 1, 1, 0, 0), slot_length=DEFAULT_SIMULATION_SLOT_LENGTH)
 
         for _ in range(4):
