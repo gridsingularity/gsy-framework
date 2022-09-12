@@ -12,7 +12,7 @@ from gsy_framework.sim_results.electric_blue.aggregate_results import (
 def resample_data(
         timeseries_data: Dict[DateTime, float],
         resolution: Duration, aggregator_fn: Callable) -> Dict:
-    """Aggregate data using the specific resolution and aggregator function."""
+    """Aggregate data using the specified resolution and aggregator function."""
 
     result = {}
 
