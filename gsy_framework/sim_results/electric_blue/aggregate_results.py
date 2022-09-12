@@ -39,6 +39,7 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
 
     open_offers: List[Dict] = field(default_factory=list)
     open_bids: List[Dict] = field(default_factory=list)
+    trades: List[Dict] = field(default_factory=list)
 
     def __add__(self, other: "ForwardDeviceStats"):
         assert self.timeslot == other.timeslot
@@ -66,7 +67,8 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
             total_energy_bought=self.total_energy_bought + other.total_energy_bought,
             total_spent_eur=self.total_spent_eur + other.total_spent_eur,
             open_bids=open_bids,
-            open_offers=open_offers
+            open_offers=open_offers,
+            trades=self.trades + other.trades
         )
 
     def to_dict(self) -> Dict:
@@ -75,6 +77,7 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
 
     def add_trade(self, trade: Dict) -> None:
         """Add trade information to device stats."""
+        self.trades.append(trade)
         if trade["seller_id"] == self.device_uuid:
             self.total_sell_trade_count += 1
             self.total_energy_sold += trade["energy"]
