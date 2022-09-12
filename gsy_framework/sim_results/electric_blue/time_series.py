@@ -30,6 +30,11 @@ def resample_data(
         elif timeslot < next_time:
             timeslots_to_aggregate.append(timeslot)
 
+    if timeslots_to_aggregate:
+        # aggregate any remaining timeslot in the buffer
+        result[timeslots_to_aggregate[0]] = aggregator_fn(
+            [timeseries_data[t] for t in timeslots_to_aggregate])
+
     return result
 
 
