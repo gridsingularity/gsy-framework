@@ -77,6 +77,7 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
 
     def add_trade(self, trade: Dict) -> None:
         """Add trade information to device stats."""
+        assert trade["timeslot"] == self.timeslot
 
         if trade["seller_id"] == self.device_uuid:
             self.trades.append(trade)
@@ -93,11 +94,13 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
 
     def add_bid(self, bid: Dict) -> None:
         """Add bid information to device stats."""
+        assert bid["timeslot"] == self.timeslot
         assert bid["buyer_id"] == self.device_uuid, "Device is not buyer of the bid."
         self.open_bids.append(bid)
 
     def add_offer(self, offer: Dict) -> None:
         """Add offer information to device stats."""
+        assert offer["timeslot"] == self.timeslot
         assert offer["seller_id"] == self.device_uuid, "Device is not seller of the offer."
         self.open_offers.append(offer)
 

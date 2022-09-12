@@ -142,7 +142,7 @@ class ForwardDeviceTimeSeries:
             "matched_buy_orders_kWh": self._generate_matched_buy_orders_kWh(resolution),
             "matched_sell_orders_kWh": self._generate_matched_sell_orders_kWh(resolution),
             "open_sell_orders_kWh": self._generate_open_sell_orders_kWh(resolution),
-            "open_buy_orders_kWh": self._generate_matched_buy_orders_kWh(resolution),
+            "open_buy_orders_kWh": self._generate_open_buy_orders_kWh(resolution),
             "all_buy_orders_KWh": self._generate_all_buy_orders_kWh(resolution),
             "all_sell_orders_kWh": self._generate_all_sell_orders(resolution)
         }
