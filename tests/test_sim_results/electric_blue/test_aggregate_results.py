@@ -1,8 +1,8 @@
 import pytest
 from pendulum import DateTime
 
-from gsy_framework.sim_results.electric_blue.aggregate_results import \
-    ForwardDeviceStats
+from gsy_framework.sim_results.electric_blue.aggregate_results import (
+    ForwardDeviceStats, handle_forward_results)
 
 
 @pytest.fixture(name="device_stats")
@@ -254,3 +254,74 @@ class TestForwardDeviceStats:
                 {"buyer_id": "UUID_1", "seller_id": "UUID_2",
                  "timeslot": "TIMESLOT_1", "energy": 1, "price": 40}]
         }
+
+
+class TestForwardResultsHandler:
+    @staticmethod
+    def test_handle_forward_results():
+        current_timeslot = DateTime(2020, 1, 1, 0, 0, 0)
+        market_stats = {
+            "2020-02-01T00:00:00": {
+                "bids": [{"buyer_id": "UUID_2"}],
+                "offers": [{"seller_id": "UUID_1"}],
+                "trades": [{"seller_id": "UUID_1", "buyer_id": "UUID_2", "energy": 1, "price": 30}]
+            },
+            "2020-03-01T00:00:00": {
+                "bids": [{"buyer_id": "UUID_4"}],
+                "offers": [{"seller_id": "UUID_3"}],
+                "trades": [{"seller_id": "UUID_3", "buyer_id": "UUID_4", "energy": 2, "price": 40}]
+            },
+        }
+        result = dict(handle_forward_results(current_timeslot, market_stats))
+        for timeslot in result:
+            for device_uuid in result[timeslot]:
+                result[timeslot][device_uuid] = result[timeslot][device_uuid].to_dict()
+
+        expected_result = {
+            "2020-02-01T00:00:00": {
+                "UUID_1": {
+                    "timeslot": "2020-02-01T00:00:00", "device_uuid": "UUID_1",
+                    "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+                    "total_energy_produced": 0, "total_sell_trade_count": 1,
+                    "total_energy_sold": 1, "total_earned_eur": 30, "total_energy_consumed": 0,
+                    "total_buy_trade_count": 0, "total_energy_bought": 0, "total_spent_eur": 0,
+                    "open_offers": [{"seller_id": "UUID_1"}],
+                    "open_bids": [],
+                    "trades": [
+                        {"seller_id": "UUID_1", "buyer_id": "UUID_2", "energy": 1, "price": 30}]
+                },
+                "UUID_2": {
+                    "timeslot": "2020-02-01T00:00:00", "device_uuid": "UUID_2",
+                    "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+                    "total_energy_produced": 0, "total_sell_trade_count": 0,
+                    "total_energy_sold": 0, "total_earned_eur": 0, "total_energy_consumed": 0,
+                    "total_buy_trade_count": 1, "total_energy_bought": 1, "total_spent_eur": 30,
+                    "open_offers": [], "open_bids": [{"buyer_id": "UUID_2"}],
+                    "trades": [
+                        {"seller_id": "UUID_1", "buyer_id": "UUID_2", "energy": 1, "price": 30}]
+                }
+            },
+            "2020-03-01T00:00:00": {
+                "UUID_3": {
+                    "timeslot": "2020-03-01T00:00:00", "device_uuid": "UUID_3",
+                    "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+                    "total_energy_produced": 0, "total_sell_trade_count": 1,
+                    "total_energy_sold": 2, "total_earned_eur": 40, "total_energy_consumed": 0,
+                    "total_buy_trade_count": 0, "total_energy_bought": 0, "total_spent_eur": 0,
+                    "open_offers": [{"seller_id": "UUID_3"}], "open_bids": [],
+                    "trades": [
+                        {"seller_id": "UUID_3", "buyer_id": "UUID_4", "energy": 2, "price": 40}]
+                },
+                "UUID_4": {
+                    "timeslot": "2020-03-01T00:00:00", "device_uuid": "UUID_4",
+                    "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+                    "total_energy_produced": 0, "total_sell_trade_count": 0,
+                    "total_energy_sold": 0, "total_earned_eur": 0, "total_energy_consumed": 0,
+                    "total_buy_trade_count": 1, "total_energy_bought": 2, "total_spent_eur": 40,
+                    "open_offers": [], "open_bids": [{"buyer_id": "UUID_4"}],
+                    "trades": [
+                        {"seller_id": "UUID_3", "buyer_id": "UUID_4", "energy": 2, "price": 40}]
+                }
+            },
+        }
+        assert result == expected_result
