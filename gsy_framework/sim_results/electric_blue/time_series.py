@@ -31,7 +31,7 @@ def resample_data(
             timeslots_to_aggregate.append(timeslot)
 
     if timeslots_to_aggregate:
-        # aggregate any remaining timeslot in the buffer
+        # aggregate any remaining timeslots in the buffer
         result[timeslots_to_aggregate[0]] = aggregator_fn(
             [timeseries_data[t] for t in timeslots_to_aggregate])
 
@@ -41,19 +41,19 @@ def resample_data(
 class ForwardDeviceTimeSeries:
     """Generate time series data using ForwardDeviceStats object."""
     def __init__(
-            self, device_stats: ForwardDeviceStats, peak_kWh: float,
-            product_type: AvailableMarketTypes):
+            self, device_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
 
         self.device_stats = device_stats
         self.product_type = product_type
-        self.trade_profile_generator = ForwardTradeProfileGenerator(peak_kWh=peak_kWh)
 
     def _generate_matched_buy_orders_kWh(self, resolution: Duration) -> Dict:
         """Generate time series for buy trades."""
         if self.device_stats.total_energy_bought <= 0:
             return {}
 
-        matched_buy_profile = self.trade_profile_generator.generate_trade_profile(
+        trade_profile_generator = ForwardTradeProfileGenerator(
+            peak_kWh=self.device_stats.total_energy_bought)
+        matched_buy_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=self.device_stats.total_energy_bought,
             market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
             product_type=self.product_type
@@ -65,7 +65,9 @@ class ForwardDeviceTimeSeries:
         if self.device_stats.total_energy_sold <= 0:
             return {}
 
-        matched_sell_profile = self.trade_profile_generator.generate_trade_profile(
+        trade_profile_generator = ForwardTradeProfileGenerator(
+            peak_kWh=self.device_stats.total_energy_sold)
+        matched_sell_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=self.device_stats.total_energy_sold,
             market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
             product_type=self.product_type
@@ -77,7 +79,9 @@ class ForwardDeviceTimeSeries:
         if not self.device_stats.open_offers:
             return {}
         total_offered_energy = sum([offer["energy"] for offer in self.device_stats.open_offers])
-        open_sell_profile = self.trade_profile_generator.generate_trade_profile(
+        trade_profile_generator = ForwardTradeProfileGenerator(
+            peak_kWh=total_offered_energy)
+        open_sell_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=total_offered_energy,
             market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
             product_type=self.product_type
@@ -89,7 +93,9 @@ class ForwardDeviceTimeSeries:
         if not self.device_stats.open_bids:
             return {}
         total_bade_energy = sum([bid["energy"] for bid in self.device_stats.open_bids])
-        open_buy_profile = self.trade_profile_generator.generate_trade_profile(
+        trade_profile_generator = ForwardTradeProfileGenerator(
+            peak_kWh=total_bade_energy)
+        open_buy_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=total_bade_energy,
             market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
             product_type=self.product_type
@@ -104,7 +110,9 @@ class ForwardDeviceTimeSeries:
         if all_buy_orders_kWh <= 0:
             return {}
 
-        all_buy_profile = self.trade_profile_generator.generate_trade_profile(
+        trade_profile_generator = ForwardTradeProfileGenerator(
+            peak_kWh=all_buy_orders_kWh)
+        all_buy_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=all_buy_orders_kWh,
             market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
             product_type=self.product_type
@@ -119,7 +127,9 @@ class ForwardDeviceTimeSeries:
         if all_sell_orders_kWh <= 0:
             return {}
 
-        all_sell_profile = self.trade_profile_generator.generate_trade_profile(
+        trade_profile_generator = ForwardTradeProfileGenerator(
+            peak_kWh=all_sell_orders_kWh)
+        all_sell_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=all_sell_orders_kWh,
             market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
             product_type=self.product_type

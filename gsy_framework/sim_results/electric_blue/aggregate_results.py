@@ -42,6 +42,7 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
 
     def __add__(self, other: "ForwardDeviceStats"):
         assert self.timeslot == other.timeslot
+        assert self.device_uuid == other.device_uuid
 
         if self.current_timeslot >= other.current_timeslot:
             current_timeslot = self.current_timeslot
