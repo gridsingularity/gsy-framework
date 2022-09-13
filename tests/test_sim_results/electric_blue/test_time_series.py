@@ -1,11 +1,13 @@
 import pytest
+from gsy_e.models.strategy.energy_parameters.energy_params_eb import (
+    ForwardTradeProfileGenerator)
 from pendulum import DateTime, duration
 
 from gsy_framework.enums import AvailableMarketTypes
 from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
 from gsy_framework.sim_results.electric_blue.time_series import (
-    ForwardDeviceTimeSeries)
+    ForwardDeviceTimeSeries, resample_data)
 
 
 @pytest.fixture(name="device_stats")
@@ -60,3 +62,23 @@ class TestForwardDeviceTimeSeries:
                 DateTime(2020, 1, 1, 0, 0, 0): 8.215774896152405,
                 DateTime(2020, 1, 1, 12, 0, 0): 17.73044522659769}
         }
+
+
+def test_resampler():
+    generator = ForwardTradeProfileGenerator(peak_kWh=2)
+    profile = generator.generate_trade_profile(
+        energy_kWh=2, market_slot=DateTime(2020, 1, 1, 0, 0, 0),
+        product_type=AvailableMarketTypes.DAY_FORWARD)
+
+    # duration of 12:30 hours is set on purpose to test if the resampler works correctly
+    # when the profile duration is not dividable by aggregation time window.
+    aggregated_data = resample_data(profile, duration(hours=12, minutes=30), aggregator_fn=sum)
+
+    expected_result = {
+        DateTime(2020, 1, 1, 0, 0, 0): sum(
+            [profile[t] for t in filter(lambda x: x < DateTime(2020, 1, 1, 12, 30, 0), profile)]),
+        DateTime(2020, 1, 1, 12, 30, 0): sum(
+            [profile[t] for t in filter(lambda x: x >= DateTime(2020, 1, 1, 12, 30, 0), profile)])
+    }
+
+    assert aggregated_data == expected_result
