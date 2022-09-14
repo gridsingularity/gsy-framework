@@ -91,7 +91,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["WindTurbine"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
