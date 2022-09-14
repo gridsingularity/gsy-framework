@@ -1,5 +1,5 @@
 import pytest
-from pendulum import DateTime, duration
+from pendulum import UTC, DateTime, duration
 
 from gsy_framework.enums import AvailableMarketTypes
 from gsy_framework.forward_markets.forward_profile import (
@@ -14,7 +14,7 @@ from gsy_framework.sim_results.electric_blue.time_series import (
 def device_stats_fixture():
     """Return an object of type ForwardDeviceStats."""
     device_stats = ForwardDeviceStats(
-        time_slot="2020-01-01T00:00:00",
+        time_slot=DateTime(2020, 1, 1, 0, 0, tzinfo=UTC),
         device_uuid="UUID_1",
         current_time_slot=DateTime(2020, 1, 1, 0, 0)
     )
@@ -44,23 +44,23 @@ class TestForwardDeviceTimeSeries:
 
         assert result == {
             "matched_buy_orders_kWh": {
-                DateTime(2020, 1, 1, 0, 0, 0): 4.107887448076203,
-                DateTime(2020, 1, 1, 12, 0, 0): 8.865222613298846},
+                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 4.107887448076203,
+                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 8.865222613298846},
             "matched_sell_orders_kWh": {
-                DateTime(2020, 1, 1, 0, 0, 0): 2.0539437240381013,
-                DateTime(2020, 1, 1, 12, 0, 0): 4.432611306649423},
+                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 2.0539437240381013,
+                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 4.432611306649423},
             "open_sell_orders_kWh": {
-                DateTime(2020, 1, 1, 0, 0, 0): 6.1618311721143035,
-                DateTime(2020, 1, 1, 12, 0, 0): 13.297833919948268},
+                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 6.1618311721143035,
+                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 13.297833919948268},
             "open_buy_orders_kWh": {
-                DateTime(2020, 1, 1, 0, 0, 0): 8.215774896152405,
-                DateTime(2020, 1, 1, 12, 0, 0): 17.73044522659769},
+                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 8.215774896152405,
+                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 17.73044522659769},
             "all_buy_orders_KWh": {
-                DateTime(2020, 1, 1, 0, 0, 0): 12.323662344228607,
-                DateTime(2020, 1, 1, 12, 0, 0): 26.595667839896535},
+                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 12.323662344228607,
+                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 26.595667839896535},
             "all_sell_orders_kWh": {
-                DateTime(2020, 1, 1, 0, 0, 0): 8.215774896152405,
-                DateTime(2020, 1, 1, 12, 0, 0): 17.73044522659769}
+                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 8.215774896152405,
+                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 17.73044522659769}
         }
 
 
