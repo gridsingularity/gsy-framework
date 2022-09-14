@@ -66,7 +66,7 @@ class ForwardDeviceTimeSeries:
             peak_kWh=energy_kWh
         ).generate_trade_profile(
             energy_kWh=energy_kWh,
-            market_slot=DateTime.fromisoformat(self.device_stats.time_slot),
+            market_slot=self.device_stats.time_slot,
             product_type=self.product_type
         )
         return resample_data(profile, resolution=resolution, aggregator_fn=sum)

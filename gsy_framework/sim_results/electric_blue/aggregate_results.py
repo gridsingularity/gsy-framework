@@ -5,6 +5,7 @@ from typing import Dict, List
 from pendulum import DateTime
 
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
+from gsy_framework.utils import str_to_pendulum_datetime
 
 # Used by forward markets; the following dictionary defines
 # what aggregations are needed for each market type.
@@ -21,8 +22,8 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
     calculate the current results of device in the market and then used to merge it
     with the global results."""
 
-    time_slot: str
     device_uuid: str
+    time_slot: DateTime
     current_time_slot: DateTime
 
     # SELLER
@@ -77,7 +78,7 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
 
     def add_trade(self, trade: Dict) -> None:
         """Add trade information to device stats."""
-        assert trade["time_slot"] == self.time_slot
+        assert str_to_pendulum_datetime(trade["time_slot"]) == self.time_slot
 
         if trade["seller_id"] == self.device_uuid:
             self.trades.append(trade)
@@ -94,13 +95,13 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
 
     def add_bid(self, bid: Dict) -> None:
         """Add bid information to device stats."""
-        assert bid["time_slot"] == self.time_slot
+        assert str_to_pendulum_datetime(bid["time_slot"]) == self.time_slot
         assert bid["buyer_id"] == self.device_uuid, "Device is not buyer of the bid."
         self.open_bids.append(bid)
 
     def add_offer(self, offer: Dict) -> None:
         """Add offer information to device stats."""
-        assert offer["time_slot"] == self.time_slot
+        assert str_to_pendulum_datetime(offer["time_slot"]) == self.time_slot
         assert offer["seller_id"] == self.device_uuid, "Device is not seller of the offer."
         self.open_offers.append(offer)
 
@@ -113,7 +114,8 @@ def handle_forward_results(
     if not market_stats:
         return result
 
-    for time_slot, time_slot_stats in market_stats.items():
+    for time_slot_str, time_slot_stats in market_stats.items():
+        time_slot = str_to_pendulum_datetime(time_slot_str)
         for trade in time_slot_stats["trades"]:
             buyer_id = trade["buyer_id"]
             seller_id = trade["seller_id"]
