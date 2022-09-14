@@ -107,7 +107,8 @@ class ScenarioSchemas:
                             {"type": "array"},
                             {"type": "string"}]},
                     "use_market_maker_rate": {"type": "boolean"},
-                    "powerProfileUUID": {"type": "string"}
+                    "powerProfileUUID": {"type": "string"},
+                    "capacity_kW": {"type": "number"},
                 }
             },
             "storage": {
