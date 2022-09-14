@@ -46,6 +46,17 @@ class ForwardDeviceTimeSeries:
         self.device_stats = device_stats
         self.product_type = product_type
 
+    def generate(self, resolution: Duration):
+        """Generate all time series."""
+        return {
+            "matched_buy_orders_kWh": self._generate_matched_buy_orders_kWh(resolution),
+            "matched_sell_orders_kWh": self._generate_matched_sell_orders_kWh(resolution),
+            "open_sell_orders_kWh": self._generate_open_sell_orders_kWh(resolution),
+            "open_buy_orders_kWh": self._generate_open_buy_orders_kWh(resolution),
+            "all_buy_orders_KWh": self._generate_all_buy_orders_kWh(resolution),
+            "all_sell_orders_kWh": self._generate_all_sell_orders(resolution)
+        }
+
     def _generate_matched_buy_orders_kWh(self, resolution: Duration) -> Dict:
         """Generate time series for buy trades."""
         if self.device_stats.total_energy_bought <= 0:
@@ -135,14 +146,3 @@ class ForwardDeviceTimeSeries:
             product_type=self.product_type
         )
         return resample_data(all_sell_profile, resolution, aggregator_fn=sum)
-
-    def generate(self, resolution: Duration):
-        """Generate all time series."""
-        return {
-            "matched_buy_orders_kWh": self._generate_matched_buy_orders_kWh(resolution),
-            "matched_sell_orders_kWh": self._generate_matched_sell_orders_kWh(resolution),
-            "open_sell_orders_kWh": self._generate_open_sell_orders_kWh(resolution),
-            "open_buy_orders_kWh": self._generate_open_buy_orders_kWh(resolution),
-            "all_buy_orders_KWh": self._generate_all_buy_orders_kWh(resolution),
-            "all_sell_orders_kWh": self._generate_all_sell_orders(resolution)
-        }
