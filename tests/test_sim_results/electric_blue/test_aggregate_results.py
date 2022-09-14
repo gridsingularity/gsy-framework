@@ -9,23 +9,23 @@ from gsy_framework.sim_results.electric_blue.aggregate_results import (
 def device_stats_fixture():
     """Return an object of type ForwardDeviceStats."""
     return ForwardDeviceStats(
-        timeslot="TIMESLOT_1",
+        time_slot="TIMESLOT_1",
         device_uuid="UUID_1",
-        current_timeslot=DateTime(2020, 1, 1, 0, 0)
+        current_time_slot=DateTime(2020, 1, 1, 0, 0)
     )
 
 
 class TestForwardDeviceStats:
     @staticmethod
     def test_add_sell_trade(device_stats):
-        trade1 = {"seller_id": "UUID_1", "timeslot": "TIMESLOT_1", "energy": 1, "price": 30}
-        trade2 = {"seller_id": "UUID_1", "timeslot": "TIMESLOT_1", "energy": 1, "price": 40}
+        trade1 = {"seller_id": "UUID_1", "time_slot": "TIMESLOT_1", "energy": 1, "price": 30}
+        trade2 = {"seller_id": "UUID_1", "time_slot": "TIMESLOT_1", "energy": 1, "price": 40}
         device_stats.add_trade(trade1)
         device_stats.add_trade(trade2)
         result = {
-            "timeslot": "TIMESLOT_1",
+            "time_slot": "TIMESLOT_1",
             "device_uuid": "UUID_1",
-            "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0),
             "total_energy_produced": 0,
             "total_sell_trade_count": 2,
             "total_energy_sold": 2,
@@ -37,23 +37,23 @@ class TestForwardDeviceStats:
             "open_offers": [],
             "open_bids": [],
             "trades": [
-                {"seller_id": "UUID_1", "timeslot": "TIMESLOT_1", "energy": 1, "price": 30},
-                {"seller_id": "UUID_1", "timeslot": "TIMESLOT_1", "energy": 1, "price": 40}]
+                {"seller_id": "UUID_1", "time_slot": "TIMESLOT_1", "energy": 1, "price": 30},
+                {"seller_id": "UUID_1", "time_slot": "TIMESLOT_1", "energy": 1, "price": 40}]
         }
         assert device_stats.to_dict() == result
 
     @staticmethod
     def test_add_buy_trade(device_stats):
         trade1 = {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                  "timeslot": "TIMESLOT_1", "energy": 1, "price": 30}
+                  "time_slot": "TIMESLOT_1", "energy": 1, "price": 30}
         trade2 = {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                  "timeslot": "TIMESLOT_1", "energy": 1, "price": 40}
+                  "time_slot": "TIMESLOT_1", "energy": 1, "price": 40}
         device_stats.add_trade(trade1)
         device_stats.add_trade(trade2)
         result = {
-            "timeslot": "TIMESLOT_1",
+            "time_slot": "TIMESLOT_1",
             "device_uuid": "UUID_1",
-            "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0),
             "total_energy_produced": 0,
             "total_sell_trade_count": 0,
             "total_energy_sold": 0,
@@ -66,30 +66,30 @@ class TestForwardDeviceStats:
             "open_bids": [],
             "trades": [
                 {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                 "timeslot": "TIMESLOT_1", "energy": 1, "price": 30},
+                 "time_slot": "TIMESLOT_1", "energy": 1, "price": 30},
                 {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                 "timeslot": "TIMESLOT_1", "energy": 1, "price": 40}]
+                 "time_slot": "TIMESLOT_1", "energy": 1, "price": 40}]
         }
         assert device_stats.to_dict() == result
 
     @staticmethod
     def test_add_buy_sell_trade(device_stats):
         trade1 = {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                  "timeslot": "TIMESLOT_1", "energy": 1, "price": 30}
+                  "time_slot": "TIMESLOT_1", "energy": 1, "price": 30}
         trade2 = {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                  "timeslot": "TIMESLOT_1", "energy": 1, "price": 40}
+                  "time_slot": "TIMESLOT_1", "energy": 1, "price": 40}
         trade3 = {"buyer_id": "UUID_2", "seller_id": "UUID_1",
-                  "timeslot": "TIMESLOT_1", "energy": 2, "price": 40}
+                  "time_slot": "TIMESLOT_1", "energy": 2, "price": 40}
         trade4 = {"buyer_id": "UUID_2", "seller_id": "UUID_1",
-                  "timeslot": "TIMESLOT_1", "energy": 3, "price": 60}
+                  "time_slot": "TIMESLOT_1", "energy": 3, "price": 60}
         device_stats.add_trade(trade1)
         device_stats.add_trade(trade2)
         device_stats.add_trade(trade3)
         device_stats.add_trade(trade4)
         results = {
-            "timeslot": "TIMESLOT_1",
+            "time_slot": "TIMESLOT_1",
             "device_uuid": "UUID_1",
-            "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0),
             "total_energy_produced": 0,
             "total_sell_trade_count": 2,
             "total_energy_sold": 5,
@@ -102,20 +102,20 @@ class TestForwardDeviceStats:
             "open_bids": [],
             "trades": [
                 {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                 "timeslot": "TIMESLOT_1", "energy": 1, "price": 30},
+                 "time_slot": "TIMESLOT_1", "energy": 1, "price": 30},
                 {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                 "timeslot": "TIMESLOT_1", "energy": 1, "price": 40},
+                 "time_slot": "TIMESLOT_1", "energy": 1, "price": 40},
                 {"buyer_id": "UUID_2", "seller_id": "UUID_1",
-                 "timeslot": "TIMESLOT_1", "energy": 2, "price": 40},
+                 "time_slot": "TIMESLOT_1", "energy": 2, "price": 40},
                 {"buyer_id": "UUID_2", "seller_id": "UUID_1",
-                 "timeslot": "TIMESLOT_1", "energy": 3, "price": 60}]
+                 "time_slot": "TIMESLOT_1", "energy": 3, "price": 60}]
         }
         assert device_stats.to_dict() == results
 
     @staticmethod
     def test_add_invalid_trade_raises_error(device_stats):
         trade = {"buyer_id": "UUID_2", "seller_id": "UUID_3",
-                 "timeslot": "TIMESLOT_1", "energy": 1, "price": 30}
+                 "time_slot": "TIMESLOT_1", "energy": 1, "price": 30}
         before_adding_trade = device_stats.to_dict()
         try:
             device_stats.add_trade(trade)
@@ -126,14 +126,14 @@ class TestForwardDeviceStats:
 
     @staticmethod
     def test_add_bid(device_stats):
-        bid1 = {"buyer_id": "UUID_1", "price": 30, "energy": 1, "timeslot": "TIMESLOT_1"}
-        bid2 = {"buyer_id": "UUID_1", "price": 60, "energy": 2, "timeslot": "TIMESLOT_1"}
+        bid1 = {"buyer_id": "UUID_1", "price": 30, "energy": 1, "time_slot": "TIMESLOT_1"}
+        bid2 = {"buyer_id": "UUID_1", "price": 60, "energy": 2, "time_slot": "TIMESLOT_1"}
         device_stats.add_bid(bid1)
         device_stats.add_bid(bid2)
         result = {
-            "timeslot": "TIMESLOT_1",
+            "time_slot": "TIMESLOT_1",
             "device_uuid": "UUID_1",
-            "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0),
             "total_energy_produced": 0,
             "total_sell_trade_count": 0,
             "total_energy_sold": 0,
@@ -144,8 +144,8 @@ class TestForwardDeviceStats:
             "total_spent_eur": 0,
             "open_offers": [],
             "open_bids": [
-                {"buyer_id": "UUID_1", "price": 30, "energy": 1, "timeslot": "TIMESLOT_1"},
-                {"buyer_id": "UUID_1", "price": 60, "energy": 2, "timeslot": "TIMESLOT_1"}
+                {"buyer_id": "UUID_1", "price": 30, "energy": 1, "time_slot": "TIMESLOT_1"},
+                {"buyer_id": "UUID_1", "price": 60, "energy": 2, "time_slot": "TIMESLOT_1"}
             ],
             "trades": []
         }
@@ -153,7 +153,7 @@ class TestForwardDeviceStats:
 
     @staticmethod
     def test_add_invalid_bid_raises_error(device_stats):
-        bid = {"buyer_id": "UUID_2", "price": 30, "energy": 1, "timeslot": "TIMESLOT_1"}
+        bid = {"buyer_id": "UUID_2", "price": 30, "energy": 1, "time_slot": "TIMESLOT_1"}
         before_adding_bid = device_stats.to_dict()
         try:
             device_stats.add_bid(bid)
@@ -164,14 +164,14 @@ class TestForwardDeviceStats:
 
     @staticmethod
     def test_add_offer(device_stats):
-        offer1 = {"seller_id": "UUID_1", "price": 30, "energy": 1, "timeslot": "TIMESLOT_1"}
-        offer2 = {"seller_id": "UUID_1", "price": 60, "energy": 2, "timeslot": "TIMESLOT_1"}
+        offer1 = {"seller_id": "UUID_1", "price": 30, "energy": 1, "time_slot": "TIMESLOT_1"}
+        offer2 = {"seller_id": "UUID_1", "price": 60, "energy": 2, "time_slot": "TIMESLOT_1"}
         device_stats.add_offer(offer1)
         device_stats.add_offer(offer2)
         result = {
-            "timeslot": "TIMESLOT_1",
+            "time_slot": "TIMESLOT_1",
             "device_uuid": "UUID_1",
-            "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0),
             "total_energy_produced": 0,
             "total_sell_trade_count": 0,
             "total_energy_sold": 0,
@@ -181,8 +181,8 @@ class TestForwardDeviceStats:
             "total_energy_bought": 0,
             "total_spent_eur": 0,
             "open_offers": [
-                {"seller_id": "UUID_1", "price": 30, "energy": 1, "timeslot": "TIMESLOT_1"},
-                {"seller_id": "UUID_1", "price": 60, "energy": 2, "timeslot": "TIMESLOT_1"}],
+                {"seller_id": "UUID_1", "price": 30, "energy": 1, "time_slot": "TIMESLOT_1"},
+                {"seller_id": "UUID_1", "price": 60, "energy": 2, "time_slot": "TIMESLOT_1"}],
             "open_bids": [],
             "trades": []
         }
@@ -190,7 +190,7 @@ class TestForwardDeviceStats:
 
     @staticmethod
     def test_add_invalid_offer_raises_error(device_stats):
-        offer = {"seller_id": "UUID_2", "price": 30, "energy": 1, "timeslot": "TIMESLOT_1"}
+        offer = {"seller_id": "UUID_2", "price": 30, "energy": 1, "time_slot": "TIMESLOT_1"}
         before_adding_offer = device_stats.to_dict()
         try:
             device_stats.add_offer(offer)
@@ -202,9 +202,9 @@ class TestForwardDeviceStats:
     @staticmethod
     def test_add_to_forward_device_stats(device_stats):
         global_device_stats_dict = {
-            "timeslot": "TIMESLOT_1",
+            "time_slot": "TIMESLOT_1",
             "device_uuid": "UUID_1",
-            "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0),
             "total_energy_produced": 0,
             "total_sell_trade_count": 1,
             "total_energy_sold": 1,
@@ -216,19 +216,19 @@ class TestForwardDeviceStats:
             "open_offers": [{"seller_id": "UUID_1", "price": 30, "energy": 1}],
             "open_bids": [{"buyer_id": "UUID_1", "price": 30, "energy": 1}],
             "trades": [
-                {"seller_id": "UUID_1", "timeslot": "TIMESLOT_1", "energy": 1, "price": 30},
+                {"seller_id": "UUID_1", "time_slot": "TIMESLOT_1", "energy": 1, "price": 30},
                 {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                 "timeslot": "TIMESLOT_1", "energy": 1, "price": 30}]
+                 "time_slot": "TIMESLOT_1", "energy": 1, "price": 30}]
         }
         global_device_stats = ForwardDeviceStats(**global_device_stats_dict)
 
-        trade2 = {"seller_id": "UUID_1", "timeslot": "TIMESLOT_1", "energy": 1, "price": 40}
+        trade2 = {"seller_id": "UUID_1", "time_slot": "TIMESLOT_1", "energy": 1, "price": 40}
         trade4 = {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                  "timeslot": "TIMESLOT_1", "energy": 1, "price": 40}
-        bid2 = {"buyer_id": "UUID_1", "price": 100, "energy": 2, "timeslot": "TIMESLOT_1"}
-        offer2 = {"seller_id": "UUID_1", "price": 100, "energy": 2, "timeslot": "TIMESLOT_1"}
+                  "time_slot": "TIMESLOT_1", "energy": 1, "price": 40}
+        bid2 = {"buyer_id": "UUID_1", "price": 100, "energy": 2, "time_slot": "TIMESLOT_1"}
+        offer2 = {"seller_id": "UUID_1", "price": 100, "energy": 2, "time_slot": "TIMESLOT_1"}
 
-        device_stats.current_timeslot = DateTime(2020, 1, 1, 0, 15, 0)
+        device_stats.current_time_slot = DateTime(2020, 1, 1, 0, 15, 0)
 
         device_stats.add_trade(trade2)
         device_stats.add_trade(trade4)
@@ -238,44 +238,44 @@ class TestForwardDeviceStats:
         new_global_device_stats = global_device_stats + device_stats
 
         assert new_global_device_stats.to_dict() == {
-            "timeslot": "TIMESLOT_1", "device_uuid": "UUID_1",
-            "current_timeslot": DateTime(2020, 1, 1, 0, 15, 0),
+            "time_slot": "TIMESLOT_1", "device_uuid": "UUID_1",
+            "current_time_slot": DateTime(2020, 1, 1, 0, 15, 0),
             "total_energy_produced": 0, "total_sell_trade_count": 2,
             "total_energy_sold": 2, "total_earned_eur": 70,
             "total_energy_consumed": 0, "total_buy_trade_count": 2,
             "total_energy_bought": 2, "total_spent_eur": 70,
             "open_offers": [
-                {"seller_id": "UUID_1", "price": 100, "energy": 2, "timeslot": "TIMESLOT_1"}],
+                {"seller_id": "UUID_1", "price": 100, "energy": 2, "time_slot": "TIMESLOT_1"}],
             "open_bids": [
-                {"buyer_id": "UUID_1", "price": 100, "energy": 2, "timeslot": "TIMESLOT_1"}],
+                {"buyer_id": "UUID_1", "price": 100, "energy": 2, "time_slot": "TIMESLOT_1"}],
             "trades": [
-                {"seller_id": "UUID_1", "timeslot": "TIMESLOT_1", "energy": 1, "price": 30},
+                {"seller_id": "UUID_1", "time_slot": "TIMESLOT_1", "energy": 1, "price": 30},
                 {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                 "timeslot": "TIMESLOT_1", "energy": 1, "price": 30},
-                {"seller_id": "UUID_1", "timeslot": "TIMESLOT_1", "energy": 1, "price": 40},
+                 "time_slot": "TIMESLOT_1", "energy": 1, "price": 30},
+                {"seller_id": "UUID_1", "time_slot": "TIMESLOT_1", "energy": 1, "price": 40},
                 {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                 "timeslot": "TIMESLOT_1", "energy": 1, "price": 40}]
+                 "time_slot": "TIMESLOT_1", "energy": 1, "price": 40}]
         }
 
     @staticmethod
-    def test_invalid_timeslot_raises_error(device_stats):
+    def test_invalid_time_slot_raises_error(device_stats):
         trade = {"buyer_id": "UUID_1", "seller_id": "UUID_2",
-                 "timeslot": "TIMESLOT_5", "energy": 1, "price": 40}
-        bid = {"buyer_id": "UUID_1", "price": 100, "energy": 2, "timeslot": "TIMESLOT_5"}
-        offer = {"seller_id": "UUID_1", "price": 100, "energy": 2, "timeslot": "TIMESLOT_5"}
+                 "time_slot": "TIMESLOT_5", "energy": 1, "price": 40}
+        bid = {"buyer_id": "UUID_1", "price": 100, "energy": 2, "time_slot": "TIMESLOT_5"}
+        offer = {"seller_id": "UUID_1", "price": 100, "energy": 2, "time_slot": "TIMESLOT_5"}
         try:
             device_stats.add_trade(trade)
-            pytest.fail("Invalid timeslot got accepted.")
+            pytest.fail("Invalid time_slot got accepted.")
         except AssertionError:
             pass
         try:
             device_stats.add_bid(bid)
-            pytest.fail("Invalid timeslot got accepted.")
+            pytest.fail("Invalid time_slot got accepted.")
         except AssertionError:
             pass
         try:
             device_stats.add_offer(offer)
-            pytest.fail("Invalid timeslot got accepted.")
+            pytest.fail("Invalid time_slot got accepted.")
         except AssertionError:
             pass
 
@@ -283,81 +283,81 @@ class TestForwardDeviceStats:
 class TestForwardResultsHandler:
     @staticmethod
     def test_handle_forward_results():
-        current_timeslot = DateTime(2020, 1, 1, 0, 0, 0)
+        current_time_slot = DateTime(2020, 1, 1, 0, 0, 0)
         market_stats = {
             "2020-02-01T00:00:00": {
-                "bids": [{"buyer_id": "UUID_2", "timeslot": "2020-02-01T00:00:00"}],
-                "offers": [{"seller_id": "UUID_1", "timeslot": "2020-02-01T00:00:00"}],
+                "bids": [{"buyer_id": "UUID_2", "time_slot": "2020-02-01T00:00:00"}],
+                "offers": [{"seller_id": "UUID_1", "time_slot": "2020-02-01T00:00:00"}],
                 "trades": [{
                     "seller_id": "UUID_1", "buyer_id": "UUID_2", "energy": 1,
-                    "price": 30, "timeslot": "2020-02-01T00:00:00"}]
+                    "price": 30, "time_slot": "2020-02-01T00:00:00"}]
             },
             "2020-03-01T00:00:00": {
-                "bids": [{"buyer_id": "UUID_4", "timeslot": "2020-03-01T00:00:00"}],
-                "offers": [{"seller_id": "UUID_3", "timeslot": "2020-03-01T00:00:00"}],
+                "bids": [{"buyer_id": "UUID_4", "time_slot": "2020-03-01T00:00:00"}],
+                "offers": [{"seller_id": "UUID_3", "time_slot": "2020-03-01T00:00:00"}],
                 "trades": [{
                     "seller_id": "UUID_3", "buyer_id": "UUID_4", "energy": 2,
-                    "price": 40, "timeslot": "2020-03-01T00:00:00"}]
+                    "price": 40, "time_slot": "2020-03-01T00:00:00"}]
             },
         }
-        result = dict(handle_forward_results(current_timeslot, market_stats))
-        for timeslot in result:
-            for device_uuid in result[timeslot]:
-                result[timeslot][device_uuid] = result[timeslot][device_uuid].to_dict()
+        result = dict(handle_forward_results(current_time_slot, market_stats))
+        for time_slot in result:
+            for device_uuid in result[time_slot]:
+                result[time_slot][device_uuid] = result[time_slot][device_uuid].to_dict()
 
         expected_result = {
             "2020-02-01T00:00:00": {
                 "UUID_1": {
-                    "timeslot": "2020-02-01T00:00:00", "device_uuid": "UUID_1",
-                    "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+                    "time_slot": "2020-02-01T00:00:00", "device_uuid": "UUID_1",
+                    "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0),
                     "total_energy_produced": 0, "total_sell_trade_count": 1,
                     "total_energy_sold": 1, "total_earned_eur": 30, "total_energy_consumed": 0,
                     "total_buy_trade_count": 0, "total_energy_bought": 0, "total_spent_eur": 0,
-                    "open_offers": [{"seller_id": "UUID_1", "timeslot": "2020-02-01T00:00:00"}],
+                    "open_offers": [{"seller_id": "UUID_1", "time_slot": "2020-02-01T00:00:00"}],
                     "open_bids": [],
                     "trades": [
                         {"seller_id": "UUID_1", "buyer_id": "UUID_2", "energy": 1,
-                         "price": 30, "timeslot": "2020-02-01T00:00:00"}]
+                         "price": 30, "time_slot": "2020-02-01T00:00:00"}]
                 },
                 "UUID_2": {
-                    "timeslot": "2020-02-01T00:00:00", "device_uuid": "UUID_2",
-                    "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+                    "time_slot": "2020-02-01T00:00:00", "device_uuid": "UUID_2",
+                    "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0),
                     "total_energy_produced": 0, "total_sell_trade_count": 0,
                     "total_energy_sold": 0, "total_earned_eur": 0, "total_energy_consumed": 0,
                     "total_buy_trade_count": 1, "total_energy_bought": 1, "total_spent_eur": 30,
                     "open_offers": [],
                     "open_bids": [
-                        {"buyer_id": "UUID_2", "timeslot": "2020-02-01T00:00:00"}],
+                        {"buyer_id": "UUID_2", "time_slot": "2020-02-01T00:00:00"}],
                     "trades": [
                         {"seller_id": "UUID_1", "buyer_id": "UUID_2", "energy": 1,
-                         "price": 30, "timeslot": "2020-02-01T00:00:00"}]
+                         "price": 30, "time_slot": "2020-02-01T00:00:00"}]
                 }
             },
             "2020-03-01T00:00:00": {
                 "UUID_3": {
-                    "timeslot": "2020-03-01T00:00:00", "device_uuid": "UUID_3",
-                    "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+                    "time_slot": "2020-03-01T00:00:00", "device_uuid": "UUID_3",
+                    "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0),
                     "total_energy_produced": 0, "total_sell_trade_count": 1,
                     "total_energy_sold": 2, "total_earned_eur": 40, "total_energy_consumed": 0,
                     "total_buy_trade_count": 0, "total_energy_bought": 0, "total_spent_eur": 0,
                     "open_offers": [
-                        {"seller_id": "UUID_3", "timeslot": "2020-03-01T00:00:00"}],
+                        {"seller_id": "UUID_3", "time_slot": "2020-03-01T00:00:00"}],
                     "open_bids": [],
                     "trades": [
                         {"seller_id": "UUID_3", "buyer_id": "UUID_4", "energy": 2,
-                         "price": 40, "timeslot": "2020-03-01T00:00:00"}]
+                         "price": 40, "time_slot": "2020-03-01T00:00:00"}]
                 },
                 "UUID_4": {
-                    "timeslot": "2020-03-01T00:00:00", "device_uuid": "UUID_4",
-                    "current_timeslot": DateTime(2020, 1, 1, 0, 0, 0),
+                    "time_slot": "2020-03-01T00:00:00", "device_uuid": "UUID_4",
+                    "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0),
                     "total_energy_produced": 0, "total_sell_trade_count": 0,
                     "total_energy_sold": 0, "total_earned_eur": 0, "total_energy_consumed": 0,
                     "total_buy_trade_count": 1, "total_energy_bought": 2, "total_spent_eur": 40,
                     "open_offers": [],
-                    "open_bids": [{"buyer_id": "UUID_4", "timeslot": "2020-03-01T00:00:00"}],
+                    "open_bids": [{"buyer_id": "UUID_4", "time_slot": "2020-03-01T00:00:00"}],
                     "trades": [
                         {"seller_id": "UUID_3", "buyer_id": "UUID_4", "energy": 2,
-                         "price": 40, "timeslot": "2020-03-01T00:00:00"}]
+                         "price": 40, "time_slot": "2020-03-01T00:00:00"}]
                 }
             },
         }

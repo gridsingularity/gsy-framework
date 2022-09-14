@@ -14,21 +14,21 @@ from gsy_framework.sim_results.electric_blue.time_series import (
 def device_stats_fixture():
     """Return an object of type ForwardDeviceStats."""
     device_stats = ForwardDeviceStats(
-        timeslot="2020-01-01T00:00:00",
+        time_slot="2020-01-01T00:00:00",
         device_uuid="UUID_1",
-        current_timeslot=DateTime(2020, 1, 1, 0, 0)
+        current_time_slot=DateTime(2020, 1, 1, 0, 0)
     )
     device_stats.add_trade({
-        "seller_id": "UUID_1", "timeslot": "2020-01-01T00:00:00",
+        "seller_id": "UUID_1", "time_slot": "2020-01-01T00:00:00",
         "energy": 1, "price": 30})
     device_stats.add_trade({
         "seller_id": "UUID_2", "buyer_id": "UUID_1",
-        "timeslot": "2020-01-01T00:00:00", "energy": 2, "price": 30})
+        "time_slot": "2020-01-01T00:00:00", "energy": 2, "price": 30})
     device_stats.add_offer({
-        "seller_id": "UUID_1", "timeslot": "2020-01-01T00:00:00",
+        "seller_id": "UUID_1", "time_slot": "2020-01-01T00:00:00",
         "energy": 3, "price": 30})
     device_stats.add_bid({
-        "buyer_id": "UUID_1", "timeslot": "2020-01-01T00:00:00",
+        "buyer_id": "UUID_1", "time_slot": "2020-01-01T00:00:00",
         "energy": 4, "price": 30})
 
     return device_stats

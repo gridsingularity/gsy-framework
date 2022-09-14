@@ -16,24 +16,24 @@ def resample_data(
 
     result = {}
 
-    sorted_timeslots = sorted(timeseries_data.keys())
-    start_time = sorted_timeslots[0]
+    sorted_time_slots = sorted(timeseries_data.keys())
+    start_time = sorted_time_slots[0]
     next_time = start_time + resolution
 
-    timeslots_to_aggregate = []
-    for timeslot in sorted_timeslots:
-        if timeslot >= next_time:
-            result[timeslots_to_aggregate[0]] = aggregator_fn(
-                [timeseries_data[t] for t in timeslots_to_aggregate])
-            timeslots_to_aggregate = [timeslot]
+    time_slots_to_aggregate = []
+    for time_slot in sorted_time_slots:
+        if time_slot >= next_time:
+            result[time_slots_to_aggregate[0]] = aggregator_fn(
+                [timeseries_data[t] for t in time_slots_to_aggregate])
+            time_slots_to_aggregate = [time_slot]
             next_time += resolution
-        elif timeslot < next_time:
-            timeslots_to_aggregate.append(timeslot)
+        elif time_slot < next_time:
+            time_slots_to_aggregate.append(time_slot)
 
-    if timeslots_to_aggregate:
-        # aggregate any remaining timeslots in the buffer
-        result[timeslots_to_aggregate[0]] = aggregator_fn(
-            [timeseries_data[t] for t in timeslots_to_aggregate])
+    if time_slots_to_aggregate:
+        # aggregate any remaining time_slots in the buffer
+        result[time_slots_to_aggregate[0]] = aggregator_fn(
+            [timeseries_data[t] for t in time_slots_to_aggregate])
 
     return result
 
@@ -55,7 +55,7 @@ class ForwardDeviceTimeSeries:
             peak_kWh=self.device_stats.total_energy_bought)
         matched_buy_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=self.device_stats.total_energy_bought,
-            market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
+            market_slot=DateTime.fromisoformat(self.device_stats.time_slot),
             product_type=self.product_type
         )
         return resample_data(matched_buy_profile, resolution, aggregator_fn=sum)
@@ -69,7 +69,7 @@ class ForwardDeviceTimeSeries:
             peak_kWh=self.device_stats.total_energy_sold)
         matched_sell_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=self.device_stats.total_energy_sold,
-            market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
+            market_slot=DateTime.fromisoformat(self.device_stats.time_slot),
             product_type=self.product_type
         )
         return resample_data(matched_sell_profile, resolution, aggregator_fn=sum)
@@ -83,7 +83,7 @@ class ForwardDeviceTimeSeries:
             peak_kWh=total_offered_energy)
         open_sell_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=total_offered_energy,
-            market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
+            market_slot=DateTime.fromisoformat(self.device_stats.time_slot),
             product_type=self.product_type
         )
         return resample_data(open_sell_profile, resolution, aggregator_fn=sum)
@@ -97,7 +97,7 @@ class ForwardDeviceTimeSeries:
             peak_kWh=total_bade_energy)
         open_buy_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=total_bade_energy,
-            market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
+            market_slot=DateTime.fromisoformat(self.device_stats.time_slot),
             product_type=self.product_type
         )
         return resample_data(open_buy_profile, resolution, aggregator_fn=sum)
@@ -114,7 +114,7 @@ class ForwardDeviceTimeSeries:
             peak_kWh=all_buy_orders_kWh)
         all_buy_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=all_buy_orders_kWh,
-            market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
+            market_slot=DateTime.fromisoformat(self.device_stats.time_slot),
             product_type=self.product_type
         )
         return resample_data(all_buy_profile, resolution, aggregator_fn=sum)
@@ -131,7 +131,7 @@ class ForwardDeviceTimeSeries:
             peak_kWh=all_sell_orders_kWh)
         all_sell_profile = trade_profile_generator.generate_trade_profile(
             energy_kWh=all_sell_orders_kWh,
-            market_slot=DateTime.fromisoformat(self.device_stats.timeslot),
+            market_slot=DateTime.fromisoformat(self.device_stats.time_slot),
             product_type=self.product_type
         )
         return resample_data(all_sell_profile, resolution, aggregator_fn=sum)
