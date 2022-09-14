@@ -1,9 +1,9 @@
 import pytest
-from gsy_e.models.strategy.energy_parameters.energy_params_eb import (
-    ForwardTradeProfileGenerator)
 from pendulum import DateTime, duration
 
 from gsy_framework.enums import AvailableMarketTypes
+from gsy_framework.forward_markets.forward_profile import (
+    ForwardTradeProfileGenerator)
 from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
 from gsy_framework.sim_results.electric_blue.time_series import (
