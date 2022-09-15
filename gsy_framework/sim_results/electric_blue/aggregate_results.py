@@ -1,5 +1,5 @@
 from collections import defaultdict
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, fields
 from typing import Dict, List
 
 from pendulum import DateTime
@@ -23,7 +23,7 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
     with the global results."""
 
     device_uuid: str
-    time_slot: DateTime
+    time_slot: DateTime  # delivery time
     current_time_slot: DateTime
 
     # SELLER
@@ -38,24 +38,29 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
     total_energy_bought: float = 0
     total_spent_eur: float = 0
 
-    open_offers: List[Dict] = field(default_factory=list)
-    open_bids: List[Dict] = field(default_factory=list)
-    trades: List[Dict] = field(default_factory=list)
+    def __post_init__(self):
+        """Creates non-field attributes for the objects which are needed for further
+        operations e.g. TimeSeries generation, but should not be included in DB."""
+        self.open_bids: List[Dict] = []
+        self.open_offers: List[Dict] = []
 
     def __add__(self, other: "ForwardDeviceStats"):
         assert self.time_slot == other.time_slot
         assert self.device_uuid == other.device_uuid
 
-        if self.current_time_slot >= other.current_time_slot:
+        if self.current_time_slot > other.current_time_slot:
             current_time_slot = self.current_time_slot
             open_bids = self.open_bids
             open_offers = self.open_offers
-        else:
+        elif self.current_time_slot < other.current_time_slot:
             current_time_slot = other.current_time_slot
             open_bids = other.open_bids
             open_offers = other.open_offers
+        else:
+            raise AssertionError(
+                "Adding objects with same `current_time_slot` is not possible.")
 
-        return ForwardDeviceStats(
+        forward_device_stats = ForwardDeviceStats(
             time_slot=self.time_slot,
             device_uuid=self.device_uuid,
             current_time_slot=current_time_slot,
@@ -67,10 +72,10 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
             total_buy_trade_count=self.total_buy_trade_count + other.total_buy_trade_count,
             total_energy_bought=self.total_energy_bought + other.total_energy_bought,
             total_spent_eur=self.total_spent_eur + other.total_spent_eur,
-            open_bids=open_bids,
-            open_offers=open_offers,
-            trades=self.trades + other.trades
         )
+        forward_device_stats.open_bids = open_bids
+        forward_device_stats.open_offers = open_offers
+        return forward_device_stats
 
     def to_dict(self) -> Dict:
         """Generate a dictionary for saving the data into DB."""
@@ -81,12 +86,10 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
         assert str_to_pendulum_datetime(trade["time_slot"]) == self.time_slot
 
         if trade["seller_id"] == self.device_uuid:
-            self.trades.append(trade)
             self.total_sell_trade_count += 1
             self.total_energy_sold += trade["energy"]
             self.total_earned_eur += trade["price"]
         elif trade["buyer_id"] == self.device_uuid:
-            self.trades.append(trade)
             self.total_buy_trade_count += 1
             self.total_energy_bought += trade["energy"]
             self.total_spent_eur += trade["price"]
