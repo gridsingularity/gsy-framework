@@ -27,7 +27,6 @@ class ScenarioSchemas:
                 "properties": {
                     "type": {"enum": ["Area", "null"]},
                     "name": {"type": "string"},
-                    "number_of_clones": {"type": "number"},
                     "const_fee_rate": {"type": "number"},
                     "feed_in_tariff": {"type": ["number", "null"]},
                     "taxes_surcharges": {"type": ["number", "null"]},
@@ -62,7 +61,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["PV", "PredefinedPV"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "panel_count": {"type": "number"},
@@ -89,7 +87,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["Storage"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "initial_soc": {"anyOf": [{"type": "number"}, {"type": "null"}]},
@@ -114,7 +111,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["Load"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "avg_power_W":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
@@ -144,7 +140,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["SmartMeter"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
@@ -165,7 +160,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["CommercialProducer", "InfiniteBus", "MarketMaker"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                 }
@@ -175,7 +169,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["FiniteDieselGenerator", "MarketMaker"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "energy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
