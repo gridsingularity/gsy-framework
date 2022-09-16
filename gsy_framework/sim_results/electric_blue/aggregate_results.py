@@ -10,9 +10,24 @@ from gsy_framework.utils import str_to_pendulum_datetime
 # Used by forward markets; the following dictionary defines
 # what aggregations are needed for each market type.
 MARKET_RESOLUTIONS = {
-    AvailableMarketTypes.YEAR_FORWARD: [AggregationResolution.RES_1_MONTH],
-    AvailableMarketTypes.MONTH_FORWARD: [AggregationResolution.RES_1_DAY],
-    AvailableMarketTypes.WEEK_FORWARD: [AggregationResolution.RES_1_DAY]
+    AvailableMarketTypes.YEAR_FORWARD: [AggregationResolution.RES_1_YEAR,
+                                        AggregationResolution.RES_1_MONTH,
+                                        AggregationResolution.RES_1_WEEK,
+                                        AggregationResolution.RES_1_DAY,
+                                        AggregationResolution.RES_1_HOUR,
+                                        AggregationResolution.RES_15_MIN],
+    AvailableMarketTypes.MONTH_FORWARD: [AggregationResolution.RES_1_MONTH,
+                                         AggregationResolution.RES_1_WEEK,
+                                         AggregationResolution.RES_1_DAY,
+                                         AggregationResolution.RES_1_HOUR,
+                                         AggregationResolution.RES_15_MIN],
+    AvailableMarketTypes.WEEK_FORWARD: [AggregationResolution.RES_1_WEEK,
+                                        AggregationResolution.RES_1_DAY,
+                                        AggregationResolution.RES_1_HOUR,
+                                        AggregationResolution.RES_15_MIN],
+    AvailableMarketTypes.DAY_FORWARD: [AggregationResolution.RES_1_HOUR,
+                                       AggregationResolution.RES_15_MIN],
+    AvailableMarketTypes.INTRADAY: [AggregationResolution.RES_15_MIN],
 }
 
 
