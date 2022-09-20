@@ -1,11 +1,13 @@
 from collections import defaultdict
 from dataclasses import dataclass, fields
+import json
 from typing import Dict, List
 
-from pendulum import DateTime
+from pendulum import DateTime, from_format
 
+from gsy_framework.constants_limits import DATE_TIME_FORMAT_SECONDS
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
-from gsy_framework.utils import str_to_pendulum_datetime
+from gsy_framework.utils import datetime_to_string_incl_seconds, str_to_pendulum_datetime
 
 # Used by forward markets; the following dictionary defines
 # what aggregations are needed for each market type.
@@ -95,6 +97,21 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
     def to_dict(self) -> Dict:
         """Generate a dictionary for saving the data into DB."""
         return {f.name: getattr(self, f.name) for f in fields(self)}
+
+    def to_json_string(self) -> str:
+        """Convert the ForwardDeviceStats object into its JSON representation."""
+        return json.dumps(self.to_dict(), default=datetime_to_string_incl_seconds)
+
+    @classmethod
+    def from_json(cls, forward_device_stats: str) -> "ForwardDeviceStats":
+        """De-serialize forward device stats from json string."""
+        device_stats_dict = json.loads(forward_device_stats)
+        if time_slot := device_stats_dict.get("time_slot"):
+            device_stats_dict["time_slot"] = from_format(time_slot, DATE_TIME_FORMAT_SECONDS)
+        if current_time_slot := device_stats_dict.get("current_time_slot"):
+            device_stats_dict["current_time_slot"] = from_format(current_time_slot,
+                                                                 DATE_TIME_FORMAT_SECONDS)
+        return ForwardDeviceStats(**device_stats_dict)
 
     def add_trade(self, trade: Dict) -> None:
         """Add trade information to device stats."""

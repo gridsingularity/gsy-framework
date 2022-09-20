@@ -75,13 +75,12 @@ class ForwardResultsHandler:
         market_type = AvailableMarketTypes(int(market_type_value))
         for time_slot, device_results in forward_results.items():
             for device_uuid, current_device_stats in device_results.items():
-                previous_forward_stats = self.previous_device_stats.get(
-                    market_type_value, {}).get(time_slot, {}).get(device_uuid, {})
-                if previous_forward_stats:
-                    previous_device_stats = ForwardDeviceStats(**previous_forward_stats)
+                if previous_forward_stats := self.previous_device_stats.get(
+                        market_type_value, {}).get(time_slot, {}).get(device_uuid, ""):
+                    previous_device_stats = ForwardDeviceStats.from_json(previous_forward_stats)
                     current_device_stats += previous_device_stats
                 self.current_device_stats[market_type_value][time_slot][device_uuid] = \
-                    current_device_stats.to_dict()
+                    current_device_stats.to_json_string()
                 for resolution in MARKET_RESOLUTIONS.get(market_type, []):
                     device_time_series = ForwardDeviceTimeSeries(current_device_stats, market_type)
                     all_time_series = device_time_series.generate(resolution=resolution.duration())
