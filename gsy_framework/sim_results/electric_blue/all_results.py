@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Dict
 
-from pendulum import from_format, DateTime
+from pendulum import from_format, Duration
 
 from gsy_framework.constants_limits import DATE_TIME_FORMAT
 from gsy_framework.enums import AvailableMarketTypes
@@ -14,7 +14,7 @@ from gsy_framework.sim_results.electric_blue.time_series import ForwardDeviceTim
 class ForwardResultsHandler:
     """Calculate all results for each market slot for forward markets."""
 
-    def __init__(self, slot_length: DateTime):
+    def __init__(self, slot_length: Duration):
         self.forward_market_enabled = True
         self.slot_length = slot_length
         self.bids_offers_trades: Dict[str, Dict[str, Dict]] = defaultdict(dict)
