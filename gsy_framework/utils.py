@@ -238,6 +238,11 @@ def datetime_to_string_incl_seconds(date_time: DateTime) -> str:
     return date_time.format(DATE_TIME_FORMAT_SECONDS)
 
 
+def datetime_to_string(datetime_object: DateTime) -> str:
+    """Convert a datetime object into a string with YYYY-MM-DDTHH:mm format."""
+    return datetime_object.format(DATE_TIME_FORMAT)
+
+
 def convert_pendulum_to_str_in_dict(indict, outdict=None, ui_format=False, unix_time=False):
     """Convert occurrences of pendulum DateTime objects within the given dictionary into strings.
 

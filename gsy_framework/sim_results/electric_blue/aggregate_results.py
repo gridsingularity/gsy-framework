@@ -7,7 +7,7 @@ from pendulum import DateTime, from_format
 
 from gsy_framework.constants_limits import DATE_TIME_FORMAT_SECONDS
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
-from gsy_framework.utils import datetime_to_string_incl_seconds, str_to_pendulum_datetime
+from gsy_framework.utils import datetime_to_string, str_to_pendulum_datetime
 
 # Used by forward markets; the following dictionary defines
 # what aggregations are needed for each market type.
@@ -100,7 +100,7 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
 
     def to_json_string(self) -> str:
         """Convert the ForwardDeviceStats object into its JSON representation."""
-        return json.dumps(self.to_dict(), default=datetime_to_string_incl_seconds)
+        return json.dumps(self.to_dict(), default=datetime_to_string)
 
     @classmethod
     def from_json(cls, forward_device_stats: str) -> "ForwardDeviceStats":
