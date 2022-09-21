@@ -4,8 +4,9 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, Iterable
 
-from pendulum import DateTime, Duration, duration, period
+from pendulum import DateTime, duration, period
 
+from gsy_framework.enums import AggregationResolution
 from gsy_framework.forward_markets.forward_profile import (
     StandardProfileParser, gsy_framework_path)
 
@@ -145,16 +146,16 @@ class YearlyAggregatedSSPProfile(AggregatedSSPProfileBase):
 
 def get_aggregated_SSP_profile(
         capacity_kWh: float, start_time: DateTime,
-        end_time: DateTime, resolution: Duration
+        end_time: DateTime, resolution: AggregationResolution
 ):
     """Return aggregated SSP profile with the specified resolution and with respect to
     start_time, end_time and device capacity."""
     resolution_mapping = {
-        duration(minutes=15): QuarterHourAggregatedSSPProfile,
-        duration(hours=1): HourlyAggregatedSSPProfile,
-        duration(weeks=1): WeeklyAggregatedSSPProfile,
-        duration(months=1): MonthlyAggregatedSSPProfile,
-        duration(years=1): YearlyAggregatedSSPProfile
+        AggregationResolution.RES_15_MINUTES: QuarterHourAggregatedSSPProfile,
+        AggregationResolution.RES_1_HOUR: HourlyAggregatedSSPProfile,
+        AggregationResolution.RES_1_WEEK: WeeklyAggregatedSSPProfile,
+        AggregationResolution.RES_1_MONTH: MonthlyAggregatedSSPProfile,
+        AggregationResolution.RES_1_YEAR: YearlyAggregatedSSPProfile
     }
 
     try:
