@@ -1,10 +1,9 @@
 import csv
-import itertools
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, Iterable
 
-from pendulum import DateTime, duration, period
+from pendulum import DateTime, period
 
 from gsy_framework.enums import AggregationResolution
 from gsy_framework.forward_markets.forward_profile import (
@@ -88,26 +87,19 @@ class HourlyAggregatedSSPProfile(AggregatedSSPProfileBase):
 class WeeklyAggregatedSSPProfile(AggregatedSSPProfileBase):
     """Return weekly-aggregated profile of the SSP."""
 
-    SSP_AGGREGATED_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/non_leap_weekly.csv"
-    LEAP_YEAR_SSP_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/leap_weekly.csv"
+    SSP_AGGREGATED_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/daily.csv"
 
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
-        start_day_week_no = (start_time.day_of_year // 7)
-        start_time = start_time.start_of("year").add(weeks=start_day_week_no)
-        periods = []
-        for year in period(start_time.start_of("year"), end_time).range("years", 1):
-            periods.append(
-                period(
-                    start=max(year, start_time),
-                    end=min(year + duration(years=1), end_time)
-                ).range("weeks", 1)
-            )
-        return itertools.chain(*periods)
+        return period(
+            start_time.start_of("week"),
+            end_time.start_of("week")
+        ).range("weeks", 1)
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
-        if timeslot.is_leap_year():
-            return float(self._LEAP_YEAR_SSP_AGGREGATED_PROFILE[timeslot.format("M-D")])
-        return float(self._SSP_AGGREGATED_PROFILE[timeslot.format("M-D")])
+        return sum([
+            float(self._SSP_AGGREGATED_PROFILE[str(t.month)])
+            for t in period(timeslot, timeslot.add(days=6)).range("days", 1)
+        ])
 
 
 class MonthlyAggregatedSSPProfile(AggregatedSSPProfileBase):
