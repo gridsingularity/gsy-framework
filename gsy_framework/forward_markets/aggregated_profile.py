@@ -61,8 +61,8 @@ class QuarterHourAggregatedSSPProfile(AggregatedSSPProfileBase):
         assert end_time - start_time >= duration(minutes=15), \
             "Time period should be >= 15 minutes."
         return period(
-            start=start_time.start_of("hour"),
-            end=end_time.start_of("hour")
+            start=start_time.set(minute=(start_time.minute // 15) * 15),
+            end=end_time.set(minute=((end_time.minute // 15) + 1) * 15)
         ).range("minutes", 15)
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
