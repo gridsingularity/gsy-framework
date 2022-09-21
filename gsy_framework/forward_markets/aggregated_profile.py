@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, Iterable
 
-from pendulum import DateTime, period
+from pendulum import DateTime, duration, period
 
 from gsy_framework.enums import AggregationResolution
 from gsy_framework.forward_markets.forward_profile import (
@@ -58,6 +58,8 @@ class AggregatedSSPProfileBase(ABC):
 class QuarterHourAggregatedSSPProfile(AggregatedSSPProfileBase):
     """Return 15-minute-aggregated profile of the SSP."""
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
+        assert end_time - start_time >= duration(minutes=15), \
+            "Time period should be >= 15 minutes."
         return period(
             start=start_time.start_of("hour"),
             end=end_time.start_of("hour")
@@ -75,6 +77,7 @@ class HourlyAggregatedSSPProfile(AggregatedSSPProfileBase):
     SSP_AGGREGATED_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/hourly.csv"
 
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
+        assert end_time - start_time >= duration(hours=1), "Time period should be >= 1 hour."
         return period(
             start=start_time.start_of("hour"),
             end=end_time.start_of("hour")
@@ -85,21 +88,32 @@ class HourlyAggregatedSSPProfile(AggregatedSSPProfileBase):
 
 
 class WeeklyAggregatedSSPProfile(AggregatedSSPProfileBase):
-    """Return weekly-aggregated profile of the SSP."""
+    """Return weekly-aggregated profile of the SSP. Unlike other AggregatedSSPProfile classes,
+    the WeeklyAggregatedSSPProfile acts very flexible when it comes to start/end time of the
+    generation. The generate function can be asked to start/end the generation at any given
+    time and the result will always be accurate.
+    """
 
     SSP_AGGREGATED_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/daily.csv"
 
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
+        assert end_time - start_time >= duration(days=1), "Time period should be >= 1 day."
         return period(
-            start_time.start_of("week"),
-            end_time.start_of("week")
+            start_time,
+            end_time
         ).range("weeks", 1)
 
-    def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
+    def _get_timeslot_energy_kWh(  # pylint: disable=arguments-differ
+            self, timeslot: DateTime, end_time: DateTime) -> float:
         return sum([
             float(self._SSP_AGGREGATED_PROFILE[str(t.month)])
-            for t in period(timeslot, timeslot.add(days=6)).range("days", 1)
+            for t in period(timeslot, min(timeslot.add(days=6), end_time)).range("days", 1)
         ])
+
+    def generate(self, start_time: DateTime, end_time: DateTime) -> Iterable:
+        """Generate SSP profile with respect to start and end times in the correct resolution."""
+        for timeslot in self._get_timeslots(start_time, end_time):
+            yield timeslot, self._get_timeslot_energy_kWh(timeslot, end_time) * self.capacity_kWh
 
 
 class MonthlyAggregatedSSPProfile(AggregatedSSPProfileBase):
@@ -108,6 +122,7 @@ class MonthlyAggregatedSSPProfile(AggregatedSSPProfileBase):
     LEAP_YEAR_SSP_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/leap_monthly.csv"
 
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
+        assert end_time - start_time >= duration(months=1), "Time period should be >= 1 month."
         return period(
             start=start_time.start_of("month"),
             end=end_time.start_of("month")
@@ -125,6 +140,7 @@ class YearlyAggregatedSSPProfile(AggregatedSSPProfileBase):
     LEAP_YEAR_SSP_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/leap_yearly.csv"
 
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
+        assert end_time - start_time >= duration(years=1), "Time period should be >= 1 year."
         return period(
             start=start_time.start_of("year"),
             end=end_time.start_of("year")
