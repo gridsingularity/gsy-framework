@@ -103,7 +103,7 @@ class WeeklyAggregatedSSPProfile(AggregatedSSPProfileBase):
             end_time
         ).range("weeks", 1)
 
-    def _get_timeslot_energy_kWh(  # pylint: disable=arguments-differ
+    def _get_timeslot_energy_kWh(  # pylint: disable=arguments-differ # NOQA
             self, timeslot: DateTime, end_time: DateTime) -> float:
         return sum([
             float(self._SSP_AGGREGATED_PROFILE[str(t.month)])
