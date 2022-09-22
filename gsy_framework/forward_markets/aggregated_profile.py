@@ -99,21 +99,20 @@ class WeeklyAggregatedSSPProfile(AggregatedSSPProfileBase):
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
         assert end_time - start_time >= duration(days=1), "Time period should be >= 1 day."
         return period(
-            start_time,
-            end_time
+            start_time.start_of("week"),
+            end_time.start_of("week")
         ).range("weeks", 1)
 
-    def _get_timeslot_energy_kWh(  # pylint: disable=arguments-differ # NOQA
-            self, timeslot: DateTime, end_time: DateTime) -> float:
+    def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
         return sum([
             float(self._SSP_AGGREGATED_PROFILE[str(t.month)])
-            for t in period(timeslot, min(timeslot.add(days=6), end_time)).range("days", 1)
+            for t in period(timeslot, timeslot.add(days=6)).range("days", 1)
         ])
 
     def generate(self, start_time: DateTime, end_time: DateTime) -> Iterable:
         """Generate SSP profile with respect to start and end times in the correct resolution."""
         for timeslot in self._get_timeslots(start_time, end_time):
-            yield timeslot, self._get_timeslot_energy_kWh(timeslot, end_time) * self.capacity_kWh
+            yield timeslot, self._get_timeslot_energy_kWh(timeslot) * self.capacity_kWh
 
 
 class MonthlyAggregatedSSPProfile(AggregatedSSPProfileBase):

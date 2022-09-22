@@ -50,6 +50,19 @@ class AvailableMarketTypes(Enum):
     YEAR_FORWARD = 7
     INTRADAY = 8
 
+    def __str__(self):
+        return {
+            self.SPOT: "SPOT",
+            self.BALANCING: "BALANCING",
+            self.SETTLEMENT: "SETTLEMENT",
+            self.FUTURE: "FUTURE",
+            self.DAY_FORWARD: "DAY_FORWARD",
+            self.WEEK_FORWARD: "WEEK_FORWARD",
+            self.MONTH_FORWARD: "MONTH_FORWARD",
+            self.YEAR_FORWARD: "YEAR_FORWARD",
+            self.INTRADAY: "INTRADAY"
+        }[self]
+
 
 class AggregationResolution(Enum):
     """Available aggregation resolutions for forward markets."""
