@@ -61,8 +61,8 @@ class QuarterHourAggregatedSSPProfile(AggregatedSSPProfileBase):
         assert end_time - start_time >= duration(minutes=15), \
             "Time period should be >= 15 minutes."
         return period(
-            start=start_time.set(minute=(start_time.minute // 15) * 15),
-            end=end_time.set(minute=((end_time.minute // 15) + 1) * 15)
+            start=start_time.add(minutes=(start_time.minute // 15) * 15),
+            end=end_time.add(minutes=((end_time.minute // 15) - 1) * 15)
         ).range("minutes", 15)
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
@@ -80,7 +80,7 @@ class HourlyAggregatedSSPProfile(AggregatedSSPProfileBase):
         assert end_time - start_time >= duration(hours=1), "Time period should be >= 1 hour."
         return period(
             start=start_time.start_of("hour"),
-            end=end_time.start_of("hour")
+            end=end_time.start_of("hour") - duration(minutes=1)
         ).range("hours", 1)
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
@@ -124,7 +124,7 @@ class MonthlyAggregatedSSPProfile(AggregatedSSPProfileBase):
         assert end_time - start_time >= duration(months=1), "Time period should be >= 1 month."
         return period(
             start=start_time.start_of("month"),
-            end=end_time.start_of("month")
+            end=end_time.start_of("month") - duration(days=1)
         ).range("months", 1)
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
@@ -142,7 +142,7 @@ class YearlyAggregatedSSPProfile(AggregatedSSPProfileBase):
         assert end_time - start_time >= duration(years=1), "Time period should be >= 1 year."
         return period(
             start=start_time.start_of("year"),
-            end=end_time.start_of("year")
+            end=end_time.start_of("year") - duration(days=1),
         ).range("years", 1)
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
