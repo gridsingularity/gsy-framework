@@ -23,7 +23,7 @@ def resample_data(
     time_slots_to_aggregate = []
     for time_slot in sorted_time_slots:
         if time_slot >= next_time:
-            result[time_slots_to_aggregate[0]] = aggregator_fn(
+            yield aggregator_fn(
                 [timeseries_data[t] for t in time_slots_to_aggregate])
             time_slots_to_aggregate = [time_slot]
             next_time += resolution
@@ -32,7 +32,7 @@ def resample_data(
 
     if time_slots_to_aggregate:
         # aggregate any remaining time_slots in the buffer
-        result[time_slots_to_aggregate[0]] = aggregator_fn(
+        yield aggregator_fn(
             [timeseries_data[t] for t in time_slots_to_aggregate])
 
     return result
