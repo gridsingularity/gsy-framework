@@ -43,10 +43,10 @@ class DeviceVolumeTimeSeries:
         device_time_series = ForwardDeviceTimeSeries(device_stats, market_type).generate(
             AggregationResolution.RES_15_MINUTES.duration())
 
-        for time_slot, value in device_time_series["matched_sell_orders_kWh"].items():
+        for time_slot, value in device_time_series["matched_sell_orders_kWh"]:
             self._add_to_volume_time_series(time_slot, value, f"{market_type}_sold")
 
-        for time_slot, value in device_time_series["matched_buy_orders_kWh"].items():
+        for time_slot, value in device_time_series["matched_buy_orders_kWh"]:
             self._add_to_volume_time_series(time_slot, value, f"{market_type}_bought")
 
     def _add_to_volume_time_series(self, time_slot: DateTime, value: float, attribute_name: str):
