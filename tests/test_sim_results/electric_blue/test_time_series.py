@@ -68,7 +68,6 @@ class TestForwardDeviceTimeSeries:
         ]
 
 
-
 def test_resampler():
     generator = ForwardTradeProfileGenerator(peak_kWh=2)
     profile = generator.generate_trade_profile(
