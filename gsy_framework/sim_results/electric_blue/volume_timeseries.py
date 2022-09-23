@@ -5,7 +5,10 @@ from pendulum import DateTime
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
 from gsy_framework.forward_markets.aggregated_profile import (
     get_aggregated_SSP_profile)
-
+from gsy_framework.sim_results.electric_blue.aggregate_results import (
+    ForwardDeviceStats)
+from gsy_framework.sim_results.electric_blue.time_series import (
+    ForwardDeviceTimeSeries)
 
 FORWARD_MARKET_TYPES = [
     AvailableMarketTypes.YEAR_FORWARD, AvailableMarketTypes.MONTH_FORWARD,
@@ -35,8 +38,11 @@ class DeviceVolumeTimeSeries:
 
         self._device_volume_time_series_buffer: Dict[DateTime, Dict] = {}
 
-    def add(self, device_time_series: Dict, market_type: AvailableMarketTypes):
+    def add(self, device_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
         """Add device time series to device volume time series."""
+        device_time_series = ForwardDeviceTimeSeries(device_stats, market_type).generate(
+            AggregationResolution.RES_15_MINUTES.duration())
+
         for time_slot, value in device_time_series["matched_sell_orders_kWh"].items():
             self._add_to_volume_time_series(time_slot, value, f"{market_type}_sold")
 
