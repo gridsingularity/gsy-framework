@@ -42,26 +42,31 @@ class TestForwardDeviceTimeSeries:
         )
         result = time_series.generate(resolution=duration(hours=12))
 
-        assert result == {
-            "matched_buy_orders_kWh": {
-                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 4.107887448076203,
-                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 8.865222613298846},
-            "matched_sell_orders_kWh": {
-                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 2.0539437240381013,
-                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 4.432611306649423},
-            "open_sell_orders_kWh": {
-                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 6.1618311721143035,
-                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 13.297833919948268},
-            "open_buy_orders_kWh": {
-                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 8.215774896152405,
-                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 17.73044522659769},
-            "all_buy_orders_KWh": {
-                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 12.323662344228607,
-                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 26.595667839896535},
-            "all_sell_orders_kWh": {
-                DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC): 8.215774896152405,
-                DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC): 17.73044522659769}
-        }
+        assert list(result["matched_buy_orders_kWh"]) == [
+            (DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC), 4.107887448076203),
+            (DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC), 8.865222613298846)
+        ]
+        assert list(result["matched_sell_orders_kWh"]) == [
+            (DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC), 2.0539437240381013),
+            (DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC), 4.432611306649423),
+        ]
+        assert list(result["open_sell_orders_kWh"]) == [
+            (DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC), 6.1618311721143035),
+            (DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC), 13.297833919948268)
+        ]
+        assert list(result["open_buy_orders_kWh"]) == [
+            (DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC), 8.215774896152405),
+            (DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC), 17.73044522659769)
+        ]
+        assert list(result["all_buy_orders_KWh"]) == [
+            (DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC), 12.323662344228607),
+            (DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC), 26.595667839896535)
+        ]
+        assert list(result["all_sell_orders_kWh"]) == [
+            (DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC), 8.215774896152405),
+            (DateTime(2020, 1, 1, 12, 0, 0, tzinfo=UTC), 17.73044522659769)
+        ]
+
 
 
 def test_resampler():
@@ -74,11 +79,11 @@ def test_resampler():
     # when the profile duration is not dividable by aggregation time window.
     aggregated_data = resample_data(profile, duration(hours=12, minutes=30), aggregator_fn=sum)
 
-    expected_result = {
-        DateTime(2020, 1, 1, 0, 0, 0): sum(
-            [profile[t] for t in filter(lambda x: x < DateTime(2020, 1, 1, 12, 30, 0), profile)]),
-        DateTime(2020, 1, 1, 12, 30, 0): sum(
-            [profile[t] for t in filter(lambda x: x >= DateTime(2020, 1, 1, 12, 30, 0), profile)])
-    }
+    expected_result = [
+        (DateTime(2020, 1, 1, 0, 0, 0), sum(
+            [profile[t] for t in filter(lambda x: x < DateTime(2020, 1, 1, 12, 30, 0), profile)])),
+        (DateTime(2020, 1, 1, 12, 30, 0), sum(
+            [profile[t] for t in filter(lambda x: x >= DateTime(2020, 1, 1, 12, 30, 0), profile)]))
+    ]
 
-    assert aggregated_data == expected_result
+    assert list(aggregated_data) == expected_result
