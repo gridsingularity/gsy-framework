@@ -7,7 +7,7 @@ from pendulum import DateTime, duration, period
 
 from gsy_framework.enums import AggregationResolution
 from gsy_framework.forward_markets.forward_profile import (
-    StandardProfileParser, gsy_framework_path)
+    ProfileScaler, StandardProfileParser, gsy_framework_path)
 
 RESOURCES_PATH = Path(gsy_framework_path) / "resources"
 
@@ -69,7 +69,8 @@ class QuarterHourAggregatedSSPProfile(AggregatedSSPProfileBase):
         return float(self._SSP_AGGREGATED_PROFILE[timeslot.month][timeslot.time()])
 
     def _load_aggregated_profiles(self) -> None:
-        self._SSP_AGGREGATED_PROFILE = StandardProfileParser().parse()
+        self._SSP_AGGREGATED_PROFILE = ProfileScaler(
+            StandardProfileParser().parse()).scale_by_peak(peak_kWh=1)
 
 
 class HourlyAggregatedSSPProfile(AggregatedSSPProfileBase):
