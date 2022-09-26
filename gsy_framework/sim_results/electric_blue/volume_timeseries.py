@@ -5,7 +5,10 @@ from pendulum import DateTime
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
 from gsy_framework.forward_markets.aggregated_profile import (
     get_aggregated_SSP_profile)
-
+from gsy_framework.forward_markets.forward_profile import (
+    ForwardTradeProfileGenerator)
+from gsy_framework.sim_results.electric_blue.aggregate_results import (
+    ForwardDeviceStats)
 
 FORWARD_MARKET_TYPES = [
     AvailableMarketTypes.YEAR_FORWARD, AvailableMarketTypes.MONTH_FORWARD,
@@ -34,11 +37,11 @@ class AssetVolumeTimeSeries:
 
         self._asset_volume_time_series_buffer: Dict[DateTime, Dict] = {}
 
-    def add(self, asset_time_series: Dict, market_type: AvailableMarketTypes):
+    def add(self, asset_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
         """Add asset time series to asset volume time series."""
 
-        self._add_total_energy_bought(asset_time_series, market_type)
-        self._add_total_energy_sold(asset_time_series, market_type)
+        self._add_total_energy_bought(asset_stats, market_type)
+        self._add_total_energy_sold(asset_stats, market_type)
 
     def save_time_series(self):
         """Save asset volume time series in the DB."""
@@ -46,15 +49,26 @@ class AssetVolumeTimeSeries:
         raise NotImplementedError()
 
     def _add_total_energy_bought(
-            self, asset_stats: Dict, market_type: AvailableMarketTypes):
+            self, asset_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
         """Add statistics for the total amount of bought energy."""
-        for time_slot, value in asset_stats["matched_buy_orders_kWh"]:
+        energy_kWh = asset_stats.total_energy_bought
+        if energy_kWh <= 0:
+            return
+        profile = ForwardTradeProfileGenerator(self.asset_capacity).generate_trade_profile(
+            energy_kWh, asset_stats.time_slot, market_type)
+        for time_slot, value in profile.items():
             self._add_to_volume_time_series(time_slot, value, market_type, "bought_kWh")
 
     def _add_total_energy_sold(
-            self, asset_stats: Dict, market_type: AvailableMarketTypes):
+            self, asset_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
         """Add statistics for the total amount of sold energy."""
-        for time_slot, value in asset_stats["matched_sell_orders_kWh"]:
+        energy_kWh = asset_stats.total_energy_sold
+        if energy_kWh <= 0:
+            return
+        profile = ForwardTradeProfileGenerator(self.asset_capacity).generate_trade_profile(
+            energy_kWh, asset_stats.time_slot, market_type
+        )
+        for time_slot, value in profile.items():
             self._add_to_volume_time_series(time_slot, value, market_type, "sold_kWh")
 
     def _add_to_volume_time_series(
