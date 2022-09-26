@@ -10,7 +10,6 @@ from gsy_framework.forward_markets.aggregated_profile import (
 FORWARD_MARKET_TYPES = [
     AvailableMarketTypes.YEAR_FORWARD, AvailableMarketTypes.MONTH_FORWARD,
     AvailableMarketTypes.WEEK_FORWARD, AvailableMarketTypes.DAY_FORWARD,
-    AvailableMarketTypes.INTRADAY
 ]
 
 # a dictionary showing the start of time slot for each resolution.
@@ -35,11 +34,11 @@ class AssetVolumeTimeSeries:
 
         self._asset_volume_time_series_buffer: Dict[DateTime, Dict] = {}
 
-    def add(self, asset_stats: Dict, market_type: AvailableMarketTypes):
+    def add(self, asset_time_series: Dict, market_type: AvailableMarketTypes):
         """Add asset time series to asset volume time series."""
 
-        self._add_total_energy_bought(asset_stats, market_type)
-        self._add_total_energy_sold(asset_stats, market_type)
+        self._add_total_energy_bought(asset_time_series, market_type)
+        self._add_total_energy_sold(asset_time_series, market_type)
 
     def save_time_series(self):
         """Save asset volume time series in the DB."""
@@ -89,13 +88,21 @@ class AssetVolumeTimeSeries:
 
     def _fetch_asset_volume_time_series_from_db(self, time_slot: DateTime):
         # TODO: should be implemented by Kamil.
-        raise NotImplementedError()
+        return None
 
     def _generate_asset_volume_time_series(self, time_slot: DateTime):
         """Generate asset volume time series for the whole year."""
+        start_time = self._adapt_time_slot(time_slot)
+        if start_time < time_slot:
+            start_time += self.resolution.duration()
+
+        end_time = self._adapt_time_slot(time_slot.add(years=1))
+        if end_time < time_slot.add(years=1):
+            end_time += self.resolution.duration()
+
         return get_aggregated_SSP_profile(
-            self.asset_capacity, time_slot,
-            time_slot.add(years=1), resolution=self.resolution
+            self.asset_capacity, start_time=start_time, end_time=end_time,
+            resolution=self.resolution
         )
 
     @staticmethod

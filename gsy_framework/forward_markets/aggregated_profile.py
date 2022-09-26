@@ -89,11 +89,7 @@ class HourlyAggregatedSSPProfile(AggregatedSSPProfileBase):
 
 
 class WeeklyAggregatedSSPProfile(AggregatedSSPProfileBase):
-    """Return weekly-aggregated profile of the SSP. Unlike other AggregatedSSPProfile classes,
-    the WeeklyAggregatedSSPProfile acts very flexible when it comes to start/end time of the
-    generation. The generate function can be asked to start/end the generation at any given
-    time and the result will always be accurate.
-    """
+    """Return weekly-aggregated profile of the SSP."""
 
     SSP_AGGREGATED_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/daily.csv"
 
