@@ -22,48 +22,48 @@ START_OF = {
 }
 
 
-class DeviceVolumeTimeSeries:
-    """This class generated combined volume time series for the whole year for each device.
+class AssetVolumeTimeSeries:
+    """This class generated combined volume time series for the whole year for each asset.
     """
     def __init__(
-            self, device_uuid: str, device_capacity: float,
+            self, asset_uuid: str, asset_capacity: float,
             resolution: AggregationResolution):
 
-        self.device_uuid = device_uuid
-        self.device_capacity = device_capacity
+        self.asset_uuid = asset_uuid
+        self.asset_capacity = asset_capacity
         self.resolution = resolution
 
-        self._device_volume_time_series_buffer: Dict[DateTime, Dict] = {}
+        self._asset_volume_time_series_buffer: Dict[DateTime, Dict] = {}
 
-    def add(self, device_stats: Dict, market_type: AvailableMarketTypes):
-        """Add device time series to device volume time series."""
+    def add(self, asset_stats: Dict, market_type: AvailableMarketTypes):
+        """Add asset time series to asset volume time series."""
 
-        self._add_total_energy_bought(device_stats, market_type)
-        self._add_total_energy_sold(device_stats, market_type)
+        self._add_total_energy_bought(asset_stats, market_type)
+        self._add_total_energy_sold(asset_stats, market_type)
 
-    def save_timeseries(self):
-        """Save device volume time series in the DB."""
+    def save_time_series(self):
+        """Save asset volume time series in the DB."""
         # TODO: should be implemented by Kamil.
         raise NotImplementedError()
 
     def _add_total_energy_bought(
-            self, device_stats: Dict, market_type: AvailableMarketTypes):
+            self, asset_stats: Dict, market_type: AvailableMarketTypes):
         """Add statistics for the total amount of bought energy."""
-        for time_slot, value in device_stats["matched_buy_orders_kWh"]:
+        for time_slot, value in asset_stats["matched_buy_orders_kWh"]:
             self._add_to_volume_time_series(time_slot, value, market_type, "bought_kWh")
 
     def _add_total_energy_sold(
-            self, device_stats: Dict, market_type: AvailableMarketTypes):
+            self, asset_stats: Dict, market_type: AvailableMarketTypes):
         """Add statistics for the total amount of sold energy."""
-        for time_slot, value in device_stats["matched_sell_orders_kWh"]:
+        for time_slot, value in asset_stats["matched_sell_orders_kWh"]:
             self._add_to_volume_time_series(time_slot, value, market_type, "sold_kWh")
 
     def _add_to_volume_time_series(
             self, time_slot: DateTime, value: float,
             market_type: AvailableMarketTypes, attribute_name: str):
-        """Add time slot value to the correct time slot to device volume time series."""
+        """Add time slot value to the correct time slot to asset volume time series."""
         time_slot = self._adapt_time_slot(time_slot)
-        volume_time_series = self._get_device_volume_time_series(time_slot.start_of("year"))
+        volume_time_series = self._get_asset_volume_time_series(time_slot.start_of("year"))
         volume_time_series[time_slot][str(market_type)][attribute_name] += value
 
     def _adapt_time_slot(self, time_slot: DateTime) -> DateTime:
@@ -72,29 +72,29 @@ class DeviceVolumeTimeSeries:
             return time_slot.set(minute=(time_slot.minute // 15) * 15)
         return time_slot.start_of(START_OF[self.resolution])
 
-    def _get_device_volume_time_series(self, time_slot):
-        """Return device volume time series for the required time slot.
+    def _get_asset_volume_time_series(self, time_slot):
+        """Return asset volume time series for the required time slot.
         If not found in the buffer, it tries fetching it from DB.
         If not found in the DB, it will generate a new one for the whole year."""
-        if time_slot in self._device_volume_time_series_buffer:
-            time_series = self._device_volume_time_series_buffer[time_slot]
+        if time_slot in self._asset_volume_time_series_buffer:
+            time_series = self._asset_volume_time_series_buffer[time_slot]
         else:
-            time_series = self._fetch_device_volume_time_series_from_db(time_slot)
+            time_series = self._fetch_asset_volume_time_series_from_db(time_slot)
             if time_series is None:
                 time_series = {
                     ts: self._get_time_series_template(value)
-                    for ts, value in self._generate_device_volume_time_series(time_slot)}
-            self._device_volume_time_series_buffer[time_slot] = time_series
+                    for ts, value in self._generate_asset_volume_time_series(time_slot)}
+            self._asset_volume_time_series_buffer[time_slot] = time_series
         return time_series
 
-    def _fetch_device_volume_time_series_from_db(self, time_slot: DateTime):
+    def _fetch_asset_volume_time_series_from_db(self, time_slot: DateTime):
         # TODO: should be implemented by Kamil.
         raise NotImplementedError()
 
-    def _generate_device_volume_time_series(self, time_slot: DateTime):
-        """Generate device volume time series for the whole year."""
+    def _generate_asset_volume_time_series(self, time_slot: DateTime):
+        """Generate asset volume time series for the whole year."""
         return get_aggregated_SSP_profile(
-            self.device_capacity, time_slot,
+            self.asset_capacity, time_slot,
             time_slot.add(years=1), resolution=self.resolution
         )
 

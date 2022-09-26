@@ -157,7 +157,7 @@ def get_aggregated_SSP_profile(
         end_time: DateTime, resolution: AggregationResolution
 ):
     """Return aggregated SSP profile with the specified resolution and with respect to
-    start_time, end_time and device capacity."""
+    start_time, end_time and asset capacity."""
     resolution_mapping = {
         AggregationResolution.RES_15_MINUTES: QuarterHourAggregatedSSPProfile,
         AggregationResolution.RES_1_HOUR: HourlyAggregatedSSPProfile,
