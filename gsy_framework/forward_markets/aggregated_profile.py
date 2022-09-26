@@ -61,8 +61,8 @@ class QuarterHourAggregatedSSPProfile(AggregatedSSPProfileBase):
         assert end_time - start_time >= duration(minutes=15), \
             "Time period should be >= 15 minutes."
         return period(
-            start=start_time.add(minutes=(start_time.minute // 15) * 15),
-            end=end_time.add(minutes=((end_time.minute // 15) - 1) * 15)
+            start=start_time.set(minute=(start_time.minute // 15) * 15),
+            end=end_time.set(minute=(end_time.minute // 15) * 15) - duration(minutes=15)
         ).range("minutes", 15)
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
@@ -97,10 +97,10 @@ class WeeklyAggregatedSSPProfile(AggregatedSSPProfileBase):
     SSP_AGGREGATED_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/daily.csv"
 
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
-        assert end_time - start_time >= duration(days=1), "Time period should be >= 1 day."
+        assert end_time - start_time >= duration(weeks=1), "Time period should be >= 1 week."
         return period(
             start_time.start_of("week"),
-            end_time.start_of("week")
+            end_time.start_of("week") - duration(weeks=1)
         ).range("weeks", 1)
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
