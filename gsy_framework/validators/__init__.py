@@ -22,7 +22,9 @@ __all__ = [
     "LoadValidator",
     "MarketMakerValidator",
     "PVValidator",
-    "StorageValidator"]
+    "StorageValidator",
+    "WindTurbineValidator"
+]
 
 from gsy_framework.validators.cep_validator import CommercialProducerValidator
 from gsy_framework.validators.finite_diesel_generator_validator import (
@@ -33,3 +35,4 @@ from gsy_framework.validators.load_validator import LoadValidator
 from gsy_framework.validators.market_maker_validator import MarketMakerValidator
 from gsy_framework.validators.pv_validator import PVValidator
 from gsy_framework.validators.storage_validator import StorageValidator
+from gsy_framework.validators.wind_turbine_validator import WindTurbineValidator
