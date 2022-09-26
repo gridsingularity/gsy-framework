@@ -50,7 +50,8 @@ class ScenarioSchemas:
                                         {"$ref": "#/definitions/smart_meter"},
                                         {"$ref": "#/definitions/infinite_power_plant"},
                                         {"$ref": "#/definitions/finite_power_plant"},
-                                        {"$ref": "#/definitions/storage"}
+                                        {"$ref": "#/definitions/storage"},
+                                        {"$ref": "#/definitions/wind_turbine"},
                                     ]}, "default": []},
                                     {"type": "null"}]}
                 },
@@ -79,7 +80,33 @@ class ScenarioSchemas:
                             {"type": "null"},
                             {"type": "array"},
                             {"type": "string"}]},
-                    "use_market_maker_rate": {"type": "boolean"}
+                    "use_market_maker_rate": {"type": "boolean"},
+                    "powerProfileUUID": {"type": "string"}
+                }
+            },
+            "wind_turbine": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "type": {"enum": ["WindTurbine"]},
+                    "uuid": {"type": "string"},
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "final_selling_rate": {"type": "number"},
+                    "fit_to_limit": {"type": "boolean"},
+                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_rate_decrease_per_update": {"anyOf": [{"type": "number"},
+                                                                  {"type": "null"}]},
+                    "power_profile": {
+                        "anyOf": [
+                            {"type": "object"},
+                            {"type": "number"},
+                            {"type": "null"},
+                            {"type": "array"},
+                            {"type": "string"}]},
+                    "use_market_maker_rate": {"type": "boolean"},
+                    "powerProfileUUID": {"type": "string"},
+                    "capacity_kW": {"type": "number"},
                 }
             },
             "storage": {
@@ -184,7 +211,8 @@ class ScenarioSchemas:
             {"$ref": "#/definitions/smart_meter"},
             {"$ref": "#/definitions/infinite_power_plant"},
             {"$ref": "#/definitions/finite_power_plant"},
-            {"$ref": "#/definitions/storage"}
+            {"$ref": "#/definitions/storage"},
+            {"$ref": "#/definitions/wind_turbine"}
         ]
     }
 
