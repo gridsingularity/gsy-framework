@@ -3,7 +3,7 @@ from math import isclose
 from pendulum import DateTime, duration, period
 
 from gsy_framework.enums import AggregationResolution
-from gsy_framework.forward_markets.aggregated_profile import (
+from gsy_framework.forward_markets.aggregated_ssp_profile import (
     HourlyAggregatedSSPProfile, MonthlyAggregatedSSPProfile,
     QuarterHourAggregatedSSPProfile, WeeklyAggregatedSSPProfile,
     YearlyAggregatedSSPProfile, get_aggregated_SSP_profile)
