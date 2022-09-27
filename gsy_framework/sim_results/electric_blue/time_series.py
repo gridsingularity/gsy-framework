@@ -14,8 +14,6 @@ def resample_data(
         resolution: Duration, aggregator_fn: Callable) -> Dict:
     """Aggregate data using the specified resolution and aggregator function."""
 
-    result = {}
-
     sorted_time_slots = sorted(timeseries_data.keys())
     start_time = sorted_time_slots[0]
     next_time = start_time + resolution
@@ -34,8 +32,6 @@ def resample_data(
         # aggregate any remaining time_slots in the buffer
         yield time_slots_to_aggregate[0], aggregator_fn(
             [timeseries_data[t] for t in time_slots_to_aggregate])
-
-    return result
 
 
 class ForwardDeviceTimeSeries:
