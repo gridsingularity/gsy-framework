@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 
 from pendulum import DateTime
 
@@ -72,7 +72,7 @@ class AssetVolumeTimeSeries:
 
     def save_time_series(self):
         """Save asset volume time series in the DB."""
-        # TODO: should be implemented by Kamil.
+        # TODO: should be implemented.
         raise NotImplementedError()
 
     def _add_total_energy_bought(
@@ -127,8 +127,10 @@ class AssetVolumeTimeSeries:
             self._asset_volume_time_series_buffer[time_slot] = time_series
         return time_series
 
-    def _fetch_asset_volume_time_series_from_db(self, time_slot: DateTime):
-        # TODO: should be implemented by Kamil.
+    def _fetch_asset_volume_time_series_from_db(
+            self, time_slot: DateTime) -> Union[Dict[DateTime, Dict], None]:
+        """Fetch already saved asset volume time series."""
+        # TODO: should be implemented.
         return None
 
     def _generate_asset_volume_time_series(self, time_slot: DateTime):
