@@ -25,7 +25,34 @@ START_OF = {
 
 
 class AssetVolumeTimeSeries:
-    """This class generated combined volume time series for the whole year for each asset.
+    """This class generates combined volume time series for the whole year for each asset.
+    The result would be like this for a monthly resolution for the year 2020:
+    {
+        DateTime(2020, 1, 1, 0, 0, 0): {
+            DateTime(2020, 1, 1, 0, 0, 0): {
+                "SSP": 1005.4160297565659,
+                "YEAR_FORWARD": {
+                    "bought_kWh": 201.08320595131318,
+                    "sold_kWh": 201.08320595131318,
+                },
+                "MONTH_FORWARD": {
+                    "bought_kWh": 201.08320595131318,
+                    "sold_kWh": 201.08320595131318,
+                },
+                "WEEK_FORWARD": {
+                    "bought_kWh": 32.432775153437625,
+                    "sold_kWh": 32.432775153437625,
+                },
+                "DAY_FORWARD": {
+                    "bought_kWh": 6.486555030687522,
+                    "sold_kWh": 6.486555030687522,
+                },
+            },
+            DateTime(2020, 2, 1, 0, 0, 0): {...},
+            ...
+            DateTime(2020, 12, 1, 0, 0, 0): {...},
+        },
+    }
     """
     def __init__(
             self, asset_uuid: str, asset_capacity: float,
