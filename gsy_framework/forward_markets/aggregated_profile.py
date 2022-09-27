@@ -106,11 +106,6 @@ class WeeklyAggregatedSSPProfile(AggregatedSSPProfileBase):
             for t in period(timeslot, timeslot.add(days=6)).range("days", 1)
         ])
 
-    def generate(self, start_time: DateTime, end_time: DateTime) -> Iterable:
-        """Generate SSP profile with respect to start and end times in the correct resolution."""
-        for timeslot in self._get_timeslots(start_time, end_time):
-            yield timeslot, self._get_timeslot_energy_kWh(timeslot) * self.capacity_kWh
-
 
 class MonthlyAggregatedSSPProfile(AggregatedSSPProfileBase):
     """Return monthly-aggregated profile of the SSP."""
