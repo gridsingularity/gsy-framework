@@ -59,7 +59,7 @@ class PayAsClearMatchingAlgorithm(BaseMatchingAlgorithm):
                 current_time = data.get("current_time")
                 clearing = self.get_clearing_point(bids, offers, current_time, market_id)
                 if clearing is None:
-                    return []
+                    continue
 
                 if clearing.energy > 0:
                     log.info(f"Market Clearing Rate: {clearing.rate} "
