@@ -8,8 +8,8 @@ from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
 from gsy_framework.sim_results.electric_blue.volume_timeseries import (
     FORWARD_MARKET_TYPES, AssetVolumeTimeSeries)
-from tests.forward_markets.test_aggregated_profile import \
-    get_sum_of_ssp_profile_range_values as sum_of_energy
+from tests.forward_markets.test_aggregated_profile import (
+    get_sum_of_ssp_profile_range_values as sum_of_energy)
 
 
 @pytest.fixture
