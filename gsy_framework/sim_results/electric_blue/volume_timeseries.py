@@ -55,15 +55,15 @@ class AssetVolumeTimeSeries:
     }
     """
     def __init__(
-            self, asset_uuid: str, asset_capacity: float,
+            self, asset_uuid: str, asset_capacity_kWh: float,
             resolution: AggregationResolution):
 
         self.asset_uuid = asset_uuid
-        self.asset_capacity = asset_capacity
+        self.asset_capacity_kWh = asset_capacity_kWh
         self.resolution = resolution
 
         self._asset_volume_time_series_buffer: Dict[DateTime, Dict] = {}
-        self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_capacity)
+        self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_capacity_kWh)
 
     def add(self, asset_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
         """Add asset time series to asset volume time series."""
@@ -145,7 +145,7 @@ class AssetVolumeTimeSeries:
             end_time += self.resolution.duration()
 
         return get_aggregated_SSP(
-            self.asset_capacity, start_time=start_time, end_time=end_time,
+            self.asset_capacity_kWh, start_time=start_time, end_time=end_time,
             resolution=self.resolution
         )
 
@@ -155,7 +155,7 @@ class AssetVolumeTimeSeries:
         return {
             "SSP": ssp_value,
             **{
-                f"{market_type}": {"bought_kWh": 0, "sold_kWh": 0}
+                f"{market_type.name}": {"bought_kWh": 0, "sold_kWh": 0}
                 for market_type in FORWARD_MARKET_TYPES
             }
         }

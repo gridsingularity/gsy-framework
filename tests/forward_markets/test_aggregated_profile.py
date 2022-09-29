@@ -6,7 +6,7 @@ from gsy_framework.enums import AggregationResolution
 from gsy_framework.forward_markets.aggregated_ssp import (
     HourlyAggregatedSSPProfile, MonthlyAggregatedSSPProfile,
     QuarterHourAggregatedSSPProfile, WeeklyAggregatedSSPProfile,
-    YearlyAggregatedSSPProfile, get_aggregated_SSP_profile)
+    YearlyAggregatedSSPProfile, get_aggregated_SSP)
 from gsy_framework.forward_markets.forward_profile import (
     ProfileScaler, StandardProfileParser)
 
@@ -98,7 +98,7 @@ def test_yearly_aggregated_ssp_profile_range():
 
 
 def test_quarter_hour_aggregated_ssp_profile_values():
-    profile = get_aggregated_SSP_profile(
+    profile = get_aggregated_SSP(
         capacity_kWh=2,
         start_time=DateTime(2022, 9, 26, 7, 15),
         end_time=DateTime(2022, 9, 27, 8, 45),
@@ -111,7 +111,7 @@ def test_quarter_hour_aggregated_ssp_profile_values():
 
 
 def test_hourly_aggregated_ssp_profile_values():
-    profile = get_aggregated_SSP_profile(
+    profile = get_aggregated_SSP(
         capacity_kWh=2,
         start_time=DateTime(2022, 8, 26, 7, 0),
         end_time=DateTime(2022, 9, 26, 22, 0),
@@ -124,7 +124,7 @@ def test_hourly_aggregated_ssp_profile_values():
 
 
 def test_weekly_aggregated_ssp_profile_values():
-    profile = get_aggregated_SSP_profile(
+    profile = get_aggregated_SSP(
         capacity_kWh=2,
         start_time=DateTime(2021, 1, 1, 9, 0),
         end_time=DateTime(2021, 2, 16, 23, 0),
@@ -137,7 +137,7 @@ def test_weekly_aggregated_ssp_profile_values():
 
 
 def test_monthly_aggregated_ssp_profile_values():
-    profile = get_aggregated_SSP_profile(
+    profile = get_aggregated_SSP(
         capacity_kWh=2,
         start_time=DateTime(2021, 1, 1, 9, 0),
         end_time=DateTime(2021, 3, 16, 23, 0),
@@ -150,7 +150,7 @@ def test_monthly_aggregated_ssp_profile_values():
 
 
 def test_yearly_aggregated_ssp_profile_values():
-    profile = get_aggregated_SSP_profile(
+    profile = get_aggregated_SSP(
         capacity_kWh=2,
         start_time=DateTime(2021, 1, 1, 9, 0),
         end_time=DateTime(2025, 3, 16, 23, 0),
