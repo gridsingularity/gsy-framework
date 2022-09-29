@@ -1,10 +1,10 @@
-from typing import Dict, Union
+from typing import Dict, Optional
 
 from pendulum import DateTime
 
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
 from gsy_framework.forward_markets.aggregated_ssp import (
-    get_aggregated_SSP_profile)
+    get_aggregated_SSP)
 from gsy_framework.forward_markets.forward_profile import (
     ForwardTradeProfileGenerator)
 from gsy_framework.sim_results.electric_blue.aggregate_results import (
@@ -104,7 +104,7 @@ class AssetVolumeTimeSeries:
         """Add time slot value to the correct time slot to asset volume time series."""
         time_slot = self._adapt_time_slot(time_slot)
         volume_time_series = self._get_asset_volume_time_series(time_slot.start_of("year"))
-        volume_time_series[time_slot][str(market_type)][attribute_name] += value
+        volume_time_series[time_slot][market_type.name][attribute_name] += value
 
     def _adapt_time_slot(self, time_slot: DateTime) -> DateTime:
         """Find the containing time slot of the smaller time slot."""
@@ -128,7 +128,7 @@ class AssetVolumeTimeSeries:
         return time_series
 
     def _fetch_asset_volume_time_series_from_db(
-            self, time_slot: DateTime) -> Union[Dict[DateTime, Dict], None]:
+            self, time_slot: DateTime) -> Optional[Dict[DateTime, Dict]]:
         """Fetch already saved asset volume time series."""
         # TODO: should be implemented.
         return None
@@ -143,7 +143,7 @@ class AssetVolumeTimeSeries:
         if end_time < time_slot.add(years=1):
             end_time += self.resolution.duration()
 
-        return get_aggregated_SSP_profile(
+        return get_aggregated_SSP(
             self.asset_capacity, start_time=start_time, end_time=end_time,
             resolution=self.resolution
         )

@@ -143,10 +143,9 @@ class YearlyAggregatedSSPProfile(AggregatedSSPProfileBase):
         return float(self._SSP_AGGREGATED_PROFILE[""])
 
 
-def get_aggregated_SSP_profile(
+def get_aggregated_SSP(
         capacity_kWh: float, start_time: DateTime,
-        end_time: DateTime, resolution: AggregationResolution
-):
+        end_time: DateTime, resolution: AggregationResolution):
     """Return aggregated SSP profile with the specified resolution and with respect to
     start_time, end_time and asset capacity."""
     resolution_mapping = {
