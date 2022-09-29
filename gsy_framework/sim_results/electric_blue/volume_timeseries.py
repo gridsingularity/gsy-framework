@@ -3,7 +3,7 @@ from typing import Dict, Union
 from pendulum import DateTime
 
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
-from gsy_framework.forward_markets.aggregated_ssp_profile import (
+from gsy_framework.forward_markets.aggregated_ssp import (
     get_aggregated_SSP_profile)
 from gsy_framework.forward_markets.forward_profile import (
     ForwardTradeProfileGenerator)
