@@ -63,6 +63,7 @@ class AssetVolumeTimeSeries:
         self.resolution = resolution
 
         self._asset_volume_time_series_buffer: Dict[DateTime, Dict] = {}
+        self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_capacity)
 
     def add(self, asset_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
         """Add asset time series to asset volume time series."""
@@ -81,7 +82,7 @@ class AssetVolumeTimeSeries:
         energy_kWh = asset_stats.total_energy_bought
         if energy_kWh <= 0:
             return
-        profile = ForwardTradeProfileGenerator(self.asset_capacity).generate_trade_profile(
+        profile = self._trade_profile_generator.generate_trade_profile(
             energy_kWh, asset_stats.time_slot, market_type)
         for time_slot, value in profile.items():
             self._add_to_volume_time_series(time_slot, value, market_type, "bought_kWh")
@@ -92,7 +93,7 @@ class AssetVolumeTimeSeries:
         energy_kWh = asset_stats.total_energy_sold
         if energy_kWh <= 0:
             return
-        profile = ForwardTradeProfileGenerator(self.asset_capacity).generate_trade_profile(
+        profile = self._trade_profile_generator.generate_trade_profile(
             energy_kWh, asset_stats.time_slot, market_type
         )
         for time_slot, value in profile.items():
