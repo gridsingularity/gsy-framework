@@ -18,11 +18,11 @@ def forward_time_series():
     def func():
         for market_type in FORWARD_MARKET_TYPES:
             yield market_type, ForwardDeviceStats(
-                "UUID", DateTime(2020, 1, 1),
-                DateTime(2020, 1, 1),
+                device_uuid="UUID",
+                time_slot=DateTime(2020, 1, 1),
+                current_time_slot=DateTime(2020, 1, 1),
                 total_energy_sold=1,
-                total_energy_bought=1
-            )
+                total_energy_bought=1)
     return func()
 
 
@@ -31,7 +31,7 @@ class TestAssetVolumeTimeSeries:
     def check_time_slot_pairs(time_slots: List, resolution: AggregationResolution):
         """Check the returned value of _adapt_time_slot is equal to the expected value."""
         volume_time_series = AssetVolumeTimeSeries(
-            "UUID", 1, resolution)
+            asset_uuid="UUID", asset_peak_kWh=1, resolution=resolution)
 
         for expected, actual in time_slots:
             assert expected == volume_time_series._adapt_time_slot(actual)
@@ -78,7 +78,7 @@ class TestAssetVolumeTimeSeries:
 
     def test_add_asset_time_series_for_1_year_resolution(self, forward_time_series):
         volume_time_series = AssetVolumeTimeSeries(
-            "UUID", 5, resolution=AggregationResolution.RES_1_YEAR)
+            asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_YEAR)
 
         for market_type, asset_stats in forward_time_series:
             volume_time_series.add(asset_stats, market_type)
@@ -153,7 +153,7 @@ class TestAssetVolumeTimeSeries:
     def test_add_asset_time_series_for_1_month_resolution(self, forward_time_series):
         """Call AssetVolumeTimeSeries in 1-month resolution to assure no KeyErrors happen."""
         volume_time_series = AssetVolumeTimeSeries(
-            "UUID", 5, resolution=AggregationResolution.RES_1_MONTH)
+            asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_MONTH)
 
         try:
             for market_type, asset_stats in forward_time_series:
@@ -166,7 +166,7 @@ class TestAssetVolumeTimeSeries:
     def test_add_asset_time_series_for_1_week_resolution(self, forward_time_series):
         """Call AssetVolumeTimeSeries in 1-week resolution to assure no KeyErrors happen."""
         volume_time_series = AssetVolumeTimeSeries(
-            "UUID", 5, resolution=AggregationResolution.RES_1_WEEK)
+            asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_WEEK)
 
         try:
             for market_type, asset_stats in forward_time_series:
@@ -179,7 +179,7 @@ class TestAssetVolumeTimeSeries:
     def test_add_asset_time_series_for_1_hour_resolution(self, forward_time_series):
         """Call AssetVolumeTimeSeries in 1-hour resolution to assure no KeyErrors happen."""
         volume_time_series = AssetVolumeTimeSeries(
-            "UUID", 5, resolution=AggregationResolution.RES_1_HOUR)
+            asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_HOUR)
 
         try:
             for market_type, asset_stats in forward_time_series:
@@ -192,7 +192,7 @@ class TestAssetVolumeTimeSeries:
     def test_add_asset_time_series_for_15_minutes_resolution(self, forward_time_series):
         """Call AssetVolumeTimeSeries in 15-minutes resolution to assure no KeyErrors happen."""
         volume_time_series = AssetVolumeTimeSeries(
-            "UUID", 5, resolution=AggregationResolution.RES_15_MINUTES)
+            asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_15_MINUTES)
 
         try:
             for market_type, asset_stats in forward_time_series:
