@@ -110,7 +110,7 @@ class AssetVolumeTimeSeries:
         time_slot = self._adapt_time_slot(time_slot)
         volume_time_series = self._get_asset_volume_time_series(
             year=time_slot.start_of("year"))
-        volume_time_series[time_slot][market_type.name][attribute_name] += value
+        volume_time_series[str(time_slot)][market_type.name][attribute_name] += value
 
     def _adapt_time_slot(self, time_slot: DateTime) -> DateTime:
         """Find the containing time slot of the smaller time slot."""
@@ -118,7 +118,7 @@ class AssetVolumeTimeSeries:
             return time_slot.set(minute=(time_slot.minute // 15) * 15)
         return time_slot.start_of(START_OF[self.resolution])
 
-    def _get_asset_volume_time_series(self, year: DateTime):
+    def _get_asset_volume_time_series(self, year: DateTime) -> Dict[str, Dict]:
         """Return asset volume time series for the required year.
         If not found in the buffer, it tries fetching it from DB.
         If not found in the DB, it will generate a new one for the whole year."""
@@ -128,13 +128,13 @@ class AssetVolumeTimeSeries:
             time_series = self._fetch_asset_volume_time_series_from_db(year)
             if time_series is None:
                 time_series = {
-                    ts: self._get_time_series_template(value)
+                    str(ts): self._get_time_series_template(value)
                     for ts, value in self._generate_SSP_time_series(year)}
             self._asset_volume_time_series_buffer[year] = time_series
         return time_series
 
     def _fetch_asset_volume_time_series_from_db(
-            self, year: DateTime) -> Optional[Dict[DateTime, Dict]]:
+            self, year: DateTime) -> Optional[Dict[str, Dict]]:
         """Fetch already saved asset volume time series."""
         # TODO: should be implemented.
         return None
