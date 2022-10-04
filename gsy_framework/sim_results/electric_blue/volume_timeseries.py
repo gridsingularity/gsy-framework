@@ -52,6 +52,10 @@ class AssetVolumeTimeSeries:
             DateTime(2020, 12, 1, 0, 0, 0): {...},
         },
     }
+
+    Volume time series for each (device_uuid, resolution) pair will be saved in a separate row
+    at the DB table. This class may fetch them later (on demand) to update the time series when new
+    trades happen on the market.
     """
     def __init__(
             self, asset_uuid: str, asset_peak_kWh: float,
@@ -124,24 +128,26 @@ class AssetVolumeTimeSeries:
             if time_series is None:
                 time_series = {
                     ts: self._get_time_series_template(value)
-                    for ts, value in self._generate_asset_volume_time_series(year)}
+                    for ts, value in self._generate_SSP_time_series(year)}
             self._asset_volume_time_series_buffer[year] = time_series
         return time_series
 
     def _fetch_asset_volume_time_series_from_db(
-            self, time_slot: DateTime) -> Optional[Dict[DateTime, Dict]]:
+            self, year: DateTime) -> Optional[Dict[DateTime, Dict]]:
         """Fetch already saved asset volume time series."""
         # TODO: should be implemented.
         return None
 
-    def _generate_asset_volume_time_series(self, time_slot: DateTime):
-        """Generate asset volume time series for the whole year."""
-        start_time = self._adapt_time_slot(time_slot)
-        if start_time < time_slot:
+    def _generate_SSP_time_series(self, year: DateTime):
+        """Generate SSP time series for the whole year. The generated time series will then be
+        used as a backbone
+        to add other statistics."""
+        start_time = self._adapt_time_slot(year)
+        if start_time < year:
             start_time += self.resolution.duration()
 
-        end_time = self._adapt_time_slot(time_slot.add(years=1))
-        if end_time < time_slot.add(years=1):
+        end_time = self._adapt_time_slot(year.add(years=1))
+        if end_time < year.add(years=1):
             end_time += self.resolution.duration()
 
         return get_aggregated_SSP(
