@@ -41,7 +41,7 @@ class TestAssetVolumeTimeSeries:
         """Check all timeslots of a given year belong to that year."""
         for year in volume_time_series._asset_volume_time_series_buffer:
             for year_within in volume_time_series._asset_volume_time_series_buffer[year]:
-                assert year_within.year == year.year
+                assert year_within.startswith(str(year.year))
 
     def test_adapt_time_slot_for_15_minute_resolution(self):
         self.check_time_slot_pairs([
@@ -86,7 +86,7 @@ class TestAssetVolumeTimeSeries:
         self.check_time_slots_year(volume_time_series)
         assert volume_time_series._asset_volume_time_series_buffer == {
             DateTime(2020, 1, 1, 0, 0, 0): {
-                DateTime(2020, 1, 1, 0, 0, 0): {
+                str(DateTime(2020, 1, 1, 0, 0, 0)): {
                     "SSP": 36164.701938689024,
                     "YEAR_FORWARD": {
                         "bought_kWh": sum_of_energy(
@@ -132,7 +132,7 @@ class TestAssetVolumeTimeSeries:
                             1
                         )}}},
             DateTime(2019, 1, 1, 0, 0, 0): {
-                DateTime(2019, 1, 1, 0, 0, 0): {
+                str(DateTime(2019, 1, 1, 0, 0, 0)): {
                     "SSP": 36100.3496802018,
                     "YEAR_FORWARD": {"bought_kWh": 0, "sold_kWh": 0},
                     "MONTH_FORWARD": {"bought_kWh": 0, "sold_kWh": 0},
