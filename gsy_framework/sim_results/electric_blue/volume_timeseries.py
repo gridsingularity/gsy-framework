@@ -9,7 +9,7 @@ from gsy_framework.forward_markets.forward_profile import (
 from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
 
-FORWARD_MARKET_TYPES = [
+FORWARD_PRODUCT_TYPES = [
     AvailableMarketTypes.YEAR_FORWARD, AvailableMarketTypes.MONTH_FORWARD,
     AvailableMarketTypes.WEEK_FORWARD, AvailableMarketTypes.DAY_FORWARD,
 ]
@@ -69,11 +69,11 @@ class AssetVolumeTimeSeries:
         self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_peak_kWh)
 
     def update_volume_time_series(
-            self, asset_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
+            self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
         """Update asset volume time series with the current asset stats: stats from the last 15
         minutes."""
-        self._add_total_energy_bought(asset_stats, market_type)
-        self._add_total_energy_sold(asset_stats, market_type)
+        self._add_total_energy_bought(asset_stats, product_type)
+        self._add_total_energy_sold(asset_stats, product_type)
 
     def save_time_series(self):
         """Save asset volume time series in the DB."""
@@ -81,36 +81,36 @@ class AssetVolumeTimeSeries:
         raise NotImplementedError()
 
     def _add_total_energy_bought(
-            self, asset_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
+            self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
         """Add statistics for the total amount of bought energy."""
         energy_kWh = asset_stats.total_energy_bought
         if energy_kWh <= 0:
             return
         profile = self._trade_profile_generator.generate_trade_profile(
-            energy_kWh, asset_stats.time_slot, market_type)
+            energy_kWh, asset_stats.time_slot, product_type)
         for time_slot, value in profile.items():
-            self._add_to_volume_time_series(time_slot, value, market_type, "bought_kWh")
+            self._add_to_volume_time_series(time_slot, value, product_type, "bought_kWh")
 
     def _add_total_energy_sold(
-            self, asset_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
+            self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
         """Add statistics for the total amount of sold energy."""
         energy_kWh = asset_stats.total_energy_sold
         if energy_kWh <= 0:
             return
         profile = self._trade_profile_generator.generate_trade_profile(
-            energy_kWh, asset_stats.time_slot, market_type
+            energy_kWh, asset_stats.time_slot, product_type
         )
         for time_slot, value in profile.items():
-            self._add_to_volume_time_series(time_slot, value, market_type, "sold_kWh")
+            self._add_to_volume_time_series(time_slot, value, product_type, "sold_kWh")
 
     def _add_to_volume_time_series(
             self, time_slot: DateTime, value: float,
-            market_type: AvailableMarketTypes, attribute_name: str):
+            product_type: AvailableMarketTypes, attribute_name: str):
         """Add time slot value to the correct time slot to asset volume time series."""
         time_slot = self._adapt_time_slot(time_slot)
         volume_time_series = self._get_asset_volume_time_series(
             year=time_slot.start_of("year"))
-        volume_time_series[str(time_slot)][market_type.name][attribute_name] += value
+        volume_time_series[str(time_slot)][product_type.name][attribute_name] += value
 
     def _adapt_time_slot(self, time_slot: DateTime) -> DateTime:
         """Find the containing time slot of the smaller time slot."""
@@ -162,7 +162,7 @@ class AssetVolumeTimeSeries:
         return {
             "SSP": ssp_value,
             **{
-                f"{market_type.name}": {"bought_kWh": 0, "sold_kWh": 0}
-                for market_type in FORWARD_MARKET_TYPES
+                f"{product_type.name}": {"bought_kWh": 0, "sold_kWh": 0}
+                for product_type in FORWARD_PRODUCT_TYPES
             }
         }

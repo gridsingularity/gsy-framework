@@ -7,7 +7,7 @@ from gsy_framework.enums import AggregationResolution
 from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
 from gsy_framework.sim_results.electric_blue.volume_timeseries import (
-    FORWARD_MARKET_TYPES, AssetVolumeTimeSeries)
+    FORWARD_PRODUCT_TYPES, AssetVolumeTimeSeries)
 from tests.forward_markets.test_aggregated_profile import (
     get_sum_of_ssp_profile_range_values as sum_of_energy)
 
@@ -16,8 +16,8 @@ from tests.forward_markets.test_aggregated_profile import (
 def forward_time_series():
     """Return a generator that produces ForwardDeviceStats objects for testing purposes."""
     def func():
-        for market_type in FORWARD_MARKET_TYPES:
-            yield market_type, ForwardDeviceStats(
+        for product_type in FORWARD_PRODUCT_TYPES:
+            yield product_type, ForwardDeviceStats(
                 device_uuid="UUID",
                 time_slot=DateTime(2020, 1, 1),
                 current_time_slot=DateTime(2020, 1, 1),
@@ -80,8 +80,8 @@ class TestAssetVolumeTimeSeries:
         volume_time_series = AssetVolumeTimeSeries(
             asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_YEAR)
 
-        for market_type, asset_stats in forward_time_series:
-            volume_time_series.update_volume_time_series(asset_stats, market_type)
+        for product_type, asset_stats in forward_time_series:
+            volume_time_series.update_volume_time_series(asset_stats, product_type)
 
         self.check_time_slots_year(volume_time_series)
         assert volume_time_series._asset_volume_time_series_buffer == {
@@ -156,8 +156,8 @@ class TestAssetVolumeTimeSeries:
             asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_MONTH)
 
         try:
-            for market_type, asset_stats in forward_time_series:
-                volume_time_series.update_volume_time_series(asset_stats, market_type)
+            for product_type, asset_stats in forward_time_series:
+                volume_time_series.update_volume_time_series(asset_stats, product_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
@@ -169,8 +169,8 @@ class TestAssetVolumeTimeSeries:
             asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_WEEK)
 
         try:
-            for market_type, asset_stats in forward_time_series:
-                volume_time_series.update_volume_time_series(asset_stats, market_type)
+            for product_type, asset_stats in forward_time_series:
+                volume_time_series.update_volume_time_series(asset_stats, product_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
@@ -182,8 +182,8 @@ class TestAssetVolumeTimeSeries:
             asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_HOUR)
 
         try:
-            for market_type, asset_stats in forward_time_series:
-                volume_time_series.update_volume_time_series(asset_stats, market_type)
+            for product_type, asset_stats in forward_time_series:
+                volume_time_series.update_volume_time_series(asset_stats, product_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
@@ -195,8 +195,8 @@ class TestAssetVolumeTimeSeries:
             asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_15_MINUTES)
 
         try:
-            for market_type, asset_stats in forward_time_series:
-                volume_time_series.update_volume_time_series(asset_stats, market_type)
+            for product_type, asset_stats in forward_time_series:
+                volume_time_series.update_volume_time_series(asset_stats, product_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
