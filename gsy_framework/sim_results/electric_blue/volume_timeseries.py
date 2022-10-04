@@ -108,9 +108,10 @@ class AssetVolumeTimeSeries:
             product_type: AvailableMarketTypes, attribute_name: str):
         """Add time slot value to the correct time slot to asset volume time series."""
         time_slot = self._adapt_time_slot(time_slot)
-        volume_time_series = self._get_asset_volume_time_series(
-            year=time_slot.start_of("year"))
+        year = time_slot.start_of("year")
+        volume_time_series = self._get_asset_volume_time_series(year=year)
         volume_time_series[str(time_slot)][product_type.name][attribute_name] += value
+        self._asset_volume_time_series_buffer[year] = volume_time_series
 
     def _adapt_time_slot(self, time_slot: DateTime) -> DateTime:
         """Find the containing time slot of the smaller time slot."""
@@ -130,7 +131,6 @@ class AssetVolumeTimeSeries:
                 time_series = {
                     str(ts): self._get_time_series_template(value)
                     for ts, value in self._generate_SSP_time_series(year)}
-            self._asset_volume_time_series_buffer[year] = time_series
         return time_series
 
     def _fetch_asset_volume_time_series_from_db(
