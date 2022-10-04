@@ -103,7 +103,8 @@ class AssetVolumeTimeSeries:
             market_type: AvailableMarketTypes, attribute_name: str):
         """Add time slot value to the correct time slot to asset volume time series."""
         time_slot = self._adapt_time_slot(time_slot)
-        volume_time_series = self._get_asset_volume_time_series(time_slot.start_of("year"))
+        volume_time_series = self._get_asset_volume_time_series(
+            year=time_slot.start_of("year"))
         volume_time_series[time_slot][market_type.name][attribute_name] += value
 
     def _adapt_time_slot(self, time_slot: DateTime) -> DateTime:
@@ -112,19 +113,19 @@ class AssetVolumeTimeSeries:
             return time_slot.set(minute=(time_slot.minute // 15) * 15)
         return time_slot.start_of(START_OF[self.resolution])
 
-    def _get_asset_volume_time_series(self, time_slot):
-        """Return asset volume time series for the required time slot.
+    def _get_asset_volume_time_series(self, year: DateTime):
+        """Return asset volume time series for the required year.
         If not found in the buffer, it tries fetching it from DB.
         If not found in the DB, it will generate a new one for the whole year."""
-        if time_slot in self._asset_volume_time_series_buffer:
-            time_series = self._asset_volume_time_series_buffer[time_slot]
+        if year in self._asset_volume_time_series_buffer:
+            time_series = self._asset_volume_time_series_buffer[year]
         else:
-            time_series = self._fetch_asset_volume_time_series_from_db(time_slot)
+            time_series = self._fetch_asset_volume_time_series_from_db(year)
             if time_series is None:
                 time_series = {
                     ts: self._get_time_series_template(value)
-                    for ts, value in self._generate_asset_volume_time_series(time_slot)}
-            self._asset_volume_time_series_buffer[time_slot] = time_series
+                    for ts, value in self._generate_asset_volume_time_series(year)}
+            self._asset_volume_time_series_buffer[year] = time_series
         return time_series
 
     def _fetch_asset_volume_time_series_from_db(
