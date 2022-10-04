@@ -81,7 +81,7 @@ class TestAssetVolumeTimeSeries:
             asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_YEAR)
 
         for market_type, asset_stats in forward_time_series:
-            volume_time_series.add(asset_stats, market_type)
+            volume_time_series.update_volume_time_series(asset_stats, market_type)
 
         self.check_time_slots_year(volume_time_series)
         assert volume_time_series._asset_volume_time_series_buffer == {
@@ -157,7 +157,7 @@ class TestAssetVolumeTimeSeries:
 
         try:
             for market_type, asset_stats in forward_time_series:
-                volume_time_series.add(asset_stats, market_type)
+                volume_time_series.update_volume_time_series(asset_stats, market_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
@@ -170,7 +170,7 @@ class TestAssetVolumeTimeSeries:
 
         try:
             for market_type, asset_stats in forward_time_series:
-                volume_time_series.add(asset_stats, market_type)
+                volume_time_series.update_volume_time_series(asset_stats, market_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
@@ -183,7 +183,7 @@ class TestAssetVolumeTimeSeries:
 
         try:
             for market_type, asset_stats in forward_time_series:
-                volume_time_series.add(asset_stats, market_type)
+                volume_time_series.update_volume_time_series(asset_stats, market_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
@@ -196,7 +196,7 @@ class TestAssetVolumeTimeSeries:
 
         try:
             for market_type, asset_stats in forward_time_series:
-                volume_time_series.add(asset_stats, market_type)
+                volume_time_series.update_volume_time_series(asset_stats, market_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
