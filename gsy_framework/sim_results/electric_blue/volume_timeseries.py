@@ -68,9 +68,10 @@ class AssetVolumeTimeSeries:
         self._asset_volume_time_series_buffer: Dict[DateTime, Dict] = {}
         self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_peak_kWh)
 
-    def add(self, asset_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
-        """Add asset time series to asset volume time series."""
-
+    def update_volume_time_series(
+            self, asset_stats: ForwardDeviceStats, market_type: AvailableMarketTypes):
+        """Update asset volume time series with the current asset stats: stats from the last 15
+        minutes."""
         self._add_total_energy_bought(asset_stats, market_type)
         self._add_total_energy_sold(asset_stats, market_type)
 
