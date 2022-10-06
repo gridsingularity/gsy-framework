@@ -54,7 +54,8 @@ class AvailableMarketTypes(Enum):
 class AggregationResolution(Enum):
     """Available aggregation resolutions for forward markets."""
 
-    RES_1_DAY = 1
+    RES_15_MINUTES = 0
+    RES_1_HOUR = 1
     RES_1_WEEK = 2
     RES_1_MONTH = 3
     RES_1_YEAR = 4
@@ -62,7 +63,8 @@ class AggregationResolution(Enum):
     def duration(self):
         """Get duration object based on resolution."""
         return {
-            self.RES_1_DAY: duration(days=1),
+            self.RES_15_MINUTES: duration(minutes=15),
+            self.RES_1_HOUR: duration(hours=1),
             self.RES_1_WEEK: duration(weeks=1),
             self.RES_1_MONTH: duration(months=1),
             self.RES_1_YEAR: duration(years=1)
