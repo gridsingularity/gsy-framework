@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Dict
 
-from pendulum import from_format, Duration
+from pendulum import from_format, DateTime, Duration
 
 from gsy_framework.constants_limits import DATE_TIME_FORMAT
 from gsy_framework.enums import AvailableMarketTypes
@@ -18,8 +18,14 @@ class ForwardResultsHandler:
     def __init__(self, slot_length: Duration):
         self.forward_market_enabled = True
         self.slot_length = slot_length
-        self.previous_device_stats = defaultdict(lambda: defaultdict(dict))
-        self._generate_device_statistics()
+        self.orders: Dict[
+            str, Dict[int, Dict[DateTime, Dict]]] = defaultdict(lambda: defaultdict(dict))
+        self.previous_device_stats = {}
+        self.current_device_stats: Dict[
+            int, Dict[DateTime, Dict[str, Dict]]] = defaultdict(lambda: defaultdict(dict))
+        self.device_time_series: Dict[
+            int, Dict[int, Dict[DateTime, Dict[str, Dict]]]] = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(dict)))
         self._total_memory_utilization_kb = 0.0
 
     # pylint: disable=unused-argument
@@ -27,6 +33,7 @@ class ForwardResultsHandler:
         """
         Update the forward market aggregated results with bids_offers_trades of current slot.
         """
+        self._clear_device_statistics()
         for area_uuid, area_result in core_stats.items():
             if "forward_market_stats" not in area_result:
                 return
@@ -34,9 +41,10 @@ class ForwardResultsHandler:
             current_market_dt = from_format(current_market, DATE_TIME_FORMAT) if (
                 current_market := current_market_slot) else ""
             for market_type_value, market_stats in area_result["forward_market_stats"].items():
-                self._get_bids_offers_trades(area_uuid, market_type_value, market_stats)
+                market_type = int(market_type_value)
+                self._get_bids_offers_trades(area_uuid, market_type, market_stats)
                 current_results = handle_forward_results(current_market_dt, market_stats)
-                self._update_stats_and_time_series(current_results, market_type_value)
+                self._update_stats_and_time_series(current_results, market_type)
         self._update_memory_utilization()
 
     def update_from_repr(self, area_representation: Dict):
@@ -47,14 +55,9 @@ class ForwardResultsHandler:
     @property
     def all_db_results(self) -> Dict:
         """Get dict with all the results in format that can be saved to the DB."""
-        results = {"bids_offers_trades": self.bids_offers_trades}
-        if self.current_device_stats:
-            results["current_device_stats"] = self.current_device_stats
-        if self.device_time_series:
-            results["device_time_series"] = self.device_time_series
-        self._generate_device_statistics()
-        results["cumulative_net_energy_flow"] = {}
-        results["cumulative_market_fees"] = 0.
+        results = {"orders": self.orders, "current_device_stats": self.current_device_stats,
+                   "device_time_series": self.device_time_series, "cumulative_net_energy_flow": {},
+                   "cumulative_market_fees": 0.}
         return results
 
     @property
@@ -62,18 +65,20 @@ class ForwardResultsHandler:
         """Get the total memory allocated by the results."""
         return self._total_memory_utilization_kb
 
-    def _generate_device_statistics(self):
-        self.bids_offers_trades = defaultdict(lambda: defaultdict(dict))
-        self.current_device_stats = defaultdict(lambda: defaultdict(dict))
-        self.device_time_series = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
+    def _clear_device_statistics(self) -> None:
+        self.orders.clear()
+        self.current_device_stats.clear()
+        self.device_time_series.clear()
 
-    def _get_bids_offers_trades(self, area_uuid: str, market_type: int, market_stats: Dict):
+    def _get_bids_offers_trades(self, area_uuid: str, market_type: int,
+                                market_stats: Dict[str, Dict]):
         for time_slot, orders in market_stats.items():
-            self.bids_offers_trades[area_uuid][market_type][time_slot] = \
-                {order: orders.get(order, []) for order in ("offers", "bids", "trades")}
+            time_slot_dt = from_format(time_slot, DATE_TIME_FORMAT)
+            self.orders[area_uuid][market_type][time_slot_dt] = {
+                order: orders.get(order, []) for order in ("offers", "bids", "trades")}
 
-    def _update_stats_and_time_series(self, forward_results: Dict, market_type_value: str):
-        market_type = AvailableMarketTypes(int(market_type_value))
+    def _update_stats_and_time_series(self, forward_results: Dict, market_type_value: int):
+        market_type = AvailableMarketTypes(market_type_value)
         for time_slot, device_results in forward_results.items():
             for device_uuid, current_device_stats in device_results.items():
                 if previous_forward_stats := self.previous_device_stats.get(
