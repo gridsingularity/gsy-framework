@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
 from copy import copy
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from typing import Dict
 
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
@@ -199,10 +199,15 @@ class SCMKPI(ResultsBaseClass):
         if not last_known_state_data:
             return
         if area_dict["uuid"] not in self._state:
+            # TODO: the following SCMKPIState arguments should be mandatory as soon as front-end
+            #  removed GridMarket from the scenario.
             self._state[area_dict["uuid"]] = SCMKPIState(
-                total_energy_demanded_wh=last_known_state_data["total_energy_demanded_wh"],
-                total_energy_produced_wh=last_known_state_data["total_energy_produced_wh"],
-                total_self_consumption_wh=last_known_state_data["total_self_consumption_wh"],
+                total_energy_demanded_wh=last_known_state_data.get(
+                    "total_energy_demanded_wh", 0) or 0,
+                total_energy_produced_wh=last_known_state_data.get(
+                    "total_energy_produced_wh", 0) or 0,
+                total_self_consumption_wh=last_known_state_data.get(
+                    "total_self_consumption_wh", 0) or 0,
                 total_base_energy_cost=last_known_state_data.get("total_base_energy_cost", 0) or 0,
                 total_fit_revenue=last_known_state_data.get("total_fit_revenue", 0) or 0,
                 total_gsy_e_cost=last_known_state_data.get("total_gsy_e_cost", 0) or 0,
