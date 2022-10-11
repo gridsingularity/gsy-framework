@@ -5,6 +5,7 @@ from pendulum import from_format, Duration
 
 from gsy_framework.constants_limits import DATE_TIME_FORMAT
 from gsy_framework.enums import AvailableMarketTypes
+from gsy_framework.forward_markets.forward_profile import ALLOWED_MARKET_TYPES
 from gsy_framework.sim_results.electric_blue.aggregate_results import (handle_forward_results,
                                                                        ForwardDeviceStats,
                                                                        MARKET_RESOLUTIONS)
@@ -76,14 +77,20 @@ class ForwardResultsHandler:
         for time_slot, device_results in forward_results.items():
             for device_uuid, current_device_stats in device_results.items():
                 if previous_forward_stats := self.previous_device_stats.get(
-                        market_type_value, {}).get(time_slot, {}).get(device_uuid, ""):
-                    previous_device_stats = ForwardDeviceStats.from_json(previous_forward_stats)
+                        market_type_value, {}).get(time_slot, {}).get(device_uuid, {}):
+                    previous_device_stats = ForwardDeviceStats(**previous_forward_stats)
                     current_device_stats += previous_device_stats
                 self.current_device_stats[market_type_value][time_slot][device_uuid] = \
-                    current_device_stats.to_json_string()
+                    current_device_stats.to_dict()
+                if market_type not in ALLOWED_MARKET_TYPES:
+                    # TODO: delete this check, when ForwardTradeProfileGenerator profile generation
+                    #  functionality will be extend with all forward markets types
+                    continue
                 for resolution in MARKET_RESOLUTIONS.get(market_type, []):
                     device_time_series = ForwardDeviceTimeSeries(current_device_stats, market_type)
-                    all_time_series = device_time_series.generate(resolution=resolution.duration())
+                    all_time_series_generators = device_time_series.generate(
+                        resolution=resolution.duration())
+                    all_time_series = {k: dict(v) for k, v in all_time_series_generators.items()}
                     self.device_time_series[market_type_value][resolution.value][time_slot][
                         device_uuid] = all_time_series
 
