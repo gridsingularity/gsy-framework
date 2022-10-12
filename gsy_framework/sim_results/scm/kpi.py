@@ -215,9 +215,9 @@ class SCMKPI(ResultsBaseClass):
                     "total_base_energy_cost_excl_revenue", 0) or 0,
                 total_gsy_e_cost_excl_revenue=last_known_state_data.get(
                     "total_gsy_e_cost_excl_revenue", 0) or 0,
-                energy_demanded_wh=last_known_state_data["energy_demanded_wh"],
-                energy_produced_wh=last_known_state_data["energy_produced_wh"],
-                self_consumption_wh=last_known_state_data["self_consumption_wh"],
+                energy_demanded_wh=last_known_state_data.get("energy_demanded_wh", 0) or 0,
+                energy_produced_wh=last_known_state_data.get("energy_produced_wh", 0) or 0,
+                self_consumption_wh=last_known_state_data.get("self_consumption_wh", 0) or 0,
                 base_energy_cost=last_known_state_data.get("base_energy_cost", 0) or 0,
                 base_energy_cost_excl_revenue=last_known_state_data.get(
                     "base_energy_cost_excl_revenue", 0) or 0,
