@@ -83,7 +83,7 @@ class ForwardResultsHandler:
             for device_uuid, current_device_stats in device_results.items():
                 if previous_forward_stats := self.previous_device_stats.get(
                         market_type_value, {}).get(time_slot, {}).get(device_uuid, {}):
-                    previous_device_stats = ForwardDeviceStats(**previous_forward_stats)
+                    previous_device_stats = ForwardDeviceStats.from_dict(previous_forward_stats)
                     current_device_stats += previous_device_stats
                 self.current_device_stats[market_type_value][time_slot][device_uuid] = \
                     current_device_stats.to_dict()
