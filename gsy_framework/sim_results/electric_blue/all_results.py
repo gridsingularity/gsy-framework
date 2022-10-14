@@ -28,8 +28,7 @@ class ForwardResultsHandler:
             lambda: defaultdict(lambda: defaultdict(dict)))
         self._total_memory_utilization_kb = 0.0
 
-    # pylint: disable=unused-argument
-    def update(self, area_dict: Dict, core_stats: Dict, current_market_slot: str) -> None:
+    def update(self, _area_dict: Dict, core_stats: Dict, current_market_slot: str) -> None:
         """
         Update the forward market aggregated results with bids_offers_trades of current slot.
         """
@@ -42,14 +41,14 @@ class ForwardResultsHandler:
                 current_market_slot) else ""
             for market_type_value, market_stats in area_result["forward_market_stats"].items():
                 market_type = int(market_type_value)
-                self._get_bids_offers_trades(area_uuid, market_type, market_stats)
+                self._buffer_bids_offers_trades(area_uuid, market_type, market_stats)
                 current_results = handle_forward_results(current_market_dt, market_stats)
                 self._update_stats_and_time_series(current_results, market_type)
         self._update_memory_utilization()
 
     def update_from_repr(self, area_representation: Dict):
         """
-        Updates the simulation results using area_representation data that arrive from the d3a-web.
+        Updates the simulation results using area_representation data that arrive from the gsy-web.
         """
 
     @property
@@ -70,8 +69,8 @@ class ForwardResultsHandler:
         self.current_device_stats.clear()
         self.device_time_series.clear()
 
-    def _get_bids_offers_trades(self, area_uuid: str, market_type: int,
-                                market_stats: Dict[str, Dict]):
+    def _buffer_bids_offers_trades(self, area_uuid: str, market_type: int,
+                                   market_stats: Dict[str, Dict]):
         for time_slot, orders in market_stats.items():
             time_slot_dt = str_to_pendulum_datetime(time_slot)
             self.orders[area_uuid][market_type][time_slot_dt] = {
@@ -96,7 +95,7 @@ class ForwardResultsHandler:
             current_device_stats: "ForwardDeviceStats"):
         if market_type not in ALLOWED_MARKET_TYPES:
             # TODO: delete this check, when ForwardTradeProfileGenerator profile generation
-            #  functionality will be extend with all forward markets types
+            #  functionality will be extended with all forward markets types
             return
         for resolution in MARKET_RESOLUTIONS.get(market_type, []):
             device_time_series = ForwardDeviceTimeSeries(current_device_stats, market_type)
