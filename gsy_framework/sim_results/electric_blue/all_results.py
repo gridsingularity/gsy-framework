@@ -87,17 +87,24 @@ class ForwardResultsHandler:
                     current_device_stats += previous_device_stats
                 self.current_device_stats[market_type_value][time_slot][device_uuid] = \
                     current_device_stats.to_dict()
-                if market_type not in ALLOWED_MARKET_TYPES:
-                    # TODO: delete this check, when ForwardTradeProfileGenerator profile generation
-                    #  functionality will be extend with all forward markets types
-                    continue
-                for resolution in MARKET_RESOLUTIONS.get(market_type, []):
-                    device_time_series = ForwardDeviceTimeSeries(current_device_stats, market_type)
-                    all_time_series_generators = device_time_series.generate(
-                        resolution=resolution.duration())
-                    all_time_series = {k: dict(v) for k, v in all_time_series_generators.items()}
-                    self.device_time_series[market_type_value][resolution.value][time_slot][
-                        device_uuid] = all_time_series
+                self._generate_device_time_series(market_type, market_type_value, time_slot,
+                                                  device_uuid, current_device_stats)
+
+    def _generate_device_time_series(  # pylint: disable=too-many-arguments
+            self, market_type: "AvailableMarketTypes",
+            market_type_value: int, time_slot: DateTime, device_uuid: str,
+            current_device_stats: "ForwardDeviceStats"):
+        if market_type not in ALLOWED_MARKET_TYPES:
+            # TODO: delete this check, when ForwardTradeProfileGenerator profile generation
+            #  functionality will be extend with all forward markets types
+            return
+        for resolution in MARKET_RESOLUTIONS.get(market_type, []):
+            device_time_series = ForwardDeviceTimeSeries(current_device_stats, market_type)
+            all_time_series_generators = device_time_series.generate(
+                resolution=resolution.duration())
+            all_time_series = {k: dict(v) for k, v in all_time_series_generators.items()}
+            self.device_time_series[market_type_value][resolution.value][time_slot][
+                device_uuid] = all_time_series
 
     def _update_memory_utilization(self) -> None:
         pass
