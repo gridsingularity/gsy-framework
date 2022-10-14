@@ -2,9 +2,8 @@ from collections import defaultdict
 from dataclasses import dataclass, fields
 from typing import Dict, List
 
-from pendulum import DateTime, from_format
+from pendulum import DateTime
 
-from gsy_framework.constants_limits import DATE_TIME_FORMAT
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
 from gsy_framework.utils import str_to_pendulum_datetime
 
@@ -108,11 +107,12 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
     def from_dict(cls, device_stats_dict: Dict) -> "ForwardDeviceStats":
         """Return ForwardDeviceStats from dict, with deserialized DateTimes
         from YYYY-MM-DDTHH:mm format."""
-        if time_slot := device_stats_dict.get("time_slot"):
-            device_stats_dict["time_slot"] = from_format(time_slot, DATE_TIME_FORMAT)
-        if current_time_slot := device_stats_dict.get("current_time_slot"):
-            device_stats_dict["current_time_slot"] = from_format(current_time_slot,
-                                                                 DATE_TIME_FORMAT)
+        time_slot = device_stats_dict.get("time_slot")
+        current_time_slot = device_stats_dict.get("current_time_slot")
+        if time_slot:
+            device_stats_dict["time_slot"] = str_to_pendulum_datetime(time_slot)
+        if current_time_slot:
+            device_stats_dict["current_time_slot"] = str_to_pendulum_datetime(current_time_slot)
         return ForwardDeviceStats(**device_stats_dict)
 
     def add_trade(self, trade: Dict) -> None:

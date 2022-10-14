@@ -238,7 +238,7 @@ def datetime_to_string_incl_seconds(date_time: DateTime) -> str:
     return date_time.format(DATE_TIME_FORMAT_SECONDS)
 
 
-def datetime_to_string(datetime_object: DateTime) -> str:
+def pendulum_datetime_to_string(datetime_object: DateTime) -> str:
     """Convert a datetime object into a string with YYYY-MM-DDTHH:mm format."""
     return datetime_object.format(DATE_TIME_FORMAT)
 

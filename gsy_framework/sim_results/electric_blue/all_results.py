@@ -1,15 +1,15 @@
 from collections import defaultdict
 from typing import Dict
 
-from pendulum import from_format, DateTime, Duration
+from pendulum import DateTime, Duration
 
-from gsy_framework.constants_limits import DATE_TIME_FORMAT
 from gsy_framework.enums import AvailableMarketTypes
 from gsy_framework.forward_markets.forward_profile import ALLOWED_MARKET_TYPES
 from gsy_framework.sim_results.electric_blue.aggregate_results import (handle_forward_results,
                                                                        ForwardDeviceStats,
                                                                        MARKET_RESOLUTIONS)
 from gsy_framework.sim_results.electric_blue.time_series import ForwardDeviceTimeSeries
+from gsy_framework.utils import str_to_pendulum_datetime
 
 
 class ForwardResultsHandler:
@@ -38,8 +38,8 @@ class ForwardResultsHandler:
             if "forward_market_stats" not in area_result:
                 return
 
-            current_market_dt = from_format(current_market, DATE_TIME_FORMAT) if (
-                current_market := current_market_slot) else ""
+            current_market_dt = str_to_pendulum_datetime(current_market_slot) if (
+                current_market_slot) else ""
             for market_type_value, market_stats in area_result["forward_market_stats"].items():
                 market_type = int(market_type_value)
                 self._get_bids_offers_trades(area_uuid, market_type, market_stats)
@@ -73,7 +73,7 @@ class ForwardResultsHandler:
     def _get_bids_offers_trades(self, area_uuid: str, market_type: int,
                                 market_stats: Dict[str, Dict]):
         for time_slot, orders in market_stats.items():
-            time_slot_dt = from_format(time_slot, DATE_TIME_FORMAT)
+            time_slot_dt = str_to_pendulum_datetime(time_slot)
             self.orders[area_uuid][market_type][time_slot_dt] = {
                 order: orders.get(order, []) for order in ("offers", "bids", "trades")}
 
