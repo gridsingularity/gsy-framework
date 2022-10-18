@@ -130,6 +130,20 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
         assert offer["seller_id"] == self.device_uuid, "Device is not seller of the offer."
         self.open_offers.append(offer)
 
+    @property
+    def average_sell_price(self) -> float:
+        """Return average sell price for the timeslot."""
+        if self.total_energy_sold == 0:
+            return 0
+        return self.total_earned_eur / self.total_energy_sold
+
+    @property
+    def average_buy_price(self) -> float:
+        """Return average buy price for the timeslot."""
+        if self.total_energy_bought == 0:
+            return 0
+        return self.total_spent_eur / self.total_energy_bought
+
 
 def handle_forward_results(
         current_time_slot: DateTime, market_stats: Dict[str, Dict[str, List]]) -> Dict:
