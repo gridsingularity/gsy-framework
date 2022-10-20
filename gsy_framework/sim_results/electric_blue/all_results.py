@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Dict
 
-from pendulum import DateTime, Duration
+from pendulum import DateTime
 
 from gsy_framework.enums import AvailableMarketTypes
 from gsy_framework.forward_markets.forward_profile import ALLOWED_MARKET_TYPES
@@ -15,9 +15,8 @@ from gsy_framework.utils import str_to_pendulum_datetime
 class ForwardResultsHandler:
     """Calculate all results for each market slot for forward markets."""
 
-    def __init__(self, slot_length: Duration):
+    def __init__(self):
         self.forward_market_enabled = True
-        self.slot_length = slot_length
         self.orders: Dict[
             str, Dict[int, Dict[DateTime, Dict]]] = defaultdict(lambda: defaultdict(dict))
         self.previous_device_stats = {}
@@ -32,7 +31,8 @@ class ForwardResultsHandler:
         """
         Update the forward market aggregated results with bids_offers_trades of current slot.
         """
-        self._clear_device_statistics()
+        self._buffer_current_device_stats()
+        self._clear_device_stats()
         for area_uuid, area_result in core_stats.items():
             if "forward_market_stats" not in area_result:
                 return
@@ -51,6 +51,11 @@ class ForwardResultsHandler:
         Updates the simulation results using area_representation data that arrive from the gsy-web.
         """
 
+    def restore_device_stats(self, device_stats):
+        """Restore previous device statistics from the state persisted to the DB."""
+        if not self.previous_device_stats:
+            self.previous_device_stats = device_stats
+
     @property
     def all_db_results(self) -> Dict:
         """Get dict with all the results in format that can be saved to the DB."""
@@ -64,9 +69,12 @@ class ForwardResultsHandler:
         """Get the total memory allocated by the results."""
         return self._total_memory_utilization_kb
 
-    def _clear_device_statistics(self) -> None:
+    def _buffer_current_device_stats(self) -> None:
+        self.previous_device_stats = self.current_device_stats
+
+    def _clear_device_stats(self) -> None:
         self.orders.clear()
-        self.current_device_stats.clear()
+        self.current_device_stats = defaultdict(lambda: defaultdict(dict))
         self.device_time_series.clear()
 
     def _buffer_bids_offers_trades(self, area_uuid: str, market_type: int,
