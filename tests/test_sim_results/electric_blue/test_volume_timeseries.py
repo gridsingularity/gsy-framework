@@ -39,8 +39,8 @@ class TestAssetVolumeTimeSeries:
     @staticmethod
     def check_time_slots_year(volume_time_series: AssetVolumeTimeSeries):
         """Check all timeslots of a given year belong to that year."""
-        for year in volume_time_series._asset_volume_time_series_buffer:
-            for year_within in volume_time_series._asset_volume_time_series_buffer[year]:
+        for year in volume_time_series._asset_time_series_buffer:
+            for year_within in volume_time_series._asset_time_series_buffer[year]:
                 assert year_within.startswith(str(year.year))
 
     def test_adapt_time_slot_for_15_minute_resolution(self):
@@ -81,10 +81,10 @@ class TestAssetVolumeTimeSeries:
             asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_YEAR)
 
         for product_type, asset_stats in forward_time_series:
-            volume_time_series.update_volume_time_series(asset_stats, product_type)
+            volume_time_series.update_time_series(asset_stats, product_type)
 
         self.check_time_slots_year(volume_time_series)
-        assert volume_time_series._asset_volume_time_series_buffer == {
+        assert volume_time_series._asset_time_series_buffer == {
             DateTime(2020, 1, 1, 0, 0, 0): {
                 str(DateTime(2020, 1, 1, 0, 0, 0)): {
                     "SSP": 36164.701938689024,
@@ -157,7 +157,7 @@ class TestAssetVolumeTimeSeries:
 
         try:
             for product_type, asset_stats in forward_time_series:
-                volume_time_series.update_volume_time_series(asset_stats, product_type)
+                volume_time_series.update_time_series(asset_stats, product_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
@@ -170,7 +170,7 @@ class TestAssetVolumeTimeSeries:
 
         try:
             for product_type, asset_stats in forward_time_series:
-                volume_time_series.update_volume_time_series(asset_stats, product_type)
+                volume_time_series.update_time_series(asset_stats, product_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
@@ -183,7 +183,7 @@ class TestAssetVolumeTimeSeries:
 
         try:
             for product_type, asset_stats in forward_time_series:
-                volume_time_series.update_volume_time_series(asset_stats, product_type)
+                volume_time_series.update_time_series(asset_stats, product_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 
@@ -196,7 +196,7 @@ class TestAssetVolumeTimeSeries:
 
         try:
             for product_type, asset_stats in forward_time_series:
-                volume_time_series.update_volume_time_series(asset_stats, product_type)
+                volume_time_series.update_time_series(asset_stats, product_type)
         except KeyError as exc:
             pytest.fail(str(exc))
 

@@ -8,22 +8,16 @@ from gsy_framework.forward_markets.forward_profile import (
     ForwardTradeProfileGenerator)
 from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
+from gsy_framework.sim_results.electric_blue.timeseries_base import (
+    AssetTimeSeriesBase)
 
 FORWARD_PRODUCT_TYPES = [
     AvailableMarketTypes.YEAR_FORWARD, AvailableMarketTypes.MONTH_FORWARD,
     AvailableMarketTypes.WEEK_FORWARD, AvailableMarketTypes.DAY_FORWARD,
 ]
 
-# a dictionary showing the start of time slot for each resolution.
-START_OF = {
-    AggregationResolution.RES_1_HOUR: "hour",
-    AggregationResolution.RES_1_WEEK: "week",
-    AggregationResolution.RES_1_MONTH: "month",
-    AggregationResolution.RES_1_YEAR: "year",
-}
 
-
-class AssetVolumeTimeSeries:
+class AssetVolumeTimeSeries(AssetTimeSeriesBase):
     """This class generates combined volume time series for the whole year for each asset.
     The result would be like this for a monthly resolution for the year 2020:
     {
@@ -60,25 +54,23 @@ class AssetVolumeTimeSeries:
     def __init__(
             self, asset_uuid: str, asset_peak_kWh: float,
             resolution: AggregationResolution):
-
-        self.asset_uuid = asset_uuid
+        super().__init__(asset_uuid, resolution)
         self.asset_peak_kWh = asset_peak_kWh
-        self.resolution = resolution
-
-        self._asset_volume_time_series_buffer: Dict[DateTime, Dict] = {}
         self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_peak_kWh)
 
-    def update_volume_time_series(
+    def update_time_series(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
-        """Update asset volume time series with the current asset stats: stats from the last 15
-        minutes."""
         self._add_total_energy_bought(asset_stats, product_type)
         self._add_total_energy_sold(asset_stats, product_type)
 
     def save_time_series(self):
         """Save asset volume time series in the DB."""
         # TODO: should be implemented.
-        raise NotImplementedError()
+
+    def _fetch_asset_time_series_from_db(
+            self, year: DateTime) -> Optional[Dict[str, Dict]]:
+        """Fetch already saved asset volume time series."""
+        # TODO: should be implemented.
 
     def _add_total_energy_bought(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
@@ -109,35 +101,14 @@ class AssetVolumeTimeSeries:
         """Add time slot value to the correct time slot to asset volume time series."""
         time_slot = self._adapt_time_slot(time_slot)
         year = time_slot.start_of("year")
-        volume_time_series = self._get_asset_volume_time_series(year=year)
+        volume_time_series = self._get_asset_time_series(year=year)
         volume_time_series[str(time_slot)][product_type.name][attribute_name] += value
-        self._asset_volume_time_series_buffer[year] = volume_time_series
+        self._asset_time_series_buffer[year] = volume_time_series
 
-    def _adapt_time_slot(self, time_slot: DateTime) -> DateTime:
-        """Find the containing time slot of the smaller time slot."""
-        if self.resolution == AggregationResolution.RES_15_MINUTES:
-            return time_slot.set(minute=(time_slot.minute // 15) * 15)
-        return time_slot.start_of(START_OF[self.resolution])
-
-    def _get_asset_volume_time_series(self, year: DateTime) -> Dict[str, Dict]:
-        """Return asset volume time series for the required year.
-        If not found in the buffer, it tries fetching it from DB.
-        If not found in the DB, it will generate a new one for the whole year."""
-        if year in self._asset_volume_time_series_buffer:
-            time_series = self._asset_volume_time_series_buffer[year]
-        else:
-            time_series = self._fetch_asset_volume_time_series_from_db(year)
-            if time_series is None:
-                time_series = {
-                    str(ts): self._get_time_series_template(value)
-                    for ts, value in self._generate_SSP_time_series(year)}
-        return time_series
-
-    def _fetch_asset_volume_time_series_from_db(
-            self, year: DateTime) -> Optional[Dict[str, Dict]]:
-        """Fetch already saved asset volume time series."""
-        # TODO: should be implemented.
-        return None
+    def _generate_time_series(self, year):
+        return {
+            str(ts): self._get_time_series_template(value)
+            for ts, value in self._generate_SSP_time_series(year)}
 
     def _generate_SSP_time_series(self, year: DateTime):
         """Generate SSP time series for the whole year. The generated time series will then be
