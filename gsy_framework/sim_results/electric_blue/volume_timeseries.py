@@ -24,24 +24,45 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
     {
         DateTime(2020, 1, 1, 0, 0, 0): {
             DateTime(2020, 1, 1, 0, 0, 0): {
-                "SSP": 1005.4160297565659,
-                "YEAR_FORWARD": {
-                    "bought_kWh": 201.08320595131318,
-                    "sold_kWh": 201.08320595131318,
+                'DAY_FORWARD': {
+                    'bought': {
+                        'energy_kWh': 0.0,
+                        'energy_rate': 0.0,
+                        'price': 0.0},
+                    'sold': {
+                        'energy_kWh': 0.0,
+                        'energy_rate': 0.0,
+                        'price': 0.0}
                 },
-                "MONTH_FORWARD": {
-                    "bought_kWh": 201.08320595131318,
-                    "sold_kWh": 201.08320595131318,
+                'MONTH_FORWARD': {
+                    'bought': {
+                        'energy_kWh': 402.132,
+                        'energy_rate': 0.3,
+                        'price': 120.28},
+                    'sold': {
+                        'energy_kWh': 402.132,
+                        'energy_rate': 0.45,
+                        'price': 181.97}
                 },
-                "WEEK_FORWARD": {
-                    "bought_kWh": 32.432775153437625,
-                    "sold_kWh": 32.432775153437625,
-                },
-                "DAY_FORWARD": {
-                    "bought_kWh": 6.486555030687522,
-                    "sold_kWh": 6.486555030687522,
-                },
-            },
+                'SSP': 201.08320595131318,
+                'WEEK_FORWARD': {
+                    'bought': {
+                        'energy_kWh': 0.0,
+                        'energy_rate': 0.0,
+                        'price': 0.0},
+                    'sold': {
+                        'energy_kWh': 0.0,
+                        'energy_rate': 0.0,
+                        'price': 0.0}},
+                'YEAR_FORWARD': {
+                    'bought': {
+                        'energy_kWh': 0.0,
+                        'energy_rate': 0.0,
+                        'price': 0.0},
+                    'sold': {
+                        'energy_kWh': 0.0,
+                        'energy_rate': 0.0,
+                        'price': 0.0}}},
             DateTime(2020, 2, 1, 0, 0, 0): {...},
             ...
             DateTime(2020, 12, 1, 0, 0, 0): {...},
