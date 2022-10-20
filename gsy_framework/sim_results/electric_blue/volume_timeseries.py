@@ -10,6 +10,7 @@ from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
 from gsy_framework.sim_results.electric_blue.timeseries_base import (
     AssetTimeSeriesBase)
+from gsy_framework.utils import round_floats_for_ui, round_prices_to_cents
 
 FORWARD_PRODUCT_TYPES = [
     AvailableMarketTypes.YEAR_FORWARD, AvailableMarketTypes.MONTH_FORWARD,
@@ -80,8 +81,14 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
             return
         profile = self._trade_profile_generator.generate_trade_profile(
             energy_kWh, asset_stats.time_slot, product_type)
-        for time_slot, value in profile.items():
-            self._add_to_volume_time_series(time_slot, value, product_type, "bought_kWh")
+        average_buy_price = asset_stats.average_buy_price
+        for time_slot, energy in profile.items():
+            self._add_to_volume_time_series(
+                time_slot,
+                {
+                    "energy_kWh": energy,
+                    "price": energy * average_buy_price
+                }, product_type, "bought")
 
     def _add_total_energy_sold(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
@@ -92,17 +99,35 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         profile = self._trade_profile_generator.generate_trade_profile(
             energy_kWh, asset_stats.time_slot, product_type
         )
-        for time_slot, value in profile.items():
-            self._add_to_volume_time_series(time_slot, value, product_type, "sold_kWh")
+        average_sell_price = asset_stats.average_sell_price
+        for time_slot, energy in profile.items():
+            self._add_to_volume_time_series(
+                time_slot,
+                {
+                    "energy_kWh": energy,
+                    "price": energy * average_sell_price
+                }, product_type, "sold")
 
     def _add_to_volume_time_series(
-            self, time_slot: DateTime, value: float,
+            self, time_slot: DateTime, time_slot_info: Dict,
             product_type: AvailableMarketTypes, attribute_name: str):
         """Add time slot value to the correct time slot to asset volume time series."""
         time_slot = self._adapt_time_slot(time_slot)
         year = time_slot.start_of("year")
         volume_time_series = self._get_asset_time_series(year=year)
-        volume_time_series[str(time_slot)][product_type.name][attribute_name] += value
+
+        # UPDATING energy_kWh, price and energy_rate
+        attribute_data = volume_time_series[str(time_slot)][product_type.name][attribute_name]
+        attribute_data["energy_kWh"] = round_floats_for_ui(
+            attribute_data["energy_kWh"] + time_slot_info["energy_kWh"])
+        attribute_data["price"] = round_prices_to_cents(
+            attribute_data["price"] + time_slot_info["price"])
+        try:
+            attribute_data["energy_rate"] = round_prices_to_cents(
+                attribute_data["price"] / attribute_data["energy_kWh"])
+        except ZeroDivisionError:
+            attribute_data["energy_rate"] = 0.0
+
         self._asset_time_series_buffer[year] = volume_time_series
 
     def _generate_time_series(self, year):
@@ -133,7 +158,18 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         return {
             "SSP": ssp_value,
             **{
-                f"{product_type.name}": {"bought_kWh": 0, "sold_kWh": 0}
+                f"{product_type.name}": {
+                    "bought": {
+                        "energy_kWh": 0.0,
+                        "price": 0.0,
+                        "energy_rate": 0.0
+                    },
+                    "sold": {
+                        "energy_kWh": 0.0,
+                        "price": 0.0,
+                        "energy_rate": 0.0
+                    }
+                }
                 for product_type in FORWARD_PRODUCT_TYPES
             }
         }
