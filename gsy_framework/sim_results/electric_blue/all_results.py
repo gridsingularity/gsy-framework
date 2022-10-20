@@ -31,14 +31,15 @@ class ForwardResultsHandler:
         """
         Update the forward market aggregated results with bids_offers_trades of current slot.
         """
+        if not current_market_slot:
+            return
         self._buffer_current_device_stats()
         self._clear_device_stats()
         for area_uuid, area_result in core_stats.items():
             if "forward_market_stats" not in area_result:
                 return
 
-            current_market_dt = str_to_pendulum_datetime(current_market_slot) if (
-                current_market_slot) else ""
+            current_market_dt = str_to_pendulum_datetime(current_market_slot)
             for market_type_value, market_stats in area_result["forward_market_stats"].items():
                 market_type = int(market_type_value)
                 self._buffer_bids_offers_trades(area_uuid, market_type, market_stats)
