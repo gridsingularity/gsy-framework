@@ -177,7 +177,7 @@ class TestAssetVolumeTimeSeries:
                 add_to_volume_time_series_mock.assert_has_calls(expected_calls)
 
     @staticmethod
-    def test__add_to_volume_time_series_works_correctly():
+    def test_add_to_volume_time_series_works_correctly():
         volume_time_series = AssetVolumeTimeSeries(
             asset_uuid="UUID", asset_peak_kWh=5, resolution=AggregationResolution.RES_1_MONTH)
         time_slot = DateTime(2020, 1, 1)
