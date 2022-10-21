@@ -102,13 +102,13 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
             return
         profile = self._trade_profile_generator.generate_trade_profile(
             energy_kWh, asset_stats.time_slot, product_type)
-        average_buy_price = asset_stats.average_buy_price
+        average_buy_rate = asset_stats.average_buy_rate
         for time_slot, energy in profile.items():
             self._add_to_volume_time_series(
                 time_slot,
                 {
                     "energy_kWh": energy,
-                    "price": energy * average_buy_price
+                    "price": energy * average_buy_rate
                 }, product_type, "bought")
 
     def _add_total_energy_sold(
@@ -120,13 +120,13 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         profile = self._trade_profile_generator.generate_trade_profile(
             energy_kWh, asset_stats.time_slot, product_type
         )
-        average_sell_price = asset_stats.average_sell_price
+        average_sell_rate = asset_stats.average_sell_rate
         for time_slot, energy in profile.items():
             self._add_to_volume_time_series(
                 time_slot,
                 {
                     "energy_kWh": energy,
-                    "price": energy * average_sell_price
+                    "price": energy * average_sell_rate
                 }, product_type, "sold")
 
     def _add_to_volume_time_series(
