@@ -127,7 +127,7 @@ class TestAssetVolumeTimeSeries:
                             time_slot,
                             {
                                 "energy_kWh": energy,
-                                "price": energy * asset_stats.average_buy_price},
+                                "price": energy * asset_stats.average_buy_rate},
                             AvailableMarketTypes.YEAR_FORWARD, "bought"
                         )
                     )
@@ -169,7 +169,7 @@ class TestAssetVolumeTimeSeries:
                             time_slot,
                             {
                                 "energy_kWh": energy,
-                                "price": energy * asset_stats.average_sell_price},
+                                "price": energy * asset_stats.average_sell_rate},
                             AvailableMarketTypes.YEAR_FORWARD, "sold"
                         )
                     )
