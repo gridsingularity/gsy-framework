@@ -7,7 +7,7 @@ from gsy_framework.forward_markets.forward_profile import (
     ForwardTradeProfileGenerator)
 from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
-from gsy_framework.utils import pendulum_datetime_to_string
+from gsy_framework.utils import format_datetime
 
 
 def resample_data(
@@ -22,7 +22,7 @@ def resample_data(
     time_slots_to_aggregate = []
     for time_slot in sorted_time_slots:
         if time_slot >= next_time:
-            time_slot_str = pendulum_datetime_to_string(time_slots_to_aggregate[0])
+            time_slot_str = format_datetime(time_slots_to_aggregate[0])
             yield time_slot_str, aggregator_fn(
                 [timeseries_data[t] for t in time_slots_to_aggregate])
             time_slots_to_aggregate = [time_slot]
@@ -32,7 +32,7 @@ def resample_data(
 
     if time_slots_to_aggregate:
         # aggregate any remaining time_slots in the buffer
-        time_slot_str = pendulum_datetime_to_string(time_slots_to_aggregate[0])
+        time_slot_str = format_datetime(time_slots_to_aggregate[0])
         yield time_slot_str, aggregator_fn(
             [timeseries_data[t] for t in time_slots_to_aggregate])
 

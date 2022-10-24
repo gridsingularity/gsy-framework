@@ -5,7 +5,7 @@ from typing import Dict, List
 from pendulum import DateTime
 
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
-from gsy_framework.utils import pendulum_datetime_to_string, str_to_pendulum_datetime
+from gsy_framework.utils import format_datetime, str_to_pendulum_datetime
 
 # Used by forward markets; the following dictionary defines
 # what aggregations are needed for each market type.
@@ -102,8 +102,8 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
     def to_dict(self) -> Dict:
         """Generate a dictionary for saving the data into DB."""
         result_dict = {f.name: getattr(self, f.name) for f in fields(self)}
-        result_dict["time_slot"] = pendulum_datetime_to_string(result_dict["time_slot"])
-        result_dict["current_time_slot"] = pendulum_datetime_to_string(
+        result_dict["time_slot"] = format_datetime(result_dict["time_slot"])
+        result_dict["current_time_slot"] = format_datetime(
             result_dict["current_time_slot"])
         return result_dict
 
