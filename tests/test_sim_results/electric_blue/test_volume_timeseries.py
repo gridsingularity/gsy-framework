@@ -127,7 +127,9 @@ class TestAssetVolumeTimeSeries:
                             time_slot,
                             {
                                 "energy_kWh": energy,
-                                "price": energy * asset_stats.average_buy_rate},
+                                "trade_count": asset_stats.total_buy_trade_count,
+                                "accumulated_trade_rates": asset_stats.accumulated_buy_trade_rates
+                            },
                             AvailableMarketTypes.YEAR_FORWARD, "bought"
                         )
                     )
@@ -169,7 +171,9 @@ class TestAssetVolumeTimeSeries:
                             time_slot,
                             {
                                 "energy_kWh": energy,
-                                "price": energy * asset_stats.average_sell_rate},
+                                "trade_count": asset_stats.total_sell_trade_count,
+                                "accumulated_trade_rates": asset_stats.accumulated_sell_trade_rates
+                            },
                             AvailableMarketTypes.YEAR_FORWARD, "sold"
                         )
                     )
@@ -183,23 +187,25 @@ class TestAssetVolumeTimeSeries:
         time_slot = DateTime(2020, 1, 1)
         time_slot_info = {
             "energy_kWh": 1,
-            "price": 0.0
+            "trade_count": 1,
+            "accumulated_trade_rates": 0.3
         }
         volume_time_series._add_to_volume_time_series(
             time_slot, time_slot_info, AvailableMarketTypes.MONTH_FORWARD, "sold")
         sold_time_slot_data = volume_time_series._asset_time_series_buffer[time_slot.start_of(
             "year")][str(time_slot)]["MONTH_FORWARD"]["sold"]
-        assert sold_time_slot_data == {"energy_kWh": 1.0, "price": 0.0, "energy_rate": 0.0}
+        assert sold_time_slot_data == {"energy_kWh": 1.0, "energy_rate": 0.3, "trade_count": 1}
 
         time_slot_info = {
             "energy_kWh": 1,
-            "price": 0.6
+            "trade_count": 2,
+            "accumulated_trade_rates": 0.4
         }
         volume_time_series._add_to_volume_time_series(
             time_slot, time_slot_info, AvailableMarketTypes.MONTH_FORWARD, "sold")
         sold_time_slot_data = volume_time_series._asset_time_series_buffer[time_slot.start_of(
             "year")][str(time_slot)]["MONTH_FORWARD"]["sold"]
-        assert sold_time_slot_data == {"energy_kWh": 2.0, "price": 0.6, "energy_rate": 0.3}
+        assert sold_time_slot_data == {"energy_kWh": 2.0, "energy_rate": 0.23, "trade_count": 3}
 
     def test_add_asset_time_series_for_1_month_resolution(self, forward_time_series):
         """Call AssetVolumeTimeSeries in 1-month resolution to assure no KeyErrors happen."""

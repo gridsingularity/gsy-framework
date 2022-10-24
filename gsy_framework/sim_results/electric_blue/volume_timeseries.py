@@ -102,13 +102,15 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
             return
         profile = self._trade_profile_generator.generate_trade_profile(
             energy_kWh, asset_stats.time_slot, product_type)
-        average_buy_rate = asset_stats.average_buy_rate
+        accumulated_buy_trade_rates = asset_stats.accumulated_buy_trade_rates
+        total_buy_trade_count = asset_stats.total_buy_trade_count
         for time_slot, energy in profile.items():
             self._add_to_volume_time_series(
                 time_slot,
                 {
                     "energy_kWh": energy,
-                    "price": energy * average_buy_rate
+                    "accumulated_trade_rates": accumulated_buy_trade_rates,
+                    "trade_count": total_buy_trade_count
                 }, product_type, "bought")
 
     def _add_total_energy_sold(
@@ -120,13 +122,15 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         profile = self._trade_profile_generator.generate_trade_profile(
             energy_kWh, asset_stats.time_slot, product_type
         )
-        average_sell_rate = asset_stats.average_sell_rate
+        accumulated_sell_trade_rates = asset_stats.accumulated_sell_trade_rates
+        total_sell_trade_count = asset_stats.total_sell_trade_count
         for time_slot, energy in profile.items():
             self._add_to_volume_time_series(
                 time_slot,
                 {
                     "energy_kWh": energy,
-                    "price": energy * average_sell_rate
+                    "accumulated_trade_rates": accumulated_sell_trade_rates,
+                    "trade_count": total_sell_trade_count
                 }, product_type, "sold")
 
     def _add_to_volume_time_series(
@@ -137,15 +141,20 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         year = time_slot.start_of("year")
         volume_time_series = self._get_asset_time_series(year=year)
 
-        # UPDATING energy_kWh, price and energy_rate
+        # UPDATING energy_kWh, trade_count and energy_rate
         attribute_data = volume_time_series[str(time_slot)][product_type.name][attribute_name]
         attribute_data["energy_kWh"] = round_floats_for_ui(
             attribute_data["energy_kWh"] + time_slot_info["energy_kWh"])
-        attribute_data["price"] = round_prices_to_cents(
-            attribute_data["price"] + time_slot_info["price"])
+
+        last_energy_rate = attribute_data["energy_rate"]
+        last_trade_count = attribute_data["trade_count"]
+        attribute_data["trade_count"] += time_slot_info["trade_count"]
         try:
-            attribute_data["energy_rate"] = round_prices_to_cents(
-                attribute_data["price"] / attribute_data["energy_kWh"])
+            # restore last accumulated_trade_rate to update it with new trades.
+            accumulated_trade_rate = ((last_energy_rate * last_trade_count) +
+                                      (time_slot_info["accumulated_trade_rates"]))
+            energy_rate = accumulated_trade_rate / attribute_data["trade_count"]
+            attribute_data["energy_rate"] = round_prices_to_cents(energy_rate)
         except ZeroDivisionError:
             attribute_data["energy_rate"] = 0.0
 
@@ -182,13 +191,14 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
                 f"{product_type.name}": {
                     "bought": {
                         "energy_kWh": 0.0,
-                        "price": 0.0,
-                        "energy_rate": 0.0
+                        "energy_rate": 0.0,
+                        "trade_count": 0
                     },
                     "sold": {
                         "energy_kWh": 0.0,
-                        "price": 0.0,
-                        "energy_rate": 0.0
+                        "energy_rate": 0.0,
+                        "trade_count": 0
+
                     }
                 }
                 for product_type in FORWARD_PRODUCT_TYPES
