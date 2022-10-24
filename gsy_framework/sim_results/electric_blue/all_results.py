@@ -16,7 +16,6 @@ class ForwardResultsHandler:
     """Calculate all results for each market slot for forward markets."""
 
     def __init__(self):
-        self.forward_market_enabled = True
         self.orders: Dict[
             str, Dict[int, Dict[DateTime, Dict]]] = defaultdict(lambda: defaultdict(dict))
         self.previous_asset_stats = {}
