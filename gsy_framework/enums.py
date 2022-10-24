@@ -69,3 +69,12 @@ class AggregationResolution(Enum):
             self.RES_1_MONTH: duration(months=1),
             self.RES_1_YEAR: duration(years=1)
         }[self]
+
+
+class ConfigurationType(Enum):
+    """Available configuration types"""
+
+    SIMULATION = 0
+    COLLABORATION = 1
+    CANARY_NETWORK = 2
+    B2B = 3
