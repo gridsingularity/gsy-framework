@@ -105,13 +105,14 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         accumulated_buy_trade_rates = asset_stats.accumulated_buy_trade_rates
         total_buy_trade_count = asset_stats.total_buy_trade_count
         for time_slot, energy in profile.items():
-            self._add_to_volume_time_series(
-                time_slot,
-                {
-                    "energy_kWh": energy,
-                    "accumulated_trade_rates": accumulated_buy_trade_rates,
-                    "trade_count": total_buy_trade_count
-                }, product_type, "bought")
+            if energy > 0:
+                self._add_to_volume_time_series(
+                    time_slot,
+                    {
+                        "energy_kWh": energy,
+                        "accumulated_trade_rates": accumulated_buy_trade_rates,
+                        "trade_count": total_buy_trade_count
+                    }, product_type, "bought")
 
     def _add_total_energy_sold(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
@@ -125,13 +126,14 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         accumulated_sell_trade_rates = asset_stats.accumulated_sell_trade_rates
         total_sell_trade_count = asset_stats.total_sell_trade_count
         for time_slot, energy in profile.items():
-            self._add_to_volume_time_series(
-                time_slot,
-                {
-                    "energy_kWh": energy,
-                    "accumulated_trade_rates": accumulated_sell_trade_rates,
-                    "trade_count": total_sell_trade_count
-                }, product_type, "sold")
+            if energy > 0:
+                self._add_to_volume_time_series(
+                    time_slot,
+                    {
+                        "energy_kWh": energy,
+                        "accumulated_trade_rates": accumulated_sell_trade_rates,
+                        "trade_count": total_sell_trade_count
+                    }, product_type, "sold")
 
     def _add_to_volume_time_series(
             self, time_slot: DateTime, time_slot_info: Dict,
@@ -146,15 +148,12 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         attribute_data["energy_kWh"] = round_floats_for_ui(
             attribute_data["energy_kWh"] + time_slot_info["energy_kWh"])
 
-        last_energy_rate = attribute_data["energy_rate"]
-        last_trade_count = attribute_data["trade_count"]
+        attribute_data["accumulated_trade_rates"] += time_slot_info["accumulated_trade_rates"]
         attribute_data["trade_count"] += time_slot_info["trade_count"]
         try:
-            # restore last accumulated_trade_rate to update it with new trades.
-            accumulated_trade_rate = ((last_energy_rate * last_trade_count) +
-                                      (time_slot_info["accumulated_trade_rates"]))
-            energy_rate = accumulated_trade_rate / attribute_data["trade_count"]
-            attribute_data["energy_rate"] = round_prices_to_cents(energy_rate)
+            attribute_data["energy_rate"] = round_prices_to_cents(
+                attribute_data["accumulated_trade_rates"] / attribute_data["trade_count"]
+            )
         except ZeroDivisionError:
             attribute_data["energy_rate"] = 0.0
 
@@ -192,12 +191,14 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
                     "bought": {
                         "energy_kWh": 0.0,
                         "energy_rate": 0.0,
-                        "trade_count": 0
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0
                     },
                     "sold": {
                         "energy_kWh": 0.0,
                         "energy_rate": 0.0,
-                        "trade_count": 0
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0
 
                     }
                 }

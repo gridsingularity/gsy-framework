@@ -194,7 +194,9 @@ class TestAssetVolumeTimeSeries:
             time_slot, time_slot_info, AvailableMarketTypes.MONTH_FORWARD, "sold")
         sold_time_slot_data = volume_time_series._asset_time_series_buffer[time_slot.start_of(
             "year")][str(time_slot)]["MONTH_FORWARD"]["sold"]
-        assert sold_time_slot_data == {"energy_kWh": 1.0, "energy_rate": 0.3, "trade_count": 1}
+        assert sold_time_slot_data == {
+            "energy_kWh": 1.0, "energy_rate": 0.3,
+            "trade_count": 1, "accumulated_trade_rates": 0.3}
 
         time_slot_info = {
             "energy_kWh": 1,
@@ -205,7 +207,9 @@ class TestAssetVolumeTimeSeries:
             time_slot, time_slot_info, AvailableMarketTypes.MONTH_FORWARD, "sold")
         sold_time_slot_data = volume_time_series._asset_time_series_buffer[time_slot.start_of(
             "year")][str(time_slot)]["MONTH_FORWARD"]["sold"]
-        assert sold_time_slot_data == {"energy_kWh": 2.0, "energy_rate": 0.23, "trade_count": 3}
+        assert sold_time_slot_data == {
+            "energy_kWh": 2.0, "energy_rate": 0.23,
+            "trade_count": 3, "accumulated_trade_rates": 0.7}
 
     def test_add_asset_time_series_for_1_month_resolution(self, forward_time_series):
         """Call AssetVolumeTimeSeries in 1-month resolution to assure no KeyErrors happen."""
