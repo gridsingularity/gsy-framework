@@ -26,43 +26,49 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
             DateTime(2020, 1, 1, 0, 0, 0): {
                 'DAY_FORWARD': {
                     'bought': {
-                        'energy_kWh': 0.0,
-                        'energy_rate': 0.0,
-                        'price': 0.0},
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0},
                     'sold': {
-                        'energy_kWh': 0.0,
-                        'energy_rate': 0.0,
-                        'price': 0.0}
-                },
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0}},
                 'MONTH_FORWARD': {
                     'bought': {
                         'energy_kWh': 402.132,
                         'energy_rate': 0.3,
-                        'price': 120.28},
+                        'trade_count': 2976,
+                        'accumulated_trade_rates': 892.8},
                     'sold': {
                         'energy_kWh': 402.132,
-                        'energy_rate': 0.45,
-                        'price': 181.97}
-                },
+                        'energy_rate': 0.3,
+                        'trade_count': 2976,
+                        'accumulated_trade_rates': 892.8}},
                 'SSP': 201.08320595131318,
                 'WEEK_FORWARD': {
                     'bought': {
-                        'energy_kWh': 0.0,
-                        'energy_rate': 0.0,
-                        'price': 0.0},
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0},
                     'sold': {
-                        'energy_kWh': 0.0,
-                        'energy_rate': 0.0,
-                        'price': 0.0}},
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0}},
                 'YEAR_FORWARD': {
                     'bought': {
-                        'energy_kWh': 0.0,
-                        'energy_rate': 0.0,
-                        'price': 0.0},
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0},
                     'sold': {
-                        'energy_kWh': 0.0,
-                        'energy_rate': 0.0,
-                        'price': 0.0}}},
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0}}},
             DateTime(2020, 2, 1, 0, 0, 0): {...},
             ...
             DateTime(2020, 12, 1, 0, 0, 0): {...},
