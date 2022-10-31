@@ -20,10 +20,10 @@ def device_stats_fixture():
     )
     device_stats.add_trade({
         "seller_id": "UUID_1", "time_slot": "2020-01-01T00:00:00",
-        "energy": 1, "price": 30})
+        "energy": 1, "price": 30, "energy_rate": 30})
     device_stats.add_trade({
         "seller_id": "UUID_2", "buyer_id": "UUID_1",
-        "time_slot": "2020-01-01T00:00:00", "energy": 2, "price": 30})
+        "time_slot": "2020-01-01T00:00:00", "energy": 2, "price": 30, "energy_rate": 15})
     device_stats.add_offer({
         "seller_id": "UUID_1", "time_slot": "2020-01-01T00:00:00",
         "energy": 3, "price": 30})

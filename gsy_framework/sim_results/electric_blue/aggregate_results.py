@@ -53,12 +53,14 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
     total_sell_trade_count: int = 0
     total_energy_sold: float = 0
     total_earned_eur: float = 0
+    accumulated_sell_trade_rates: float = 0
 
     # BUYER
     total_energy_consumed: float = 0
     total_buy_trade_count: int = 0
     total_energy_bought: float = 0
     total_spent_eur: float = 0
+    accumulated_buy_trade_rates: float = 0
 
     def __post_init__(self):
         """Creates non-field attributes for the objects which are needed for further
@@ -94,6 +96,10 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
             total_buy_trade_count=self.total_buy_trade_count + other.total_buy_trade_count,
             total_energy_bought=self.total_energy_bought + other.total_energy_bought,
             total_spent_eur=self.total_spent_eur + other.total_spent_eur,
+            accumulated_buy_trade_rates=(self.accumulated_buy_trade_rates +
+                                         other.accumulated_buy_trade_rates),
+            accumulated_sell_trade_rates=(self.accumulated_sell_trade_rates +
+                                          other.accumulated_sell_trade_rates)
         )
         forward_device_stats.open_bids = open_bids
         forward_device_stats.open_offers = open_offers
@@ -111,10 +117,12 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
             self.total_sell_trade_count += 1
             self.total_energy_sold += trade["energy"]
             self.total_earned_eur += trade["price"]
+            self.accumulated_sell_trade_rates += trade["energy_rate"]
         elif trade["buyer_id"] == self.device_uuid:
             self.total_buy_trade_count += 1
             self.total_energy_bought += trade["energy"]
             self.total_spent_eur += trade["price"]
+            self.accumulated_buy_trade_rates += trade["energy_rate"]
         else:
             raise AssertionError("Device is not seller/buyer of the trade.")
 
@@ -129,6 +137,20 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
         assert str_to_pendulum_datetime(offer["time_slot"]) == self.time_slot
         assert offer["seller_id"] == self.device_uuid, "Device is not seller of the offer."
         self.open_offers.append(offer)
+
+    @property
+    def average_sell_rate(self) -> float:
+        """Return average sell price for the timeslot."""
+        if self.total_sell_trade_count == 0:
+            return 0
+        return self.accumulated_sell_trade_rates / self.total_sell_trade_count
+
+    @property
+    def average_buy_rate(self) -> float:
+        """Return average buy price for the timeslot."""
+        if self.total_buy_trade_count == 0:
+            return 0
+        return self.accumulated_buy_trade_rates / self.total_buy_trade_count
 
 
 def handle_forward_results(
