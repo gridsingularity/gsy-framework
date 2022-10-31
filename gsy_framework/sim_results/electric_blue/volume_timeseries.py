@@ -8,45 +8,67 @@ from gsy_framework.forward_markets.forward_profile import (
     ForwardTradeProfileGenerator)
 from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
+from gsy_framework.sim_results.electric_blue.timeseries_base import (
+    AssetTimeSeriesBase)
+from gsy_framework.utils import round_floats_for_ui, round_prices_to_cents
 
 FORWARD_PRODUCT_TYPES = [
     AvailableMarketTypes.YEAR_FORWARD, AvailableMarketTypes.MONTH_FORWARD,
     AvailableMarketTypes.WEEK_FORWARD, AvailableMarketTypes.DAY_FORWARD,
 ]
 
-# a dictionary showing the start of time slot for each resolution.
-START_OF = {
-    AggregationResolution.RES_1_HOUR: "hour",
-    AggregationResolution.RES_1_WEEK: "week",
-    AggregationResolution.RES_1_MONTH: "month",
-    AggregationResolution.RES_1_YEAR: "year",
-}
 
-
-class AssetVolumeTimeSeries:
+class AssetVolumeTimeSeries(AssetTimeSeriesBase):
     """This class generates combined volume time series for the whole year for each asset.
     The result would be like this for a monthly resolution for the year 2020:
     {
         DateTime(2020, 1, 1, 0, 0, 0): {
             DateTime(2020, 1, 1, 0, 0, 0): {
-                "SSP": 1005.4160297565659,
-                "YEAR_FORWARD": {
-                    "bought_kWh": 201.08320595131318,
-                    "sold_kWh": 201.08320595131318,
-                },
-                "MONTH_FORWARD": {
-                    "bought_kWh": 201.08320595131318,
-                    "sold_kWh": 201.08320595131318,
-                },
-                "WEEK_FORWARD": {
-                    "bought_kWh": 32.432775153437625,
-                    "sold_kWh": 32.432775153437625,
-                },
-                "DAY_FORWARD": {
-                    "bought_kWh": 6.486555030687522,
-                    "sold_kWh": 6.486555030687522,
-                },
-            },
+                'DAY_FORWARD': {
+                    'bought': {
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0},
+                    'sold': {
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0}},
+                'MONTH_FORWARD': {
+                    'bought': {
+                        'energy_kWh': 402.132,
+                        'energy_rate': 0.3,
+                        'trade_count': 2976,
+                        'accumulated_trade_rates': 892.8},
+                    'sold': {
+                        'energy_kWh': 402.132,
+                        'energy_rate': 0.3,
+                        'trade_count': 2976,
+                        'accumulated_trade_rates': 892.8}},
+                'SSP': 201.08320595131318,
+                'WEEK_FORWARD': {
+                    'bought': {
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0},
+                    'sold': {
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0}},
+                'YEAR_FORWARD': {
+                    'bought': {
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0},
+                    'sold': {
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0}}},
             DateTime(2020, 2, 1, 0, 0, 0): {...},
             ...
             DateTime(2020, 12, 1, 0, 0, 0): {...},
@@ -60,25 +82,23 @@ class AssetVolumeTimeSeries:
     def __init__(
             self, asset_uuid: str, asset_peak_kWh: float,
             resolution: AggregationResolution):
-
-        self.asset_uuid = asset_uuid
+        super().__init__(asset_uuid, resolution)
         self.asset_peak_kWh = asset_peak_kWh
-        self.resolution = resolution
-
-        self._asset_volume_time_series_buffer: Dict[DateTime, Dict] = {}
         self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_peak_kWh)
 
-    def update_volume_time_series(
+    def update_time_series(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
-        """Update asset volume time series with the current asset stats: stats from the last 15
-        minutes."""
         self._add_total_energy_bought(asset_stats, product_type)
         self._add_total_energy_sold(asset_stats, product_type)
 
     def save_time_series(self):
         """Save asset volume time series in the DB."""
         # TODO: should be implemented.
-        raise NotImplementedError()
+
+    def _fetch_asset_time_series_from_db(
+            self, year: DateTime) -> Optional[Dict[str, Dict]]:
+        """Fetch already saved asset volume time series."""
+        # TODO: should be implemented.
 
     def _add_total_energy_bought(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
@@ -88,8 +108,17 @@ class AssetVolumeTimeSeries:
             return
         profile = self._trade_profile_generator.generate_trade_profile(
             energy_kWh, asset_stats.time_slot, product_type)
-        for time_slot, value in profile.items():
-            self._add_to_volume_time_series(time_slot, value, product_type, "bought_kWh")
+        accumulated_buy_trade_rates = asset_stats.accumulated_buy_trade_rates
+        total_buy_trade_count = asset_stats.total_buy_trade_count
+        for time_slot, energy in profile.items():
+            if energy > 0:
+                self._add_to_volume_time_series(
+                    time_slot,
+                    {
+                        "energy_kWh": energy,
+                        "accumulated_trade_rates": accumulated_buy_trade_rates,
+                        "trade_count": total_buy_trade_count
+                    }, product_type, "bought")
 
     def _add_total_energy_sold(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
@@ -100,44 +129,46 @@ class AssetVolumeTimeSeries:
         profile = self._trade_profile_generator.generate_trade_profile(
             energy_kWh, asset_stats.time_slot, product_type
         )
-        for time_slot, value in profile.items():
-            self._add_to_volume_time_series(time_slot, value, product_type, "sold_kWh")
+        accumulated_sell_trade_rates = asset_stats.accumulated_sell_trade_rates
+        total_sell_trade_count = asset_stats.total_sell_trade_count
+        for time_slot, energy in profile.items():
+            if energy > 0:
+                self._add_to_volume_time_series(
+                    time_slot,
+                    {
+                        "energy_kWh": energy,
+                        "accumulated_trade_rates": accumulated_sell_trade_rates,
+                        "trade_count": total_sell_trade_count
+                    }, product_type, "sold")
 
     def _add_to_volume_time_series(
-            self, time_slot: DateTime, value: float,
+            self, time_slot: DateTime, time_slot_info: Dict,
             product_type: AvailableMarketTypes, attribute_name: str):
         """Add time slot value to the correct time slot to asset volume time series."""
         time_slot = self._adapt_time_slot(time_slot)
         year = time_slot.start_of("year")
-        volume_time_series = self._get_asset_volume_time_series(year=year)
-        volume_time_series[str(time_slot)][product_type.name][attribute_name] += value
-        self._asset_volume_time_series_buffer[year] = volume_time_series
+        volume_time_series = self._get_asset_time_series(year=year)
 
-    def _adapt_time_slot(self, time_slot: DateTime) -> DateTime:
-        """Find the containing time slot of the smaller time slot."""
-        if self.resolution == AggregationResolution.RES_15_MINUTES:
-            return time_slot.set(minute=(time_slot.minute // 15) * 15)
-        return time_slot.start_of(START_OF[self.resolution])
+        # UPDATING energy_kWh, trade_count and energy_rate
+        attribute_data = volume_time_series[str(time_slot)][product_type.name][attribute_name]
+        attribute_data["energy_kWh"] = round_floats_for_ui(
+            attribute_data["energy_kWh"] + time_slot_info["energy_kWh"])
 
-    def _get_asset_volume_time_series(self, year: DateTime) -> Dict[str, Dict]:
-        """Return asset volume time series for the required year.
-        If not found in the buffer, it tries fetching it from DB.
-        If not found in the DB, it will generate a new one for the whole year."""
-        if year in self._asset_volume_time_series_buffer:
-            time_series = self._asset_volume_time_series_buffer[year]
-        else:
-            time_series = self._fetch_asset_volume_time_series_from_db(year)
-            if time_series is None:
-                time_series = {
-                    str(ts): self._get_time_series_template(value)
-                    for ts, value in self._generate_SSP_time_series(year)}
-        return time_series
+        attribute_data["accumulated_trade_rates"] += time_slot_info["accumulated_trade_rates"]
+        attribute_data["trade_count"] += time_slot_info["trade_count"]
+        try:
+            attribute_data["energy_rate"] = round_prices_to_cents(
+                attribute_data["accumulated_trade_rates"] / attribute_data["trade_count"]
+            )
+        except ZeroDivisionError:
+            attribute_data["energy_rate"] = 0.0
 
-    def _fetch_asset_volume_time_series_from_db(
-            self, year: DateTime) -> Optional[Dict[str, Dict]]:
-        """Fetch already saved asset volume time series."""
-        # TODO: should be implemented.
-        return None
+        self._asset_time_series_buffer[year] = volume_time_series
+
+    def _generate_time_series(self, year):
+        return {
+            str(ts): self._get_time_series_template(value)
+            for ts, value in self._generate_SSP_time_series(year)}
 
     def _generate_SSP_time_series(self, year: DateTime):
         """Generate SSP time series for the whole year. The generated time series will then be
@@ -162,7 +193,21 @@ class AssetVolumeTimeSeries:
         return {
             "SSP": ssp_value,
             **{
-                f"{product_type.name}": {"bought_kWh": 0, "sold_kWh": 0}
+                f"{product_type.name}": {
+                    "bought": {
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0
+                    },
+                    "sold": {
+                        "energy_kWh": 0.0,
+                        "energy_rate": 0.0,
+                        "trade_count": 0,
+                        "accumulated_trade_rates": 0.0
+
+                    }
+                }
                 for product_type in FORWARD_PRODUCT_TYPES
             }
         }
