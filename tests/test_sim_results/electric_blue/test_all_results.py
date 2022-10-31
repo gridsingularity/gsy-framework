@@ -28,7 +28,7 @@ def simulation_raw_data_fixture():
                                     {"seller_id": "UUID_2", "price": 30, "energy": 1,
                                      "time_slot": time_slot}],
                                 "trades": [
-                                    {"seller_id": "UUID_2", "buyer_id": "UUID_1",
+                                    {"seller_id": "UUID_2", "buyer_id": "UUID_1", "energy_rate": 1,
                                      "time_slot": time_slot, "energy": 1, "price": 30}],
                                 "market_fee": 0.0}}}}}
     return func()
@@ -84,7 +84,8 @@ class TestForwardResultsHandler:
                     "offers": [{"seller_id": "UUID_2", "price": 30, "energy": 1,
                                 "time_slot": "2020-01-01T01:00:00"}],
                     "trades": [{"seller_id": "UUID_2", "buyer_id": "UUID_1", "energy": 1,
-                                "price": 30, "time_slot": "2020-01-01T01:00:00"}]}}}})
+                                "energy_rate": 1, "price": 30,
+                                "time_slot": "2020-01-01T01:00:00"}]}}}})
 
             assert results_handler.current_asset_stats == {
                 4: {
