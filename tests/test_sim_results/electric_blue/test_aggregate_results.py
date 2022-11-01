@@ -27,9 +27,9 @@ class TestForwardDeviceStats:
         device_stats.add_trade(trade1)
         device_stats.add_trade(trade2)
         result = {
-            "time_slot": DateTime(2020, 1, 1, 0, 0, tzinfo=UTC),
+            "time_slot": "2020-01-01T00:00",
             "device_uuid": "UUID_1",
-            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+            "current_time_slot": "2020-01-01T00:00",
             "total_energy_produced": 0,
             "total_sell_trade_count": 2,
             "total_energy_sold": 2,
@@ -55,9 +55,9 @@ class TestForwardDeviceStats:
         device_stats.add_trade(trade1)
         device_stats.add_trade(trade2)
         result = {
-            "time_slot": DateTime(2020, 1, 1, 0, 0, tzinfo=UTC),
+            "time_slot": "2020-01-01T00:00",
             "device_uuid": "UUID_1",
-            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+            "current_time_slot": "2020-01-01T00:00",
             "total_energy_produced": 0,
             "total_sell_trade_count": 0,
             "total_energy_sold": 0,
@@ -88,9 +88,9 @@ class TestForwardDeviceStats:
         device_stats.add_trade(trade3)
         device_stats.add_trade(trade4)
         results = {
-            "time_slot": DateTime(2020, 1, 1, 0, 0, tzinfo=UTC),
+            "time_slot": "2020-01-01T00:00",
             "device_uuid": "UUID_1",
-            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+            "current_time_slot": "2020-01-01T00:00",
             "total_energy_produced": 0,
             "total_sell_trade_count": 2,
             "total_energy_sold": 5,
@@ -127,9 +127,9 @@ class TestForwardDeviceStats:
         device_stats.add_bid(bid1)
         device_stats.add_bid(bid2)
         result = {
-            "time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+            "time_slot": "2020-01-01T00:00",
             "device_uuid": "UUID_1",
-            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+            "current_time_slot": "2020-01-01T00:00",
             "total_energy_produced": 0,
             "total_sell_trade_count": 0,
             "total_energy_sold": 0,
@@ -168,9 +168,9 @@ class TestForwardDeviceStats:
         device_stats.add_offer(offer1)
         device_stats.add_offer(offer2)
         result = {
-            "time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+            "time_slot": "2020-01-01T00:00",
             "device_uuid": "UUID_1",
-            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+            "current_time_slot": "2020-01-01T00:00",
             "total_energy_produced": 0,
             "total_sell_trade_count": 0,
             "total_energy_sold": 0,
@@ -248,8 +248,8 @@ class TestForwardDeviceStats:
         new_global_device_stats.add_offer(offer2)
 
         assert new_global_device_stats.to_dict() == {
-            "time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC), "device_uuid": "UUID_1",
-            "current_time_slot": DateTime(2020, 1, 1, 0, 15, 0, tzinfo=UTC),
+            "time_slot": "2020-01-01T00:00", "device_uuid": "UUID_1",
+            "current_time_slot": "2020-01-01T00:15",
             "total_energy_produced": 0, "total_sell_trade_count": 2,
             "total_energy_sold": 2, "total_earned_eur": 70,
             "total_energy_consumed": 0, "total_buy_trade_count": 2,
@@ -320,16 +320,16 @@ class TestForwardResultsHandler:
         expected_result = {
             DateTime(2020, 2, 1, 0, 0, tzinfo=UTC): {
                 "UUID_1": {
-                    "time_slot": DateTime(2020, 2, 1, 0, 0, tzinfo=UTC), "device_uuid": "UUID_1",
-                    "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+                    "time_slot": "2020-02-01T00:00", "device_uuid": "UUID_1",
+                    "current_time_slot": "2020-01-01T00:00",
                     "total_energy_produced": 0, "total_sell_trade_count": 1,
                     "total_energy_sold": 1, "total_earned_eur": 30, "total_energy_consumed": 0,
                     "total_buy_trade_count": 0, "total_energy_bought": 0, "total_spent_eur": 0,
                     "accumulated_buy_trade_rates": 0, "accumulated_sell_trade_rates": 30
                 },
                 "UUID_2": {
-                    "time_slot": DateTime(2020, 2, 1, 0, 0, tzinfo=UTC), "device_uuid": "UUID_2",
-                    "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+                    "time_slot": "2020-02-01T00:00", "device_uuid": "UUID_2",
+                    "current_time_slot": "2020-01-01T00:00",
                     "total_energy_produced": 0, "total_sell_trade_count": 0,
                     "total_energy_sold": 0, "total_earned_eur": 0, "total_energy_consumed": 0,
                     "total_buy_trade_count": 1, "total_energy_bought": 1, "total_spent_eur": 30,
@@ -338,16 +338,16 @@ class TestForwardResultsHandler:
             },
             DateTime(2020, 3, 1, 0, 0, tzinfo=UTC): {
                 "UUID_3": {
-                    "time_slot": DateTime(2020, 3, 1, 0, 0, tzinfo=UTC), "device_uuid": "UUID_3",
-                    "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+                    "time_slot": "2020-03-01T00:00", "device_uuid": "UUID_3",
+                    "current_time_slot": "2020-01-01T00:00",
                     "total_energy_produced": 0, "total_sell_trade_count": 1,
                     "total_energy_sold": 2, "total_earned_eur": 40, "total_energy_consumed": 0,
                     "total_buy_trade_count": 0, "total_energy_bought": 0, "total_spent_eur": 0,
                     "accumulated_buy_trade_rates": 0, "accumulated_sell_trade_rates": 20
                 },
                 "UUID_4": {
-                    "time_slot": DateTime(2020, 3, 1, 0, 0, tzinfo=UTC), "device_uuid": "UUID_4",
-                    "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+                    "time_slot": "2020-03-01T00:00", "device_uuid": "UUID_4",
+                    "current_time_slot": "2020-01-01T00:00",
                     "total_energy_produced": 0, "total_sell_trade_count": 0,
                     "total_energy_sold": 0, "total_earned_eur": 0, "total_energy_consumed": 0,
                     "total_buy_trade_count": 1, "total_energy_bought": 2, "total_spent_eur": 40,

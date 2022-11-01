@@ -21,7 +21,9 @@ from gsy_framework.sim_results.simulation_assets_info import \
 
 class ResultsHandler:
     """Calculate all results for each market slot."""
+
     def __init__(self, should_export_plots: bool = False, is_scm: bool = False):
+        self.forward_market_enabled = False
         self._is_scm = is_scm
         self.should_export_plots = should_export_plots
         self.bids_offers_trades = {}
