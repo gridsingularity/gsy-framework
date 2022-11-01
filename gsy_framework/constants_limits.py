@@ -88,6 +88,7 @@ class ConstSettings:
     class ForwardMarketSettings:
         """Default settings for forward markets"""
         ENABLE_FORWARD_MARKETS = False
+        FULLY_AUTO_TRADING = True
 
     class AreaSettings:
         """Default settings for market areas."""
@@ -308,3 +309,11 @@ class B2BLiveEvents:
     DISABLE_TRADING_EVENT_NAME = "disable_trading"
     POST_ORDER_EVENT_NAME = "post_order"
     REMOVE_ORDER_EVENT_NAME = "remove_order"
+
+    @classmethod
+    def is_supported_event(cls, event_name) -> bool:
+        """Check if the event name is one of the supported live events."""
+        return event_name in [
+            cls.ENABLE_TRADING_EVENT_NAME, cls.DISABLE_TRADING_EVENT_NAME,
+            cls.POST_ORDER_EVENT_NAME, cls.REMOVE_ORDER_EVENT_NAME
+        ]
