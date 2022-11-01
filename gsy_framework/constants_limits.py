@@ -300,3 +300,11 @@ ALL_FORWARD_MARKET_TYPES = [
     AvailableMarketTypes.MONTH_FORWARD,
     AvailableMarketTypes.YEAR_FORWARD
 ]
+
+
+class B2BLiveEvents:
+    """Live events that support b2b trading."""
+    ENABLE_TRADING_EVENT_NAME = "enable_trading"
+    DISABLE_TRADING_EVENT_NAME = "disable_trading"
+    POST_ORDER_EVENT_NAME = "post_order"
+    REMOVE_ORDER_EVENT_NAME = "remove_order"
