@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, Callable
 
 from gsy_framework.enums import AvailableMarketTypes
@@ -59,8 +60,10 @@ class LiveEventArgsValidator:
 
     def _validate_start_end_time(self, args: Dict) -> bool:
         try:
-            str_to_pendulum_datetime(args["start_time"])
-            str_to_pendulum_datetime(args["end_time"])
+            if not isinstance(args["start_time"], datetime):
+                str_to_pendulum_datetime(args["start_time"])
+            if not isinstance(args["end_time"], datetime):
+                str_to_pendulum_datetime(args["end_time"])
         except Exception:
             self._logger("Cannot deserialize start / end time parameters (%s).", args)
             return False
