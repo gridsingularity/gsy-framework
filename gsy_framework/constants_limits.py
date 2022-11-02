@@ -301,19 +301,3 @@ ALL_FORWARD_MARKET_TYPES = [
     AvailableMarketTypes.MONTH_FORWARD,
     AvailableMarketTypes.YEAR_FORWARD
 ]
-
-
-class B2BLiveEvents:
-    """Live events that support b2b trading."""
-    ENABLE_TRADING_EVENT_NAME = "enable_trading"
-    DISABLE_TRADING_EVENT_NAME = "disable_trading"
-    POST_ORDER_EVENT_NAME = "post_order"
-    REMOVE_ORDER_EVENT_NAME = "remove_order"
-
-    @classmethod
-    def is_supported_event(cls, event_name) -> bool:
-        """Check if the event name is one of the supported live events."""
-        return event_name in [
-            cls.ENABLE_TRADING_EVENT_NAME, cls.DISABLE_TRADING_EVENT_NAME,
-            cls.POST_ORDER_EVENT_NAME, cls.REMOVE_ORDER_EVENT_NAME
-        ]
