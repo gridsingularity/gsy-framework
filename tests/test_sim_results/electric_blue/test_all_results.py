@@ -85,15 +85,31 @@ class TestForwardResultsHandler:
                     {"uuid": "UUID_2", "capacity_kW": 2}]},
                 next(simulation_raw_data), "2020-01-01T00:00")
 
-            assert results_handler.orders == (
-                {"uuid_1234": {4: {time_slot_dt:
-                   {"bids": [{"buyer_id": "UUID_1", "price": 30, "energy": 1,
-                              "time_slot": "2020-01-01T01:00:00"}],
-                    "offers": [{"seller_id": "UUID_2", "price": 30, "energy": 1,
-                                "time_slot": "2020-01-01T01:00:00"}],
-                    "trades": [{"seller_id": "UUID_2", "buyer_id": "UUID_1", "energy": 1,
-                                "energy_rate": 1, "price": 30,
-                                "time_slot": "2020-01-01T01:00:00"}]}}}})
+            assert results_handler.orders == ({
+                'UUID_2': {
+                    4: {
+                        time_slot_dt: {
+                            'offers': [{
+                                'seller_id': 'UUID_2', 'price': 30, 'energy': 1,
+                                'time_slot': '2020-01-01T01:00:00'}],
+                            'bids': [],
+                            'trades': [{
+                                'seller_id': 'UUID_2', 'buyer_id': 'UUID_1', 'energy_rate': 1,
+                                'time_slot': '2020-01-01T01:00:00', 'energy': 1,
+                                'price': 30}]}}},
+                'UUID_1': {
+                    4: {
+                        time_slot_dt:
+                            {
+                                'offers': [],
+                                'bids': [{
+                                    'buyer_id': 'UUID_1', 'price': 30, 'energy': 1,
+                                    'time_slot': '2020-01-01T01:00:00'}],
+                                'trades': [{
+                                    'seller_id': 'UUID_2', 'buyer_id': 'UUID_1',
+                                    'energy_rate': 1,
+                                    'time_slot': '2020-01-01T01:00:00', 'energy': 1,
+                                    'price': 30}]}}}})
 
             assert results_handler.current_asset_stats == {
                 4: {
@@ -124,7 +140,7 @@ class TestForwardResultsHandler:
                 {"uuid": "UUID_1", "capacity_kW": 1},
                 {"uuid": "UUID_2", "capacity_kW": 2}]
         }, next(simulation_raw_data), "2020-01-01T00:00")
-        orders = results_handler.orders["uuid_1234"][4][DateTime(2020, 1, 1, 1, 0, tzinfo=UTC)]
+        orders = results_handler.orders["UUID_1"][4][DateTime(2020, 1, 1, 1, 0, tzinfo=UTC)]
         assert set(orders.keys()) == needed_attributes
 
     @staticmethod
