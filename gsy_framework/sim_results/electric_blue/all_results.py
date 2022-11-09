@@ -40,14 +40,13 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
             return
         self._buffer_current_asset_stats()
         self._clear_asset_stats()
-        for area_uuid, area_result in core_stats.items():
+        for area_result in core_stats.values():
             if "forward_market_stats" not in area_result:
                 continue
 
             current_market_dt = str_to_pendulum_datetime(current_market_slot)
             for market_type_value, market_stats in area_result["forward_market_stats"].items():
                 market_type = int(market_type_value)
-                self._buffer_bids_offers_trades(area_uuid, market_type, market_stats)
                 current_results = handle_forward_results(current_market_dt, market_stats)
                 self._update_stats_and_time_series(area_dict, current_results, market_type)
         self._update_memory_utilization()
@@ -90,17 +89,20 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
         self.current_asset_stats = defaultdict(lambda: defaultdict(dict))
         self.asset_time_series.clear()
 
-    def _buffer_bids_offers_trades(self, area_uuid: str, market_type: int,
-                                   market_stats: Dict[str, Dict]):
-        for time_slot, orders in market_stats.items():
-            time_slot_dt = str_to_pendulum_datetime(time_slot)
-            self.orders[area_uuid][market_type][time_slot_dt] = {
-                order: orders.get(order, []) for order in ("offers", "bids", "trades")}
+    def _buffer_bids_offers_trades(self, market_type: int, forward_results: Dict[DateTime, Dict]):
+        for time_slot, asset_results in forward_results.items():
+            for area_uuid, asset_result in asset_results.items():
+                self.orders[area_uuid][market_type][time_slot] = {
+                    "offers": asset_result.open_offers,
+                    "bids": asset_result.open_bids,
+                    "trades": asset_result.trades
+                }
 
     def _update_stats_and_time_series(
             self, area_dict: Dict, forward_results: Dict, market_type_value: int):
         market_type = AvailableMarketTypes(market_type_value)
         flattened_area = self._flatten_area_dict(area_dict=area_dict)
+        self._buffer_bids_offers_trades(market_type_value, forward_results)
         for time_slot, asset_results in forward_results.items():
             for asset_uuid, current_asset_stats in asset_results.items():
                 asset_info = flattened_area[asset_uuid]
