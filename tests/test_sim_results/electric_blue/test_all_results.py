@@ -65,7 +65,8 @@ class TestForwardResultsHandler:
                             "current_asset_stats": results_handler.current_asset_stats,
                             "asset_time_series": results_handler.asset_time_series,
                             "cumulative_net_energy_flow": {},
-                            "cumulative_market_fees": 0.}
+                            "cumulative_market_fees": 0.,
+                            "asset_volume_time_series": results_handler.asset_volume_time_series}
         assert results_handler.all_db_results == expected_results
 
     @staticmethod

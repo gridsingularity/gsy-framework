@@ -72,7 +72,8 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
         """Get dict with all the results in format that can be saved to the DB."""
         results = {"orders": self.orders, "current_asset_stats": self.current_asset_stats,
                    "asset_time_series": self.asset_time_series, "cumulative_net_energy_flow": {},
-                   "cumulative_market_fees": 0.}
+                   "cumulative_market_fees": 0.,
+                   "asset_volume_time_series": self.asset_volume_time_series}
         return results
 
     @property
