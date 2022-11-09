@@ -147,8 +147,5 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
         for resolution, time_series in self.asset_volume_time_series[asset_uuid].items():
             time_series.update_time_series(current_asset_stats, market_type)
 
-        for resolution, time_series in self.asset_volume_time_series[asset_uuid].items():
-            time_series.save_time_series()
-
     def _update_memory_utilization(self) -> None:
         pass
