@@ -79,7 +79,11 @@ class TestForwardResultsHandler:
             assert results_handler.asset_time_series == {}
 
             time_slot_dt = DateTime(2020, 1, 1, 1, 0, tzinfo=UTC)
-            results_handler.update({}, next(simulation_raw_data), "2020-01-01T00:00")
+            results_handler.update(
+                {"children": [
+                    {"uuid": "UUID_1", "capacity_kW": 1},
+                    {"uuid": "UUID_2", "capacity_kW": 2}]},
+                next(simulation_raw_data), "2020-01-01T00:00")
 
             assert results_handler.orders == (
                 {"uuid_1234": {4: {time_slot_dt:
@@ -115,14 +119,26 @@ class TestForwardResultsHandler:
     def test_results_handler_orders_consist_only_needed_attributes(results_handler,
                                                                    simulation_raw_data):
         needed_attributes = {"offers", "bids", "trades"}
-        results_handler.update({}, next(simulation_raw_data), "2020-01-01T00:00")
+        results_handler.update({
+            "children": [
+                {"uuid": "UUID_1", "capacity_kW": 1},
+                {"uuid": "UUID_2", "capacity_kW": 2}]
+        }, next(simulation_raw_data), "2020-01-01T00:00")
         orders = results_handler.orders["uuid_1234"][4][DateTime(2020, 1, 1, 1, 0, tzinfo=UTC)]
         assert set(orders.keys()) == needed_attributes
 
     @staticmethod
     def test_if_previous_stats_are_buffered(results_handler, simulation_raw_data):
-        results_handler.update({}, next(simulation_raw_data), "2020-01-01T00:00")
+        results_handler.update({
+            "children": [
+                {"uuid": "UUID_1", "capacity_kW": 1},
+                {"uuid": "UUID_2", "capacity_kW": 2}]
+        }, next(simulation_raw_data), "2020-01-01T00:00")
         assert results_handler.previous_asset_stats == {}
         previous_asset_stats = copy.deepcopy(results_handler.current_asset_stats)
-        results_handler.update({}, next(simulation_raw_data), "2020-01-01T01:00")
+        results_handler.update({
+            "children": [
+                {"uuid": "UUID_1", "capacity_kW": 1},
+                {"uuid": "UUID_2", "capacity_kW": 2}]
+        }, next(simulation_raw_data), "2020-01-01T01:00")
         assert results_handler.previous_asset_stats == previous_asset_stats
