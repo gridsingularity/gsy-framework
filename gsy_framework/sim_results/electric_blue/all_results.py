@@ -40,15 +40,21 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
             return
         self._buffer_current_asset_stats()
         self._clear_asset_stats()
-        for area_result in core_stats.values():
-            if "forward_market_stats" not in area_result:
-                continue
 
-            current_market_dt = str_to_pendulum_datetime(current_market_slot)
-            for market_type_value, market_stats in area_result["forward_market_stats"].items():
-                market_type = int(market_type_value)
-                current_results = handle_forward_results(current_market_dt, market_stats)
-                self._update_stats_and_time_series(area_dict, current_results, market_type)
+        forward_results = None
+        for area_result in core_stats.values():
+            if "forward_market_stats" in area_result:
+                forward_results = area_result
+                break
+
+        if not forward_results:
+            return
+
+        current_market_dt = str_to_pendulum_datetime(current_market_slot)
+        for market_type_value, market_stats in forward_results["forward_market_stats"].items():
+            market_type = int(market_type_value)
+            current_results = handle_forward_results(current_market_dt, market_stats)
+            self._update_stats_and_time_series(area_dict, current_results, market_type)
         self._update_memory_utilization()
 
     def update_from_repr(self, area_representation: Dict):
