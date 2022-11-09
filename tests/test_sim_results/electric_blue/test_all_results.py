@@ -1,13 +1,17 @@
 import copy
-from unittest.mock import patch, MagicMock
 import uuid
+from unittest.mock import MagicMock, patch
 
-from pendulum import DateTime, UTC
 import pytest
+from pendulum import UTC, DateTime
 
-from gsy_framework.sim_results.electric_blue.aggregate_results import ForwardDeviceStats
-from gsy_framework.sim_results.electric_blue.all_results import ForwardResultsHandler
-from gsy_framework.sim_results.electric_blue.time_series import ForwardDeviceTimeSeries
+from gsy_framework.sim_results.electric_blue.aggregate_results import (
+    ForwardDeviceStats)
+from gsy_framework.sim_results.electric_blue.all_results import (
+    ForwardResultsHandler)
+from gsy_framework.sim_results.electric_blue.time_series import (
+    ForwardDeviceTimeSeries)
+from gsy_framework.sim_results.electric_blue.utils import BaseStorage
 
 
 @pytest.fixture(name="simulation_raw_data")
@@ -37,7 +41,7 @@ def simulation_raw_data_fixture():
 @pytest.fixture(name="results_handler")
 def results_handler_fixture():
     """Return an object of type ForwardResultsHandler."""
-    return ForwardResultsHandler()
+    return ForwardResultsHandler(volume_time_series_storage=BaseStorage())
 
 
 class TestForwardResultsHandler:

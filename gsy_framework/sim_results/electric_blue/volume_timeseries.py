@@ -10,11 +10,13 @@ from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
 from gsy_framework.sim_results.electric_blue.timeseries_base import (
     AssetTimeSeriesBase)
+from gsy_framework.sim_results.electric_blue.utils import BaseStorage
 from gsy_framework.utils import round_floats_for_ui, round_prices_to_cents
 
 FORWARD_PRODUCT_TYPES = [
     AvailableMarketTypes.YEAR_FORWARD, AvailableMarketTypes.MONTH_FORWARD,
     AvailableMarketTypes.WEEK_FORWARD, AvailableMarketTypes.DAY_FORWARD,
+    AvailableMarketTypes.INTRADAY
 ]
 
 
@@ -81,10 +83,11 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
     """
     def __init__(
             self, asset_uuid: str, asset_peak_kWh: float,
-            resolution: AggregationResolution):
+            resolution: AggregationResolution, storage: BaseStorage):
         super().__init__(asset_uuid, resolution)
         self.asset_peak_kWh = asset_peak_kWh
         self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_peak_kWh)
+        self.storage = storage
 
     def update_time_series(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
@@ -93,12 +96,13 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
 
     def save_time_series(self):
         """Save asset volume time series in the DB."""
-        # TODO: should be implemented.
+        for year, time_series in self._asset_time_series_buffer.items():
+            self.storage.save(asset_uuid=self.asset_uuid, year=year, time_series=time_series)
 
     def _fetch_asset_time_series_from_db(
             self, year: DateTime) -> Optional[Dict[str, Dict]]:
         """Fetch already saved asset volume time series."""
-        # TODO: should be implemented.
+        return self.storage.fetch(asset_uuid=self.asset_uuid, year=year)
 
     def _add_total_energy_bought(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
