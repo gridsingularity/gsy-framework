@@ -21,7 +21,7 @@ class AssetTimeSeriesBase(abc.ABC):
     def __init__(self, asset_uuid: str, resolution: AggregationResolution):
         self.asset_uuid = asset_uuid
         self.resolution = resolution
-        self._asset_time_series_buffer: Dict[DateTime, Dict] = {}
+        self.asset_time_series_buffer: Dict[DateTime, Dict] = {}
 
     @abc.abstractmethod
     def update_time_series(
@@ -48,8 +48,8 @@ class AssetTimeSeriesBase(abc.ABC):
         """Return asset volume time series for the required year.
         If not found in the buffer, it tries fetching it from DB.
         If not found in the DB, it will generate a new one for the whole year."""
-        if year in self._asset_time_series_buffer:
-            time_series = self._asset_time_series_buffer[year]
+        if year in self.asset_time_series_buffer:
+            time_series = self.asset_time_series_buffer[year]
         else:
             time_series = self._fetch_asset_time_series_from_db(year)
             if time_series is None:

@@ -162,7 +162,7 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         except ZeroDivisionError:
             attribute_data["energy_rate"] = 0.0
 
-        self._asset_time_series_buffer[year] = volume_time_series
+        self.asset_time_series_buffer[year] = volume_time_series
 
     def _generate_time_series(self, year):
         return {
