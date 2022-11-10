@@ -97,12 +97,15 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
     def save_time_series(self):
         """Save asset volume time series in the DB."""
         for year, time_series in self._asset_time_series_buffer.items():
-            self.storage.save(asset_uuid=self.asset_uuid, year=year, time_series=time_series)
+            self.storage.save(
+                asset_uuid=self.asset_uuid, year=year,
+                time_series=time_series, resolution=self.resolution)
 
     def _fetch_asset_time_series_from_db(
             self, year: DateTime) -> Optional[Dict[str, Dict]]:
         """Fetch already saved asset volume time series."""
-        return self.storage.fetch(asset_uuid=self.asset_uuid, year=year)
+        return self.storage.fetch(
+            asset_uuid=self.asset_uuid, year=year, resolution=self.resolution)
 
     def _add_total_energy_bought(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
