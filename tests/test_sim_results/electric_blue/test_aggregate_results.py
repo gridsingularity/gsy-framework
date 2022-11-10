@@ -47,6 +47,8 @@ class TestForwardDeviceStats:
         assert device_stats.open_offers == []
         assert device_stats.trades == [trade1, trade2]
 
+        assert device_stats.average_sell_rate == 35
+
     @staticmethod
     def test_add_buy_trade(device_stats):
         trade1 = {"buyer_id": "UUID_1", "seller_id": "UUID_2",
@@ -74,6 +76,8 @@ class TestForwardDeviceStats:
         assert device_stats.open_bids == []
         assert device_stats.open_offers == []
         assert device_stats.trades == [trade1, trade2]
+
+        assert device_stats.average_buy_rate == 35
 
     @staticmethod
     def test_add_buy_sell_trade(device_stats):
