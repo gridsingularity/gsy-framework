@@ -45,6 +45,7 @@ class TestForwardDeviceStats:
 
         assert device_stats.open_bids == []
         assert device_stats.open_offers == []
+        assert device_stats.trades == [trade1, trade2]
 
     @staticmethod
     def test_add_buy_trade(device_stats):
@@ -72,6 +73,7 @@ class TestForwardDeviceStats:
         assert device_stats.to_dict() == result
         assert device_stats.open_bids == []
         assert device_stats.open_offers == []
+        assert device_stats.trades == [trade1, trade2]
 
     @staticmethod
     def test_add_buy_sell_trade(device_stats):
@@ -105,6 +107,7 @@ class TestForwardDeviceStats:
         assert device_stats.to_dict() == results
         assert device_stats.open_bids == []
         assert device_stats.open_offers == []
+        assert device_stats.trades == [trade1, trade2, trade3, trade4]
 
     @staticmethod
     def test_add_invalid_trade_raises_error(device_stats):
@@ -119,6 +122,7 @@ class TestForwardDeviceStats:
         assert device_stats.to_dict() == before_adding_trade
         assert device_stats.open_bids == []
         assert device_stats.open_offers == []
+        assert device_stats.trades == []
 
     @staticmethod
     def test_add_bid(device_stats):
@@ -147,6 +151,7 @@ class TestForwardDeviceStats:
             {"buyer_id": "UUID_1", "price": 60, "energy": 2, "time_slot": "2020-01-01T00:00:00"}
         ]
         assert device_stats.open_offers == []
+        assert device_stats.trades == []
 
     @staticmethod
     def test_add_invalid_bid_raises_error(device_stats):
@@ -188,6 +193,7 @@ class TestForwardDeviceStats:
             {"seller_id": "UUID_1", "price": 30, "energy": 1, "time_slot": "2020-01-01T00:00:00"},
             {"seller_id": "UUID_1", "price": 60, "energy": 2, "time_slot": "2020-01-01T00:00:00"}
         ]
+        assert device_stats.trades == []
 
     @staticmethod
     def test_add_invalid_offer_raises_error(device_stats):
@@ -202,13 +208,14 @@ class TestForwardDeviceStats:
         assert device_stats.to_dict() == before_adding_offer
         assert device_stats.open_bids == []
         assert device_stats.open_offers == []
+        assert device_stats.trades == []
 
     @staticmethod
     def test_add_to_forward_device_stats(device_stats):
         global_device_stats_dict = {
-            "time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+            "time_slot": str(DateTime(2020, 1, 1, 0, 0, 0)),
             "device_uuid": "UUID_1",
-            "current_time_slot": DateTime(2020, 1, 1, 0, 0, 0, tzinfo=UTC),
+            "current_time_slot": str(DateTime(2020, 1, 1, 0, 0, 0)),
             "total_energy_produced": 0,
             "total_sell_trade_count": 1,
             "total_energy_sold": 1,
@@ -220,7 +227,7 @@ class TestForwardDeviceStats:
             "accumulated_sell_trade_rates": 30,
             "accumulated_buy_trade_rates": 30
         }
-        global_device_stats = ForwardDeviceStats(**global_device_stats_dict)
+        global_device_stats = ForwardDeviceStats.from_dict(global_device_stats_dict)
 
         trade2 = {"seller_id": "UUID_1", "time_slot": "2020-01-01T00:00:00",
                   "energy": 1, "price": 40, "energy_rate": 40}
@@ -264,6 +271,7 @@ class TestForwardDeviceStats:
             {"seller_id": "UUID_1", "price": 100, "energy": 2, "time_slot": "2020-01-01T00:00:00"},
             {"seller_id": "UUID_1", "price": 30, "energy": 1, "time_slot": "2020-01-01T00:00:00"}
         ]
+        assert new_global_device_stats.trades == [trade2, trade4]
 
     @staticmethod
     def test_invalid_time_slot_raises_error(device_stats):
@@ -290,6 +298,7 @@ class TestForwardDeviceStats:
 
         assert device_stats.open_bids == []
         assert device_stats.open_offers == []
+        assert device_stats.trades == []
 
 
 class TestForwardResultsHandler:
