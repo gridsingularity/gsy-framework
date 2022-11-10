@@ -30,10 +30,6 @@ class AssetTimeSeriesBase(abc.ABC):
         minutes."""
 
     @abc.abstractmethod
-    def save_time_series(self):
-        """Save asset volume time series in the DB."""
-
-    @abc.abstractmethod
     def _fetch_asset_time_series_from_db(
             self, year: DateTime) -> Optional[Dict[str, Dict]]:
         """Fetch already saved asset volume time series."""

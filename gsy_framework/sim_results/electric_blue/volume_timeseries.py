@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Callable, Dict, Optional
 
 from pendulum import DateTime
 
@@ -10,7 +10,6 @@ from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
 from gsy_framework.sim_results.electric_blue.timeseries_base import (
     AssetTimeSeriesBase)
-from gsy_framework.sim_results.electric_blue.utils import BaseStorage
 from gsy_framework.utils import round_floats_for_ui, round_prices_to_cents
 
 FORWARD_PRODUCT_TYPES = [
@@ -83,28 +82,21 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
     """
     def __init__(
             self, asset_uuid: str, asset_peak_kWh: float,
-            resolution: AggregationResolution, storage: BaseStorage):
+            resolution: AggregationResolution, get_asset_volume_time_series_db: Callable):
         super().__init__(asset_uuid, resolution)
         self.asset_peak_kWh = asset_peak_kWh
         self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_peak_kWh)
-        self.storage = storage
+        self.get_asset_volume_time_series_db = get_asset_volume_time_series_db
 
     def update_time_series(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
         self._add_total_energy_bought(asset_stats, product_type)
         self._add_total_energy_sold(asset_stats, product_type)
 
-    def save_time_series(self):
-        """Save asset volume time series in the DB."""
-        for year, time_series in self._asset_time_series_buffer.items():
-            self.storage.save(
-                asset_uuid=self.asset_uuid, year=year,
-                time_series=time_series, resolution=self.resolution)
-
     def _fetch_asset_time_series_from_db(
             self, year: DateTime) -> Optional[Dict[str, Dict]]:
         """Fetch already saved asset volume time series."""
-        return self.storage.fetch(
+        return self.get_asset_volume_time_series_db(
             asset_uuid=self.asset_uuid, year=year, resolution=self.resolution)
 
     def _add_total_energy_bought(

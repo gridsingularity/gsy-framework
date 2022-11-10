@@ -11,7 +11,6 @@ from gsy_framework.sim_results.electric_blue.all_results import (
     ForwardResultsHandler)
 from gsy_framework.sim_results.electric_blue.time_series import (
     ForwardDeviceTimeSeries)
-from gsy_framework.sim_results.electric_blue.utils import BaseStorage
 
 
 @pytest.fixture(name="simulation_raw_data")
@@ -41,7 +40,7 @@ def simulation_raw_data_fixture():
 @pytest.fixture(name="results_handler")
 def results_handler_fixture():
     """Return an object of type ForwardResultsHandler."""
-    return ForwardResultsHandler(volume_time_series_storage=BaseStorage())
+    return ForwardResultsHandler(get_asset_volume_time_series_db=lambda *args, **kwargs: None)
 
 
 class TestForwardResultsHandler:
@@ -87,30 +86,30 @@ class TestForwardResultsHandler:
                 next(simulation_raw_data), "2020-01-01T00:00")
 
             assert results_handler.orders == ({
-                'UUID_2': {
+                "UUID_2": {
                     4: {
                         time_slot_dt: {
-                            'offers': [{
-                                'seller_id': 'UUID_2', 'price': 30, 'energy': 1,
-                                'time_slot': '2020-01-01T01:00:00'}],
-                            'bids': [],
-                            'trades': [{
-                                'seller_id': 'UUID_2', 'buyer_id': 'UUID_1', 'energy_rate': 1,
-                                'time_slot': '2020-01-01T01:00:00', 'energy': 1,
-                                'price': 30}]}}},
-                'UUID_1': {
+                            "offers": [{
+                                "seller_id": "UUID_2", "price": 30, "energy": 1,
+                                "time_slot": "2020-01-01T01:00:00"}],
+                            "bids": [],
+                            "trades": [{
+                                "seller_id": "UUID_2", "buyer_id": "UUID_1", "energy_rate": 1,
+                                "time_slot": "2020-01-01T01:00:00", "energy": 1,
+                                "price": 30}]}}},
+                "UUID_1": {
                     4: {
                         time_slot_dt:
                             {
-                                'offers': [],
-                                'bids': [{
-                                    'buyer_id': 'UUID_1', 'price': 30, 'energy': 1,
-                                    'time_slot': '2020-01-01T01:00:00'}],
-                                'trades': [{
-                                    'seller_id': 'UUID_2', 'buyer_id': 'UUID_1',
-                                    'energy_rate': 1,
-                                    'time_slot': '2020-01-01T01:00:00', 'energy': 1,
-                                    'price': 30}]}}}})
+                                "offers": [],
+                                "bids": [{
+                                    "buyer_id": "UUID_1", "price": 30, "energy": 1,
+                                    "time_slot": "2020-01-01T01:00:00"}],
+                                "trades": [{
+                                    "seller_id": "UUID_2", "buyer_id": "UUID_1",
+                                    "energy_rate": 1,
+                                    "time_slot": "2020-01-01T01:00:00", "energy": 1,
+                                    "price": 30}]}}}})
 
             assert results_handler.current_asset_stats == {
                 4: {

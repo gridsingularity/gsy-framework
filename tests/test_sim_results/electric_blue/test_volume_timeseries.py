@@ -7,9 +7,13 @@ from pendulum import DateTime
 from gsy_framework.enums import AggregationResolution, AvailableMarketTypes
 from gsy_framework.sim_results.electric_blue.aggregate_results import (
     ForwardDeviceStats)
-from gsy_framework.sim_results.electric_blue.utils import BaseStorage
 from gsy_framework.sim_results.electric_blue.volume_timeseries import (
     FORWARD_PRODUCT_TYPES, AssetVolumeTimeSeries)
+
+
+def fake_get_asset_volume_time_series_db(*_args, **_kwargs):
+    """Fake function that returns None when called by the asset volume time series."""
+    return None
 
 
 @pytest.fixture
@@ -34,7 +38,8 @@ class TestAssetVolumeTimeSeries:
     def check_time_slot_pairs(time_slots: List, resolution: AggregationResolution):
         """Check the returned value of _adapt_time_slot is equal to the expected value."""
         volume_time_series = AssetVolumeTimeSeries(
-            asset_uuid="UUID", asset_peak_kWh=1, resolution=resolution, storage=BaseStorage())
+            asset_uuid="UUID", asset_peak_kWh=1, resolution=resolution,
+            get_asset_volume_time_series_db=fake_get_asset_volume_time_series_db)
 
         for expected, actual in time_slots:
             assert expected == volume_time_series._adapt_time_slot(actual)
@@ -85,7 +90,8 @@ class TestAssetVolumeTimeSeries:
             self, add_total_energy_bought_mock, add_total_energy_sold_mock):
         volume_time_series = AssetVolumeTimeSeries(
             asset_uuid="UUID", asset_peak_kWh=5,
-            resolution=AggregationResolution.RES_1_YEAR, storage=BaseStorage())
+            resolution=AggregationResolution.RES_1_YEAR,
+            get_asset_volume_time_series_db=fake_get_asset_volume_time_series_db)
 
         asset_stats = ForwardDeviceStats("UUID", DateTime(2020, 1, 1), DateTime(2020, 1, 1))
         volume_time_series.update_time_series(asset_stats, AvailableMarketTypes.WEEK_FORWARD)
@@ -98,7 +104,8 @@ class TestAssetVolumeTimeSeries:
     def test_add_total_energy_bought_works_correctly():
         volume_time_series = AssetVolumeTimeSeries(
             asset_uuid="UUID", asset_peak_kWh=5,
-            resolution=AggregationResolution.RES_1_WEEK, storage=BaseStorage())
+            resolution=AggregationResolution.RES_1_WEEK,
+            get_asset_volume_time_series_db=fake_get_asset_volume_time_series_db)
 
         profile = {f"time_slot_{i}": 0.5 for i in range(3)}
         with patch.object(
@@ -143,7 +150,8 @@ class TestAssetVolumeTimeSeries:
     def test_add_total_energy_sold_works_correctly():
         volume_time_series = AssetVolumeTimeSeries(
             asset_uuid="UUID", asset_peak_kWh=5,
-            resolution=AggregationResolution.RES_1_WEEK, storage=BaseStorage())
+            resolution=AggregationResolution.RES_1_WEEK,
+            get_asset_volume_time_series_db=fake_get_asset_volume_time_series_db)
 
         profile = {f"time_slot_{i}": 0.5 for i in range(3)}
         with patch.object(
@@ -188,7 +196,8 @@ class TestAssetVolumeTimeSeries:
     def test_add_to_volume_time_series_works_correctly():
         volume_time_series = AssetVolumeTimeSeries(
             asset_uuid="UUID", asset_peak_kWh=5,
-            resolution=AggregationResolution.RES_1_MONTH, storage=BaseStorage())
+            resolution=AggregationResolution.RES_1_MONTH,
+            get_asset_volume_time_series_db=fake_get_asset_volume_time_series_db)
         time_slot = DateTime(2020, 1, 1)
         time_slot_info = {
             "energy_kWh": 1,
@@ -220,7 +229,8 @@ class TestAssetVolumeTimeSeries:
         """Call AssetVolumeTimeSeries in 1-month resolution to assure no KeyErrors happen."""
         volume_time_series = AssetVolumeTimeSeries(
             asset_uuid="UUID", asset_peak_kWh=5,
-            resolution=AggregationResolution.RES_1_MONTH, storage=BaseStorage())
+            resolution=AggregationResolution.RES_1_MONTH,
+            get_asset_volume_time_series_db=fake_get_asset_volume_time_series_db)
 
         try:
             for product_type, asset_stats in forward_time_series:
@@ -234,7 +244,8 @@ class TestAssetVolumeTimeSeries:
         """Call AssetVolumeTimeSeries in 1-week resolution to assure no KeyErrors happen."""
         volume_time_series = AssetVolumeTimeSeries(
             asset_uuid="UUID", asset_peak_kWh=5,
-            resolution=AggregationResolution.RES_1_WEEK, storage=BaseStorage())
+            resolution=AggregationResolution.RES_1_WEEK,
+            get_asset_volume_time_series_db=fake_get_asset_volume_time_series_db)
 
         try:
             for product_type, asset_stats in forward_time_series:
@@ -248,7 +259,8 @@ class TestAssetVolumeTimeSeries:
         """Call AssetVolumeTimeSeries in 1-hour resolution to assure no KeyErrors happen."""
         volume_time_series = AssetVolumeTimeSeries(
             asset_uuid="UUID", asset_peak_kWh=5,
-            resolution=AggregationResolution.RES_1_HOUR, storage=BaseStorage())
+            resolution=AggregationResolution.RES_1_HOUR,
+            get_asset_volume_time_series_db=fake_get_asset_volume_time_series_db)
 
         try:
             for product_type, asset_stats in forward_time_series:
@@ -262,7 +274,8 @@ class TestAssetVolumeTimeSeries:
         """Call AssetVolumeTimeSeries in 15-minutes resolution to assure no KeyErrors happen."""
         volume_time_series = AssetVolumeTimeSeries(
             asset_uuid="UUID", asset_peak_kWh=5,
-            resolution=AggregationResolution.RES_15_MINUTES, storage=BaseStorage())
+            resolution=AggregationResolution.RES_15_MINUTES,
+            get_asset_volume_time_series_db=fake_get_asset_volume_time_series_db)
 
         try:
             for product_type, asset_stats in forward_time_series:

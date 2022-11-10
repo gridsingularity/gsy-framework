@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict
+from typing import Callable, Dict
 
 from pendulum import DateTime
 
@@ -8,7 +8,6 @@ from gsy_framework.sim_results.electric_blue.aggregate_results import (
     MARKET_RESOLUTIONS, ForwardDeviceStats, handle_forward_results)
 from gsy_framework.sim_results.electric_blue.time_series import (
     ForwardDeviceTimeSeries)
-from gsy_framework.sim_results.electric_blue.utils import BaseStorage
 from gsy_framework.sim_results.electric_blue.volume_timeseries import (
     AssetVolumeTimeSeries)
 from gsy_framework.utils import str_to_pendulum_datetime
@@ -17,7 +16,7 @@ from gsy_framework.utils import str_to_pendulum_datetime
 class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
     """Calculate all results for each market slot for forward markets."""
 
-    def __init__(self, volume_time_series_storage: BaseStorage):
+    def __init__(self, get_asset_volume_time_series_db: Callable):
         self.forward_market_enabled = True
         self.orders: Dict[
             str, Dict[int, Dict[DateTime, Dict]]] = defaultdict(lambda: defaultdict(dict))
@@ -29,7 +28,7 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
             lambda: defaultdict(lambda: defaultdict(dict)))
         self.asset_volume_time_series: Dict[
             str, Dict[AggregationResolution, AssetVolumeTimeSeries]] = {}
-        self.volume_time_series_storage = volume_time_series_storage
+        self.get_asset_volume_time_series_db = get_asset_volume_time_series_db
         self._total_memory_utilization_kb = 0.0
 
     def update(self, area_dict: Dict, core_stats: Dict, current_market_slot: str) -> None:
@@ -150,7 +149,7 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
                     asset_uuid=asset_uuid,
                     asset_peak_kWh=asset_info["capacity_kW"],
                     resolution=resolution,
-                    storage=self.volume_time_series_storage,
+                    get_asset_volume_time_series_db=self.get_asset_volume_time_series_db,
                 ) for resolution in list(AggregationResolution)}
 
         for resolution, time_series in self.asset_volume_time_series[asset_uuid].items():
