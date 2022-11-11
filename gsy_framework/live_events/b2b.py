@@ -26,7 +26,7 @@ class LiveEventArgsValidator:
     def __init__(self, logging_function: Callable):
         self._logger = logging_function
 
-    def validate_start_trading_event_args(self, args: Dict) -> bool:
+    def are_start_trading_event_args_valid(self, args: Dict) -> bool:
         """Validate the arguments for the start trading event."""
         accepted_params = ["start_time", "end_time", "market_type",
                            "capacity_percent", "energy_rate"]
@@ -36,10 +36,10 @@ class LiveEventArgsValidator:
                 "are obligatory for the start trading live events (%s).", args)
             return False
 
-        return (self._validate_market_type(args) and self._validate_start_end_time(args) and
-                self._validate_capacity_percent(args) and self._validate_energy_rate(args))
+        return (self._is_market_type_valid(args) and self._is_start_end_time_valid(args) and
+                self._is_capacity_percent_valid(args) and self._is_energy_rate_valid(args))
 
-    def validate_stop_trading_event_args(self, args: Dict) -> bool:
+    def are_stop_trading_event_args_valid(self, args: Dict) -> bool:
         """Valiaate the arguments for the stop trading event."""
         accepted_params = ["start_time", "end_time", "market_type"]
         if any(param not in args or not args[param] for param in accepted_params):
@@ -48,9 +48,9 @@ class LiveEventArgsValidator:
                 "for the stop trading live events (%s).", args)
             return False
 
-        return self._validate_market_type(args) and self._validate_start_end_time(args)
+        return self._is_market_type_valid(args) and self._is_start_end_time_valid(args)
 
-    def _validate_market_type(self, args: Dict) -> bool:
+    def _is_market_type_valid(self, args: Dict) -> bool:
         try:
             AvailableMarketTypes(args["market_type"])
         except ValueError:
@@ -58,7 +58,7 @@ class LiveEventArgsValidator:
             return False
         return True
 
-    def _validate_start_end_time(self, args: Dict) -> bool:
+    def _is_start_end_time_valid(self, args: Dict) -> bool:
         try:
             if not isinstance(args["start_time"], datetime):
                 str_to_pendulum_datetime(args["start_time"])
@@ -69,14 +69,14 @@ class LiveEventArgsValidator:
             return False
         return True
 
-    def _validate_capacity_percent(self, args: Dict) -> bool:
+    def _is_capacity_percent_valid(self, args: Dict) -> bool:
         if not 0 <= args["capacity_percent"] <= 100.0:
             self._logger(
                 "Capacity percent parameter is not in the expected range (%s).", args)
             return False
         return True
 
-    def _validate_energy_rate(self, args: Dict) -> bool:
+    def _is_energy_rate_valid(self, args: Dict) -> bool:
         if args["energy_rate"] < 0.:
             self._logger(
                 "Energy rate parameter is negative (%s).", args)
