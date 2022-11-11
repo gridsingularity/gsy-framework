@@ -86,6 +86,8 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         super().__init__(asset_uuid, resolution)
         self.asset_peak_kWh = asset_peak_kWh
         self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_peak_kWh)
+        # the get_asset_volume_time_series_db will be called whenever it's needed to fetch an
+        # object from the db.
         self.get_asset_volume_time_series_db = get_asset_volume_time_series_db
 
     def update_time_series(
