@@ -40,12 +40,7 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
         self._buffer_current_asset_stats()
         self._clear_asset_stats()
 
-        forward_results = None
-        for area_result in core_stats.values():
-            if "forward_market_stats" in area_result:
-                forward_results = area_result
-                break
-
+        forward_results = self._get_forward_results(core_stats)
         if not forward_results:
             return
 
@@ -79,6 +74,13 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
     def total_memory_utilization_kb(self):
         """Get the total memory allocated by the results."""
         return self._total_memory_utilization_kb
+
+    @staticmethod
+    def _get_forward_results(core_stats: Dict):
+        for area_result in core_stats.values():
+            if "forward_market_stats" in area_result:
+                return area_result
+        return None
 
     @staticmethod
     def _flatten_area_dict(area_dict: Dict) -> Dict:
