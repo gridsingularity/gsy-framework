@@ -324,9 +324,11 @@ class TradeBidOfferInfo:
 
 class Trade:
     """Trade class."""
-    def __init__(self, id: str, creation_time: DateTime, offer_bid: Union[Offer, Bid],
+    def __init__(self, id: str, creation_time: DateTime,
                  seller: str, buyer: str,
                  traded_energy: float, trade_price: float,
+                 offer: Offer = None,
+                 bid: Bid = None,
                  residual: Optional[Union[Offer, Bid]] = None,
                  already_tracked: bool = False,
                  offer_bid_trade_info: Optional[TradeBidOfferInfo] = None,
@@ -339,7 +341,6 @@ class Trade:
         self.id = str(id)
         self.creation_time = creation_time
         self.time_slot = time_slot  # market slot of creation
-        self.offer_bid = offer_bid
         self.seller = seller
         self.buyer = buyer
         self.traded_energy = traded_energy
@@ -355,13 +356,18 @@ class Trade:
         self.seller_id = seller_id
         self.buyer_id = buyer_id
         self.matching_requirements = matching_requirements
+        self.match_details = {
+            "offer": offer, "bid": bid
+        }
 
     def __str__(self) -> str:
         return (
             f"{{{self.id!s:.6s}}} [origin: {self.seller_origin} -> {self.buyer_origin}] "
             f"[{self.seller} -> {self.buyer}] {self.traded_energy} kWh @ {self.trade_price}"
             f" {round(self.trade_rate, 8)} "
-            f"{self.offer_bid.id if self.offer_bid else ''} [fee: {self.fee_price} cts.] "
+            f"{self.match_details['offer'].id if self.match_details['offer'] else ''} "
+            f"{self.match_details['bid'].id if self.match_details['bid'] else ''} "
+            f"[fee: {self.fee_price} cts.] "
             f"{self.matching_requirements or ''}")
 
     @classmethod
@@ -380,7 +386,11 @@ class Trade:
         """Return json string of the representation."""
         # __dict__ instead of asdict to not recursively deserialize objects
         trade_dict = deepcopy(self.__dict__)
-        trade_dict["offer_bid"] = trade_dict["offer_bid"].to_json_string()
+        trade_dict["match_details"]["offer"] = (
+            trade_dict["match_details"]["offer"].to_json_string())
+        if trade_dict["match_details"]["bid"] is not None:
+            trade_dict["match_details"]["bid"] = (
+                trade_dict["match_details"]["bid"].to_json_string())
         if key_in_dict_and_not_none(trade_dict, "residual"):
             trade_dict["residual"] = trade_dict["residual"].to_json_string()
         if key_in_dict_and_not_none(trade_dict, "offer_bid_trade_info"):
@@ -392,7 +402,11 @@ class Trade:
     def from_json(cls, trade_string) -> "Trade":
         """De-serialize trade from json string."""
         trade_dict = json.loads(trade_string)
-        trade_dict["offer_bid"] = BaseBidOffer.from_json(trade_dict["offer_bid"])
+        if trade_dict["match_details"]["offer"] is not None:
+            trade_dict["offer"] = BaseBidOffer.from_json(trade_dict["match_details"]["offer"])
+        if trade_dict["match_details"]["bid"] is not None:
+            trade_dict["bid"] = BaseBidOffer.from_json(trade_dict["match_details"]["bid"])
+        trade_dict.pop("match_details")
         if trade_dict.get("residual"):
             trade_dict["residual"] = BaseBidOffer.from_json(trade_dict["residual"])
         if trade_dict.get("creation_time"):
@@ -409,12 +423,12 @@ class Trade:
     @property
     def is_bid_trade(self) -> bool:
         """Check if the instance is a bid trade."""
-        return isinstance(self.offer_bid, Bid)
+        return self.match_details["bid"] is not None
 
     @property
     def is_offer_trade(self) -> bool:
         """Check if the instance is an offer trade."""
-        return isinstance(self.offer_bid, Offer)
+        return self.match_details["offer"] is not None
 
     @property
     def trade_rate(self):
@@ -425,9 +439,13 @@ class Trade:
         """Return a json serializable representation of the class."""
         return {
             "type": "Trade",
-            "match_type": type(self.offer_bid).__name__ if self.offer_bid else None,
+            "match_type": (
+                "Bid" if self.match_details["bid"] is not None else "Offer"
+            ),
             "id": self.id,
-            "offer_bid_id": self.offer_bid.id if self.offer_bid else None,
+            "offer_bid_id": (
+                self.match_details["bid"].id
+                if self.match_details["bid"] else self.match_details["offer"].id),
             "residual_id": self.residual.id if self.residual is not None else None,
             "energy": self.traded_energy,
             "energy_rate": self.trade_rate,
@@ -450,7 +468,8 @@ class Trade:
             self.id == other.id and
             self.creation_time == other.creation_time and
             self.time_slot == other.time_slot and
-            self.offer_bid == other.offer_bid and
+            self.match_details["offer"] == self.match_details["offer"] and
+            self.match_details["bid"] == self.match_details["bid"] and
             self.traded_energy == other.traded_energy and
             self.trade_price == other.trade_price and
             self.seller == other.seller and
@@ -486,7 +505,9 @@ class BalancingTrade(Trade):
         return (
             f"{{{self.id!s:.6s}}} [{self.seller} -> {self.buyer}] "
             f"{self.traded_energy} kWh @ {self.trade_price}"
-            f" {self.trade_rate} {self.offer_bid.id}"
+            f" {self.trade_rate} "
+            f"{self.match_details['offer'].id if self.match_details['offer'] else ''} "
+            f"{self.match_details['bid'].id if self.match_details['bid'] else ''} "
         )
 
 

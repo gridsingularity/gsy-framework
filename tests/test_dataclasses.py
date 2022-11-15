@@ -514,7 +514,7 @@ class TestTrade:
         self.initial_data = {
             "id": "my_id",
             "creation_time": DEFAULT_DATETIME,
-            "offer_bid": Offer("id", DEFAULT_DATETIME, 1, 2, "seller"),
+            "offer": Offer("id", DEFAULT_DATETIME, 1, 2, "seller"),
             "seller": "seller",
             "buyer": "buyer",
             "traded_energy": 1,
@@ -527,7 +527,7 @@ class TestTrade:
                 f"{{{trade.id!s:.6s}}} [origin: {trade.seller_origin} -> {trade.buyer_origin}] "
                 f"[{trade.seller} -> {trade.buyer}] {trade.traded_energy} kWh"
                 f" @ {trade.trade_price} {round(trade.trade_rate, 8)} "
-                f"{trade.offer_bid.id} [fee: {trade.fee_price} cts.] "
+                f"{trade.match_details['offer'].id}  [fee: {trade.fee_price} cts.] "
                 f"{trade.matching_requirements or ''}")
 
     @staticmethod
@@ -546,13 +546,14 @@ class TestTrade:
     def test_to_json_string(self):
         trade = Trade(**self.initial_data)
         trade_dict = deepcopy(trade.__dict__)
-        trade_dict["offer_bid"] = trade_dict["offer_bid"].to_json_string()
+        trade_dict["match_details"]["offer"] = (
+            trade_dict["match_details"]["offer"].to_json_string())
         assert (trade.to_json_string() ==
                 json.dumps(trade_dict, default=json_datetime_serializer))
 
         # Test the residual check
-        trade.residual = deepcopy(trade.offer_bid)
-        trade_dict["residual"] = deepcopy(trade.offer_bid).to_json_string()
+        trade.residual = deepcopy(trade.match_details["offer"])
+        trade_dict["residual"] = deepcopy(trade.match_details["offer"]).to_json_string()
         assert (trade.to_json_string() ==
                 json.dumps(trade_dict, default=json_datetime_serializer))
         assert json.loads(trade.to_json_string()).get("residual") is not None
@@ -569,7 +570,7 @@ class TestTrade:
         trade = Trade(
             **self.initial_data
         )
-        trade.residual = deepcopy(trade.offer_bid)
+        trade.residual = deepcopy(trade.match_details["offer"])
         trade.offer_bid_trade_info = TradeBidOfferInfo(
             1, 1, 1, 1, 1
         )
@@ -591,7 +592,8 @@ class TestTrade:
         )
         assert trade.is_bid_trade is False
 
-        trade.offer_bid = Bid("id", DateTime.now(), 1, 2, "buyer")
+        trade.match_details["bid"] = Bid("id", DateTime.now(), 1, 2, "buyer")
+        trade.match_details["offer"] = None
         assert trade.is_bid_trade is True
 
     def test_is_offer_trade(self):
@@ -600,7 +602,8 @@ class TestTrade:
         )
         assert trade.is_offer_trade is True
 
-        trade.offer_bid = Bid("id", DateTime.now(), 1, 2, "buyer")
+        trade.match_details["bid"] = Bid("id", DateTime.now(), 1, 2, "buyer")
+        trade.match_details["offer"] = None
         assert trade.is_offer_trade is False
 
     @staticmethod
@@ -608,7 +611,7 @@ class TestTrade:
         trade = Trade(
             **{
                 "id": "my_id",
-                "offer_bid": Offer("id", DEFAULT_DATETIME, 1, 2, "seller"),
+                "offer": Offer("id", DEFAULT_DATETIME, 1, 2, "seller"),
                 "buyer": "buyer",
                 "buyer_origin": "buyer_origin",
                 "seller_origin": "seller_origin",
@@ -628,7 +631,7 @@ class TestTrade:
             "type": "Trade",
             "match_type": "Offer",
             "id": trade.id,
-            "offer_bid_id": trade.offer_bid.id,
+            "offer_bid_id": trade.match_details["offer"].id,
             "residual_id": trade.residual.id if trade.residual is not None else None,
             "energy": trade.traded_energy,
             "energy_rate": trade.trade_rate,
@@ -682,7 +685,7 @@ class TestBalancingTrade(TestTrade):
         assert (str(trade) ==
                 f"{{{trade.id!s:.6s}}} [{trade.seller} -> {trade.buyer}] "
                 f"{trade.traded_energy} kWh @ {trade.trade_price}"
-                f" {trade.trade_rate} {trade.offer_bid.id}")
+                f" {trade.trade_rate} {trade.match_details['offer'].id}  ")
 
 
 class TestClearing:

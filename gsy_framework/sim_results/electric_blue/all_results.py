@@ -89,8 +89,9 @@ class ForwardResultsHandler:
         market_type = AvailableMarketTypes(market_type_value)
         for time_slot, asset_results in forward_results.items():
             for asset_uuid, current_asset_stats in asset_results.items():
-                if previous_forward_stats := self.previous_asset_stats.get(
-                        market_type_value, {}).get(time_slot, {}).get(asset_uuid, {}):
+                previous_forward_stats = self.previous_asset_stats.get(
+                    market_type_value, {}).get(time_slot, {}).get(asset_uuid, {})
+                if previous_forward_stats:
                     previous_asset_stats = ForwardDeviceStats.from_dict(previous_forward_stats)
                     current_asset_stats += previous_asset_stats
                 self.current_asset_stats[market_type_value][time_slot][asset_uuid] = \
