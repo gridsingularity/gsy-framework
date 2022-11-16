@@ -386,8 +386,9 @@ class Trade:
         """Return json string of the representation."""
         # __dict__ instead of asdict to not recursively deserialize objects
         trade_dict = deepcopy(self.__dict__)
-        trade_dict["match_details"]["offer"] = (
-            trade_dict["match_details"]["offer"].to_json_string())
+        if trade_dict["match_details"]["offer"] is not None:
+            trade_dict["match_details"]["offer"] = (
+                trade_dict["match_details"]["offer"].to_json_string())
         if trade_dict["match_details"]["bid"] is not None:
             trade_dict["match_details"]["bid"] = (
                 trade_dict["match_details"]["bid"].to_json_string())
