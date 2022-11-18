@@ -49,7 +49,7 @@ class TestAssetVolumeTimeSeries:
         """Check all timeslots of a given year belong to that year."""
         for year in volume_time_series.asset_time_series_buffer:
             for year_within in volume_time_series.asset_time_series_buffer[year]:
-                assert year_within.startswith(str(year.year))
+                assert year_within.startswith(str(year))
 
     def test_adapt_time_slot_for_15_minute_resolution(self):
         self.check_time_slot_pairs([
@@ -207,7 +207,7 @@ class TestAssetVolumeTimeSeries:
         volume_time_series._add_to_volume_time_series(
             time_slot, time_slot_info, AvailableMarketTypes.MONTH_FORWARD, "sold")
         sold_time_slot_data = volume_time_series.asset_time_series_buffer[time_slot.start_of(
-            "year")][str(time_slot)]["MONTH_FORWARD"]["sold"]
+            "year").year][str(time_slot)]["MONTH_FORWARD"]["sold"]
         assert sold_time_slot_data == {
             "energy_kWh": 1.0, "energy_rate": 0.3,
             "trade_count": 1, "accumulated_trade_rates": 0.3}
@@ -220,7 +220,7 @@ class TestAssetVolumeTimeSeries:
         volume_time_series._add_to_volume_time_series(
             time_slot, time_slot_info, AvailableMarketTypes.MONTH_FORWARD, "sold")
         sold_time_slot_data = volume_time_series.asset_time_series_buffer[time_slot.start_of(
-            "year")][str(time_slot)]["MONTH_FORWARD"]["sold"]
+            "year").year][str(time_slot)]["MONTH_FORWARD"]["sold"]
         assert sold_time_slot_data == {
             "energy_kWh": 2.0, "energy_rate": 0.23,
             "trade_count": 3, "accumulated_trade_rates": 0.7}

@@ -23,7 +23,7 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
     """This class generates combined volume time series for the whole year for each asset.
     The result would be like this for a monthly resolution for the year 2020:
     {
-        DateTime(2020, 1, 1, 0, 0, 0): {
+        2020: {
             DateTime(2020, 1, 1, 0, 0, 0): {
                 'DAY_FORWARD': {
                     'bought': {
@@ -164,17 +164,16 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         except ZeroDivisionError:
             attribute_data["energy_rate"] = 0.0
 
-        self.asset_time_series_buffer[year] = volume_time_series
+        self.asset_time_series_buffer[year.year] = volume_time_series
 
-    def _generate_time_series(self, year):
+    def _generate_time_series(self, year: DateTime):
         return {
             str(ts): self._get_time_series_template(value)
             for ts, value in self._generate_SSP_time_series(year)}
 
     def _generate_SSP_time_series(self, year: DateTime):
         """Generate SSP time series for the whole year. The generated time series will then be
-        used as a backbone
-        to add other statistics."""
+        used as a backbone to add other statistics."""
         start_time = self._adapt_time_slot(year)
         if start_time < year:
             start_time += self.resolution.duration()
