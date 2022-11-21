@@ -1,13 +1,17 @@
 import copy
-from unittest.mock import patch, MagicMock
 import uuid
+from unittest.mock import MagicMock, patch
 
-from pendulum import DateTime, UTC
 import pytest
+from pendulum import UTC, DateTime
 
-from gsy_framework.sim_results.electric_blue.aggregate_results import ForwardDeviceStats
-from gsy_framework.sim_results.electric_blue.all_results import ForwardResultsHandler
-from gsy_framework.sim_results.electric_blue.time_series import ForwardDeviceTimeSeries
+from gsy_framework.enums import AggregationResolution
+from gsy_framework.sim_results.electric_blue.aggregate_results import (
+    ForwardDeviceStats)
+from gsy_framework.sim_results.electric_blue.all_results import (
+    ForwardResultsHandler)
+from gsy_framework.sim_results.electric_blue.time_series import (
+    ForwardDeviceTimeSeries)
 
 
 @pytest.fixture(name="simulation_raw_data")
@@ -37,7 +41,7 @@ def simulation_raw_data_fixture():
 @pytest.fixture(name="results_handler")
 def results_handler_fixture():
     """Return an object of type ForwardResultsHandler."""
-    return ForwardResultsHandler()
+    return ForwardResultsHandler(get_asset_volume_time_series_db=lambda *args, **kwargs: None)
 
 
 class TestForwardResultsHandler:
@@ -61,7 +65,8 @@ class TestForwardResultsHandler:
                             "current_asset_stats": results_handler.current_asset_stats,
                             "asset_time_series": results_handler.asset_time_series,
                             "cumulative_net_energy_flow": {},
-                            "cumulative_market_fees": 0.}
+                            "cumulative_market_fees": 0.,
+                            "asset_volume_time_series": results_handler.asset_volume_time_series}
         assert results_handler.all_db_results == expected_results
 
     @staticmethod
@@ -75,17 +80,38 @@ class TestForwardResultsHandler:
             assert results_handler.asset_time_series == {}
 
             time_slot_dt = DateTime(2020, 1, 1, 1, 0, tzinfo=UTC)
-            results_handler.update({}, next(simulation_raw_data), "2020-01-01T00:00")
+            children = [
+                    {"uuid": "UUID_1", "capacity_kW": 1},
+                    {"uuid": "UUID_2", "capacity_kW": 2}]
+            results_handler.update(
+                {"children": children},
+                next(simulation_raw_data), "2020-01-01T00:00")
 
-            assert results_handler.orders == (
-                {"uuid_1234": {4: {time_slot_dt:
-                   {"bids": [{"buyer_id": "UUID_1", "price": 30, "energy": 1,
-                              "time_slot": "2020-01-01T01:00:00"}],
-                    "offers": [{"seller_id": "UUID_2", "price": 30, "energy": 1,
+            assert results_handler.orders == ({
+                "UUID_2": {
+                    4: {
+                        time_slot_dt: {
+                            "offers": [{
+                                "seller_id": "UUID_2", "price": 30, "energy": 1,
                                 "time_slot": "2020-01-01T01:00:00"}],
-                    "trades": [{"seller_id": "UUID_2", "buyer_id": "UUID_1", "energy": 1,
-                                "energy_rate": 1, "price": 30,
-                                "time_slot": "2020-01-01T01:00:00"}]}}}})
+                            "bids": [],
+                            "trades": [{
+                                "seller_id": "UUID_2", "buyer_id": "UUID_1", "energy_rate": 1,
+                                "time_slot": "2020-01-01T01:00:00", "energy": 1,
+                                "price": 30}]}}},
+                "UUID_1": {
+                    4: {
+                        time_slot_dt:
+                            {
+                                "offers": [],
+                                "bids": [{
+                                    "buyer_id": "UUID_1", "price": 30, "energy": 1,
+                                    "time_slot": "2020-01-01T01:00:00"}],
+                                "trades": [{
+                                    "seller_id": "UUID_2", "buyer_id": "UUID_1",
+                                    "energy_rate": 1,
+                                    "time_slot": "2020-01-01T01:00:00", "energy": 1,
+                                    "price": 30}]}}}})
 
             assert results_handler.current_asset_stats == {
                 4: {
@@ -107,18 +133,43 @@ class TestForwardResultsHandler:
                         }}
                 }}
 
+            volume_time_series = results_handler.asset_volume_time_series
+            for asset_info in children:
+                assert asset_info["uuid"] in volume_time_series
+                assert list(volume_time_series[asset_info["uuid"]].keys()) == \
+                       list(AggregationResolution)
+                for resolution, time_series in volume_time_series[asset_info["uuid"]].items():
+                    # make sure that the volume time series is populated with data.
+                    # There's no need to check correctness of this data as the validity
+                    # of the AssetVolumeTimeSeries is checked in its unit tests.
+                    assert time_series.asset_peak_kWh == asset_info["capacity_kW"]
+                    assert time_series.resolution == resolution
+                    assert time_series.get_asset_volume_time_series_db
+
     @staticmethod
     def test_results_handler_orders_consist_only_needed_attributes(results_handler,
                                                                    simulation_raw_data):
         needed_attributes = {"offers", "bids", "trades"}
-        results_handler.update({}, next(simulation_raw_data), "2020-01-01T00:00")
-        orders = results_handler.orders["uuid_1234"][4][DateTime(2020, 1, 1, 1, 0, tzinfo=UTC)]
+        results_handler.update({
+            "children": [
+                {"uuid": "UUID_1", "capacity_kW": 1},
+                {"uuid": "UUID_2", "capacity_kW": 2}]
+        }, next(simulation_raw_data), "2020-01-01T00:00")
+        orders = results_handler.orders["UUID_1"][4][DateTime(2020, 1, 1, 1, 0, tzinfo=UTC)]
         assert set(orders.keys()) == needed_attributes
 
     @staticmethod
     def test_if_previous_stats_are_buffered(results_handler, simulation_raw_data):
-        results_handler.update({}, next(simulation_raw_data), "2020-01-01T00:00")
+        results_handler.update({
+            "children": [
+                {"uuid": "UUID_1", "capacity_kW": 1},
+                {"uuid": "UUID_2", "capacity_kW": 2}]
+        }, next(simulation_raw_data), "2020-01-01T00:00")
         assert results_handler.previous_asset_stats == {}
         previous_asset_stats = copy.deepcopy(results_handler.current_asset_stats)
-        results_handler.update({}, next(simulation_raw_data), "2020-01-01T01:00")
+        results_handler.update({
+            "children": [
+                {"uuid": "UUID_1", "capacity_kW": 1},
+                {"uuid": "UUID_2", "capacity_kW": 2}]
+        }, next(simulation_raw_data), "2020-01-01T01:00")
         assert results_handler.previous_asset_stats == previous_asset_stats
