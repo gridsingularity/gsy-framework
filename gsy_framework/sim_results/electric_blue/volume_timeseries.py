@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Callable, Dict, Optional
 
 from pendulum import DateTime
 
@@ -15,6 +15,7 @@ from gsy_framework.utils import round_floats_for_ui, round_prices_to_cents
 FORWARD_PRODUCT_TYPES = [
     AvailableMarketTypes.YEAR_FORWARD, AvailableMarketTypes.MONTH_FORWARD,
     AvailableMarketTypes.WEEK_FORWARD, AvailableMarketTypes.DAY_FORWARD,
+    AvailableMarketTypes.INTRADAY
 ]
 
 
@@ -22,7 +23,7 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
     """This class generates combined volume time series for the whole year for each asset.
     The result would be like this for a monthly resolution for the year 2020:
     {
-        DateTime(2020, 1, 1, 0, 0, 0): {
+        2020: {
             DateTime(2020, 1, 1, 0, 0, 0): {
                 'DAY_FORWARD': {
                     'bought': {
@@ -81,24 +82,24 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
     """
     def __init__(
             self, asset_uuid: str, asset_peak_kWh: float,
-            resolution: AggregationResolution):
+            resolution: AggregationResolution, get_asset_volume_time_series_db: Callable):
         super().__init__(asset_uuid, resolution)
         self.asset_peak_kWh = asset_peak_kWh
         self._trade_profile_generator = ForwardTradeProfileGenerator(self.asset_peak_kWh)
+        # the get_asset_volume_time_series_db will be called whenever it's needed to fetch an
+        # object from the db.
+        self.get_asset_volume_time_series_db = get_asset_volume_time_series_db
 
     def update_time_series(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
         self._add_total_energy_bought(asset_stats, product_type)
         self._add_total_energy_sold(asset_stats, product_type)
 
-    def save_time_series(self):
-        """Save asset volume time series in the DB."""
-        # TODO: should be implemented.
-
     def _fetch_asset_time_series_from_db(
             self, year: DateTime) -> Optional[Dict[str, Dict]]:
         """Fetch already saved asset volume time series."""
-        # TODO: should be implemented.
+        return self.get_asset_volume_time_series_db(
+            asset_uuid=self.asset_uuid, year=year, resolution=self.resolution)
 
     def _add_total_energy_bought(
             self, asset_stats: ForwardDeviceStats, product_type: AvailableMarketTypes):
@@ -163,17 +164,16 @@ class AssetVolumeTimeSeries(AssetTimeSeriesBase):
         except ZeroDivisionError:
             attribute_data["energy_rate"] = 0.0
 
-        self._asset_time_series_buffer[year] = volume_time_series
+        self.asset_time_series_buffer[year.year] = volume_time_series
 
-    def _generate_time_series(self, year):
+    def _generate_time_series(self, year: DateTime):
         return {
             str(ts): self._get_time_series_template(value)
             for ts, value in self._generate_SSP_time_series(year)}
 
     def _generate_SSP_time_series(self, year: DateTime):
         """Generate SSP time series for the whole year. The generated time series will then be
-        used as a backbone
-        to add other statistics."""
+        used as a backbone to add other statistics."""
         start_time = self._adapt_time_slot(year)
         if start_time < year:
             start_time += self.resolution.duration()
