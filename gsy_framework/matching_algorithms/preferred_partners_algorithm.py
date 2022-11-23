@@ -97,15 +97,15 @@ class PreferredPartnersMatchingAlgorithm(BaseMatchingAlgorithm):
         """Map seller ids/origin ids to their offers list."""
         mapping = {}
         for offer in offers:
-            if offer["seller_id"]:
-                if offer["seller_id"] not in mapping:
-                    mapping[offer["seller_id"]] = []
-                mapping[offer["seller_id"]].append(offer)
-            if (offer["seller_origin_id"]
-                    and offer["seller_origin_id"] != offer["seller_id"]):
-                if offer["seller_origin_id"] not in mapping:
-                    mapping[offer["seller_origin_id"]] = []
-                mapping[offer["seller_origin_id"]].append(offer)
+            if offer["seller"]["uuid"]:
+                if offer["seller"]["uuid"] not in mapping:
+                    mapping[offer["seller"]["uuid"]] = []
+                mapping[offer["seller"]["uuid"]].append(offer)
+            if (offer["seller"]["origin_uuid"]
+                    and offer["seller"]["origin_uuid"] != offer["seller"]["uuid"]):
+                if offer["seller"]["origin_uuid"] not in mapping:
+                    mapping[offer["seller"]["origin_uuid"]] = []
+                mapping[offer["seller"]["origin_uuid"]].append(offer)
         return mapping
 
     @classmethod

@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 # pylint: disable=protected-access
 
-from gsy_framework.data_classes import BidOfferMatch
+from gsy_framework.data_classes import BidOfferMatch, TraderDetails
 from gsy_framework.matching_algorithms.preferred_partners_algorithm import (
     PreferredPartnersMatchingAlgorithm)
 from tests.test_matching_algorithms import offer_factory, bid_factory
@@ -33,7 +33,7 @@ class TestPreferredPartnersMatchingAlgorithm:
          """
         offer = offer_factory().serializable_dict()
         bid = bid_factory(
-            {"requirements": [{"trading_partners": [offer["seller_id"]]}]}
+            {"requirements": [{"trading_partners": [offer["seller"]["uuid"]]}]}
         ).serializable_dict()
         data = {"market": {"2021-10-06T12:00": {
             "bids": [bid], "offers": [offer]
@@ -46,7 +46,8 @@ class TestPreferredPartnersMatchingAlgorithm:
                                  selected_energy=30,
                                  time_slot="2021-10-06T12:00",
                                  matching_requirements={
-                                     "bid_requirement": {"trading_partners": [offer["seller_id"]]},
+                                     "bid_requirement": {
+                                         "trading_partners": [offer["seller"]["uuid"]]},
                                      "offer_requirement": {}
                                  }).serializable_dict()]
 
@@ -67,15 +68,20 @@ class TestPreferredPartnersMatchingAlgorithm:
         offers = [
             offer_factory({
                 "id": f"id-{index}",
-                "seller_id": f"seller_id-{index}",
-                "seller": f"seller-{index}",
-                "seller_origin_id": f"seller_id-{index}",
-                "seller_origin": f"seller-{index}"}).serializable_dict()
+                "seller": TraderDetails(
+                    uuid=f"seller_id-{index}",
+                    name=f"seller-{index}",
+                    origin_uuid=f"seller_id-{index}",
+                    origin=f"seller-{index}")
+            }).serializable_dict()
             for index in range(3)]
         offers.append(offer_factory({
-            "seller_id": offers[0]["seller_id"],
-            "seller_origin_id": "different_origin_id",
-            "seller_origin": "different_origin"}).serializable_dict())
+            "seller": TraderDetails(
+                uuid=offers[0]["seller"]["uuid"],
+                name=offers[0]["seller"]["name"],
+                origin_uuid="different_origin_id",
+                origin="different_origin")
+        }).serializable_dict())
         assert PreferredPartnersMatchingAlgorithm._get_actor_to_offers_mapping(offers) == {
             "seller_id-0": [offers[0], offers[3]],
             "seller_id-1": [offers[1]],

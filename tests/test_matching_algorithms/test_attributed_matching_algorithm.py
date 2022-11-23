@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # pylint: disable=protected-access
 
 from tests.test_matching_algorithms import offer_factory, bid_factory
-from gsy_framework.data_classes import BidOfferMatch
+from gsy_framework.data_classes import BidOfferMatch, TraderDetails
 from gsy_framework.matching_algorithms.attributed_matching_algorithm import (
     AttributedMatchingAlgorithm)
 
@@ -33,12 +33,14 @@ class TestAttributedMatchingAlgorithm:
          """
         offer = offer_factory().serializable_dict()
         bid = bid_factory(
-            {"requirements": [{"trading_partners": [offer["seller_id"]]}]}
+            {"requirements": [{"trading_partners": [offer["seller"]["uuid"]]}]}
         ).serializable_dict()
 
-        offer2 = offer_factory(
-            {"seller_id": "second seller", "seller_origin_id": "second seller"}
-        ).serializable_dict()
+        offer2 = offer_factory({
+            "seller": TraderDetails(
+                name="second_seller", uuid="second seller",
+                origin="second_seller", origin_uuid="second seller")
+        }).serializable_dict()
         # Both the seller and seller_origin ids are used for preferred trading partner matching.
         bid2 = bid_factory().serializable_dict()
         data = {"market": {"2021-10-06T12:00": {
@@ -56,7 +58,7 @@ class TestAttributedMatchingAlgorithm:
             selected_energy=30,
             time_slot="2021-10-06T12:00",
             matching_requirements={
-               "bid_requirement": {"trading_partners": [offer["seller_id"]]},
+               "bid_requirement": {"trading_partners": [offer["seller"]["uuid"]]},
                "offer_requirement": {}}).serializable_dict()
 
         assert matches[1]["offer"]["id"] == offer2["id"]

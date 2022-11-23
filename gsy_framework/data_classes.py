@@ -26,10 +26,11 @@ import json
 from copy import deepcopy
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Optional, Tuple, Union
+from math import isclose
 
 from pendulum import DateTime
 
-from gsy_framework.constants_limits import DEFAULT_PRECISION
+from gsy_framework.constants_limits import DEFAULT_PRECISION, FLOATING_POINT_TOLERANCE
 from gsy_framework.utils import (
     limit_float_precision, datetime_to_string_incl_seconds, key_in_dict_and_not_none,
     str_to_pendulum_datetime)
@@ -51,8 +52,8 @@ class BaseBidOffer:
         self.creation_time = creation_time
         self.time_slot = time_slot  # market slot of creation
         self.original_price = original_price or price
-        self.price = price
-        self.energy = energy
+        self.price = limit_float_precision(price)
+        self.energy = limit_float_precision(energy)
         self.attributes = attributes
         self.requirements = requirements
         self.type = self.__class__.__name__
@@ -112,6 +113,12 @@ class BaseBidOffer:
             offer_bid_dict["creation_time"] = None
         if offer_bid_dict.get("time_slot"):
             offer_bid_dict["time_slot"] = str_to_pendulum_datetime(offer_bid_dict["time_slot"])
+
+        if offer_bid_dict.get("seller"):
+            offer_bid_dict["seller"] = TraderDetails.from_json(offer_bid_dict["seller"])
+        if offer_bid_dict.get("buyer"):
+            offer_bid_dict["buyer"] = TraderDetails.from_json(offer_bid_dict["buyer"])
+
         if object_type == "Offer":
             return Offer(**offer_bid_dict)
         if object_type == "Bid":
@@ -126,10 +133,14 @@ class BaseBidOffer:
 
 @dataclass
 class TraderDetails:
+    """
+    Details about the trader. Includes trader name and unique identifier, and also the original
+    trader for this order.
+    """
     name: str
     uuid: str
-    origin: str
-    origin_uuid: str
+    origin: Optional[str] = None
+    origin_uuid: Optional[str] = None
 
     def __eq__(self, other: "TraderDetails") -> bool:
         return (
@@ -139,21 +150,31 @@ class TraderDetails:
             self.origin_uuid == other.origin_uuid
         )
 
+    def serializable_dict(self) -> Dict:
+        """Return a json serializable representation of the class."""
+        return {
+            "name": self.name,
+            "origin": self.origin,
+            "origin_uuid": self.origin_uuid,
+            "uuid": self.uuid
+        }
+
+    @staticmethod
+    def from_json(json_dict) -> "TraderDetails":
+        """Get a TraderDetails object from a JSON dict."""
+        return TraderDetails(**json_dict)
+
 
 class Offer(BaseBidOffer):
     """Offer class"""
     def __init__(self, id: str, creation_time: DateTime, price: float,
-                 energy: float, seller: str, original_price: Optional[float] = None,
-                 seller_origin: str = None, seller_origin_id: str = None,
-                 seller_id: str = None,
-                 attributes: Dict = None,
-                 requirements: List[Dict] = None,
+                 energy: float, seller: TraderDetails, original_price: Optional[float] = None,
+                 attributes: Dict = None, requirements: List[Dict] = None,
                  time_slot: DateTime = None):
         super().__init__(id=id, creation_time=creation_time, price=price, energy=energy,
                          original_price=original_price,
                          attributes=attributes, requirements=requirements, time_slot=time_slot)
-        self.seller = TraderDetails(
-            seller, seller_id, seller_origin, seller_origin_id)
+        self.seller = seller
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -170,12 +191,21 @@ class Offer(BaseBidOffer):
 
     def serializable_dict(self) -> Dict:
         """Return a json serializable representation of the class."""
-        return {**super().serializable_dict(),
-                "seller": self.seller.name,
-                "seller_origin": self.seller.origin,
-                "seller_origin_id": self.seller.origin_uuid,
-                "seller_id": self.seller.uuid,
-                }
+        return {**super().serializable_dict(), "seller": self.seller.serializable_dict()}
+
+    def to_json_string(self, **kwargs) -> str:
+        """Convert the Offer object into its JSON representation."""
+        if self.seller:
+            kwargs["seller"] = self.seller.serializable_dict()
+        return super().to_json_string(**kwargs)
+
+    @classmethod
+    def from_json(cls, offer_or_bid: str) -> "Offer":
+        offer = super().from_json(offer_or_bid)
+        json_dict = json.loads(offer_or_bid)
+        if "seller" in json_dict:
+            offer.seller = TraderDetails.from_json(json_dict["seller"])
+        return offer
 
     @staticmethod
     def from_dict(offer: Dict) -> "Offer":
@@ -188,15 +218,20 @@ class Offer(BaseBidOffer):
             energy=offer["energy"],
             price=offer["energy"] * offer["energy_rate"],
             original_price=offer.get("original_price"),
-            seller=offer.get("seller"),
-            seller_origin=offer.get("seller_origin"),
-            seller_origin_id=offer.get("seller_origin_id"),
-            seller_id=offer.get("seller_id"),
+            seller=TraderDetails(
+                name=offer["seller"]["name"],
+                origin=offer["seller"]["origin"],
+                origin_uuid=offer["seller"]["origin_uuid"],
+                uuid=offer["seller"]["uuid"],
+            ),
             attributes=offer.get("attributes"),
             requirements=offer.get("requirements"))
 
     def __eq__(self, other: "Offer") -> bool:
         return (self.id == other.id and
+                isclose(self.energy_rate, other.energy_rate, rel_tol=FLOATING_POINT_TOLERANCE) and
+                isclose(self.energy, other.energy, rel_tol=FLOATING_POINT_TOLERANCE) and
+                isclose(self.price, other.price, rel_tol=FLOATING_POINT_TOLERANCE) and
                 self.seller == other.seller and
                 self.attributes == other.attributes and
                 self.requirements == other.requirements and
@@ -221,21 +256,17 @@ class Offer(BaseBidOffer):
     @staticmethod
     def copy(offer: "Offer") -> "Offer":
         """Return a copy of an offer Object."""
-        return Offer(offer.id, offer.creation_time, offer.price, offer.energy,
-                     offer.seller.name, offer.original_price,
-                     offer.seller.origin, offer.seller.origin_uuid,
-                     offer.seller.uuid, attributes=offer.attributes,
-                     requirements=offer.requirements, time_slot=offer.time_slot)
+        return Offer(
+            offer.id, offer.creation_time, offer.price, offer.energy, seller=offer.seller,
+            original_price=offer.original_price, attributes=offer.attributes,
+            requirements=offer.requirements, time_slot=offer.time_slot)
 
 
 class Bid(BaseBidOffer):
     """Bid class."""
     def __init__(self, id: str, creation_time: DateTime, price: float,
-                 energy: float, buyer: str,
+                 energy: float, buyer: TraderDetails,
                  original_price: Optional[float] = None,
-                 buyer_origin: str = None,
-                 buyer_origin_id: str = None,
-                 buyer_id: str = None,
                  attributes: Dict = None,
                  requirements: List[Dict] = None,
                  time_slot: Optional[DateTime] = None
@@ -243,7 +274,7 @@ class Bid(BaseBidOffer):
         super().__init__(id=id, creation_time=creation_time, price=price, energy=energy,
                          original_price=original_price,
                          attributes=attributes, requirements=requirements, time_slot=time_slot)
-        self.buyer = TraderDetails(buyer, buyer_id, buyer_origin, buyer_origin_id)
+        self.buyer = buyer
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -262,12 +293,26 @@ class Bid(BaseBidOffer):
 
     def serializable_dict(self) -> Dict:
         """Return a json serializable representation of the class."""
-        return {**super().serializable_dict(),
-                "buyer_origin": self.buyer.origin,
-                "buyer_origin_id": self.buyer.name,
-                "buyer_id": self.buyer.uuid,
-                "buyer": self.buyer.name,
-                }
+        return {**super().serializable_dict(), "buyer": self.buyer.serializable_dict()}
+
+    @classmethod
+    def from_json(cls, offer_or_bid: str) -> "Bid":
+        bid = super().from_json(offer_or_bid)
+        json_dict = json.loads(offer_or_bid)
+        if "buyer" in json_dict:
+            bid.buyer = TraderDetails(
+                name=json_dict["buyer"]["name"],
+                uuid=json_dict["buyer"]["uuid"],
+                origin=json_dict["buyer"]["origin"],
+                origin_uuid=json_dict["buyer"]["origin_uuid"],
+            )
+        return bid
+
+    def to_json_string(self, **kwargs) -> str:
+        """Convert the Offer object into its JSON representation."""
+        if self.buyer:
+            kwargs["buyer"] = self.buyer.serializable_dict()
+        return super().to_json_string(**kwargs)
 
     @staticmethod
     def from_dict(bid: Dict) -> "Bid":
@@ -279,10 +324,11 @@ class Bid(BaseBidOffer):
             energy=bid["energy"],
             price=bid["energy"] * bid["energy_rate"],
             original_price=bid.get("original_price"),
-            buyer=bid.get("buyer"),
-            buyer_origin=bid.get("buyer_origin"),
-            buyer_origin_id=bid.get("buyer_origin_id"),
-            buyer_id=bid.get("buyer_id"),
+            buyer=TraderDetails(
+                name=bid["buyer"]["name"],
+                origin=bid["buyer"]["origin"],
+                origin_uuid=bid["buyer"]["origin_uuid"],
+                uuid=bid["buyer"]["uuid"]),
             attributes=bid.get("attributes"),
             requirements=bid.get("requirements"),
             time_slot=str_to_pendulum_datetime(bid.get("time_slot"))
@@ -336,17 +382,14 @@ class TradeBidOfferInfo:
 class Trade:
     """Trade class."""
     def __init__(self, id: str, creation_time: DateTime,
-                 seller: str, buyer: str,
+                 seller: TraderDetails, buyer: TraderDetails,
                  traded_energy: float, trade_price: float,
                  offer: Offer = None,
                  bid: Bid = None,
                  residual: Optional[Union[Offer, Bid]] = None,
                  already_tracked: bool = False,
                  offer_bid_trade_info: Optional[TradeBidOfferInfo] = None,
-                 seller_origin: Optional[str] = None, buyer_origin: Optional[str] = None,
-                 fee_price: Optional[float] = None, seller_origin_id: Optional[str] = None,
-                 buyer_origin_id: Optional[str] = None, seller_id: Optional[str] = None,
-                 buyer_id: Optional[str] = None, time_slot: Optional[DateTime] = None,
+                 fee_price: Optional[float] = None, time_slot: Optional[DateTime] = None,
                  matching_requirements: Optional[Dict] = None):
 
         self.id = str(id)
@@ -358,39 +401,19 @@ class Trade:
         self.already_tracked = already_tracked
         self.offer_bid_trade_info = offer_bid_trade_info
         self.fee_price = fee_price
-        # self.seller = seller
-        # self.buyer = buyer
-        # self.seller_origin = seller_origin
-        # self.buyer_origin = buyer_origin
-        # self.seller_origin_id = seller_origin_id
-        # self.buyer_origin_id = buyer_origin_id
-        # self.seller_id = seller_id
-        # self.buyer_id = buyer_id
-        bid_details = TraderDetails(buyer, buyer_id, buyer_origin, buyer_origin_id) if not bid else bid.buyer
-        offer_details = TraderDetails(seller, seller_id, seller_origin, seller_origin_id) if not offer else offer.seller
+        self.seller = seller
+        self.buyer = buyer
         self.matching_requirements = matching_requirements
         self.match_details = {
-            "offer": offer_details, "bid": bid_details
+            "offer": offer, "bid": bid
         }
-
-    @property
-    def seller(self):
-        return self.match_details["offer"].name
-
-    @property
-    def buyer(self):
-        return self.match_details["bid"].buyer
-
-    @property
-    def seller(self):
-        return self.match_details["offer"].seller
 
     def __str__(self) -> str:
         return (
             f"{{{self.id!s:.6s}}} "
-            f"[origin: {self.match_details['offer'].seller_origin} -> "
-            f"{self.match_details['bid'].buyer_origin}] "
-            f"[{self.match_details['offer'].seller} -> {self.match_details['bid'].buyer}] "
+            f"[origin: {self.seller.origin} -> "
+            f"{self.buyer.origin}] "
+            f"[{self.seller.name} -> {self.buyer.name}] "
             f"{self.traded_energy} kWh @ {self.trade_price} {round(self.trade_rate, 8)} "
             f"{self.match_details['offer'].id if self.match_details['offer'] else ''} "
             f"{self.match_details['bid'].id if self.match_details['bid'] else ''} "
@@ -406,7 +429,7 @@ class Trade:
     def csv_values(self) -> Tuple:
         """Return values of class members that are needed for creation of CSV export."""
         rate = round(self.trade_rate, 4)
-        return (self.creation_time, rate, self.traded_energy, self.seller, self.buyer,
+        return (self.creation_time, rate, self.traded_energy, self.seller.name, self.buyer.name,
                 self.matching_requirements)
 
     def to_json_string(self) -> str:
@@ -424,6 +447,10 @@ class Trade:
         if key_in_dict_and_not_none(trade_dict, "offer_bid_trade_info"):
             trade_dict["offer_bid_trade_info"] = (
                 trade_dict["offer_bid_trade_info"].to_json_string())
+        if key_in_dict_and_not_none(trade_dict, "seller"):
+            trade_dict["seller"] = trade_dict["seller"].serializable_dict()
+            if key_in_dict_and_not_none(trade_dict, "buyer"):
+                trade_dict["buyer"] = trade_dict["buyer"].serializable_dict()
         return json.dumps(trade_dict, default=json_datetime_serializer)
 
     @classmethod
@@ -446,6 +473,10 @@ class Trade:
         if trade_dict.get("offer_bid_trade_info"):
             trade_dict["offer_bid_trade_info"] = (
                 TradeBidOfferInfo.from_json(trade_dict["offer_bid_trade_info"]))
+        if trade_dict["seller"] is not None:
+            trade_dict["seller"] = TraderDetails.from_json(trade_dict["seller"])
+        if trade_dict["buyer"] is not None:
+            trade_dict["buyer"] = TraderDetails.from_json(trade_dict["buyer"])
         return Trade(**trade_dict)
 
     @property
@@ -478,14 +509,14 @@ class Trade:
             "energy": self.traded_energy,
             "energy_rate": self.trade_rate,
             "price": self.trade_price,
-            "buyer": self.match_details["bid"].buyer,
-            "buyer_origin": self.match_details["bid"].buyer_origin,
-            "seller_origin": self.match_details["offer"].seller_origin,
-            "seller_origin_id": self.match_details["offer"].seller_origin_id,
-            "buyer_origin_id": self.match_details["bid"].buyer_origin_id,
-            "seller_id": self.match_details["offer"].seller_id,
-            "buyer_id": self.match_details["bid"].buyer_id,
-            "seller": self.match_details["offer"].seller,
+            "buyer": self.buyer.name,
+            "buyer_origin": self.buyer.origin,
+            "seller_origin": self.seller.origin,
+            "seller_origin_id": self.seller.origin_uuid,
+            "buyer_origin_id": self.buyer.origin_uuid,
+            "seller_id": self.seller.uuid,
+            "buyer_id": self.buyer.uuid,
+            "seller": self.seller.name,
             "fee_price": self.fee_price,
             "creation_time": datetime_to_string_incl_seconds(self.creation_time),
             "time_slot": datetime_to_string_incl_seconds(self.time_slot),
@@ -496,8 +527,10 @@ class Trade:
             self.id == other.id and
             self.creation_time == other.creation_time and
             self.time_slot == other.time_slot and
-            self.match_details["offer"] == self.match_details["offer"] and
-            self.match_details["bid"] == self.match_details["bid"] and
+            self.match_details["offer"] == other.match_details["offer"] and
+            self.match_details["bid"] == other.match_details["bid"] and
+            self.seller == other.seller and
+            self.buyer == other.buyer and
             self.traded_energy == other.traded_energy and
             self.trade_price == other.trade_price and
             self.residual == other.residual and
@@ -512,10 +545,10 @@ class BalancingOffer(Offer):
     def __repr__(self) -> str:
         return (f"<BalancingOffer('{self.id!s:.6s}', "
                 f"'{self.energy} kWh@{self.price}', "
-                f"'{self.seller} {self.energy_rate}'>")
+                f"'{self.seller.name} {self.energy_rate}'>")
 
     def __str__(self) -> str:
-        return (f"<BalancingOffer{{{self.id!s:.6s}}} [{self.seller}]: "
+        return (f"<BalancingOffer{{{self.id!s:.6s}}} [{self.seller.name}]: "
                 f"{self.energy} kWh @ {self.price} @ {self.energy_rate}>")
 
 
@@ -523,7 +556,7 @@ class BalancingTrade(Trade):
     """BalancingTrade class."""
     def __str__(self) -> str:
         return (
-            f"{{{self.id!s:.6s}}} [{self.seller} -> {self.buyer}] "
+            f"{{{self.id!s:.6s}}} [{self.seller.name} -> {self.buyer.name}] "
             f"{self.traded_energy} kWh @ {self.trade_price}"
             f" {self.trade_rate} "
             f"{self.match_details['offer'].id if self.match_details['offer'] else ''} "

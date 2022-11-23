@@ -30,7 +30,7 @@ from pendulum import DateTime, datetime
 from gsy_framework.data_classes import (
     BidOfferMatch, BaseBidOffer, Offer, Bid, json_datetime_serializer,
     TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade, Clearing,
-    MarketClearingState)
+    MarketClearingState, TraderDetails)
 from gsy_framework.utils import datetime_to_string_incl_seconds, limit_float_precision
 
 
@@ -141,6 +141,8 @@ class TestBaseBidOffer:
     """Test BaseBidOffer class."""
 
     def setup_method(self):
+        self._seller = TraderDetails("seller", str(uuid.uuid4()))
+        self._buyer = TraderDetails("buyer", str(uuid.uuid4()))
         self.initial_data = {
             "id": str(uuid.uuid4()),
             "creation_time": DEFAULT_DATETIME,
@@ -225,37 +227,37 @@ class TestBaseBidOffer:
     def test_from_json(self):
         offer = Offer(
             **self.initial_data,
-            seller="seller"
+            seller=self._seller
         )
         offer_json = offer.to_json_string()
-        assert offer == BaseBidOffer.from_json(offer_json)
+        assert offer == Offer.from_json(offer_json)
 
         bid = Bid(
             **self.initial_data,
-            buyer="buyer"
+            buyer=self._buyer
         )
         bid_json = bid.to_json_string()
-        assert bid == BaseBidOffer.from_json(bid_json)
+        assert bid == Bid.from_json(bid_json)
 
     @pytest.mark.parametrize("time_stamp", [None, DEFAULT_DATETIME])
     def test_from_json_deals_with_time_stamps_correctly(self, time_stamp):
         updated_initial_data = self.initial_data
         updated_initial_data.update({"time_slot": time_stamp,
                                      "creation_time": time_stamp})
-        bid = Bid(**updated_initial_data, buyer="buyer")
+        bid = Bid(**updated_initial_data, buyer=self._buyer)
         bid_json = bid.to_json_string()
         bid = Bid.from_json(bid_json)
         assert bid.creation_time == time_stamp
 
     def test_from_json_asserts_if_no_type_was_provided(self):
-        bid = Bid(**self.initial_data, buyer="buyer")
+        bid = Bid(**self.initial_data, buyer=self._buyer)
         bid_json = bid.to_json_string()
         bid_json = bid_json.replace(', "type": "Bid"', "")
         with pytest.raises(AssertionError):
             Bid.from_json(bid_json)
 
     def test_from_json_asserts_if_wrong_type_was_provided(self):
-        bid = Bid(**self.initial_data, buyer="buyer")
+        bid = Bid(**self.initial_data, buyer=self._buyer)
         bid_json = bid.to_json_string()
         bid_json = bid_json.replace(', "type": "Bid"', ', "type": "InvalidType"')
         with pytest.raises(AssertionError):
@@ -272,7 +274,7 @@ class TestOffer:
             "original_price": 8,
             "attributes": {},
             "requirements": [],
-            "seller": "seller",
+            "seller": TraderDetails("seller", str(uuid.uuid4())),
             "time_slot": DEFAULT_DATETIME
         }
 
@@ -290,10 +292,10 @@ class TestOffer:
                                                           self.initial_data["energy"])
         assert offer.attributes == self.initial_data["attributes"]
         assert offer.requirements == self.initial_data["requirements"]
-        assert offer.seller == "seller"
-        assert offer.seller_id is None
-        assert offer.seller_origin is None
-        assert offer.seller_origin_id is None
+        assert offer.seller.name == "seller"
+        assert offer.seller.uuid == self.initial_data["seller"].uuid
+        assert offer.seller.origin is None
+        assert offer.seller.origin_uuid is None
 
     def test_hash(self):
         offer = Offer(
@@ -307,15 +309,15 @@ class TestOffer:
         )
         assert (repr(offer) ==
                 f"<Offer('{offer.id!s:.6s}', '{offer.energy} kWh@{offer.price}',"
-                f" '{offer.seller} {offer.energy_rate}'>")
+                f" '{offer.seller.name} {offer.energy_rate}'>")
 
     def test_str(self):
         offer = Offer(
             **self.initial_data,
         )
         assert (str(offer) ==
-                f"{{{offer.id!s:.6s}}} [origin: {offer.seller_origin}] "
-                f"[{offer.seller}]: {offer.energy} kWh @ {offer.price} @ {offer.energy_rate}")
+                f"{{{offer.id!s:.6s}}} [origin: {offer.seller.origin}] "
+                f"[{offer.seller.name}]: {offer.energy} kWh @ {offer.price} @ {offer.energy_rate}")
 
     def test_serializable_dict(self):
         offer = Offer(
@@ -330,10 +332,7 @@ class TestOffer:
             "creation_time": datetime_to_string_incl_seconds(offer.creation_time),
             "attributes": offer.attributes,
             "requirements": offer.requirements,
-            "seller": offer.seller,
-            "seller_origin": offer.seller_origin,
-            "seller_origin_id": offer.seller_origin_id,
-            "seller_id": offer.seller_id,
+            "seller": offer.seller.serializable_dict(),
             "time_slot": datetime_to_string_incl_seconds(offer.time_slot)
         }
 
@@ -361,7 +360,7 @@ class TestOffer:
         )
         rate = round(offer.energy_rate, 4)
         assert offer.csv_values() == (
-            offer.creation_time, rate, offer.energy, offer.price, offer.seller)
+            offer.creation_time, rate, offer.energy, offer.price, offer.seller.name)
 
     @staticmethod
     def test_csv_fields():
@@ -390,7 +389,7 @@ class TestBid:
             "original_price": 8,
             "attributes": {},
             "requirements": [],
-            "buyer": "buyer",
+            "buyer": TraderDetails("buyer", str(uuid.uuid4())),
             "time_slot": DEFAULT_DATETIME
         }
 
@@ -407,10 +406,10 @@ class TestBid:
                                                         self.initial_data["energy"])
         assert bid.attributes == self.initial_data["attributes"]
         assert bid.requirements == self.initial_data["requirements"]
-        assert bid.buyer == "buyer"
-        assert bid.buyer_id is None
-        assert bid.buyer_origin is None
-        assert bid.buyer_origin_id is None
+        assert bid.buyer.name == "buyer"
+        assert bid.buyer.uuid == self.initial_data["buyer"].uuid
+        assert bid.buyer.origin is None
+        assert bid.buyer.origin_uuid is None
 
     def test_hash(self):
         bid = Bid(
@@ -423,7 +422,7 @@ class TestBid:
             **self.initial_data
         )
         assert (repr(bid) ==
-                f"<Bid {{{bid.id!s:.6s}}} [{bid.buyer}] "
+                f"<Bid {{{bid.id!s:.6s}}} [{bid.buyer.name}] "
                 f"{bid.energy} kWh @ {bid.price} {bid.energy_rate}>")
 
     def test_str(self):
@@ -431,7 +430,7 @@ class TestBid:
             **self.initial_data
         )
         assert (str(bid) ==
-                f"{{{bid.id!s:.6s}}} [origin: {bid.buyer_origin}] [{bid.buyer}] "
+                f"{{{bid.id!s:.6s}}} [origin: {bid.buyer.origin}] [{bid.buyer.name}] "
                 f"{bid.energy} kWh @ {bid.price} {bid.energy_rate}")
 
     def test_serializable_dict(self):
@@ -448,10 +447,7 @@ class TestBid:
             "creation_time": datetime_to_string_incl_seconds(bid.creation_time),
             "attributes": bid.attributes,
             "requirements": bid.requirements,
-            "buyer": bid.buyer,
-            "buyer_origin": bid.buyer_origin,
-            "buyer_origin_id": bid.buyer_origin_id,
-            "buyer_id": bid.buyer_id,
+            "buyer": bid.buyer.serializable_dict(),
             "time_slot": datetime_to_string_incl_seconds(bid.time_slot)
         }
 
@@ -478,7 +474,7 @@ class TestBid:
             **self.initial_data
         )
         rate = round(bid.energy_rate, 4)
-        assert bid.csv_values() == (bid.creation_time, rate, bid.energy, bid.price, bid.buyer)
+        assert bid.csv_values() == (bid.creation_time, rate, bid.energy, bid.price, bid.buyer.name)
 
     @staticmethod
     def test_csv_fields():
@@ -511,12 +507,14 @@ class TestTradeBidOfferInfo:
 
 class TestTrade:
     def setup_method(self):
+        self._seller = TraderDetails("seller", str(uuid.uuid4()))
+        self._buyer = TraderDetails("buyer", str(uuid.uuid4()))
         self.initial_data = {
             "id": "my_id",
             "creation_time": DEFAULT_DATETIME,
-            "offer": Offer("id", DEFAULT_DATETIME, 1, 2, "seller"),
-            "seller": "seller",
-            "buyer": "buyer",
+            "offer": Offer("id", DEFAULT_DATETIME, 1, 2, seller=self._seller),
+            "seller": self._seller,
+            "buyer": self._buyer,
             "traded_energy": 1,
             "trade_price": 1,
             "matching_requirements": {"requirement": "value"}}
@@ -524,8 +522,8 @@ class TestTrade:
     def test_str(self):
         trade = Trade(**self.initial_data)
         assert (str(trade) ==
-                f"{{{trade.id!s:.6s}}} [origin: {trade.seller_origin} -> {trade.buyer_origin}] "
-                f"[{trade.seller} -> {trade.buyer}] {trade.traded_energy} kWh"
+                f"{{{trade.id!s:.6s}}} [origin: {trade.seller.origin} -> {trade.buyer.origin}] "
+                f"[{trade.seller.name} -> {trade.buyer.name}] {trade.traded_energy} kWh"
                 f" @ {trade.trade_price} {round(trade.trade_rate, 8)} "
                 f"{trade.match_details['offer'].id}  [fee: {trade.fee_price} cts.] "
                 f"{trade.matching_requirements or ''}")
@@ -540,14 +538,16 @@ class TestTrade:
         trade = Trade(**self.initial_data)
         rate = round(trade.trade_rate, 4)
         assert (trade.csv_values() ==
-                (trade.creation_time, rate, trade.traded_energy, trade.seller, trade.buyer,
-                 trade.matching_requirements))
+                (trade.creation_time, rate, trade.traded_energy, trade.seller.name,
+                 trade.buyer.name, trade.matching_requirements))
 
     def test_to_json_string(self):
         trade = Trade(**self.initial_data)
         trade_dict = deepcopy(trade.__dict__)
         trade_dict["match_details"]["offer"] = (
             trade_dict["match_details"]["offer"].to_json_string())
+        trade_dict["seller"] = trade_dict["seller"].serializable_dict()
+        trade_dict["buyer"] = trade_dict["buyer"].serializable_dict()
         assert (trade.to_json_string() ==
                 json.dumps(trade_dict, default=json_datetime_serializer))
 
@@ -574,7 +574,9 @@ class TestTrade:
         trade.offer_bid_trade_info = TradeBidOfferInfo(
             1, 1, 1, 1, 1
         )
-        assert Trade.from_json(trade.to_json_string()) == trade
+
+        trade_json_str = trade.to_json_string()
+        assert Trade.from_json(trade_json_str) == trade
 
     @pytest.mark.parametrize("time_stamp", [None, DEFAULT_DATETIME])
     def test_from_json_deals_with_time_stamps_correctly(self, time_stamp):
@@ -592,7 +594,7 @@ class TestTrade:
         )
         assert trade.is_bid_trade is False
 
-        trade.match_details["bid"] = Bid("id", DateTime.now(), 1, 2, "buyer")
+        trade.match_details["bid"] = Bid("id", DateTime.now(), 1, 2, self._buyer)
         trade.match_details["offer"] = None
         assert trade.is_bid_trade is True
 
@@ -602,24 +604,27 @@ class TestTrade:
         )
         assert trade.is_offer_trade is True
 
-        trade.match_details["bid"] = Bid("id", DateTime.now(), 1, 2, "buyer")
+        trade.match_details["bid"] = Bid("id", DateTime.now(), 1, 2, self._buyer)
         trade.match_details["offer"] = None
         assert trade.is_offer_trade is False
 
-    @staticmethod
-    def test_serializable_dict():
+    def test_serializable_dict(self):
         trade = Trade(
             **{
                 "id": "my_id",
-                "offer": Offer("id", DEFAULT_DATETIME, 1, 2, "seller"),
-                "buyer": "buyer",
-                "buyer_origin": "buyer_origin",
-                "seller_origin": "seller_origin",
-                "seller_origin_id": "seller_origin_id",
-                "buyer_origin_id": "buyer_origin_id",
-                "seller_id": "seller_id",
-                "buyer_id": "buyer_id",
-                "seller": "seller",
+                "offer": Offer("id", DEFAULT_DATETIME, 1, 2, self._seller),
+                "buyer": TraderDetails(
+                    name="buyer",
+                    origin="buyer_origin",
+                    origin_uuid="buyer_origin_id",
+                    uuid="buyer_id",
+                ),
+                "seller": TraderDetails(
+                    name="seller",
+                    origin="seller_origin",
+                    origin_uuid="seller_origin_id",
+                    uuid="seller_id",
+                ),
                 "traded_energy": 1,
                 "trade_price": 1,
                 "fee_price": 2,
@@ -636,14 +641,14 @@ class TestTrade:
             "energy": trade.traded_energy,
             "energy_rate": trade.trade_rate,
             "price": trade.trade_price,
-            "buyer": trade.buyer,
-            "buyer_origin": trade.buyer_origin,
-            "seller_origin": trade.seller_origin,
-            "seller_origin_id": trade.seller_origin_id,
-            "buyer_origin_id": trade.buyer_origin_id,
-            "seller_id": trade.seller_id,
-            "buyer_id": trade.buyer_id,
-            "seller": trade.seller,
+            "buyer": trade.buyer.name,
+            "buyer_origin": trade.buyer.origin,
+            "seller_origin": trade.seller.origin,
+            "seller_origin_id": trade.seller.origin_uuid,
+            "buyer_origin_id": trade.buyer.origin_uuid,
+            "seller_id": trade.seller.uuid,
+            "buyer_id": trade.buyer.uuid,
+            "seller": trade.seller.name,
             "fee_price": trade.fee_price,
             "creation_time": datetime_to_string_incl_seconds(trade.creation_time),
             "time_slot": datetime_to_string_incl_seconds(trade.creation_time)
@@ -660,7 +665,7 @@ class TestBalancingOffer(TestOffer):
             "original_price": 8,
             "attributes": {},
             "requirements": [],
-            "seller": "seller",
+            "seller": TraderDetails("seller", str(uuid.uuid4())),
             "time_slot": DEFAULT_DATETIME
         }
 
@@ -669,12 +674,12 @@ class TestBalancingOffer(TestOffer):
         assert (repr(offer) ==
                 f"<BalancingOffer('{offer.id!s:.6s}', "
                 f"'{offer.energy} kWh@{offer.price}', "
-                f"'{offer.seller} {offer.energy_rate}'>")
+                f"'{offer.seller.name} {offer.energy_rate}'>")
 
     def test_str(self):
         offer = BalancingOffer(**self.initial_data)
         assert (str(offer) ==
-                f"<BalancingOffer{{{offer.id!s:.6s}}} [{offer.seller}]: "
+                f"<BalancingOffer{{{offer.id!s:.6s}}} [{offer.seller.name}]: "
                 f"{offer.energy} kWh @ {offer.price} @ {offer.energy_rate}>")
 
 
@@ -683,7 +688,7 @@ class TestBalancingTrade(TestTrade):
     def test_str(self):
         trade = BalancingTrade(**self.initial_data)
         assert (str(trade) ==
-                f"{{{trade.id!s:.6s}}} [{trade.seller} -> {trade.buyer}] "
+                f"{{{trade.id!s:.6s}}} [{trade.seller.name} -> {trade.buyer.name}] "
                 f"{trade.traded_energy} kWh @ {trade.trade_price}"
                 f" {trade.trade_rate} {trade.match_details['offer'].id}  ")
 
