@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 # pylint: disable=protected-access
+import pytest
 
 from gsy_framework.data_classes import BidOfferMatch, TraderDetails
 from gsy_framework.matching_algorithms.preferred_partners_algorithm import (
@@ -23,6 +24,7 @@ from gsy_framework.matching_algorithms.preferred_partners_algorithm import (
 from tests.test_matching_algorithms import offer_factory, bid_factory
 
 
+@pytest.mark.skip("Preferred trading partners feature disabled.")
 class TestPreferredPartnersMatchingAlgorithm:
     """Tester class for the PreferredPartnersMatchingAlgorithm."""
 
@@ -32,9 +34,8 @@ class TestPreferredPartnersMatchingAlgorithm:
          Pass supported format data and receive correct results
          """
         offer = offer_factory().serializable_dict()
-        bid = bid_factory(
-            {"requirements": [{"trading_partners": [offer["seller"]["uuid"]]}]}
-        ).serializable_dict()
+        bid = bid_factory().serializable_dict()
+        bid["requirements"] = {"requirements": [{"trading_partners": [offer["seller"]["uuid"]]}]}
         data = {"market": {"2021-10-06T12:00": {
             "bids": [bid], "offers": [offer]
         }}}
@@ -90,8 +91,8 @@ class TestPreferredPartnersMatchingAlgorithm:
 
     @staticmethod
     def test_can_order_be_matched():
-        bid = bid_factory(
-            {"requirements": [{"energy_type": ["green"]}]}).serializable_dict()
+        bid = bid_factory().serializable_dict()
+        bid["requirements"] = [{"energy_type": ["green"]}]
         offer = offer_factory().serializable_dict()
         assert PreferredPartnersMatchingAlgorithm._can_order_be_matched(
             bid=bid,
