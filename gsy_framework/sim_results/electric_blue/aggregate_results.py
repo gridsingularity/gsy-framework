@@ -67,6 +67,7 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
         operations e.g. TimeSeries generation, but should not be included in DB."""
         self.open_bids: List[Dict] = []
         self.open_offers: List[Dict] = []
+        self.trades: List[Dict] = []
 
     def __add__(self, other: "ForwardDeviceStats"):
         assert self.time_slot == other.time_slot
@@ -103,6 +104,8 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
         )
         forward_device_stats.open_bids = open_bids
         forward_device_stats.open_offers = open_offers
+        forward_device_stats.trades = self.trades + other.trades
+
         return forward_device_stats
 
     def to_dict(self) -> Dict:
@@ -134,11 +137,13 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
             self.total_energy_sold += trade["energy"]
             self.total_earned_eur += trade["price"]
             self.accumulated_sell_trade_rates += trade["energy_rate"]
+            self.trades.append(trade)
         elif trade["buyer_id"] == self.device_uuid:
             self.total_buy_trade_count += 1
             self.total_energy_bought += trade["energy"]
             self.total_spent_eur += trade["price"]
             self.accumulated_buy_trade_rates += trade["energy_rate"]
+            self.trades.append(trade)
         else:
             raise AssertionError("Device is not seller/buyer of the trade.")
 
