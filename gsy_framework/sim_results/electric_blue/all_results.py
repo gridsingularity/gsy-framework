@@ -118,7 +118,7 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
                 self._generate_asset_volume_time_series(
                     asset_info, market_type, current_asset_stats)
                 # update trade time series
-                previous_forward_stats := self.previous_asset_stats.get(
+                previous_forward_stats = self.previous_asset_stats.get(
                         market_type_value, {}).get(time_slot, {}).get(asset_uuid, {})
                 if previous_forward_stats:
                     previous_asset_stats = ForwardDeviceStats.from_dict(previous_forward_stats)
