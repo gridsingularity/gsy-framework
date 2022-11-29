@@ -367,7 +367,6 @@ class Trade:
                  offer: Offer = None,
                  bid: Bid = None,
                  residual: Optional[Union[Offer, Bid]] = None,
-                 already_tracked: bool = False,
                  offer_bid_trade_info: Optional[TradeBidOfferInfo] = None,
                  fee_price: Optional[float] = None, time_slot: Optional[DateTime] = None,
                  matching_requirements: Optional[Dict] = None):
@@ -378,7 +377,6 @@ class Trade:
         self.traded_energy = traded_energy
         self.trade_price = trade_price
         self.residual = residual
-        self.already_tracked = already_tracked
         self.offer_bid_trade_info = offer_bid_trade_info
         self.fee_price = fee_price
         self.seller = seller
@@ -514,7 +512,6 @@ class Trade:
             self.traded_energy == other.traded_energy and
             self.trade_price == other.trade_price and
             self.residual == other.residual and
-            self.already_tracked == other.already_tracked and
             self.offer_bid_trade_info == other.offer_bid_trade_info
         )
 
