@@ -23,7 +23,9 @@ from datetime import date, datetime
 from pendulum import duration, instance
 
 from gsy_framework.enums import (
-    BidOfferMatchAlgoEnum, SpotMarketTypeEnum, CoefficientAlgorithm, AvailableMarketTypes)
+    BidOfferMatchAlgoEnum, SpotMarketTypeEnum, CoefficientAlgorithm, AvailableMarketTypes,
+    HeatPumpSourceType
+)
 
 RangeLimit = namedtuple("RangeLimit", ("min", "max"))
 RateRange = namedtuple("RateRange", ("initial", "final"))
@@ -180,6 +182,20 @@ class ConstSettings:
         # This price should be just above the marginal costs for a Wind Power Plant - unit is cent
         FINAL_SELLING_RATE = 0
         MAX_WIND_TURBINE_OUTPUT_W = 160
+
+    class HeatPumpSettings:
+        """Default values for the heat pump."""
+
+        MAX_POWER_RATING_KW = 3
+        AVERAGE_CONSUMPTION_KW = 0.5
+        MIN_TEMP_C = 50
+        MAX_TEMP_C = 65
+        INIT_TEMP_C = 50
+        EXT_TEMP_C = 10
+        TANK_VOL_L = 50
+        TYPE = HeatPumpSourceType.AIR_SOURCE.value
+        BUYING_RATE_RANGE = RateRange(0, 30)
+        PREFERRED_BUYING_RATE = 15
 
     class MASettings:
         """Default settings for Market Agents."""

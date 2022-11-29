@@ -78,3 +78,10 @@ class ConfigurationType(Enum):
     COLLABORATION = 1
     CANARY_NETWORK = 2
     B2B = 3
+
+
+class HeatPumpSourceType(Enum):
+    """Available HeatPump types"""
+
+    AIR_SOURCE = 0
+    GROUND_SOURCE = 1
