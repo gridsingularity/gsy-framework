@@ -131,7 +131,7 @@ class BaseBidOffer:
         return 0
 
 
-@dataclass
+@dataclass(frozen=True)
 class TraderDetails:
     """
     Details about the trader. Includes trader name and unique identifier, and also the original
@@ -449,8 +449,8 @@ class Trade:
                 trade_dict["offer_bid_trade_info"].to_json_string())
         if key_in_dict_and_not_none(trade_dict, "seller"):
             trade_dict["seller"] = trade_dict["seller"].serializable_dict()
-            if key_in_dict_and_not_none(trade_dict, "buyer"):
-                trade_dict["buyer"] = trade_dict["buyer"].serializable_dict()
+        if key_in_dict_and_not_none(trade_dict, "buyer"):
+            trade_dict["buyer"] = trade_dict["buyer"].serializable_dict()
         return json.dumps(trade_dict, default=json_datetime_serializer)
 
     @classmethod

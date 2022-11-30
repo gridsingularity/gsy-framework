@@ -30,28 +30,27 @@ class TestRequirementsValidator:
             # trading partners is not of type list
             TradingPartnersRequirement.is_satisfied(offer, bid, requirement)
         # Test offer requirement
-        bid.buyer.uuid = "buyer"
+        bid.buyer = TraderDetails(bid.buyer.name, "buyer", bid.buyer.origin, bid.buyer.origin_uuid)
         requirement = {"trading_partners": ["buyer1"]}
         offer.requirements = [requirement]
         assert TradingPartnersRequirement.is_satisfied(offer, bid, requirement) is False
         requirement = {"trading_partners": ["buyer"]}
         offer.requirements = [requirement]
         assert TradingPartnersRequirement.is_satisfied(offer, bid, requirement) is True
-        bid.buyer.uuid = "buyer1"
-        bid.buyer.origin_uuid = "buyer"
+        bid.buyer = TraderDetails(bid.buyer.name, "buyer1", bid.buyer.origin, "buyer")
         # still should pass
         assert TradingPartnersRequirement.is_satisfied(offer, bid, requirement) is True
 
         # Test bid requirement
-        offer.seller.uuid = "seller"
+        offer.seller = TraderDetails(
+            offer.seller.name, "seller", offer.seller.origin, offer.seller.origin_uuid)
         requirement = {"trading_partners": ["seller1"]}
         bid.requirements = [requirement]
         assert TradingPartnersRequirement.is_satisfied(offer, bid, requirement) is False
         requirement = {"trading_partners": ["seller"]}
         bid.requirements = [requirement]
         assert TradingPartnersRequirement.is_satisfied(offer, bid, requirement) is True
-        offer.seller.uuid = "seller1"
-        offer.seller.origin_uuid = "seller"
+        offer.seller = TraderDetails(offer.seller.name, "seller1", offer.seller.origin, "seller")
         # still should pass
         assert TradingPartnersRequirement.is_satisfied(offer, bid, requirement) is True
 
