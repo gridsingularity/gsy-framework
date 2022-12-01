@@ -187,13 +187,13 @@ class ConstSettings:
         """Default values for the heat pump."""
 
         MAX_POWER_RATING_KW = 3
-        AVERAGE_CONSUMPTION_KW = 0.5
+        CONSUMPTION_KW = 0.5
         MIN_TEMP_C = 50
         MAX_TEMP_C = 65
         INIT_TEMP_C = 50
         EXT_TEMP_C = 10
         TANK_VOL_L = 50
-        TYPE = HeatPumpSourceType.AIR_SOURCE.value
+        SOURCE_TYPE = HeatPumpSourceType.AIR.value
         BUYING_RATE_RANGE = RateRange(0, 30)
         PREFERRED_BUYING_RATE = 15
 

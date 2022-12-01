@@ -83,5 +83,5 @@ class ConfigurationType(Enum):
 class HeatPumpSourceType(Enum):
     """Available HeatPump types"""
 
-    AIR_SOURCE = 0
-    GROUND_SOURCE = 1
+    AIR = 0
+    GROUND = 1
