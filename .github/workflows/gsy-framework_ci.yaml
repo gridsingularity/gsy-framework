@@ -19,7 +19,7 @@ jobs:
         tox -e $TOXENV
 
     - name: Check coverage with Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       with:
         fail_ci_if_error: true
         verbose: true
