@@ -30,7 +30,7 @@ class SCMKPIState:
     total_energy_demanded_wh: float = 0.
     total_energy_produced_wh: float = 0.
     total_self_consumption_wh: float = 0.
-    asset_energy_requirements_kWh: Dict[str, float] = field(default_factory=dict)
+    total_asset_energy_requirements_kWh: Dict[str, float] = field(default_factory=dict)
     total_base_energy_cost: float = 0.
     total_gsy_e_cost: float = 0.
     total_base_energy_cost_excl_revenue: float = 0.
@@ -80,10 +80,10 @@ class SCMKPIState:
         self.total_fit_revenue += fit_revenue
 
         for asset_uuid, asset_energy_requirement in asset_energy_requirements_kWh.items():
-            if asset_uuid in self.asset_energy_requirements_kWh:
-                self.asset_energy_requirements_kWh[asset_uuid] += asset_energy_requirement
+            if asset_uuid in self.total_asset_energy_requirements_kWh:
+                self.total_asset_energy_requirements_kWh[asset_uuid] += asset_energy_requirement
             else:
-                self.asset_energy_requirements_kWh[asset_uuid] = asset_energy_requirement
+                self.total_asset_energy_requirements_kWh[asset_uuid] = asset_energy_requirement
 
     @property
     def saving_absolute(self):

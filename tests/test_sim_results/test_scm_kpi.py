@@ -117,7 +117,7 @@ class TestSCMKPI:
         assert state.energy_demanded_wh == 3000.0
         assert state.energy_produced_wh == 1000.0
         assert state.self_consumption_wh == 2000.0
-        assert state.asset_energy_requirements_kWh == {
+        assert state.total_asset_energy_requirements_kWh == {
             "asset_uuid1": 1.0, "asset_uuid2": -1.1}
         assert state.total_base_energy_cost == 22.0
         assert state.total_base_energy_cost_excl_revenue == 23.0
@@ -141,7 +141,7 @@ class TestSCMKPI:
         assert state.energy_demanded_wh == 3000.0
         assert state.energy_produced_wh == 1000.0
         assert state.self_consumption_wh == 2000.0
-        assert state.asset_energy_requirements_kWh == {
+        assert state.total_asset_energy_requirements_kWh == {
             "asset_uuid1": 2.0, "asset_uuid2": -2.2}
         assert state.total_base_energy_cost == 44.0
         assert state.total_base_energy_cost_excl_revenue == 46.0
