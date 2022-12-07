@@ -152,7 +152,7 @@ class SCMKPI(ResultsBaseClass):
         energy_demanded_wh = after_meter_data["consumption_kWh"] * 1000.0
         self_consumption_wh = after_meter_data["self_consumed_energy_kWh"] * 1000.0
         energy_produced_wh = after_meter_data["production_kWh"] * 1000.0
-        asset_energy_requirements_kWh = after_meter_data["asset_energy_requirements_kWh"]
+        asset_energy_requirements_kWh = after_meter_data.get("asset_energy_requirements_kWh", {})
         base_energy_cost = bills["base_energy_bill"]
         base_energy_cost_excl_revenue = bills["base_energy_bill_excl_revenue"]
         gsy_e_cost = bills["gsy_energy_bill"]
