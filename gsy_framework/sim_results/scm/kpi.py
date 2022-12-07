@@ -21,6 +21,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Dict
 
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
+from gsy_framework.utils import add_or_create_key
 
 
 @dataclass
@@ -80,10 +81,8 @@ class SCMKPIState:
         self.total_fit_revenue += fit_revenue
 
         for asset_uuid, asset_energy_requirement in asset_energy_requirements_kWh.items():
-            if asset_uuid in self.total_asset_energy_requirements_kWh:
-                self.total_asset_energy_requirements_kWh[asset_uuid] += asset_energy_requirement
-            else:
-                self.total_asset_energy_requirements_kWh[asset_uuid] = asset_energy_requirement
+            add_or_create_key(
+                self.total_asset_energy_requirements_kWh, asset_uuid, asset_energy_requirement)
 
     @property
     def saving_absolute(self):
