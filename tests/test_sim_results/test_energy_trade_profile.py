@@ -30,8 +30,8 @@ class TestEnergyTradeProfile:
         """Basic core_stats argument."""
         return {
             test_constants["seller_area_uuid"]: {"trades": [
-                {"seller": test_constants["seller_area_name"],
-                 "buyer": test_constants["buyer_area_name"],
+                {"seller": {"name": test_constants["seller_area_name"], "uuid": ""},
+                 "buyer": {"name": test_constants["buyer_area_name"], "uuid": ""},
                  "energy": test_constants["trade_energy"]}]}}
 
     @staticmethod

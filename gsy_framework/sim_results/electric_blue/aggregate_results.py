@@ -132,13 +132,13 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
         """Add trade information to device stats."""
         assert str_to_pendulum_datetime(trade["time_slot"]) == self.time_slot
 
-        if trade["seller_id"] == self.device_uuid:
+        if trade["seller"]["uuid"] == self.device_uuid:
             self.total_sell_trade_count += 1
             self.total_energy_sold += trade["energy"]
             self.total_earned_eur += trade["price"]
             self.accumulated_sell_trade_rates += trade["energy_rate"]
             self.trades.append(trade)
-        elif trade["buyer_id"] == self.device_uuid:
+        elif trade["buyer"]["uuid"] == self.device_uuid:
             self.total_buy_trade_count += 1
             self.total_energy_bought += trade["energy"]
             self.total_spent_eur += trade["price"]
@@ -150,13 +150,13 @@ class ForwardDeviceStats:  # pylint: disable=too-many-instance-attributes
     def add_bid(self, bid: Dict) -> None:
         """Add bid information to device stats."""
         assert str_to_pendulum_datetime(bid["time_slot"]) == self.time_slot
-        assert bid["buyer_id"] == self.device_uuid, "Device is not buyer of the bid."
+        assert bid["buyer"]["uuid"] == self.device_uuid, "Device is not buyer of the bid."
         self.open_bids.append(bid)
 
     def add_offer(self, offer: Dict) -> None:
         """Add offer information to device stats."""
         assert str_to_pendulum_datetime(offer["time_slot"]) == self.time_slot
-        assert offer["seller_id"] == self.device_uuid, "Device is not seller of the offer."
+        assert offer["seller"]["uuid"] == self.device_uuid, "Device is not seller of the offer."
         self.open_offers.append(offer)
 
     @property
@@ -185,8 +185,8 @@ def handle_forward_results(
     for time_slot_str, time_slot_stats in market_stats.items():
         time_slot = str_to_pendulum_datetime(time_slot_str)
         for trade in time_slot_stats["trades"]:
-            buyer_id = trade["buyer_id"]
-            seller_id = trade["seller_id"]
+            buyer_id = trade["buyer"]["uuid"]
+            seller_id = trade["seller"]["uuid"]
 
             if seller_id not in result[time_slot]:
                 result[time_slot][seller_id] = ForwardDeviceStats(
@@ -200,14 +200,14 @@ def handle_forward_results(
             result[time_slot][buyer_id].add_trade(trade)
 
         for bid in time_slot_stats["bids"]:
-            buyer_id = bid["buyer_id"]
+            buyer_id = bid["buyer"]["uuid"]
             if buyer_id not in result[time_slot]:
                 result[time_slot][buyer_id] = ForwardDeviceStats(
                     time_slot=time_slot, device_uuid=buyer_id, current_time_slot=current_time_slot)
             result[time_slot][buyer_id].add_bid(bid)
 
         for offer in time_slot_stats["offers"]:
-            seller_id = offer["seller_id"]
+            seller_id = offer["seller"]["uuid"]
             if seller_id not in result[time_slot]:
                 result[time_slot][seller_id] = ForwardDeviceStats(
                     time_slot=time_slot, device_uuid=seller_id,

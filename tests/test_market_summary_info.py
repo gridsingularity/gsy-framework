@@ -45,11 +45,14 @@ class TestMarketSummaryInfo(unittest.TestCase):
                 {"name": "house3", "uuid": "house3_uuid"}
             ]
         }
+        house1_info = {"name": "house1", "uuid": "", "origin": "house1", "origin_uuid": ""}
+        house2_info = {"name": "house2", "uuid": "", "origin": "house2", "origin_uuid": ""}
+        house3_info = {"name": "house3", "uuid": "", "origin": "house3", "origin_uuid": ""}
         core_stats = {
             "house1_uuid": {"trades": [
-                {"seller": "house2", "buyer": "house3", "energy_rate": 0.1, "energy": 0.5},
-                {"seller": "house1", "buyer": "house2", "energy_rate": 0.2, "energy": 0.6},
-                {"seller": "house3", "buyer": "house1", "energy_rate": 0.3, "energy": 0.7}
+                {"seller": house2_info, "buyer": house3_info, "energy_rate": 0.1, "energy": 0.5},
+                {"seller": house1_info, "buyer": house2_info, "energy_rate": 0.2, "energy": 0.6},
+                {"seller": house3_info, "buyer": house1_info, "energy_rate": 0.3, "energy": 0.7}
             ]}
         }
         self._market_summary_info.update(area_result_dict, core_stats, "2021-02-02T15:32")
@@ -72,16 +75,23 @@ class TestMarketSummaryInfo(unittest.TestCase):
                 ]},
             ]
         }
+
+        house4_info = {"name": "house4", "uuid": "", "origin": "house4", "origin_uuid": ""}
+        house31_info = {"name": "house3_1", "uuid": "", "origin": "house3_1", "origin_uuid": ""}
+        house32_info = {"name": "house3_2", "uuid": "", "origin": "house3_2", "origin_uuid": ""}
+        house51_info = {"name": "house5_1", "uuid": "", "origin": "house5_1", "origin_uuid": ""}
+        house52_info = {"name": "house5_2", "uuid": "", "origin": "house5_2", "origin_uuid": ""}
+
         core_stats = {
             "house2_uuid": {"trades": [
-                {"seller": "house3_1", "buyer": "house3_2", "energy_rate": 0.1, "energy": 0.5},
-                {"seller": "house3_1", "buyer": "house3_2", "energy_rate": 0.1, "energy": 0.5},
-                {"seller": "house3_2", "buyer": "house3_1", "energy_rate": 0.1, "energy": 0.5}
+                {"seller": house31_info, "buyer": house32_info, "energy_rate": 0.1, "energy": 0.5},
+                {"seller": house31_info, "buyer": house32_info, "energy_rate": 0.1, "energy": 0.5},
+                {"seller": house32_info, "buyer": house31_info, "energy_rate": 0.1, "energy": 0.5}
             ]},
             "house4_uuid": {"trades": [
-                {"seller": "house4", "buyer": "house5_2", "energy_rate": 0.3, "energy": 1},
-                {"seller": "house5_1", "buyer": "house4", "energy_rate": 0.2, "energy": 2},
-                {"seller": "house5_2", "buyer": "house4", "energy_rate": 0.4, "energy": 3}
+                {"seller": house4_info, "buyer": house52_info, "energy_rate": 0.3, "energy": 1},
+                {"seller": house51_info, "buyer": house4_info, "energy_rate": 0.2, "energy": 2},
+                {"seller": house52_info, "buyer": house4_info, "energy_rate": 0.4, "energy": 3}
             ]}
         }
         self._market_summary_info.update(area_result_dict, core_stats, "2021-03-02T15:59")
