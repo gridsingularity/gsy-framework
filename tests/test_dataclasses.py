@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import json
 import uuid
 from copy import deepcopy
-from dataclasses import asdict
 
 import pytest
 from pendulum import DateTime, datetime
@@ -96,6 +95,24 @@ class TestBidOfferMatch:
                            "trade_rate": ""}
         assert not BidOfferMatch.is_valid_dict(bid_offer_match)
 
+        # No market id
+        bid_offer_match = {"market_id": None,
+                           "time_slot": "2021-10-06T12:00",
+                           "bid": {"type": "bid"},
+                           "offer": {"type": "offer"},
+                           "selected_energy": 1,
+                           "trade_rate": ""}
+        assert not BidOfferMatch.is_valid_dict(bid_offer_match)
+
+        # No selected energy
+        bid_offer_match = {"market_id": "market_id",
+                           "time_slot": "2021-10-06T12:00",
+                           "bid": {"type": "bid"},
+                           "offer": {"type": "offer"},
+                           "selected_energy": None,
+                           "trade_rate": ""}
+        assert not BidOfferMatch.is_valid_dict(bid_offer_match)
+
     @staticmethod
     def test_from_dict():
         """Test the from_dict method of BidOfferMatch dataclass."""
@@ -112,6 +129,10 @@ class TestBidOfferMatch:
         assert bid_offer_match.offer == expected_dict["offer"]
         assert bid_offer_match.selected_energy == expected_dict["selected_energy"]
         assert bid_offer_match.trade_rate == expected_dict["trade_rate"]
+
+    @staticmethod
+    def test_from_dict_returns_none_for_invalid_dict():
+        assert BidOfferMatch.from_dict({}) is None
 
     @staticmethod
     def test_bid_energy():
@@ -495,7 +516,7 @@ class TestTradeBidOfferInfo:
             1, 1, 1, 1, 1
         )
         assert (trade_bid_offer_info.to_json_string() ==
-                json.dumps(asdict(trade_bid_offer_info), default=json_datetime_serializer))
+                json.dumps(trade_bid_offer_info.serializable_dict()))
 
     @staticmethod
     def test_from_json():
@@ -557,7 +578,7 @@ class TestTrade:
         )
 
         trade_json_str = trade.to_json_string()
-        assert Trade.from_json(trade_json_str).to_json_string() == trade.to_json_string()
+        assert Trade.from_json(trade_json_str) == trade
 
     @pytest.mark.parametrize("time_stamp", [None, DEFAULT_DATETIME])
     def test_from_json_deals_with_time_stamps_correctly(self, time_stamp):
@@ -637,7 +658,8 @@ class TestTrade:
             },
             "fee_price": trade.fee_price,
             "creation_time": datetime_to_string_incl_seconds(trade.creation_time),
-            "time_slot": datetime_to_string_incl_seconds(trade.creation_time)
+            "time_slot": datetime_to_string_incl_seconds(trade.creation_time),
+            "offer_bid_trade_info": None
         }
 
 

@@ -104,13 +104,13 @@ class BaseBidOffer:
         if not object_type:
             assert False, "from_json expects a json string containing the 'type' key"
         order_dict_copy.pop("energy_rate", None)
-        if order_dict_copy.get("creation_time"):
-            order_dict_copy["creation_time"] = (
-                str_to_pendulum_datetime(order_dict_copy["creation_time"]))
-        else:
-            order_dict_copy["creation_time"] = None
-        if order_dict_copy.get("time_slot"):
-            order_dict_copy["time_slot"] = str_to_pendulum_datetime(order_dict_copy["time_slot"])
+        order_dict_copy["creation_time"] = (
+            str_to_pendulum_datetime(order_dict_copy["creation_time"])
+            if order_dict_copy.get("creation_time") else None)
+
+        order_dict_copy["time_slot"] = (
+            str_to_pendulum_datetime(order_dict_copy["time_slot"])
+            if order_dict_copy.get("time_slot") else None)
 
         if order_dict_copy.get("seller"):
             order_dict_copy["seller"] = TraderDetails.from_json(order_dict_copy["seller"])
@@ -312,10 +312,15 @@ class TradeBidOfferInfo:
         return json.dumps(self.serializable_dict(), default=json_datetime_serializer)
 
     @staticmethod
-    def from_json(trade_bid_offer_info: str) -> "TradeBidOfferInfo":
+    def from_json(trade_bid_offer_info: Union[str, Dict]) -> "TradeBidOfferInfo":
         """Return TradeBidOfferInfo object from json representation."""
-        info_dict = json.loads(trade_bid_offer_info)
-        return TradeBidOfferInfo(**info_dict)
+        if isinstance(trade_bid_offer_info, str):
+            info_dict = json.loads(trade_bid_offer_info)
+            return TradeBidOfferInfo(**info_dict)
+        return TradeBidOfferInfo(**trade_bid_offer_info)
+
+    def __eq__(self, other: "TradeBidOfferInfo") -> bool:
+        return self.to_json_string() == other.to_json_string()
 
 
 class Trade:
@@ -386,21 +391,25 @@ class Trade:
         Create Trade object from a dict that contains nested unserializable structs
         (including offer, bid, residual and datetimes).
         """
-        if trade_dict["offer"] is not None:
-            trade_dict["offer"] = BaseBidOffer.from_json(trade_dict["offer"])
-        if trade_dict["bid"] is not None:
-            trade_dict["bid"] = BaseBidOffer.from_json(trade_dict["bid"])
-        if trade_dict.get("residual"):
-            trade_dict["residual"] = BaseBidOffer.from_json(trade_dict["residual"])
-        if trade_dict.get("creation_time"):
-            trade_dict["creation_time"] = str_to_pendulum_datetime(trade_dict["creation_time"])
-        else:
-            trade_dict["creation_time"] = None
-        if trade_dict.get("time_slot"):
-            trade_dict["time_slot"] = str_to_pendulum_datetime(trade_dict["time_slot"])
-        if trade_dict.get("offer_bid_trade_info"):
-            trade_dict["offer_bid_trade_info"] = (
-                TradeBidOfferInfo.from_json(trade_dict["offer_bid_trade_info"]))
+        trade_dict["offer"] = (
+            BaseBidOffer.from_json(trade_dict["offer"]) if trade_dict.get("offer") else None)
+        trade_dict["bid"] = (
+            BaseBidOffer.from_json(trade_dict["bid"]) if trade_dict.get("bid") else None)
+        trade_dict["residual"] = (
+            BaseBidOffer.from_json(trade_dict["residual"]) if trade_dict.get("residual") else None)
+
+        trade_dict["creation_time"] = (
+            str_to_pendulum_datetime(trade_dict["creation_time"])
+            if trade_dict.get("creation_time") else None)
+
+        trade_dict["time_slot"] = (
+            str_to_pendulum_datetime(trade_dict["time_slot"])
+            if trade_dict.get("time_slot") else None)
+
+        trade_dict["offer_bid_trade_info"] = (
+            TradeBidOfferInfo.from_json(trade_dict["offer_bid_trade_info"])
+            if trade_dict.get("offer_bid_trade_info") else None)
+
         if trade_dict["seller"] is not None:
             trade_dict["seller"] = TraderDetails.from_json(trade_dict["seller"])
         if trade_dict["buyer"] is not None:
@@ -445,6 +454,9 @@ class Trade:
             "fee_price": self.fee_price,
             "creation_time": datetime_to_string_incl_seconds(self.creation_time),
             "time_slot": datetime_to_string_incl_seconds(self.time_slot),
+            "offer_bid_trade_info": (
+                self.offer_bid_trade_info.serializable_dict()
+                if self.offer_bid_trade_info else None)
         }
 
     @classmethod
@@ -472,9 +484,7 @@ class Trade:
             self.traded_energy == other.traded_energy and
             self.trade_price == other.trade_price and
             self.residual == other.residual and
-            self.already_tracked == other.already_tracked and
-            self.offer_bid_trade_info == other.offer_bid_trade_info
-        )
+            self.offer_bid_trade_info == other.offer_bid_trade_info)
 
 
 class BalancingOffer(Offer):
