@@ -74,6 +74,11 @@ class BaseBidOffer:
         """Convert the Offer or Bid object into its JSON representation."""
         return json.dumps(self.serializable_dict(), default=json_datetime_serializer)
 
+    @classmethod
+    def from_dict(cls, order: Dict) -> Union["Bid", "Offer"]:
+        """Deserialize an offer or bid dict."""
+        return cls.from_serializable_dict(order)
+
     def serializable_dict(self) -> Dict:
         """Return a json serializable representation of the class."""
         return {
@@ -191,11 +196,6 @@ class Offer(BaseBidOffer):
         """Return a json serializable representation of the class."""
         return {**super().serializable_dict(), "seller": self.seller.serializable_dict()}
 
-    @staticmethod
-    def from_dict(offer: Dict) -> "Offer":
-        """Deserialize an offer dict."""
-        return Offer.from_serializable_dict(offer)
-
     def __eq__(self, other: "Offer") -> bool:
         return (self.id == other.id and
                 isclose(self.energy_rate, other.energy_rate, rel_tol=FLOATING_POINT_TOLERANCE) and
@@ -264,11 +264,6 @@ class Bid(BaseBidOffer):
         """Return a json serializable representation of the class."""
         return {**super().serializable_dict(), "buyer": self.buyer.serializable_dict()}
 
-    @staticmethod
-    def from_dict(offer: Dict) -> "Offer":
-        """Deserialize an offer dict."""
-        return Offer.from_serializable_dict(offer)
-
     def csv_values(self) -> Tuple:
         """Return values of class members that are needed for creation of CSV export."""
         rate = round(self.energy_rate, 4)
@@ -320,7 +315,12 @@ class TradeBidOfferInfo:
         return TradeBidOfferInfo(**trade_bid_offer_info)
 
     def __eq__(self, other: "TradeBidOfferInfo") -> bool:
-        return self.to_json_string() == other.to_json_string()
+        return (
+            self.original_offer_rate == other.original_offer_rate and
+            self.original_bid_rate == other.original_bid_rate and
+            self.propagated_bid_rate == other.propagated_bid_rate and
+            self.propagated_offer_rate == other.propagated_offer_rate and
+            self.trade_rate == self.trade_rate)
 
 
 class Trade:
