@@ -15,7 +15,7 @@ jobs:
       env:
         TOXENV: ci
       run: |
-        pip install tox
+        pip install tox==3.24.4
         tox -e $TOXENV
 
     - name: Check coverage with Codecov
