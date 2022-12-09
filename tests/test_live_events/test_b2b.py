@@ -24,8 +24,6 @@ class TestB2BLiveEvents:
     ])
     def test_validate_start_trading_missing_args(validate_method, arguments):
         method_arguments = {k: v for k, v in correct_args.items() if k in arguments}
-        print(validate_method)
-        print(method_arguments)
         assert validate_method(method_arguments) is True
         for arg_name in arguments:
             args_copy = deepcopy(method_arguments)

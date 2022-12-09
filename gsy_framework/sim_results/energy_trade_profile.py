@@ -126,8 +126,8 @@ class EnergyTradeProfile(ResultsBaseClass):
         area_core_trades = EnergyTradeProfile._get_trades_from_core_stats(
             core_stats, area_result_dict["uuid"])
         for trade in area_core_trades:
-            trade_seller = area_name_from_area_or_ma_name(trade["seller"])
-            trade_buyer = area_name_from_area_or_ma_name(trade["buyer"])
+            trade_seller = area_name_from_area_or_ma_name(trade["seller"]["name"])
+            trade_buyer = area_name_from_area_or_ma_name(trade["buyer"]["name"])
 
             if trade_seller not in res_dict["sold_energy"]:
                 res_dict["sold_energy"][trade_seller] = {"accumulated": {}}
