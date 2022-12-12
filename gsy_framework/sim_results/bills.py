@@ -112,10 +112,10 @@ class CumulativeBills(ResultsBaseClass):
 
             spent_total = sum(trade["price"]
                               for trade in trades
-                              if trade["buyer"] == area_dict["name"]) / 100.0
+                              if trade["buyer"]["name"] == area_dict["name"]) / 100.0
             earned = sum(trade["price"] - trade["fee_price"]
                          for trade in trades
-                         if trade["seller"] == area_dict["name"]) / 100.0
+                         if trade["seller"]["name"] == area_dict["name"]) / 100.0
             penalty_energy = self._calculate_device_penalties(
                 area_dict, core_stats.get(area_dict["uuid"], {})
             )
@@ -255,8 +255,8 @@ class MarketEnergyBills(ResultsBaseClass):
         child_name_uuid_map = {c["name"]: c["uuid"] for c in area_dict["children"]}
 
         for trade in area_core_stats[area_dict["uuid"]].get("trades", []):
-            buyer = area_name_from_area_or_ma_name(trade["buyer"])
-            seller = area_name_from_area_or_ma_name(trade["seller"])
+            buyer = area_name_from_area_or_ma_name(trade["buyer"]["name"])
+            seller = area_name_from_area_or_ma_name(trade["seller"]["name"])
             if buyer in child_name_uuid_map:
                 self._store_bought_trade(result[child_name_uuid_map[buyer]], trade)
             if seller in child_name_uuid_map:

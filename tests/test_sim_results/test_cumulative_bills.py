@@ -10,6 +10,7 @@ from gsy_framework.sim_results.bills import CumulativeBills
 class TestCumulativeBills:
 
     def setup_method(self):
+        # pylint: disable=attribute-defined-outside-init
         self._bills = CumulativeBills()
 
     def teardown_method(self):
@@ -40,8 +41,8 @@ class TestCumulativeBills:
             root_uuid: {
                 "trades": [
                     {
-                        "seller": seller_name,
-                        "buyer": buyer_name,
+                        "seller": {"name": seller_name, "uuid": seller_uuid},
+                        "buyer": {"name": buyer_name, "uuid": buyer_uuid},
                         "energy": 0.5,
                         "price": 0.21,
                         "fee_price": 0.02

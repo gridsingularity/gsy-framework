@@ -12,7 +12,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-
+# pylint: disable=too-many-arguments
 
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, Union
@@ -43,10 +43,10 @@ class TradingPartnersRequirement(Requirement):
         assert isinstance(trading_partners, list),\
             f"Invalid data type for trading partner {requirement}"
         if trading_partners and not (
-                bid.buyer_id in trading_partners or
-                bid.buyer_origin_id in trading_partners or
-                offer.seller_id in trading_partners or
-                offer.seller_origin_id in trading_partners):
+                bid.buyer.uuid in trading_partners or
+                bid.buyer.origin_uuid in trading_partners or
+                offer.seller.uuid in trading_partners or
+                offer.seller.origin_uuid in trading_partners):
             return False
         return True
 

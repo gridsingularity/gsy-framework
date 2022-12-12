@@ -26,13 +26,17 @@ def simulation_raw_data_fixture():
                     4: {
                         time_slot:
                             {"bids": [
-                                {"buyer_id": "UUID_1", "price": 30, "energy": 1,
+                                {"buyer": {"name": "UUID_1", "uuid": "UUID_1"},
+                                 "price": 30, "energy": 1,
                                  "time_slot": time_slot}],
                                 "offers": [
-                                    {"seller_id": "UUID_2", "price": 30, "energy": 1,
+                                    {"seller": {"name": "UUID_2", "uuid": "UUID_2"},
+                                     "price": 30, "energy": 1,
                                      "time_slot": time_slot}],
                                 "trades": [
-                                    {"seller_id": "UUID_2", "buyer_id": "UUID_1", "energy_rate": 1,
+                                    {"seller": {"name": "UUID_2", "uuid": "UUID_2"},
+                                     "buyer": {"name": "UUID_1", "uuid": "UUID_1"},
+                                     "energy_rate": 1,
                                      "time_slot": time_slot, "energy": 1, "price": 30}],
                                 "market_fee": 0.0}}}}}
     return func()
@@ -92,11 +96,14 @@ class TestForwardResultsHandler:
                     4: {
                         time_slot_dt: {
                             "offers": [{
-                                "seller_id": "UUID_2", "price": 30, "energy": 1,
+                                "seller": {"name": "UUID_2", "uuid": "UUID_2"},
+                                "price": 30, "energy": 1,
                                 "time_slot": "2020-01-01T01:00:00"}],
                             "bids": [],
                             "trades": [{
-                                "seller_id": "UUID_2", "buyer_id": "UUID_1", "energy_rate": 1,
+                                "seller": {"name": "UUID_2", "uuid": "UUID_2"},
+                                "buyer": {"name": "UUID_1", "uuid": "UUID_1"},
+                                "energy_rate": 1,
                                 "time_slot": "2020-01-01T01:00:00", "energy": 1,
                                 "price": 30}]}}},
                 "UUID_1": {
@@ -105,10 +112,12 @@ class TestForwardResultsHandler:
                             {
                                 "offers": [],
                                 "bids": [{
-                                    "buyer_id": "UUID_1", "price": 30, "energy": 1,
+                                    "buyer":  {"name": "UUID_1", "uuid": "UUID_1"},
+                                    "price": 30, "energy": 1,
                                     "time_slot": "2020-01-01T01:00:00"}],
                                 "trades": [{
-                                    "seller_id": "UUID_2", "buyer_id": "UUID_1",
+                                    "seller": {"name": "UUID_2", "uuid": "UUID_2"},
+                                    "buyer": {"name": "UUID_1", "uuid": "UUID_1"},
                                     "energy_rate": 1,
                                     "time_slot": "2020-01-01T01:00:00", "energy": 1,
                                     "price": 30}]}}}})
