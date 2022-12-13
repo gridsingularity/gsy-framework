@@ -440,15 +440,15 @@ def area_name_from_area_or_ma_name(name: str) -> str:
 def area_bought_from_child(trade: dict, area_name: str, child_names: list):
     """Check if the area with the given name bought energy from one of its children."""
     return (
-        area_name_from_area_or_ma_name(trade["buyer"]) == area_name
-        and area_name_from_area_or_ma_name(trade["seller"]) in child_names)
+        area_name_from_area_or_ma_name(trade["buyer"]["name"]) == area_name
+        and area_name_from_area_or_ma_name(trade["seller"]["name"]) in child_names)
 
 
 def area_sells_to_child(trade: dict, area_name: str, child_names: list):
     """Check if the area with the given name sold energy to one of its children."""
     return (
-        area_name_from_area_or_ma_name(trade["seller"]) == area_name
-        and area_name_from_area_or_ma_name(trade["buyer"]) in child_names)
+        area_name_from_area_or_ma_name(trade["seller"]["name"]) == area_name
+        and area_name_from_area_or_ma_name(trade["buyer"]["name"]) in child_names)
 
 
 # pylint: disable=invalid-name

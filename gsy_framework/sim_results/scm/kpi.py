@@ -17,10 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
 from copy import copy
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import Dict
 
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
+from gsy_framework.utils import add_or_create_key
 
 
 @dataclass
@@ -30,6 +31,7 @@ class SCMKPIState:
     total_energy_demanded_wh: float = 0.
     total_energy_produced_wh: float = 0.
     total_self_consumption_wh: float = 0.
+    total_asset_energy_requirements_kWh: Dict[str, float] = field(default_factory=dict)
     total_base_energy_cost: float = 0.
     total_gsy_e_cost: float = 0.
     total_base_energy_cost_excl_revenue: float = 0.
@@ -56,8 +58,8 @@ class SCMKPIState:
         return output_dict
 
     def update(self, energy_demanded_wh: float, energy_produced_wh: float,
-               self_consumption_wh: float, base_energy_cost: float,
-               base_energy_cost_excl_revenue: float, gsy_e_cost: float,
+               self_consumption_wh: float, asset_energy_requirements_kWh: Dict[str, float],
+               base_energy_cost: float, base_energy_cost_excl_revenue: float, gsy_e_cost: float,
                gsy_e_cost_excl_revenue: float, fit_revenue: float):
         # pylint: disable=too-many-arguments
         """Update both the aggregated state members and the raw state members."""
@@ -77,6 +79,10 @@ class SCMKPIState:
         self.total_base_energy_cost_excl_revenue += base_energy_cost_excl_revenue
         self.total_gsy_e_cost_excl_revenue += gsy_e_cost_excl_revenue
         self.total_fit_revenue += fit_revenue
+
+        for asset_uuid, asset_energy_requirement in asset_energy_requirements_kWh.items():
+            add_or_create_key(
+                self.total_asset_energy_requirements_kWh, asset_uuid, asset_energy_requirement)
 
     @property
     def saving_absolute(self):
@@ -145,6 +151,7 @@ class SCMKPI(ResultsBaseClass):
         energy_demanded_wh = after_meter_data["consumption_kWh"] * 1000.0
         self_consumption_wh = after_meter_data["self_consumed_energy_kWh"] * 1000.0
         energy_produced_wh = after_meter_data["production_kWh"] * 1000.0
+        asset_energy_requirements_kWh = after_meter_data.get("asset_energy_requirements_kWh", {})
         base_energy_cost = bills["base_energy_bill"]
         base_energy_cost_excl_revenue = bills["base_energy_bill_excl_revenue"]
         gsy_e_cost = bills["gsy_energy_bill"]
@@ -152,7 +159,8 @@ class SCMKPI(ResultsBaseClass):
         fit_revenue = bills["sold_to_community"] + bills["sold_to_grid"]
 
         state.update(energy_demanded_wh, energy_produced_wh, self_consumption_wh,
-                     base_energy_cost, base_energy_cost_excl_revenue, gsy_e_cost,
+                     asset_energy_requirements_kWh, base_energy_cost,
+                     base_energy_cost_excl_revenue, gsy_e_cost,
                      gsy_e_cost_excl_revenue, fit_revenue)
 
         return {
