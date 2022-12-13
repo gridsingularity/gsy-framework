@@ -82,15 +82,15 @@ def get_unified_area_type(area):
 def area_sells_to_child(trade, area_name, child_names):
     """Check if the area sold energy to one of its children (in the given trade)."""
     return (
-        area_name_from_area_or_ma_name(trade["seller"]) == area_name
-        and area_name_from_area_or_ma_name(trade["buyer"]) in child_names)
+        area_name_from_area_or_ma_name(trade["seller"]["name"]) == area_name
+        and area_name_from_area_or_ma_name(trade["buyer"]["name"]) in child_names)
 
 
 def child_buys_from_area(trade, area_name, child_names):
     """Check if the area bought energy from one of its children (in the given trade)."""
     return (
-        area_name_from_area_or_ma_name(trade["buyer"]) == area_name
-        and area_name_from_area_or_ma_name(trade["seller"]) in child_names)
+        area_name_from_area_or_ma_name(trade["buyer"]["name"]) == area_name
+        and area_name_from_area_or_ma_name(trade["seller"]["name"]) in child_names)
 
 
 def is_trade_external(trade, area_name, child_names):

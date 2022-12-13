@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import json
 import uuid
 from copy import deepcopy
-from dataclasses import asdict
 
 import pytest
 from pendulum import DateTime, datetime
@@ -96,6 +95,24 @@ class TestBidOfferMatch:
                            "trade_rate": ""}
         assert not BidOfferMatch.is_valid_dict(bid_offer_match)
 
+        # No market id
+        bid_offer_match = {"market_id": None,
+                           "time_slot": "2021-10-06T12:00",
+                           "bid": {"type": "bid"},
+                           "offer": {"type": "offer"},
+                           "selected_energy": 1,
+                           "trade_rate": ""}
+        assert not BidOfferMatch.is_valid_dict(bid_offer_match)
+
+        # No selected energy
+        bid_offer_match = {"market_id": "market_id",
+                           "time_slot": "2021-10-06T12:00",
+                           "bid": {"type": "bid"},
+                           "offer": {"type": "offer"},
+                           "selected_energy": None,
+                           "trade_rate": ""}
+        assert not BidOfferMatch.is_valid_dict(bid_offer_match)
+
     @staticmethod
     def test_from_dict():
         """Test the from_dict method of BidOfferMatch dataclass."""
@@ -112,6 +129,10 @@ class TestBidOfferMatch:
         assert bid_offer_match.offer == expected_dict["offer"]
         assert bid_offer_match.selected_energy == expected_dict["selected_energy"]
         assert bid_offer_match.trade_rate == expected_dict["trade_rate"]
+
+    @staticmethod
+    def test_from_dict_returns_none_for_invalid_dict():
+        assert BidOfferMatch.from_dict({}) is None
 
     @staticmethod
     def test_bid_energy():
@@ -195,8 +216,7 @@ class TestBaseBidOffer:
         bid_offer = BaseBidOffer(
             **self.initial_data
         )
-        obj_dict = json.loads(bid_offer.to_json_string(my_extra_key=10))
-        assert obj_dict.pop("my_extra_key") == 10
+        obj_dict = json.loads(bid_offer.to_json_string())
         assert set(obj_dict.keys()) == bid_offer_keys
 
         assert json.dumps(obj_dict, sort_keys=True) == json.dumps(
@@ -212,6 +232,7 @@ class TestBaseBidOffer:
             "type": "BaseBidOffer",
             "id": str(bid_offer.id),
             "energy": bid_offer.energy,
+            "price": bid_offer.price,
             "energy_rate": bid_offer.energy_rate,
             "original_price": bid_offer.original_price,
             "creation_time": datetime_to_string_incl_seconds(bid_offer.creation_time),
@@ -246,14 +267,14 @@ class TestBaseBidOffer:
     def test_from_json_asserts_if_no_type_was_provided(self):
         bid = Bid(**self.initial_data, buyer=self._buyer)
         bid_json = bid.to_json_string()
-        bid_json = bid_json.replace(', "type": "Bid"', "")
+        bid_json = bid_json.replace('"type": "Bid", ', "")
         with pytest.raises(AssertionError):
             Bid.from_json(bid_json)
 
     def test_from_json_asserts_if_wrong_type_was_provided(self):
         bid = Bid(**self.initial_data, buyer=self._buyer)
         bid_json = bid.to_json_string()
-        bid_json = bid_json.replace(', "type": "Bid"', ', "type": "InvalidType"')
+        bid_json = bid_json.replace('"type": "Bid", ', '"type": "InvalidType", ')
         with pytest.raises(AssertionError):
             Bid.from_json(bid_json)
 
@@ -317,6 +338,7 @@ class TestOffer:
             "type": "Offer",
             "id": str(offer.id),
             "energy": offer.energy,
+            "price": offer.price,
             "energy_rate": offer.energy_rate,
             "original_price": offer.original_price,
             "creation_time": datetime_to_string_incl_seconds(offer.creation_time),
@@ -426,6 +448,7 @@ class TestBid:
             "type": "Bid",
             "id": str(bid.id),
             "energy": bid.energy,
+            "price": bid.price,
             "energy_rate": bid.energy_rate,
             "original_price": bid.original_price,
             "creation_time": datetime_to_string_incl_seconds(bid.creation_time),
@@ -475,7 +498,7 @@ class TestTradeBidOfferInfo:
             1, 1, 1, 1, 1
         )
         assert (trade_bid_offer_info.to_json_string() ==
-                json.dumps(asdict(trade_bid_offer_info), default=json_datetime_serializer))
+                json.dumps(trade_bid_offer_info.serializable_dict()))
 
     @staticmethod
     def test_from_json():
@@ -525,28 +548,7 @@ class TestTrade:
 
     def test_to_json_string(self):
         trade = Trade(**self.initial_data)
-        trade_dict = deepcopy(trade.__dict__)
-        trade_dict["match_details"]["offer"] = (
-            trade_dict["match_details"]["offer"].to_json_string())
-        trade_dict["seller"] = trade_dict["seller"].serializable_dict()
-        trade_dict["buyer"] = trade_dict["buyer"].serializable_dict()
-        assert (trade.to_json_string() ==
-                json.dumps(trade_dict, default=json_datetime_serializer))
-
-        # Test the residual check
-        trade.residual = deepcopy(trade.match_details["offer"])
-        trade_dict["residual"] = deepcopy(trade.match_details["offer"]).to_json_string()
-        assert (trade.to_json_string() ==
-                json.dumps(trade_dict, default=json_datetime_serializer))
-        assert json.loads(trade.to_json_string()).get("residual") is not None
-
-        # Test the offer_bid_trade_info check
-        trade.offer_bid_trade_info = TradeBidOfferInfo(1, 2, 3, 4, 5)
-        trade_dict["offer_bid_trade_info"] = (
-            deepcopy(trade.offer_bid_trade_info).to_json_string())
-        assert (trade.to_json_string() ==
-                json.dumps(trade_dict, default=json_datetime_serializer))
-        assert json.loads(trade.to_json_string()).get("offer_bid_trade_info") is not None
+        assert trade.to_json_string() == json.dumps(trade.serializable_dict())
 
     def test_from_json(self):
         trade = Trade(
@@ -618,22 +620,28 @@ class TestTrade:
             "type": "Trade",
             "match_type": "Offer",
             "id": trade.id,
-            "offer_bid_id": trade.match_details["offer"].id,
-            "residual_id": trade.residual.id if trade.residual is not None else None,
+            "offer": trade.match_details["offer"].serializable_dict(),
+            "bid": None,
+            "residual": trade.residual.serializable_dict() if trade.residual is not None else None,
             "energy": trade.traded_energy,
             "energy_rate": trade.trade_rate,
             "price": trade.trade_price,
-            "buyer": trade.buyer.name,
-            "buyer_origin": trade.buyer.origin,
-            "seller_origin": trade.seller.origin,
-            "seller_origin_id": trade.seller.origin_uuid,
-            "buyer_origin_id": trade.buyer.origin_uuid,
-            "seller_id": trade.seller.uuid,
-            "buyer_id": trade.buyer.uuid,
-            "seller": trade.seller.name,
+            "buyer": {
+                "name": trade.buyer.name,
+                "uuid": trade.buyer.uuid,
+                "origin": trade.buyer.origin,
+                "origin_uuid": trade.buyer.origin_uuid
+            },
+            "seller": {
+                "name": trade.seller.name,
+                "uuid": trade.seller.uuid,
+                "origin": trade.seller.origin,
+                "origin_uuid": trade.seller.origin_uuid
+            },
             "fee_price": trade.fee_price,
             "creation_time": datetime_to_string_incl_seconds(trade.creation_time),
-            "time_slot": datetime_to_string_incl_seconds(trade.creation_time)
+            "time_slot": datetime_to_string_incl_seconds(trade.creation_time),
+            "offer_bid_trade_info": None
         }
 
 

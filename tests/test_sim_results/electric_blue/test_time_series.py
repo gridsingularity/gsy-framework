@@ -19,16 +19,17 @@ def device_stats_fixture():
         current_time_slot=DateTime(2020, 1, 1, 0, 0)
     )
     device_stats.add_trade({
-        "seller_id": "UUID_1", "time_slot": "2020-01-01T00:00:00",
+        "seller": {"name": "UUID_1", "uuid": "UUID_1"}, "time_slot": "2020-01-01T00:00:00",
         "energy": 1, "price": 30, "energy_rate": 30})
     device_stats.add_trade({
-        "seller_id": "UUID_2", "buyer_id": "UUID_1",
+        "seller": {"name": "UUID_2", "uuid": "UUID_2"},
+        "buyer": {"name": "UUID_1", "uuid": "UUID_1"},
         "time_slot": "2020-01-01T00:00:00", "energy": 2, "price": 30, "energy_rate": 15})
     device_stats.add_offer({
-        "seller_id": "UUID_1", "time_slot": "2020-01-01T00:00:00",
+        "seller": {"name": "UUID_1", "uuid": "UUID_1"}, "time_slot": "2020-01-01T00:00:00",
         "energy": 3, "price": 30})
     device_stats.add_bid({
-        "buyer_id": "UUID_1", "time_slot": "2020-01-01T00:00:00",
+        "buyer": {"name": "UUID_1", "uuid": "UUID_1"}, "time_slot": "2020-01-01T00:00:00",
         "energy": 4, "price": 30})
 
     return device_stats

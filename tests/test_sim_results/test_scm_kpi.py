@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from pendulum import now
 
-from gsy_framework.sim_results.scm.kpi import SCMKPIState, SCMKPI
+from gsy_framework.sim_results.scm.kpi import SCMKPI, SCMKPIState
 
 
 class TestSCMKPI:
@@ -91,7 +91,9 @@ class TestSCMKPI:
         return {
             root_uuid: {
                 "after_meter_data": {
-                    "consumption_kWh": 3.0, "production_kWh": 1.0, "self_consumed_energy_kWh": 2.0
+                    "consumption_kWh": 3.0, "production_kWh": 1.0, "self_consumed_energy_kWh": 2.0,
+                    "asset_energy_requirements_kWh": {
+                        "asset_uuid1": 1.0, "asset_uuid2": -1.1}
                 },
                 "bills": {
                     "base_energy_bill": 22.0, "base_energy_bill_excl_revenue": 23.0,
@@ -115,11 +117,37 @@ class TestSCMKPI:
         assert state.energy_demanded_wh == 3000.0
         assert state.energy_produced_wh == 1000.0
         assert state.self_consumption_wh == 2000.0
+        assert state.total_asset_energy_requirements_kWh == {
+            "asset_uuid1": 1.0, "asset_uuid2": -1.1}
         assert state.total_base_energy_cost == 22.0
         assert state.total_base_energy_cost_excl_revenue == 23.0
         assert state.total_gsy_e_cost == 21.0
         assert state.total_gsy_e_cost_excl_revenue == 22.0
         assert state.total_fit_revenue == 30.0
+        assert state.base_energy_cost == 22.0
+        assert state.base_energy_cost_excl_revenue == 23.0
+        assert state.gsy_e_cost == 21.0
+        assert state.gsy_e_cost_excl_revenue == 22.0
+        assert state.fit_revenue == 30.0
+
+        area_dict = self._generate_area_dict(parent_uuid)
+        core_stats = self._generate_core_stats(parent_uuid)
+        kpi.update(area_dict, core_stats, now())
+
+        state = kpi._state[parent_uuid]
+        assert state.total_energy_demanded_wh == 6000.0
+        assert state.total_energy_produced_wh == 2000.0
+        assert state.total_self_consumption_wh == 4000.0
+        assert state.energy_demanded_wh == 3000.0
+        assert state.energy_produced_wh == 1000.0
+        assert state.self_consumption_wh == 2000.0
+        assert state.total_asset_energy_requirements_kWh == {
+            "asset_uuid1": 2.0, "asset_uuid2": -2.2}
+        assert state.total_base_energy_cost == 44.0
+        assert state.total_base_energy_cost_excl_revenue == 46.0
+        assert state.total_gsy_e_cost == 42.0
+        assert state.total_gsy_e_cost_excl_revenue == 44.0
+        assert state.total_fit_revenue == 60.0
         assert state.base_energy_cost == 22.0
         assert state.base_energy_cost_excl_revenue == 23.0
         assert state.gsy_e_cost == 21.0
