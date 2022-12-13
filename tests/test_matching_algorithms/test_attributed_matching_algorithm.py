@@ -28,6 +28,7 @@ class TestAttributedMatchingAlgorithm:
     """Tester class for the PreferredPartnersMatchingAlgorithm."""
 
     @staticmethod
+    @pytest.mark.skip("Skipping the test due to attributes/requirements features being disabled")
     def test_get_matches_recommendations_respects_trading_partners():
         """Test the main interface of the algorithm.
          Pass supported format data and receive correct results
