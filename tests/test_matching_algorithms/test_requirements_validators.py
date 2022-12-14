@@ -20,6 +20,7 @@ def fixture_bid():
     return Bid("bid_id", now(), 9, 10, TraderDetails("B", ""), 9)
 
 
+@pytest.mark.skip("Order requirements feature disabled.")
 class TestRequirementsValidator:
     """Test all bid/offer requirements validators."""
 

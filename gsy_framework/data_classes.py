@@ -25,8 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import json
 from copy import deepcopy
 from dataclasses import dataclass, field, asdict
-from typing import List, Dict, Optional, Tuple, Union
 from math import isclose
+from typing import Dict, Optional, Tuple, Union
 
 from pendulum import DateTime
 
@@ -45,16 +45,13 @@ def json_datetime_serializer(datetime_obj: DateTime) -> Optional[str]:
 class BaseBidOffer:
     """Base class defining shared functionality of Bid and Offer market structures."""
     def __init__(self, id: str, creation_time: DateTime, price: float, energy: float,
-                 original_price: Optional[float] = None, time_slot: DateTime = None,
-                 attributes: Dict = None, requirements: List[Dict] = None):
+                 original_price: Optional[float] = None, time_slot: DateTime = None):
         self.id = str(id)
         self.creation_time = creation_time
         self.time_slot = time_slot  # market slot of creation
         self.original_price = original_price or price
         self.price = limit_float_precision(price)
         self.energy = limit_float_precision(energy)
-        self.attributes = attributes
-        self.requirements = requirements
         self.type = self.__class__.__name__
 
     @property
@@ -90,8 +87,6 @@ class BaseBidOffer:
             "original_price": self.original_price,
             "creation_time": datetime_to_string_incl_seconds(self.creation_time),
             "time_slot": datetime_to_string_incl_seconds(self.time_slot),
-            "attributes": self.attributes,
-            "requirements": self.requirements
         }
 
     @classmethod
@@ -172,11 +167,9 @@ class Offer(BaseBidOffer):
     """Offer class"""
     def __init__(self, id: str, creation_time: DateTime, price: float,
                  energy: float, seller: TraderDetails, original_price: Optional[float] = None,
-                 attributes: Dict = None, requirements: List[Dict] = None,
                  time_slot: DateTime = None):
         super().__init__(id=id, creation_time=creation_time, price=price, energy=energy,
-                         original_price=original_price,
-                         attributes=attributes, requirements=requirements, time_slot=time_slot)
+                         original_price=original_price, time_slot=time_slot)
         self.seller = seller
 
     def __hash__(self) -> int:
@@ -202,8 +195,6 @@ class Offer(BaseBidOffer):
                 isclose(self.energy, other.energy, rel_tol=FLOATING_POINT_TOLERANCE) and
                 isclose(self.price, other.price, rel_tol=FLOATING_POINT_TOLERANCE) and
                 self.seller == other.seller and
-                self.attributes == other.attributes and
-                self.requirements == other.requirements and
                 self.creation_time == other.creation_time and
                 self.time_slot == other.time_slot)
 
@@ -227,8 +218,7 @@ class Offer(BaseBidOffer):
         """Return a copy of an offer Object."""
         return Offer(
             offer.id, offer.creation_time, offer.price, offer.energy, seller=offer.seller,
-            original_price=offer.original_price, attributes=offer.attributes,
-            requirements=offer.requirements, time_slot=offer.time_slot)
+            original_price=offer.original_price, time_slot=offer.time_slot)
 
 
 class Bid(BaseBidOffer):
@@ -236,13 +226,10 @@ class Bid(BaseBidOffer):
     def __init__(self, id: str, creation_time: DateTime, price: float,
                  energy: float, buyer: TraderDetails,
                  original_price: Optional[float] = None,
-                 attributes: Dict = None,
-                 requirements: List[Dict] = None,
                  time_slot: Optional[DateTime] = None
                  ):
         super().__init__(id=id, creation_time=creation_time, price=price, energy=energy,
-                         original_price=original_price,
-                         attributes=attributes, requirements=requirements, time_slot=time_slot)
+                         original_price=original_price, time_slot=time_slot)
         self.buyer = buyer
 
     def __hash__(self) -> int:
@@ -282,8 +269,6 @@ class Bid(BaseBidOffer):
     def __eq__(self, other: "Bid") -> bool:
         return (self.id == other.id and
                 self.buyer == other.buyer and
-                self.attributes == other.attributes and
-                self.requirements == other.requirements and
                 self.creation_time == other.creation_time and
                 self.time_slot == other.time_slot)
 
@@ -296,7 +281,6 @@ class TradeBidOfferInfo:
     original_offer_rate: Optional[float]
     propagated_offer_rate: Optional[float]
     trade_rate: Optional[float]
-    matching_requirements: Optional[Dict] = None
 
     def serializable_dict(self) -> Dict:
         """Return a json serializable representation of the class."""

@@ -16,25 +16,26 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 # pylint: disable=protected-access
+import pytest
 
-from tests.test_matching_algorithms import offer_factory, bid_factory
 from gsy_framework.data_classes import BidOfferMatch, TraderDetails
 from gsy_framework.matching_algorithms.attributed_matching_algorithm import (
     AttributedMatchingAlgorithm)
+from tests.test_matching_algorithms import offer_factory, bid_factory
 
 
 class TestAttributedMatchingAlgorithm:
     """Tester class for the PreferredPartnersMatchingAlgorithm."""
 
     @staticmethod
+    @pytest.mark.skip("Skipping the test due to attributes/requirements features being disabled")
     def test_get_matches_recommendations_respects_trading_partners():
         """Test the main interface of the algorithm.
          Pass supported format data and receive correct results
          """
         offer = offer_factory().serializable_dict()
-        bid = bid_factory(
-            {"requirements": [{"trading_partners": [offer["seller"]["uuid"]]}]}
-        ).serializable_dict()
+        bid = bid_factory().serializable_dict()
+        bid["requirements"] = [{"trading_partners": [offer["seller"]["uuid"]]}]
 
         offer2 = offer_factory({
             "seller": TraderDetails(
@@ -72,14 +73,15 @@ class TestAttributedMatchingAlgorithm:
             matching_requirements=None).serializable_dict()
 
     @staticmethod
+    @pytest.mark.skip("Skipping the test due to attributes/requirements features being disabled")
     def test_get_matches_recommendations_respects_green_energy():
         """Test the main interface of the algorithm.
          Pass supported format data and receive correct results
          """
-        offer = offer_factory({"attributes": {"energy_type": "PV"}}).serializable_dict()
-        bid = bid_factory(
-            {"requirements": [{"energy_type": ["PV"]}]}
-        ).serializable_dict()
+        offer = offer_factory().serializable_dict()
+        offer["attributes"] = {"attributes": {"energy_type": "PV"}}
+        bid = bid_factory().serializable_dict()
+        bid["requirements"] = [{"energy_type": ["PV"]}]
 
         offer2 = offer_factory().serializable_dict()
         bid2 = bid_factory().serializable_dict()

@@ -171,8 +171,6 @@ class TestBaseBidOffer:
             "price": 10,
             "energy": 30,
             "original_price": 8,
-            "attributes": {},
-            "requirements": []
         }
 
     def test_init(self):
@@ -187,8 +185,6 @@ class TestBaseBidOffer:
         assert bid_offer.original_price == self.initial_data["original_price"]
         assert bid_offer.energy_rate == limit_float_precision(self.initial_data["price"] /
                                                               self.initial_data["energy"])
-        assert bid_offer.attributes == self.initial_data["attributes"]
-        assert bid_offer.requirements == self.initial_data["requirements"]
 
         # Test whether the original_price will resort to the "price" member
         self.initial_data.pop("original_price")
@@ -215,8 +211,8 @@ class TestBaseBidOffer:
 
     def test_to_json_string(self):
         bid_offer_keys = {
-            "id", "creation_time", "time_slot", "original_price", "price", "energy", "attributes",
-            "requirements", "type", "energy_rate"}
+            "id", "creation_time", "time_slot", "original_price", "price", "energy",
+            "type", "energy_rate"}
         bid_offer = BaseBidOffer(
             **self.initial_data
         )
@@ -240,8 +236,6 @@ class TestBaseBidOffer:
             "energy_rate": bid_offer.energy_rate,
             "original_price": bid_offer.original_price,
             "creation_time": datetime_to_string_incl_seconds(bid_offer.creation_time),
-            "attributes": bid_offer.attributes,
-            "requirements": bid_offer.requirements,
             "time_slot": datetime_to_string_incl_seconds(bid_offer.time_slot)
         }
 
@@ -293,8 +287,6 @@ class TestOffer:
             "price": 10,
             "energy": 30,
             "original_price": 8,
-            "attributes": {},
-            "requirements": [],
             "seller": TraderDetails("seller", str(uuid.uuid4())),
             "time_slot": DEFAULT_DATETIME
         }
@@ -311,8 +303,6 @@ class TestOffer:
         assert offer.original_price == self.initial_data["original_price"]
         assert offer.energy_rate == limit_float_precision(self.initial_data["price"] /
                                                           self.initial_data["energy"])
-        assert offer.attributes == self.initial_data["attributes"]
-        assert offer.requirements == self.initial_data["requirements"]
         assert offer.seller.name == "seller"
         assert offer.seller.uuid == self.initial_data["seller"].uuid
         assert offer.seller.origin is None
@@ -352,8 +342,6 @@ class TestOffer:
             "energy_rate": offer.energy_rate,
             "original_price": offer.original_price,
             "creation_time": datetime_to_string_incl_seconds(offer.creation_time),
-            "attributes": offer.attributes,
-            "requirements": offer.requirements,
             "seller": offer.seller.serializable_dict(),
             "time_slot": datetime_to_string_incl_seconds(offer.time_slot)
         }
@@ -409,8 +397,6 @@ class TestBid:
             "price": 10,
             "energy": 30,
             "original_price": 8,
-            "attributes": {},
-            "requirements": [],
             "buyer": TraderDetails("buyer", str(uuid.uuid4())),
             "time_slot": DEFAULT_DATETIME
         }
@@ -426,8 +412,6 @@ class TestBid:
         assert bid.original_price == self.initial_data["original_price"]
         assert bid.energy_rate == limit_float_precision(self.initial_data["price"] /
                                                         self.initial_data["energy"])
-        assert bid.attributes == self.initial_data["attributes"]
-        assert bid.requirements == self.initial_data["requirements"]
         assert bid.buyer.name == "buyer"
         assert bid.buyer.uuid == self.initial_data["buyer"].uuid
         assert bid.buyer.origin is None
@@ -468,8 +452,6 @@ class TestBid:
             "energy_rate": bid.energy_rate,
             "original_price": bid.original_price,
             "creation_time": datetime_to_string_incl_seconds(bid.creation_time),
-            "attributes": bid.attributes,
-            "requirements": bid.requirements,
             "buyer": bid.buyer.serializable_dict(),
             "time_slot": datetime_to_string_incl_seconds(bid.time_slot)
         }
@@ -671,8 +653,6 @@ class TestBalancingOffer(TestOffer):
             "price": 10,
             "energy": 30,
             "original_price": 8,
-            "attributes": {},
-            "requirements": [],
             "seller": TraderDetails("seller", str(uuid.uuid4())),
             "time_slot": DEFAULT_DATETIME
         }
