@@ -89,13 +89,16 @@ class SCMKPIState:
     @property
     def saving_absolute(self):
         """Return absolute bill savings value for the area."""
-        return self.total_base_energy_cost_excl_revenue - self.total_gsy_e_cost_excl_revenue
+        return KPICalculationHelper.saving_absolute(
+            self.total_base_energy_cost_excl_revenue, self.total_gsy_e_cost_excl_revenue
+        )
 
     @property
     def saving_percentage(self):
         """Return percentage bill savings for the area."""
-        return (abs((self.saving_absolute / self.total_base_energy_cost_excl_revenue) * 100)
-                if self.total_base_energy_cost_excl_revenue else None)
+        return KPICalculationHelper.saving_percentage(
+            self.saving_absolute, self.total_base_energy_cost_excl_revenue
+        )
 
     @property
     def self_sufficiency(self):

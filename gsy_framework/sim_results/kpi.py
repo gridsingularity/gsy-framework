@@ -369,10 +369,10 @@ class KPI(ResultsBaseClass):
 
         base_case_cost = (self.performance_indices[area_dict["uuid"]]["utility_bill"] -
                           self.performance_indices[area_dict["uuid"]]["fit_revenue"])
-        saving_absolute = (base_case_cost -
-                           self.performance_indices[area_dict["uuid"]]["gsy_e_cost"])
-        saving_percentage = (abs((saving_absolute / base_case_cost) * 100)
-                             if base_case_cost else None)
+        saving_absolute = KPICalculationHelper.saving_absolute(
+            base_case_cost, self.performance_indices[area_dict["uuid"]]["gsy_e_cost"]
+        )
+        saving_percentage = KPICalculationHelper.saving_percentage(saving_absolute, base_case_cost)
 
         self.performance_indices[area_dict["uuid"]]["base_case_cost"] = base_case_cost
         self.performance_indices[area_dict["uuid"]]["saving_absolute"] = saving_absolute

@@ -42,3 +42,21 @@ class KPICalculationHelper:
             return 0.0
         return ((savings_percent - min_community_savings_percent) /
                 (max_community_savings_percent - min_community_savings_percent))
+
+    @classmethod
+    def saving_absolute(
+            cls, total_base_energy_cost_excl_revenue: float,
+            total_gsy_e_cost_excl_revenue: float
+    ) -> float:
+        """Calculate the difference between the bill using the P2P trading and the bill
+        that would use the current allowed energy trading; basically paying the market maker rate
+        for energy if taken from the grid and receiving the feed-in-tariff when sending available
+        energy to the grid."""
+        return total_base_energy_cost_excl_revenue - total_gsy_e_cost_excl_revenue
+
+    @classmethod
+    def saving_percentage(
+            cls, saving_absolute: float, total_base_energy_cost_excl_revenue: float) -> float:
+        """Calculate the percentage of saving."""
+        return (abs((saving_absolute / total_base_energy_cost_excl_revenue) * 100)
+                if total_base_energy_cost_excl_revenue else None)
