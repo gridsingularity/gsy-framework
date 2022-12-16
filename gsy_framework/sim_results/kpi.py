@@ -18,8 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from copy import copy
 from typing import Dict, List
 
-from gsy_framework.sim_results import (
-    is_load_node_type, is_buffer_node_type, is_prosumer_node_type, is_producer_node_type)
+from gsy_framework.sim_results import (is_buffer_node_type, is_load_node_type,
+                                       is_producer_node_type,
+                                       is_prosumer_node_type)
+from gsy_framework.sim_results.kpi_calculation_helper import (
+    KPICalculationHelper)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import if_not_in_list_append
 
@@ -279,23 +282,15 @@ class KPI(ResultsBaseClass):
                 self.state[area_dict["uuid"]].total_energy_demanded_wh +
                 self.state[area_dict["uuid"]].demanded_buffer_wh)
 
-        # in case when the area doesn"t have any load demand
-        if total_energy_demanded_wh <= 0:
-            self_sufficiency = None
-        elif self.state[area_dict["uuid"]].total_self_consumption_wh >= total_energy_demanded_wh:
-            self_sufficiency = 1.0
-        else:
-            self_sufficiency = (self.state[area_dict["uuid"]].total_self_consumption_wh /
-                                total_energy_demanded_wh)
+        self_sufficiency = KPICalculationHelper.self_sufficiency(
+            self.state[area_dict["uuid"]].total_self_consumption_wh,
+            total_energy_demanded_wh
+        )
 
-        if self.state[area_dict["uuid"]].total_energy_produced_wh <= 0:
-            self_consumption = None
-        elif (self.state[area_dict["uuid"]].total_self_consumption_wh >=
-              self.state[area_dict["uuid"]].total_energy_produced_wh):
-            self_consumption = 1.0
-        else:
-            self_consumption = (self.state[area_dict["uuid"]].total_self_consumption_wh /
-                                self.state[area_dict["uuid"]].total_energy_produced_wh)
+        self_consumption = KPICalculationHelper.self_consumption(
+            self.state[area_dict["uuid"]].total_self_consumption_wh,
+            self.state[area_dict["uuid"]].total_energy_produced_wh
+        )
 
         kpi_parm_dict = {
             "name": area_dict["name"],

@@ -20,6 +20,8 @@ from copy import copy
 from dataclasses import asdict, dataclass, field
 from typing import Dict
 
+from gsy_framework.sim_results.kpi_calculation_helper import (
+    KPICalculationHelper)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import add_or_create_key
 
@@ -98,23 +100,14 @@ class SCMKPIState:
     @property
     def self_sufficiency(self):
         """Calculate area self sufficiency. Value range 0.0-1.0."""
-        if self.total_energy_demanded_wh <= 0:
-            return None
-
-        if self.total_self_consumption_wh >= self.total_energy_demanded_wh:
-            return 1.0
-
-        return self.total_self_consumption_wh / self.total_energy_demanded_wh
+        return KPICalculationHelper.self_sufficiency(
+            self.total_self_consumption_wh, self.total_energy_demanded_wh)
 
     @property
     def self_consumption(self):
         """Calculate area self consumption. Value range 0.0-1.0."""
-        if self.total_energy_produced_wh <= 0:
-            return None
-        if self.total_self_consumption_wh >= self.total_energy_produced_wh:
-            return 1.0
-
-        return self.total_self_consumption_wh / self.total_energy_produced_wh
+        return KPICalculationHelper.self_consumption(
+            self.total_self_consumption_wh, self.total_energy_produced_wh)
 
 
 class SCMKPI(ResultsBaseClass):
