@@ -1,4 +1,3 @@
-from math import isclose
 from typing import Optional
 
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
