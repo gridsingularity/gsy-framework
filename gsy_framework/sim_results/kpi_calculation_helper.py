@@ -31,7 +31,7 @@ class KPICalculationHelper:
         return total_self_consumption_wh / total_energy_produced_wh
 
     @classmethod
-    def savings_benchmark(
+    def saving_benchmark(
             cls, savings_percent: float,
             min_community_savings_percent: float,
             max_community_savings_percent: float
