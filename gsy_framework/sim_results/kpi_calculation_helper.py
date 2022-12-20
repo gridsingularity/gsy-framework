@@ -59,4 +59,4 @@ class KPICalculationHelper:
             cls, saving_absolute: float, total_base_energy_cost_excl_revenue: float) -> float:
         """Calculate the percentage of saving."""
         return (abs((saving_absolute / total_base_energy_cost_excl_revenue) * 100)
-                if total_base_energy_cost_excl_revenue else None)
+                if total_base_energy_cost_excl_revenue > 0 else None)
