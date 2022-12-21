@@ -1,6 +1,8 @@
 from typing import Dict
 
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
+from gsy_framework.sim_results.kpi_calculation_helper import (
+    KPICalculationHelper)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import scenario_representation_traversal
 
@@ -66,10 +68,11 @@ class SCMBills(ResultsBaseClass):
             area_bills["energy_benchmark"] = core_stats[area["uuid"]]["bills"].get(
                 "energy_benchmark", 0.)
 
-            area_bills["savings"] = area_bills["base_energy_bill"] - area_bills["gsy_energy_bill"]
-            area_bills["savings_percent"] = (
-                (area_bills["savings"] / area_bills["base_energy_bill"]) * 100.0
-                if area_bills["base_energy_bill"] > 0. else 0.
+            area_bills["savings"] = KPICalculationHelper().saving_absolute(
+                area_bills["base_energy_bill"], area_bills["gsy_energy_bill"])
+
+            area_bills["savings_percent"] = KPICalculationHelper().saving_percentage(
+                area_bills["savings"], area_bills["base_energy_bill"]
             )
 
             gsy_energy_bill_excl_revenue = (

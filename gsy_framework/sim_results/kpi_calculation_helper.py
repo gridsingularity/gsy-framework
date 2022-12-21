@@ -35,11 +35,11 @@ class KPICalculationHelper:
             cls, savings_percent: float,
             min_community_savings_percent: float,
             max_community_savings_percent: float
-    ) -> float:
+    ) -> Optional[float]:
         """Savings ranking of an area compared to other areas. Value range: [0.0, 1.0]"""
         if (max_community_savings_percent -
                 min_community_savings_percent) <= FLOATING_POINT_TOLERANCE:
-            return 0.0
+            return None
         return ((savings_percent - min_community_savings_percent) /
                 (max_community_savings_percent - min_community_savings_percent))
 
@@ -59,4 +59,4 @@ class KPICalculationHelper:
             cls, saving_absolute: float, total_base_energy_cost_excl_revenue: float) -> float:
         """Calculate the percentage of saving."""
         return (abs((saving_absolute / total_base_energy_cost_excl_revenue) * 100)
-                if total_base_energy_cost_excl_revenue else None)
+                if total_base_energy_cost_excl_revenue > FLOATING_POINT_TOLERANCE else None)
