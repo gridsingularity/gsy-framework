@@ -61,7 +61,7 @@ class SCMBills(ResultsBaseClass):
                 self.bills_redis_results[area["uuid"]] = self._empty_bills_dict()
 
             area_bills = {
-                k: v + core_stats[area["uuid"]]["bills"].get(k, 0.)
+                k: (v or 0.) + (core_stats[area["uuid"]]["bills"].get(k, 0.) or 0.)
                 for k, v in self.bills_redis_results[area["uuid"]].items()
             }
 
