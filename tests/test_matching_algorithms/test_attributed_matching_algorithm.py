@@ -16,29 +16,32 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 # pylint: disable=protected-access
+import pytest
 
-from tests.test_matching_algorithms import offer_factory, bid_factory
-from gsy_framework.data_classes import BidOfferMatch
+from gsy_framework.data_classes import BidOfferMatch, TraderDetails
 from gsy_framework.matching_algorithms.attributed_matching_algorithm import (
     AttributedMatchingAlgorithm)
+from tests.test_matching_algorithms import offer_factory, bid_factory
 
 
 class TestAttributedMatchingAlgorithm:
     """Tester class for the PreferredPartnersMatchingAlgorithm."""
 
     @staticmethod
+    @pytest.mark.skip("Skipping the test due to attributes/requirements features being disabled")
     def test_get_matches_recommendations_respects_trading_partners():
         """Test the main interface of the algorithm.
          Pass supported format data and receive correct results
          """
         offer = offer_factory().serializable_dict()
-        bid = bid_factory(
-            {"requirements": [{"trading_partners": [offer["seller_id"]]}]}
-        ).serializable_dict()
+        bid = bid_factory().serializable_dict()
+        bid["requirements"] = [{"trading_partners": [offer["seller"]["uuid"]]}]
 
-        offer2 = offer_factory(
-            {"seller_id": "second seller", "seller_origin_id": "second seller"}
-        ).serializable_dict()
+        offer2 = offer_factory({
+            "seller": TraderDetails(
+                name="second_seller", uuid="second seller",
+                origin="second_seller", origin_uuid="second seller")
+        }).serializable_dict()
         # Both the seller and seller_origin ids are used for preferred trading partner matching.
         bid2 = bid_factory().serializable_dict()
         data = {"market": {"2021-10-06T12:00": {
@@ -56,7 +59,7 @@ class TestAttributedMatchingAlgorithm:
             selected_energy=30,
             time_slot="2021-10-06T12:00",
             matching_requirements={
-               "bid_requirement": {"trading_partners": [offer["seller_id"]]},
+               "bid_requirement": {"trading_partners": [offer["seller"]["uuid"]]},
                "offer_requirement": {}}).serializable_dict()
 
         assert matches[1]["offer"]["id"] == offer2["id"]
@@ -70,14 +73,15 @@ class TestAttributedMatchingAlgorithm:
             matching_requirements=None).serializable_dict()
 
     @staticmethod
+    @pytest.mark.skip("Skipping the test due to attributes/requirements features being disabled")
     def test_get_matches_recommendations_respects_green_energy():
         """Test the main interface of the algorithm.
          Pass supported format data and receive correct results
          """
-        offer = offer_factory({"attributes": {"energy_type": "PV"}}).serializable_dict()
-        bid = bid_factory(
-            {"requirements": [{"energy_type": ["PV"]}]}
-        ).serializable_dict()
+        offer = offer_factory().serializable_dict()
+        offer["attributes"] = {"attributes": {"energy_type": "PV"}}
+        bid = bid_factory().serializable_dict()
+        bid["requirements"] = [{"energy_type": ["PV"]}]
 
         offer2 = offer_factory().serializable_dict()
         bid2 = bid_factory().serializable_dict()

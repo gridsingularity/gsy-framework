@@ -24,7 +24,7 @@ setup(
     version=VERSION,
     packages=find_packages(where=".", exclude=["tests"]),
     package_dir={"gsy_framework": "gsy_framework"},
-    package_data={},
+    package_data={"gsy_framework": ["resources/*.csv", "resources/aggregated_ssp/*.csv"]},
     install_requires=REQUIREMENTS,
     zip_safe=False,
 )

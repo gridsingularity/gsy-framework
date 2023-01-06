@@ -15,14 +15,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from datetime import timedelta, date  # NOQA
+from datetime import date, timedelta  # NOQA
 from typing import Dict, List
-from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
-from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
-from gsy_framework.sim_results.market_price_energy_day import MarketPriceEnergyDay
-from gsy_framework.sim_results.device_statistics import DeviceStatistics
-from gsy_framework.sim_results.market_summary_info import MarketSummaryInfo
 
+from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
+from gsy_framework.sim_results.device_statistics import DeviceStatistics
+from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
+from gsy_framework.sim_results.market_price_energy_day import \
+    MarketPriceEnergyDay
+from gsy_framework.sim_results.market_summary_info import MarketSummaryInfo
 
 REQUESTED_FIELDS_LIST = ["price_energy_day", "device_statistics",
                          "energy_trade_profile", "area_throughput", "market_summary"]
@@ -41,6 +42,11 @@ def merge_last_market_results_to_global(
         market_results: Dict, global_results: Dict,
         slot_list_ui_format: List = None, requested_fields: List = None
 ):
+    """Global results are the accumulated statistics from the beginning of the simulation.
+    This function updates the global results using the market results which are results of
+    the current market slot.
+    """
+
     if requested_fields is None:
         requested_fields = REQUESTED_FIELDS_LIST
 

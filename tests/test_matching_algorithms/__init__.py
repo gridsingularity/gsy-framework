@@ -3,7 +3,7 @@ from typing import Optional
 
 from pendulum import DateTime
 
-from gsy_framework.data_classes import Bid, Offer
+from gsy_framework.data_classes import Bid, Offer, TraderDetails
 
 
 def offer_factory(additional_data: Optional[dict] = None):
@@ -15,10 +15,12 @@ def offer_factory(additional_data: Optional[dict] = None):
            "time_slot": DateTime.now(),
            "price": 10,
            "energy": 30,
-           "seller": "seller",
-           "seller_id": "seller_id",
-           "seller_origin": "seller",
-           "seller_origin_id": "seller_id",
+           "seller": TraderDetails(
+                name="seller",
+                uuid="seller_id",
+                origin="seller",
+                origin_uuid="seller_id",
+           ),
            **additional_data})
 
 
@@ -31,8 +33,10 @@ def bid_factory(additional_data: Optional[dict] = None):
            "time_slot": DateTime.now(),
            "price": 10,
            "energy": 30,
-           "buyer": "buyer",
-           "buyer_id": "buyer_id",
-           "buyer_origin": "buyer",
-           "buyer_origin_id": "buyer_id",
+           "buyer": TraderDetails(
+                name="buyer",
+                uuid="buyer_id",
+                origin="buyer",
+                origin_uuid="buyer_id",
+           ),
            **additional_data})

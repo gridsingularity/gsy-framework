@@ -474,7 +474,7 @@ name-group=
 
 # Regular expression which should only match function or class names that do
 # not require a docstring.
-no-docstring-rgx=^_|^test_|^Test|^step_impl|^setup_method|^teardown_method
+no-docstring-rgx=^_|^test_|^Test|^step_impl|^setup_method|^teardown_method|^fixture_
 
 
 # List of decorators that produce properties, such as abc.abstractproperty. Add

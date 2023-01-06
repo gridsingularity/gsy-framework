@@ -18,10 +18,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from copy import copy
 from typing import Dict, List
 
-from gsy_framework.sim_results import (
-    is_load_node_type, is_buffer_node_type, is_prosumer_node_type, is_producer_node_type)
+from gsy_framework.sim_results import (is_buffer_node_type, is_load_node_type,
+                                       is_producer_node_type,
+                                       is_prosumer_node_type)
+from gsy_framework.sim_results.kpi_calculation_helper import (
+    KPICalculationHelper)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import if_not_in_list_append
+
+
+def _is_trader_origin(trader_details: Dict) -> bool:
+    return trader_details["origin_uuid"] == trader_details["uuid"]
 
 
 class KPIState:
@@ -67,29 +74,29 @@ class KPIState:
     def _accumulate_self_production(self, trade: Dict):
         # Trade seller_id origin should be equal to the trade seller_id in order to
         # not double count trades in higher hierarchies
-        if (trade["seller_origin_id"] in self.producer_list and
-                trade["seller_origin_id"] == trade["seller_id"]):
+        if (trade["seller"]["origin_uuid"] in self.producer_list and
+                _is_trader_origin(trade["seller"])):
             self.total_energy_produced_wh += trade["energy"] * 1000
 
     def _accumulate_self_consumption(self, trade: Dict):
         # Trade buyer_id origin should be equal to the trade buyer_id in order to
         # not double count trades in higher hierarchies
-        if (trade["seller_origin_id"] in self.producer_list and
-                trade["buyer_origin_id"] in self.consumer_list and
-                trade["buyer_origin_id"] == trade["buyer_id"]):
+        if (trade["seller"]["origin_uuid"] in self.producer_list and
+                trade["buyer"]["origin_uuid"] in self.consumer_list and
+                _is_trader_origin(trade["buyer"])):
             self.total_self_consumption_wh += trade["energy"] * 1000
 
     def _accumulate_self_consumption_buffer(self, trade: Dict):
-        if (trade["seller_origin_id"] in self.producer_list and
-                trade["buyer_origin_id"] in self.ess_list):
+        if (trade["seller"]["origin_uuid"] in self.producer_list and
+                trade["buyer"]["origin_uuid"] in self.ess_list):
             self.self_consumption_buffer_wh += trade["energy"] * 1000
 
     def _dissipate_self_consumption_buffer(self, trade: Dict):
-        if trade["seller_origin_id"] in self.ess_list:
+        if trade["seller"]["origin_uuid"] in self.ess_list:
             # self_consumption_buffer needs to be exhausted to total_self_consumption
             # if sold to internal consumer
-            if (trade["buyer_origin_id"] in self.consumer_list and
-                    trade["buyer_origin_id"] == trade["buyer_id"] and
+            if (trade["buyer"]["origin_uuid"] in self.consumer_list and
+                    _is_trader_origin(trade["buyer"]) and
                     self.self_consumption_buffer_wh > 0):
                 if (self.self_consumption_buffer_wh - trade["energy"] * 1000) > 0:
                     self.self_consumption_buffer_wh -= trade["energy"] * 1000
@@ -98,9 +105,8 @@ class KPIState:
                     self.total_self_consumption_wh += self.self_consumption_buffer_wh
                     self.self_consumption_buffer_wh = 0
             # self_consumption_buffer needs to be exhausted if sold to any external agent
-            elif (trade["buyer_origin_id"] not in [*self.ess_list, *self.consumer_list] and
-                    trade["buyer_origin_id"] == trade["buyer_id"] and
-                    self.self_consumption_buffer_wh > 0):
+            elif (trade["buyer"]["origin_uuid"] not in [*self.ess_list, *self.consumer_list] and
+                    _is_trader_origin(trade["buyer"]) and self.self_consumption_buffer_wh > 0):
                 if (self.self_consumption_buffer_wh - trade["energy"] * 1000) > 0:
                     self.self_consumption_buffer_wh -= trade["energy"] * 1000
                 else:
@@ -114,9 +120,9 @@ class KPIState:
         * total_energy_produced_wh also needs to accumulated accounting of what
         the InfiniteBus has produced.
         """
-        if (trade["seller_origin_id"] in self.buffer_list and
-                trade["buyer_origin_id"] in self.consumer_list and
-                trade["buyer_origin_id"] == trade["buyer_id"]):
+        if (trade["seller"]["origin_uuid"] in self.buffer_list and
+                trade["buyer"]["origin_uuid"] in self.consumer_list and
+                _is_trader_origin(trade["buyer"])):
             self.total_self_consumption_wh += trade["energy"] * 1000
             self.total_energy_produced_wh += trade["energy"] * 1000
 
@@ -128,9 +134,9 @@ class KPIState:
         demanded_buffer_wh also needs to accumulated accounting of what
         the InfiniteBus has consumed/demanded.
         """
-        if (trade["buyer_origin_id"] in self.buffer_list and
-                trade["seller_origin_id"] in self.producer_list
-                and trade["seller_origin_id"] == trade["seller_id"]):
+        if (trade["buyer"]["origin_uuid"] in self.buffer_list and
+                trade["seller"]["origin_uuid"] in self.producer_list
+                and _is_trader_origin(trade["seller"])):
             self.total_self_consumption_wh += trade["energy"] * 1000
             self.demanded_buffer_wh += trade["energy"] * 1000
 
@@ -179,11 +185,11 @@ class SavingsKPI:
             core_stats.get(area_dict["uuid"], {}), grid_fee_along_path)
 
         for trade in core_stats.get(area_dict["uuid"], {}).get("trades", []):
-            if trade["seller_origin_id"] in self.producer_ess_set:
+            if trade["seller"]["origin_uuid"] in self.producer_ess_set:
                 if feed_in_tariff > 0:
                     self.fit_revenue += feed_in_tariff * trade["energy"]
                 self.gsy_e_cost -= trade["price"] - trade["fee_price"]
-            if trade["buyer_origin_id"] in self.consumer_ess_set:
+            if trade["buyer"]["origin_uuid"] in self.consumer_ess_set:
                 self.utility_bill += market_maker_rate * trade["energy"]
                 self.gsy_e_cost += trade["price"]
 
@@ -276,23 +282,15 @@ class KPI(ResultsBaseClass):
                 self.state[area_dict["uuid"]].total_energy_demanded_wh +
                 self.state[area_dict["uuid"]].demanded_buffer_wh)
 
-        # in case when the area doesn"t have any load demand
-        if total_energy_demanded_wh <= 0:
-            self_sufficiency = None
-        elif self.state[area_dict["uuid"]].total_self_consumption_wh >= total_energy_demanded_wh:
-            self_sufficiency = 1.0
-        else:
-            self_sufficiency = (self.state[area_dict["uuid"]].total_self_consumption_wh /
-                                total_energy_demanded_wh)
+        self_sufficiency = KPICalculationHelper.self_sufficiency(
+            self.state[area_dict["uuid"]].total_self_consumption_wh,
+            total_energy_demanded_wh
+        )
 
-        if self.state[area_dict["uuid"]].total_energy_produced_wh <= 0:
-            self_consumption = None
-        elif (self.state[area_dict["uuid"]].total_self_consumption_wh >=
-              self.state[area_dict["uuid"]].total_energy_produced_wh):
-            self_consumption = 1.0
-        else:
-            self_consumption = (self.state[area_dict["uuid"]].total_self_consumption_wh /
-                                self.state[area_dict["uuid"]].total_energy_produced_wh)
+        self_consumption = KPICalculationHelper.self_consumption(
+            self.state[area_dict["uuid"]].total_self_consumption_wh,
+            self.state[area_dict["uuid"]].total_energy_produced_wh
+        )
 
         kpi_parm_dict = {
             "name": area_dict["name"],
@@ -371,10 +369,10 @@ class KPI(ResultsBaseClass):
 
         base_case_cost = (self.performance_indices[area_dict["uuid"]]["utility_bill"] -
                           self.performance_indices[area_dict["uuid"]]["fit_revenue"])
-        saving_absolute = (base_case_cost -
-                           self.performance_indices[area_dict["uuid"]]["gsy_e_cost"])
-        saving_percentage = (abs((saving_absolute / base_case_cost) * 100)
-                             if base_case_cost else None)
+        saving_absolute = KPICalculationHelper.saving_absolute(
+            base_case_cost, self.performance_indices[area_dict["uuid"]]["gsy_e_cost"]
+        )
+        saving_percentage = KPICalculationHelper.saving_percentage(saving_absolute, base_case_cost)
 
         self.performance_indices[area_dict["uuid"]]["base_case_cost"] = base_case_cost
         self.performance_indices[area_dict["uuid"]]["saving_absolute"] = saving_absolute

@@ -22,7 +22,10 @@ from datetime import date, datetime
 
 from pendulum import duration, instance
 
-from gsy_framework.enums import BidOfferMatchAlgoEnum, SpotMarketTypeEnum, CoefficientAlgorithm
+from gsy_framework.enums import (
+    BidOfferMatchAlgoEnum, SpotMarketTypeEnum, CoefficientAlgorithm, AvailableMarketTypes,
+    HeatPumpSourceType
+)
 
 RangeLimit = namedtuple("RangeLimit", ("min", "max"))
 RateRange = namedtuple("RateRange", ("initial", "final"))
@@ -87,6 +90,7 @@ class ConstSettings:
     class ForwardMarketSettings:
         """Default settings for forward markets"""
         ENABLE_FORWARD_MARKETS = False
+        FULLY_AUTO_TRADING = True
 
     class AreaSettings:
         """Default settings for market areas."""
@@ -178,6 +182,20 @@ class ConstSettings:
         # This price should be just above the marginal costs for a Wind Power Plant - unit is cent
         FINAL_SELLING_RATE = 0
         MAX_WIND_TURBINE_OUTPUT_W = 160
+
+    class HeatPumpSettings:
+        """Default values for the heat pump."""
+
+        MAX_POWER_RATING_KW = 3
+        CONSUMPTION_KW = 0.5
+        MIN_TEMP_C = 50
+        MAX_TEMP_C = 65
+        INIT_TEMP_C = 50
+        EXT_TEMP_C = 10
+        TANK_VOL_L = 50
+        SOURCE_TYPE = HeatPumpSourceType.AIR.value
+        BUYING_RATE_RANGE = RateRange(0, 30)
+        PREFERRED_BUYING_RATE = 15
 
     class MASettings:
         """Default settings for Market Agents."""
@@ -291,3 +309,11 @@ DEFAULT_PRECISION = 8
 FLOATING_POINT_TOLERANCE = 0.00001
 
 FIELDS_REQUIRED_FOR_REBASE = ("capacity_kW", "tilt", "azimuth", "geo_tag_location")
+
+ALL_FORWARD_MARKET_TYPES = [
+    AvailableMarketTypes.INTRADAY,
+    AvailableMarketTypes.DAY_FORWARD,
+    AvailableMarketTypes.WEEK_FORWARD,
+    AvailableMarketTypes.MONTH_FORWARD,
+    AvailableMarketTypes.YEAR_FORWARD
+]

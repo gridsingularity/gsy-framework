@@ -1,16 +1,19 @@
 from abc import ABC, abstractmethod
+from email.utils import parseaddr
 from typing import Dict, Optional, Tuple
 
 import pendulum
 from openpyxl.workbook.workbook import Worksheet
 from pendulum.datetime import DateTime
 
-from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
+from gsy_framework.community_datasheet.exceptions import (
+    CommunityDatasheetException)
 from gsy_framework.community_datasheet.row_converters import (
-    GeneralSettingsRowConverter, LoadRowConverter, MembersRowConverter, PVRowConverter,
-    StorageRowConverter)
+    GeneralSettingsRowConverter, LoadRowConverter, MembersRowConverter,
+    PVRowConverter, StorageRowConverter)
 from gsy_framework.community_datasheet.sheet_headers import (
-    CommunityMembersSheetHeader, LoadSheetHeader, PVSheetHeader, StorageSheetHeader)
+    CommunityMembersSheetHeader, LoadSheetHeader, PVSheetHeader,
+    StorageSheetHeader)
 from gsy_framework.constants_limits import DATE_TIME_FORMAT
 
 
@@ -147,6 +150,11 @@ class CommunityMembersSheetParser(MembersSheetParser):
                     f'Member names must be unique. Found duplicate name: "{member_name}".')
 
             parsed_row = self._parse_row(row_dict)
+
+            if "@" not in parseaddr(parsed_row["email"])[1]:
+                raise CommunityDatasheetException(
+                    f'Invalid member email {parsed_row["email]"]}.')
+
             output[member_name] = parsed_row
 
         return output

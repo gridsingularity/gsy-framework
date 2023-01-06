@@ -27,7 +27,6 @@ class ScenarioSchemas:
                 "properties": {
                     "type": {"enum": ["Area", "null"]},
                     "name": {"type": "string"},
-                    "number_of_clones": {"type": "number"},
                     "const_fee_rate": {"type": "number"},
                     "feed_in_tariff": {"type": ["number", "null"]},
                     "taxes_surcharges": {"type": ["number", "null"]},
@@ -51,7 +50,8 @@ class ScenarioSchemas:
                                         {"$ref": "#/definitions/smart_meter"},
                                         {"$ref": "#/definitions/infinite_power_plant"},
                                         {"$ref": "#/definitions/finite_power_plant"},
-                                        {"$ref": "#/definitions/storage"}
+                                        {"$ref": "#/definitions/storage"},
+                                        {"$ref": "#/definitions/wind_turbine"},
                                     ]}, "default": []},
                                     {"type": "null"}]}
                 },
@@ -62,7 +62,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["PV", "PredefinedPV"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "panel_count": {"type": "number"},
@@ -81,7 +80,33 @@ class ScenarioSchemas:
                             {"type": "null"},
                             {"type": "array"},
                             {"type": "string"}]},
-                    "use_market_maker_rate": {"type": "boolean"}
+                    "use_market_maker_rate": {"type": "boolean"},
+                    "powerProfileUUID": {"type": "string"}
+                }
+            },
+            "wind_turbine": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "type": {"enum": ["WindTurbine"]},
+                    "uuid": {"type": "string"},
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "final_selling_rate": {"type": "number"},
+                    "fit_to_limit": {"type": "boolean"},
+                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_rate_decrease_per_update": {"anyOf": [{"type": "number"},
+                                                                  {"type": "null"}]},
+                    "power_profile": {
+                        "anyOf": [
+                            {"type": "object"},
+                            {"type": "number"},
+                            {"type": "null"},
+                            {"type": "array"},
+                            {"type": "string"}]},
+                    "use_market_maker_rate": {"type": "boolean"},
+                    "powerProfileUUID": {"type": "string"},
+                    "capacity_kW": {"type": "number"},
                 }
             },
             "storage": {
@@ -89,7 +114,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["Storage"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "initial_soc": {"anyOf": [{"type": "number"}, {"type": "null"}]},
@@ -114,7 +138,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["Load"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "avg_power_W":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
@@ -144,7 +167,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["SmartMeter"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
@@ -165,7 +187,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["CommercialProducer", "InfiniteBus", "MarketMaker"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                 }
@@ -175,7 +196,6 @@ class ScenarioSchemas:
                 "properties": {
                     "name": {"type": "string"},
                     "type": {"enum": ["FiniteDieselGenerator", "MarketMaker"]},
-                    "number_of_clones": {"type": "number"},
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "energy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
@@ -191,7 +211,8 @@ class ScenarioSchemas:
             {"$ref": "#/definitions/smart_meter"},
             {"$ref": "#/definitions/infinite_power_plant"},
             {"$ref": "#/definitions/finite_power_plant"},
-            {"$ref": "#/definitions/storage"}
+            {"$ref": "#/definitions/storage"},
+            {"$ref": "#/definitions/wind_turbine"}
         ]
     }
 
@@ -222,7 +243,6 @@ class ResultsSchemas:
                             "last_price_energy_day": {"type": "object"},
                             "kpi": {"type": "object"},
                             "area_throughput": {"type": "object"},
-                            "last_energy_trades_high_resolution": {"type": "object"},
                             "bids_offers_trades": {"type": "object"},
                             "results_area_uuids": {"type": "array"},
                             "simulation_state": {"type": "object"},

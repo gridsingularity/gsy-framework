@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from collections import defaultdict
 from copy import deepcopy
 from typing import Dict, List, Tuple, Optional
 
@@ -95,18 +96,17 @@ class PreferredPartnersMatchingAlgorithm(BaseMatchingAlgorithm):
             offers: List[Offer.serializable_dict]
     ) -> Dict[str, List[Offer.serializable_dict]]:
         """Map seller ids/origin ids to their offers list."""
-        mapping = {}
+        mapping = defaultdict(list)
         for offer in offers:
-            if offer["seller_id"]:
-                if offer["seller_id"] not in mapping:
-                    mapping[offer["seller_id"]] = []
-                mapping[offer["seller_id"]].append(offer)
-            if (offer["seller_origin_id"]
-                    and offer["seller_origin_id"] != offer["seller_id"]):
-                if offer["seller_origin_id"] not in mapping:
-                    mapping[offer["seller_origin_id"]] = []
-                mapping[offer["seller_origin_id"]].append(offer)
-        return mapping
+            if not offer.get("seller"):
+                continue
+            seller_uuid = offer["seller"].get("uuid")
+            seller_origin_uuid = offer["seller"].get("origin_uuid")
+            if seller_uuid:
+                mapping[seller_uuid].append(offer)
+            if seller_origin_uuid and seller_origin_uuid != seller_uuid:
+                mapping[seller_origin_uuid].append(offer)
+        return dict(mapping)
 
     @classmethod
     def _get_required_energy_and_rate_from_order(
