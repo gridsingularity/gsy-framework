@@ -334,7 +334,7 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
         zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
         filled_profile = _fill_gaps_in_profile(profile, zero_value_slot_profile)
 
-        if profile_type == InputProfileTypes.POWER:
+        if profile_type in [InputProfileTypes.POWER, InputProfileTypes.REBASE]:
             return _calculate_energy_from_power_profile(filled_profile, GlobalConfig.slot_length)
         else:
             return filled_profile

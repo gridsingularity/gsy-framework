@@ -32,6 +32,7 @@ class SCMBills(ResultsBaseClass):
             "earned_from_grid": 0.,
             "home_balance_kWh": 0.,
             "home_balance": 0.,
+            "base_energy_bill_excl_revenue": 0.,
             "gsy_energy_bill_excl_revenue": 0.,
             "gsy_energy_bill_excl_revenue_without_fees": 0.,
             "tax_surcharges": 0.,
@@ -69,10 +70,11 @@ class SCMBills(ResultsBaseClass):
                 "energy_benchmark", 0.)
 
             area_bills["savings"] = KPICalculationHelper().saving_absolute(
-                area_bills["base_energy_bill"], area_bills["gsy_energy_bill"])
+                area_bills["base_energy_bill_excl_revenue"],
+                area_bills["gsy_energy_bill_excl_revenue"])
 
             area_bills["savings_percent"] = KPICalculationHelper().saving_percentage(
-                area_bills["savings"], area_bills["base_energy_bill"]
+                area_bills["savings"], area_bills["base_energy_bill_excl_revenue"]
             )
 
             gsy_energy_bill_excl_revenue = (
