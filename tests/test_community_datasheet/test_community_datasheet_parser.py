@@ -144,6 +144,7 @@ class TestCommunityDatasheetParser:
                             "type": "Area",
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
+                            "address": "Am Werth 94, Wolffburg, Schleswig-Holstein, Germany",
                             "grid_fee_constant": 0.3,
                             "children": [
                                 {
@@ -224,6 +225,7 @@ class TestCommunityDatasheetParser:
                             "type": "Area",
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
+                            "address": "Heisterbachstr. 8, Ost Colin, Hamburg, Germany",
                             "grid_fee_constant": 0.3,
                             "children": [
                                 {

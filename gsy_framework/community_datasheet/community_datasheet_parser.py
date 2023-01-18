@@ -103,7 +103,7 @@ class CommunityDatasheetParser:
             assets = self._datasheet.assets_by_member[member_name]
             home_representation = self.create_home_representation(
                 member_name, member_info, assets)
-            self._datasheet.members[member_name]["asset_count"] = len(assets)
+            member_info["asset_count"] = len(assets)
             grid.append(home_representation)
 
         return {
@@ -133,12 +133,14 @@ class CommunityDatasheetParser:
     @staticmethod
     def create_home_representation(
             member_name: str, member_info: Dict, assets: List[Dict]) -> Dict:
+        """Create area representation dict of the home, based on a member_info dict and assets."""
         return {
             "name": member_name,
             "tags": ["Home"],
             "type": "Area",
             "uuid": member_info["uuid"],
             "geo_tag_location": member_info["geo_tag_location"],
+            "address": member_info["address"],
             "grid_fee_constant": member_info["grid_fee_constant"],
             "children": assets,
             "market_maker_rate": member_info["market_maker_rate"],
