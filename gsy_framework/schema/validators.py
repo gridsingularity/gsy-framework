@@ -33,8 +33,3 @@ class AVROSchemaValidator(BaseSchemaValidator):
 def get_schema_validator(schema_name: str) -> BaseSchemaValidator:
     """Return the appropriate schema validator class based on the schema name."""
     return AVROSchemaValidator(schema_name=schema_name)
-
-
-if __name__ == "__main__":
-    schema_validator = get_schema_validator("scm_simulation_raw_data_v1")
-    print(schema_validator.validate({...}))
