@@ -1,0 +1,6 @@
+{"namespace": "simulation_results",
+ "type": "record",
+ "name": "configuration_tree_v1",
+ "fields": [
+ ]
+}
