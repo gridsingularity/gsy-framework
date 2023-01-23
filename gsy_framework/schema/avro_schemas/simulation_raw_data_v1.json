@@ -12,14 +12,16 @@
       "type": "record",
       "name": "Area",
       "fields": [
-        {"name": "const_fee_rate", "type": "float"},
-        {"name": "feed_in_tariff", "type": "float"},
-        {"name": "grid_fee_constant", "type": "float"},
+        {"name": "const_fee_rate", "type": ["float", "null"]},
+        {"name": "feed_in_tariff", "type": ["float", "null"]},
+        {"name": "grid_fee_constant", "type": ["float", "null"]},
         {"name": "market_fee", "type": "float"},
-        {"name": "market_maker_rate", "type": "float"},
+        {"name": "market_maker_rate", "type": ["float", "null"]},
         {
           "name": "area_throughput",
-          "type": {
+          "type": [
+            "null",
+            {
             "name": "AreaThroughput",
             "type": "record",
             "fields": [
@@ -30,7 +32,8 @@
               {"name": "import_capacity_kWh", "type": "float"},
               {"name": "imported_energy_kWh", "type": "float"}
             ]
-          }
+            }
+          ]
         },
         {
           "name": "offers",
@@ -164,6 +167,165 @@
               ]
             }
           }
+        },
+        {
+          "name": "future_market_stats",
+          "type": [
+            "null",
+            {
+              "name": "FutureMarketStats",
+              "type": "map",
+              "values": [
+                {
+                  "name": "NoFutureResult",
+                  "type": "record",
+                  "fields": []
+                },
+                {
+                  "name": "FutureMarketStat",
+                  "type": "record",
+                  "fields": [
+                    {"name": "market_fee", "type": "float"},
+                    {"name": "const_fee_rate", "type": "float"},
+                    {"name": "feed_in_tariff", "type": "float"},
+                    {"name": "market_maker_rate", "type": "float"},
+                    {
+                      "name": "bids",
+                      "type": {
+                        "name": "Bids",
+                        "type": "array",
+                        "items": ["Bid"]
+                      }
+                    },
+                    {
+                      "name": "offers",
+                      "type": {
+                        "name": "Offers",
+                        "type": "array",
+                        "items": ["Offer"]
+                      }
+                    },
+                    {
+                      "name": "trades",
+                      "type": {
+                        "name": "Trades",
+                        "type": "array",
+                        "items": ["Trade"]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "settlement_market_stats",
+          "type": [
+            "null",
+            {
+            "name": "SettlementMarketStats",
+            "type": "map",
+            "values": [
+              {
+                "name": "NoSettlementResult",
+                "type": "record",
+                "fields": []
+              },
+              {
+                "name": "SettlementMarketStat",
+                "type": "record",
+                "fields": [
+                  {"name": "market_fee", "type": "float"},
+                  {"name": "const_fee_rate", "type": "float"},
+                  {"name": "feed_in_tariff", "type": "float"},
+                  {"name": "market_maker_rate", "type": "float"},
+                  {
+                    "name": "bids",
+                    "type": {
+                      "name": "Bids",
+                      "type": "array",
+                      "items": ["Bid"]
+                    }
+                  },
+                  {
+                    "name": "offers",
+                    "type": {
+                      "name": "Offers",
+                      "type": "array",
+                      "items": ["Offer"]
+                    }
+                  },
+                  {
+                    "name": "trades",
+                    "type": {
+                      "name": "Trades",
+                      "type": "array",
+                      "items": ["Trade"]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+          ]
+        },
+        {
+          "name": "forward_market_stats",
+          "type": [
+            "null",
+            {
+              "name": "ForwardMarketStats",
+              "type": "map",
+              "values": [
+                {
+                  "name": "ForwardMarketTypeStats",
+                  "type": "map",
+                  "values": [
+                    {
+                      "name": "NoForwardResult",
+                      "type": "record",
+                      "fields": []
+                    },
+                    {
+                      "name": "ForwardMarketTypeStat",
+                      "type": "record",
+                      "fields": [
+                        {"name": "market_fee", "type": "float"},
+                        {"name": "const_fee_rate", "type": "float"},
+                        {"name": "feed_in_tariff", "type": "float"},
+                        {"name": "market_maker_rate", "type": "float"},
+                        {
+                          "name": "bids",
+                          "type": {
+                            "name": "Bids",
+                            "type": "array",
+                            "items": ["Bid"]
+                          }
+                        },
+                        {
+                          "name": "offers",
+                          "type": {
+                            "name": "Offers",
+                            "type": "array",
+                            "items": ["Offer"]
+                          }
+                        },
+                        {
+                          "name": "trades",
+                          "type": {
+                            "name": "Trades",
+                            "type": "array",
+                            "items": ["Trade"]
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -320,6 +482,70 @@
             "name": "Offers",
             "type": "array",
             "items": []
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SmartMeter",
+      "type": "record",
+      "fields": [
+        {"name": "smart_meter_profile_kWh", "type": "float"},
+        {"name": "market_fee", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": ["Bid"]
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": ["Offer"]
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CommercialProducer",
+      "type": "record",
+      "fields": [
+        {"name": "production_kWh", "type": "float"},
+        {"name": "market_fee", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": []
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": ["Offer"]
           }
         },
         {
