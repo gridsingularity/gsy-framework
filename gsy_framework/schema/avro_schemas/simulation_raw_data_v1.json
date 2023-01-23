@@ -125,7 +125,22 @@
                 {"name": "seller", "type": ["TraderInfo", "null"]},
                 {"name": "bid", "type": ["Bid", "null"]},
                 {"name": "offer", "type": ["Offer", "null"]},
-                {"name": "offer_bid_trade_info", "type": ["null"]},
+                {
+                  "name": "offer_bid_trade_info",
+                  "type": [
+                    "null",
+                    {
+                      "name": "OfferBidTradeInfo",
+                      "type": "record",
+                      "fields": [
+                        {"name":  "original_bid_rate", "type": ["float", "null"]},
+                        {"name":  "propagated_bid_rate", "type": ["float", "null"]},
+                        {"name":  "original_offer_rate", "type": ["float", "null"]},
+                        {"name":  "propagated_offer_rate", "type": ["float", "null"]},
+                        {"name":  "trade_rate", "type": "float"}
+                      ]
+                    }
+                  ]},
                 {
                   "name": "type",
                   "type": {
@@ -139,7 +154,7 @@
                   "type": {
                     "type": "enum",
                     "name": "MatchType",
-                    "symbols": ["Offer"]
+                    "symbols": ["Offer", "Bid"]
                   }
                 },
                 {
@@ -239,6 +254,72 @@
             "name": "Offers",
             "type": "array",
             "items": ["Offer"]
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "HeatPump",
+      "type": "record",
+      "fields": [
+        {"name": "storage_temp_C", "type": "float"},
+        {"name": "temp_decrease_K", "type": "float"},
+        {"name": "temp_increase_K", "type": "float"},
+        {"name": "market_fee", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": ["Bid"]
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": []
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "InfiniteBus",
+      "type": "record",
+      "fields": [
+        {"name": "energy_rate", "type": "float"},
+        {"name": "market_fee", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": []
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": []
           }
         },
         {
