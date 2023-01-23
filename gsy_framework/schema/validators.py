@@ -19,7 +19,7 @@ class BaseSchemaValidator(abc.ABC):
 class AVROSchemaValidator(BaseSchemaValidator):
     """Schema validator class that utilizes """
     def __init__(self, schema_name: str):
-        with open(AVRO_SCHEMAS_PATH / schema_name) as schema_file:
+        with open(AVRO_SCHEMAS_PATH / f"{schema_name}.json") as schema_file:
             self.schema = avro.schema.parse(schema_file.read())
 
     def validate(self, data):
