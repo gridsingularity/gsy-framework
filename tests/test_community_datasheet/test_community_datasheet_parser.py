@@ -5,12 +5,12 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
-from gsy_framework.community_datasheet.community_datasheet_parser import (
-    AssetCoordinatesBuilder, CommunityDatasheetParser)
+from gsy_framework.community_datasheet.community_datasheet_parser import CommunityDatasheetParser
 from gsy_framework.community_datasheet.location_converter import LocationConverterException
+from gsy_framework.community_datasheet.row_converters import AssetCoordinatesBuilder
 
 FIXTURES_PATH = pathlib.Path(os.path.dirname(__file__)).parent / "fixtures"
-BASE_MODULE = "gsy_framework.community_datasheet.community_datasheet_parser"
+BASE_MODULE = "gsy_framework.community_datasheet.row_converters"
 
 
 class TestCommunityDatasheetParser:
@@ -62,11 +62,16 @@ class TestCommunityDatasheetParser:
         asset_coordinates_builder_cls_mock.return_value = asset_coordinates_builder_mock
 
         datasheet = CommunityDatasheetParser(filename=filename).parse()
+        address_dict_1 = {
+            "address": members_with_coordinates["Member 1"]["address"],
+            "zip_code": members_with_coordinates["Member 1"]["zip_code"],
+        }
+        address_dict_2 = {
+            "address": members_with_coordinates["Member 2"]["address"],
+            "zip_code": members_with_coordinates["Member 2"]["zip_code"],
+        }
         asset_coordinates_builder_mock.get_member_coordinates.assert_has_calls([
-            call(members_with_coordinates["Member 1"]),
-            call(members_with_coordinates["Member 2"])
-            ]
-        )
+            call(address_dict_1), call(address_dict_2)])
         assert datasheet.pvs == {
             "Member 1": [
                 {
@@ -139,6 +144,7 @@ class TestCommunityDatasheetParser:
                             "type": "Area",
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
+                            "address": "Am Werth 94, Wolffburg, Schleswig-Holstein, Germany",
                             "grid_fee_constant": 0.3,
                             "children": [
                                 {
@@ -219,6 +225,7 @@ class TestCommunityDatasheetParser:
                             "type": "Area",
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
+                            "address": "Heisterbachstr. 8, Ost Colin, Hamburg, Germany",
                             "grid_fee_constant": 0.3,
                             "children": [
                                 {

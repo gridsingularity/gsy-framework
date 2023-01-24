@@ -3,14 +3,12 @@
 import logging
 import uuid
 from itertools import chain
-from typing import Dict
+from typing import Dict, List
 
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheetReader
 from gsy_framework.community_datasheet.community_datasheet_validator import (
     CommunityDatasheetValidator)
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
-from gsy_framework.community_datasheet.location_converter import (
-    LocationConverter, LocationConverterException)
 from gsy_framework.constants_limits import ConstSettings, FIELDS_REQUIRED_FOR_REBASE
 from gsy_framework.enums import CloudCoverage
 
@@ -56,10 +54,7 @@ class CommunityDatasheetParser:
 
     def _parse_members(self):
         """Parse the members to add geographical coordinates."""
-        coordinates_builder = AssetCoordinatesBuilder()
         for member_name, member_details in self._datasheet.members.items():
-            coordinates = coordinates_builder.get_member_coordinates(member_details)
-            member_details["geo_tag_location"] = coordinates
             member_details["asset_count"] = len(self._datasheet.assets_by_member[member_name])
 
     def _parse_pvs(self):
@@ -104,10 +99,11 @@ class CommunityDatasheetParser:
 
     def _create_grid(self) -> Dict:
         grid = []
-        for member_name, assets in self._datasheet.assets_by_member.items():
-            home_representation = self._create_home_representation(member_name)
-            self._datasheet.members[member_name]["asset_count"] = len(assets)
-            home_representation["children"] = assets
+        for member_name, member_info in self._datasheet.members.items():
+            assets = self._datasheet.assets_by_member[member_name]
+            home_representation = self.create_home_representation(
+                member_name, member_info, assets)
+            member_info["asset_count"] = len(assets)
             grid.append(home_representation)
 
         return {
@@ -134,50 +130,23 @@ class CommunityDatasheetParser:
             ]
         }
 
-    def _create_home_representation(self, member_name: str) -> Dict:
-        member = self._datasheet.members[member_name]
-
+    @staticmethod
+    def create_home_representation(
+            member_name: str, member_info: Dict, assets: List[Dict]) -> Dict:
+        """Create area representation dict of the home, based on a member_info dict and assets."""
         return {
             "name": member_name,
             "tags": ["Home"],
             "type": "Area",
-            "uuid": member["uuid"],
-            "geo_tag_location": member["geo_tag_location"],
-            "grid_fee_constant": member["grid_fee_constant"],
-            "children": [],
-            "market_maker_rate": member["market_maker_rate"],
-            "feed_in_tariff": member["feed_in_tariff"],
-            "taxes_surcharges": member["taxes_surcharges"],
-            "fixed_monthly_fee": member["fixed_monthly_fee"],
-            "marketplace_monthly_fee": member["marketplace_monthly_fee"],
-            "coefficient_percentage": member["coefficient_percentage"],
+            "uuid": member_info["uuid"],
+            "geo_tag_location": member_info["geo_tag_location"],
+            "address": member_info["address"],
+            "grid_fee_constant": member_info["grid_fee_constant"],
+            "children": assets,
+            "market_maker_rate": member_info["market_maker_rate"],
+            "feed_in_tariff": member_info["feed_in_tariff"],
+            "taxes_surcharges": member_info["taxes_surcharges"],
+            "fixed_monthly_fee": member_info["fixed_monthly_fee"],
+            "marketplace_monthly_fee": member_info["marketplace_monthly_fee"],
+            "coefficient_percentage": member_info["coefficient_percentage"],
         }
-
-
-class AssetCoordinatesBuilder:
-    """Build coordinates for assets using the location of their owner (member)."""
-
-    def __init__(self):
-        self._location_converter: LocationConverter = self._get_location_converter()
-
-    def get_member_coordinates(self, member_details: Dict):
-        """Retrieve the coordinates of the member using their address and postcode."""
-        address = member_details["address"] or ""
-        zip_code = member_details["zip_code"] or ""
-        full_address = f"{address} {zip_code}"
-        if not full_address.strip():
-            return None
-
-        try:
-            return self._location_converter.convert(full_address)
-        except LocationConverterException as ex:
-            raise CommunityDatasheetException(ex) from ex
-
-    @staticmethod
-    def _get_location_converter():
-        """Return an instance of a location converter."""
-        try:
-            return LocationConverter()
-        except LocationConverterException as ex:
-            logger.error(ex)
-            raise ex

@@ -1,3 +1,4 @@
+import logging
 import re
 import uuid
 from datetime import datetime, timedelta
@@ -7,9 +8,13 @@ import pendulum
 
 from gsy_framework.community_datasheet.exceptions import (
     CommunityDatasheetException, StringToTimedeltaConversionException)
+from gsy_framework.community_datasheet.location_converter import (
+    LocationConverter, LocationConverterException)
 from gsy_framework.community_datasheet.sheet_headers import (
     LoadSheetHeader, PVSheetHeader, StorageSheetHeader)
 from gsy_framework.constants_limits import ConstSettings
+
+logger = logging.getLogger(__name__)
 
 NULL_VALUES = (None, "")
 
@@ -78,24 +83,41 @@ class MembersRowConverter:
     OPTIONAL_FIELDS = ("Location/Address (optional)",)
 
     @classmethod
+    def create_member_dict(
+            cls, email: str, member_uuid: str, zip_code: str, address: str,
+            market_maker_rate: float, feed_in_tariff: float, grid_fee_constant: float,
+            taxes_surcharges: float, fixed_monthly_fee: float, marketplace_monthly_fee: float,
+            coefficient_percentage: float):
+
+        return {
+            "email": email,
+            "uuid": member_uuid,
+            "zip_code": cls._parse_zip_code(zip_code),
+            "address": address,
+            "market_maker_rate": market_maker_rate,
+            "feed_in_tariff": feed_in_tariff,
+            "grid_fee_constant": grid_fee_constant,
+            "taxes_surcharges": taxes_surcharges,
+            "fixed_monthly_fee": fixed_monthly_fee,
+            "marketplace_monthly_fee": marketplace_monthly_fee,
+            "coefficient_percentage": coefficient_percentage,
+            "geo_tag_location": AssetCoordinatesBuilder().get_member_coordinates({
+                "address": address, "zip_code": zip_code
+            }),
+            "asset_count": 0
+        }
+
+    @classmethod
     def convert(cls, row: Dict) -> Dict:
         """Convert the row using keys that will be added to the grid representation."""
 
         cls._validate_row(row)
 
-        return {
-            "email": row["Email"],
-            "uuid": str(uuid.uuid4()),
-            "zip_code": cls._parse_zip_code(row["ZIP code"]),
-            "address": row["Location/Address (optional)"],
-            "market_maker_rate": row["Utility price"],
-            "feed_in_tariff": row["Feed-in Tariff"],
-            "grid_fee_constant": row["Grid fee"],
-            "taxes_surcharges": row["Taxes and surcharges"],
-            "fixed_monthly_fee": row["Fixed fee"],
-            "marketplace_monthly_fee": row["Marketplace fee"],
-            "coefficient_percentage": row["Coefficient"]
-        }
+        return cls.create_member_dict(
+            row["Email"], str(uuid.uuid4()), cls._parse_zip_code(row["ZIP code"]),
+            row["Location/Address (optional)"], row["Utility price"],
+            row["Feed-in Tariff"], row["Grid fee"], row["Taxes and surcharges"],
+            row["Fixed fee"], row["Marketplace fee"], row["Coefficient"])
 
     @staticmethod
     def _parse_zip_code(zip_code: str) -> str:
@@ -219,3 +241,32 @@ class StorageRowConverter:
             raise CommunityDatasheetException((
                 "Missing values for required fields. "
                 f"Row: {row}. Required fields: {missing_fields}."))
+
+
+class AssetCoordinatesBuilder:
+    """Build coordinates for assets using the location of their owner (member)."""
+
+    def __init__(self):
+        self._location_converter: LocationConverter = self._get_location_converter()
+
+    def get_member_coordinates(self, member_details: Dict):
+        """Retrieve the coordinates of the member using their address and postcode."""
+        address = member_details["address"] or ""
+        zip_code = member_details["zip_code"] or ""
+        full_address = f"{address} {zip_code}"
+        if not full_address.strip():
+            return None
+
+        try:
+            return self._location_converter.convert(full_address)
+        except LocationConverterException as ex:
+            raise CommunityDatasheetException(ex) from ex
+
+    @staticmethod
+    def _get_location_converter():
+        """Return an instance of a location converter."""
+        try:
+            return LocationConverter()
+        except LocationConverterException as ex:
+            logger.error(ex)
+            raise ex
