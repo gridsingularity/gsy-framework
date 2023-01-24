@@ -85,7 +85,7 @@
                             "type": "record",
                             "fields": [
                               {"name": "name", "type": "string"},
-                              {"name": "origin", "type": "string"},
+                              {"name": "origin", "type": ["string", "null"]},
                               {"name": "origin_uuid", "type": ["string", "null"]},
                               {"name": "uuid", "type": ["string", "null"]}
                             ]
