@@ -38,7 +38,7 @@ class AVROSchemaValidator(BaseSchemaValidator):
             return True, ""
         except AvroTypeException as exc:
             if raise_exception:
-                raise SchemaError(message=f"The provided data is invalid for the schema.") from exc
+                raise SchemaError(message="The provided data is invalid for the schema.") from exc
             return False, str(exc)
 
 
