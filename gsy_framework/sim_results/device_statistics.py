@@ -73,9 +73,10 @@ class DeviceStatistics(ResultsBaseClass):
             return
         area_core_trades = core_stats[area_dict["uuid"]].get("trades", [])
         trade_price_list = []
-        for t in area_core_trades:
-            if t["seller"] == area_dict["name"] or t["buyer"] == area_dict["name"]:
-                trade_price_list.append(t["energy_rate"] / 100.0)
+        for trade in area_core_trades:
+            if (trade["seller"]["name"] == area_dict["name"]
+                    or trade["buyer"]["name"] == area_dict["name"]):
+                trade_price_list.append(trade["energy_rate"] / 100.0)
         if trade_price_list:
             create_or_update_subdict(
                 subdict, key_name,
@@ -92,24 +93,24 @@ class DeviceStatistics(ResultsBaseClass):
                              current_market_slot):
         if is_bulk_power_producer(area_dict) or is_buffer_node_type(area_dict) or \
                 is_finite_power_plant_node_type(area_dict):
-            cls.calculate_stats_for_infinite_bus(area_dict, subdict, core_stats,
-                                                 current_market_slot)
+            cls._calculate_stats_for_infinite_bus(area_dict, subdict, core_stats,
+                                                  current_market_slot)
         else:
-            cls.calculate_stats_for_device(area_dict, subdict, core_stats, current_market_slot)
+            cls._calculate_stats_for_device(area_dict, subdict, core_stats, current_market_slot)
 
     @classmethod
-    def calculate_stats_for_device(cls, area_dict, subdict, core_stats, current_market_slot):
+    def _calculate_stats_for_device(cls, area_dict, subdict, core_stats, current_market_slot):
         key_name = "trade_energy_kWh"
         if core_stats[area_dict["uuid"]] == {}:
             return
         area_core_trades = core_stats[area_dict["uuid"]].get("trades", [])
 
         traded_energy = 0
-        for t in area_core_trades:
-            if t["seller"] == area_dict["name"]:
-                traded_energy -= t["energy"]
-            if t["buyer"] == area_dict["name"]:
-                traded_energy += t["energy"]
+        for trade in area_core_trades:
+            if trade["seller"]["name"] == area_dict["name"]:
+                traded_energy -= trade["energy"]
+            if trade["buyer"]["name"] == area_dict["name"]:
+                traded_energy += trade["energy"]
 
         create_or_update_subdict(
             subdict, key_name,
@@ -117,7 +118,8 @@ class DeviceStatistics(ResultsBaseClass):
         cls._calc_min_max_from_sim_dict(subdict, key_name)
 
     @classmethod
-    def calculate_stats_for_infinite_bus(cls, area_dict, subdict, core_stats, current_market_slot):
+    def _calculate_stats_for_infinite_bus(
+            cls, area_dict, subdict, core_stats, current_market_slot):
         sold_key_name = "sold_trade_energy_kWh"
         bought_key_name = "bought_trade_energy_kWh"
         sold_traded_energy = 0
@@ -126,11 +128,11 @@ class DeviceStatistics(ResultsBaseClass):
             return
         area_core_trades = core_stats[area_dict["uuid"]].get("trades", [])
 
-        for t in area_core_trades:
-            if t["seller"] == area_dict["name"]:
-                sold_traded_energy += t["energy"]
-            if t["buyer"] == area_dict["name"]:
-                bought_traded_energy += t["energy"]
+        for trade in area_core_trades:
+            if trade["seller"]["name"] == area_dict["name"]:
+                sold_traded_energy += trade["energy"]
+            if trade["buyer"]["name"] == area_dict["name"]:
+                bought_traded_energy += trade["energy"]
         create_or_update_subdict(
             subdict, sold_key_name,
             {current_market_slot: sold_traded_energy})
@@ -178,36 +180,38 @@ class DeviceStatistics(ResultsBaseClass):
                 area_result_dict, core_stats, current_market_slot):
             return
         if self.should_export_plots:
-            self.gather_device_statistics(
+            self._gather_device_statistics(
                 area_result_dict, self.device_stats_dict, {}, core_stats,
                 current_market_slot)
         else:
-            self.gather_device_statistics(
+            self._gather_device_statistics(
                 area_result_dict, {}, self.current_stats_dict, core_stats,
                 current_market_slot)
 
     @classmethod
-    def gather_device_statistics(cls, area_dict: Dict, subdict: Dict,
-                                 flat_result_dict: Dict,
-                                 core_stats=None, current_market_slot=None):
+    def _gather_device_statistics(cls, area_dict: Dict, subdict: Dict,
+                                  flat_result_dict: Dict,
+                                  core_stats=None, current_market_slot=None):
+        # pylint: disable=too-many-arguments
         if core_stats is None:
             core_stats = {}
         for child in area_dict["children"]:
             if child["name"] not in subdict.keys():
                 subdict.update({child["name"]: {}})
             if child["children"] == [] and core_stats != {}:
-                cls._gather_device_statistics(
+                cls._get_device_statistics(
                     child, subdict[child["name"]], flat_result_dict,
                     core_stats, current_market_slot)
             else:
-                cls.gather_device_statistics(
+                cls._gather_device_statistics(
                     child, subdict[child["name"]], flat_result_dict,
                     core_stats, current_market_slot)
 
     @classmethod
-    def _gather_device_statistics(cls, area_dict: Dict, subdict: Dict,
-                                  flat_result_dict: Dict,
-                                  core_stats=None, current_market_slot=None):
+    def _get_device_statistics(cls, area_dict: Dict, subdict: Dict,
+                               flat_result_dict: Dict,
+                               core_stats=None, current_market_slot=None):
+        # pylint: disable=too-many-arguments
         if core_stats is None or core_stats.get(area_dict["uuid"], {}) == {}:
             return
 
