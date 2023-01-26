@@ -9,8 +9,8 @@ class TestAVROSchemaValidators:
 
     @staticmethod
     @pytest.mark.parametrize("schema_name", [
-        "scm_simulation_raw_data_v1",
-        "simulation_raw_data_v1",
+        "scm_simulation_raw_data",
+        "simulation_raw_data",
     ])
     def test_v1_validators(schema_name):
         """This test makes sure that all the available schemas are
@@ -26,5 +26,5 @@ class TestAVROSchemaValidators:
 
 
 def test_get_schema_validator():
-    validator = get_schema_validator(schema_name="simulation_raw_data_v1")
+    validator = get_schema_validator(schema_name="simulation_raw_data")
     assert isinstance(validator, BaseSchemaValidator)
