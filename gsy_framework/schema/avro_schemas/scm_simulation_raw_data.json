@@ -16,6 +16,11 @@
           "name": "after_meter_data",
           "type": [
             {
+              "name": "NoAfterMeterData",
+              "type": "record",
+              "fields": []
+            },
+            {
               "name": "HomeAfterMeterData",
               "type": "record",
               "fields": [
@@ -130,37 +135,44 @@
         },
         {
           "name": "bills",
-          "type": {
-            "name": "Bills",
-            "type": "record",
-            "fields": [
-              {"name": "_max_community_savings_percent", "type": "float"},
-              {"name": "_min_community_savings_percent", "type": "float"},
-              {"name": "base_energy_bill", "type": "float"},
-              {"name": "base_energy_bill_excl_revenue", "type": "float"},
-              {"name": "base_energy_bill_revenue", "type": "float"},
-              {"name": "bought_from_community", "type": "float"},
-              {"name": "bought_from_grid", "type": "float"},
-              {"name": "earned_from_community", "type": "float"},
-              {"name": "earned_from_grid", "type": "float"},
-              {"name": "energy_benchmark", "type": ["float", "null"]},
-              {"name": "fixed_fee", "type": "float"},
-              {"name": "grid_fees", "type": "float"},
-              {"name": "gsy_energy_bill", "type": "float"},
-              {"name": "gsy_energy_bill_excl_revenue", "type": "float"},
-              {"name": "gsy_energy_bill_excl_revenue_without_fees", "type": "float"},
-              {"name": "home_balance", "type": "float"},
-              {"name": "home_balance_kWh", "type": "float"},
-              {"name": "marketplace_fee", "type": "float"},
-              {"name": "savings", "type": "float"},
-              {"name": "savings_percent", "type": "float"},
-              {"name": "sold_to_community", "type": "float"},
-              {"name": "sold_to_grid", "type": "float"},
-              {"name": "spent_to_community", "type": "float"},
-              {"name": "spent_to_grid", "type": "float"},
-              {"name": "tax_surcharges", "type": "float"}
-            ]
-          }
+          "type": [
+            {
+              "name": "NoBills",
+              "type": "record",
+              "fields": []
+            },
+            {
+              "name": "Bills",
+              "type": "record",
+              "fields": [
+                {"name": "_max_community_savings_percent", "type": "float"},
+                {"name": "_min_community_savings_percent", "type": "float"},
+                {"name": "base_energy_bill", "type": "float"},
+                {"name": "base_energy_bill_excl_revenue", "type": "float"},
+                {"name": "base_energy_bill_revenue", "type": "float"},
+                {"name": "bought_from_community", "type": "float"},
+                {"name": "bought_from_grid", "type": "float"},
+                {"name": "earned_from_community", "type": "float"},
+                {"name": "earned_from_grid", "type": "float"},
+                {"name": "energy_benchmark", "type": ["float", "null"]},
+                {"name": "fixed_fee", "type": "float"},
+                {"name": "grid_fees", "type": "float"},
+                {"name": "gsy_energy_bill", "type": "float"},
+                {"name": "gsy_energy_bill_excl_revenue", "type": "float"},
+                {"name": "gsy_energy_bill_excl_revenue_without_fees", "type": "float"},
+                {"name": "home_balance", "type": "float"},
+                {"name": "home_balance_kWh", "type": "float"},
+                {"name": "marketplace_fee", "type": "float"},
+                {"name": "savings", "type": "float"},
+                {"name": "savings_percent", "type": "float"},
+                {"name": "sold_to_community", "type": "float"},
+                {"name": "sold_to_grid", "type": "float"},
+                {"name": "spent_to_community", "type": "float"},
+                {"name": "spent_to_grid", "type": "float"},
+                {"name": "tax_surcharges", "type": "float"}
+              ]
+            }
+          ]
         }
       ]
     },
