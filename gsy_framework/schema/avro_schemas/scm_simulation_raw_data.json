@@ -1,0 +1,199 @@
+{
+  "type": "map",
+  "name": "SCMSimulationRawData",
+  "values": [
+    {
+      "type": "record",
+      "name": "NoResult",
+      "fields": [],
+      "doc": "Empty record to match cases when there are no results."
+    },
+    {
+      "type": "record",
+      "name": "Home",
+      "fields": [
+        {
+          "name": "after_meter_data",
+          "type": [
+            {
+              "name": "HomeAfterMeterData",
+              "type": "record",
+              "fields": [
+                {"name": "_self_production_for_community_kWh", "type": "float"},
+                {"name": "allocated_community_energy_kWh", "type": "float"},
+                {"name": "community_total_production_kWh", "type": "float"},
+                {"name": "consumption_kWh", "type": "float"},
+                {"name": "energy_bought_from_community_kWh", "type": "float"},
+                {"name": "energy_need_kWh", "type": "float"},
+                {"name": "energy_sold_to_grid_kWh", "type": "float"},
+                {"name": "energy_surplus_kWh", "type": "float"},
+                {"name": "feed_in_tariff", "type": "float"},
+                {"name": "fixed_monthly_fee", "type": "float"},
+                {"name": "grid_fees", "type": "float"},
+                {"name": "home_name", "type": "string"},
+                {"name": "home_uuid", "type": "string"},
+                {"name": "market_maker_rate", "type": "float"},
+                {"name": "marketplace_monthly_fee", "type": "float"},
+                {"name": "production_kWh", "type": "float"},
+                {"name": "self_consumed_energy_kWh", "type": "float"},
+                {"name": "sharing_coefficient_percent", "type": "float"},
+                {"name": "taxes_surcharges", "type": "float"},
+                {
+                  "name": "asset_energy_requirements_kWh",
+                  "type": {"type": "map", "values": "float"}
+                },
+                {
+                  "name": "trades",
+                  "type": {
+                    "name": "Trades",
+                    "type": "array",
+                    "items": {
+                      "name": "Trade",
+                      "type": "record",
+                      "fields": [
+                        {"name": "creation_time", "type": "string"},
+                        {"name": "energy", "type": "float"},
+                        {"name": "energy_rate", "type": "float"},
+                        {"name": "fee_price", "type": "float"},
+                        {"name": "id", "type": "string"},
+                        {
+                          "name": "match_type",
+                          "type": {
+                            "type": "enum",
+                            "name": "TradeMatchType",
+                            "symbols": ["Bid", "Offer"]
+                          }
+                        },
+                        {"name": "offer", "type": "null"},
+                        {"name": "bid", "type": "null"},
+                        {"name": "offer_bid_trade_info", "type": "null"},
+                        {"name": "price", "type": "float"},
+                        {"name": "residual", "type": "null"},
+                        {"name": "time_slot", "type": "string"},
+                        {
+                          "name": "type",
+                          "type": {
+                            "name": "TradeType",
+                            "type": "enum",
+                            "symbols": ["Trade"]
+                          }
+                        },
+                        {
+                          "name": "buyer",
+                          "type": {
+                            "name": "TraderInfo",
+                            "type": "record",
+                            "fields": [
+                              {"name": "name", "type": "string"},
+                              {"name": "origin", "type": ["string", "null"]},
+                              {"name": "origin_uuid", "type": ["string", "null"]},
+                              {"name": "uuid", "type": ["string", "null"]}
+                            ]
+                          }
+                        },
+                        {"name": "seller", "type": "TraderInfo"}
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "CommunityAfterMeterData",
+              "type": "record",
+              "fields": [
+                {"name": "community_uuid", "type": "string"},
+                {"name": "consumption_kWh", "type": "float"},
+                {"name": "energy_bought_from_community_kWh", "type": "float"},
+                {"name": "energy_need_kWh", "type": "float"},
+                {"name": "energy_sold_to_grid_kWh", "type": "float"},
+                {"name": "energy_surplus_kWh", "type": "float"},
+                {"name": "production_kWh", "type": "float"},
+                {"name": "self_consumed_energy_kWh", "type": "float"},
+                {
+                  "name": "trades",
+                  "type": {
+                    "type": "array",
+                    "items": "Trade"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "trades",
+          "type": {
+            "type": "array",
+            "items": "Trade"
+          }
+        },
+        {
+          "name": "bills",
+          "type": {
+            "name": "Bills",
+            "type": "record",
+            "fields": [
+              {"name": "_max_community_savings_percent", "type": "float"},
+              {"name": "_min_community_savings_percent", "type": "float"},
+              {"name": "base_energy_bill", "type": "float"},
+              {"name": "base_energy_bill_excl_revenue", "type": "float"},
+              {"name": "base_energy_bill_revenue", "type": "float"},
+              {"name": "bought_from_community", "type": "float"},
+              {"name": "bought_from_grid", "type": "float"},
+              {"name": "earned_from_community", "type": "float"},
+              {"name": "earned_from_grid", "type": "float"},
+              {"name": "energy_benchmark", "type": ["float", "null"]},
+              {"name": "fixed_fee", "type": "float"},
+              {"name": "grid_fees", "type": "float"},
+              {"name": "gsy_energy_bill", "type": "float"},
+              {"name": "gsy_energy_bill_excl_revenue", "type": "float"},
+              {"name": "gsy_energy_bill_excl_revenue_without_fees", "type": "float"},
+              {"name": "home_balance", "type": "float"},
+              {"name": "home_balance_kWh", "type": "float"},
+              {"name": "marketplace_fee", "type": "float"},
+              {"name": "savings", "type": "float"},
+              {"name": "savings_percent", "type": "float"},
+              {"name": "sold_to_community", "type": "float"},
+              {"name": "sold_to_grid", "type": "float"},
+              {"name": "spent_to_community", "type": "float"},
+              {"name": "spent_to_grid", "type": "float"},
+              {"name": "tax_surcharges", "type": "float"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "record",
+      "name": "Load",
+      "fields": [
+        {"name": "energy_requirement_kWh", "type": "float"},
+        {"name": "load_profile_kWh", "type": "float"},
+        {"name": "total_energy_demanded_wh", "type": "float"}
+      ]
+    },
+    {
+      "type": "record",
+      "name": "SmartMeter",
+      "fields": [
+        {"name": "smart_meter_profile_kWh", "type": "float"}
+      ]
+    },
+    {
+      "type": "record",
+      "name": "Storage",
+      "fields": [
+        {"name": "soc_history_%", "type": "float"}
+      ]
+    },
+    {
+      "type": "record",
+      "name": "PV",
+      "fields": [
+        {"name": "available_energy_kWh", "type": "float"},
+        {"name": "pv_production_kWh", "type": "float"}
+      ]
+    }
+  ]
+}

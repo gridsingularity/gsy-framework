@@ -1,0 +1,562 @@
+{
+  "type": "map",
+  "name": "SimulationRawData",
+  "values": [
+    {
+      "type": "record",
+      "name": "NoResult",
+      "fields": [],
+      "doc": "Empty record to match cases when there are no results."
+    },
+    {
+      "type": "record",
+      "name": "Area",
+      "fields": [
+        {"name": "const_fee_rate", "type": ["float", "null"]},
+        {"name": "feed_in_tariff", "type": ["float", "null"]},
+        {"name": "grid_fee_constant", "type": ["float", "null"]},
+        {"name": "market_fee", "type": "float"},
+        {"name": "market_maker_rate", "type": ["float", "null"]},
+        {
+          "name": "area_throughput",
+          "type": [
+            "null",
+            {
+            "name": "AreaThroughput",
+            "type": "record",
+            "fields": [
+              {"name": "baseline_peak_energy_export_kWh", "type": ["float", "null"]},
+              {"name": "baseline_peak_energy_import_kWh", "type": ["float", "null"]},
+              {"name": "export_capacity_kWh", "type": "float"},
+              {"name": "exported_energy_kWh", "type": "float"},
+              {"name": "import_capacity_kWh", "type": "float"},
+              {"name": "imported_energy_kWh", "type": "float"}
+            ]
+            }
+          ]
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": {
+              "name": "Offer",
+              "type": "record",
+              "fields": [
+                {"name": "creation_time", "type": "string"},
+                {"name": "time_slot", "type": "string"},
+                {"name": "id", "type": "string"},
+                {"name": "energy", "type": "float"},
+                {"name": "energy_rate", "type": "float"},
+                {"name": "original_price", "type": ["float", "null"]},
+                {"name": "price", "type": "float"},
+                {
+                  "name": "seller",
+                  "type": {
+                    "name": "TraderInfo",
+                    "type": "record",
+                    "fields": [
+                      {"name": "name", "type": "string"},
+                      {"name": "origin", "type": ["string", "null"]},
+                      {"name": "origin_uuid", "type": ["string", "null"]},
+                      {"name": "uuid", "type": "string"}
+                    ]
+                  }
+                },
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "enum",
+                    "name": "OfferType",
+                    "symbols": ["Offer"]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": {
+              "name": "Bid",
+              "type": "record",
+              "fields": [
+                {"name": "creation_time", "type": "string"},
+                {"name": "time_slot", "type": "string"},
+                {"name": "id", "type": "string"},
+                {"name": "energy", "type": "float"},
+                {"name": "energy_rate", "type": "float"},
+                {"name": "original_price", "type": ["float", "null"]},
+                {"name": "price", "type": "float"},
+                {
+                  "name": "buyer",
+                  "type": "TraderInfo"
+                },
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "enum",
+                    "name": "BidType",
+                    "symbols": ["Bid"]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": {
+              "name": "Trade",
+              "type": "record",
+              "fields": [
+                {"name": "creation_time", "type": "string"},
+                {"name": "time_slot", "type": "string"},
+                {"name": "id", "type": "string"},
+                {"name": "energy", "type": "float"},
+                {"name": "energy_rate", "type": "float"},
+                {"name": "fee_price", "type": ["float", "null"]},
+                {"name": "price", "type": "float"},
+                {"name": "buyer", "type": ["TraderInfo", "null"]},
+                {"name": "seller", "type": ["TraderInfo", "null"]},
+                {"name": "bid", "type": ["Bid", "null"]},
+                {"name": "offer", "type": ["Offer", "null"]},
+                {
+                  "name": "offer_bid_trade_info",
+                  "type": [
+                    "null",
+                    {
+                      "name": "OfferBidTradeInfo",
+                      "type": "record",
+                      "fields": [
+                        {"name":  "original_bid_rate", "type": ["float", "null"]},
+                        {"name":  "propagated_bid_rate", "type": ["float", "null"]},
+                        {"name":  "original_offer_rate", "type": ["float", "null"]},
+                        {"name":  "propagated_offer_rate", "type": ["float", "null"]},
+                        {"name":  "trade_rate", "type": "float"}
+                      ]
+                    }
+                  ]},
+                {
+                  "name": "type",
+                  "type": {
+                    "type": "enum",
+                    "name": "TradeType",
+                    "symbols": ["Trade"]
+                  }
+                },
+                {
+                  "name": "match_type",
+                  "type": {
+                    "type": "enum",
+                    "name": "MatchType",
+                    "symbols": ["Offer", "Bid"]
+                  }
+                },
+                {
+                  "name": "residual",
+                  "type": ["Offer", "Bid", "null"]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "future_market_stats",
+          "type": [
+            "null",
+            {
+              "name": "FutureMarketStats",
+              "type": "map",
+              "values": [
+                {
+                  "name": "NoFutureResult",
+                  "type": "record",
+                  "fields": []
+                },
+                {
+                  "name": "FutureMarketStat",
+                  "type": "record",
+                  "fields": [
+                    {"name": "market_fee", "type": "float"},
+                    {"name": "const_fee_rate", "type": "float"},
+                    {"name": "feed_in_tariff", "type": "float"},
+                    {"name": "market_maker_rate", "type": "float"},
+                    {
+                      "name": "bids",
+                      "type": {
+                        "name": "Bids",
+                        "type": "array",
+                        "items": ["Bid"]
+                      }
+                    },
+                    {
+                      "name": "offers",
+                      "type": {
+                        "name": "Offers",
+                        "type": "array",
+                        "items": ["Offer"]
+                      }
+                    },
+                    {
+                      "name": "trades",
+                      "type": {
+                        "name": "Trades",
+                        "type": "array",
+                        "items": ["Trade"]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "settlement_market_stats",
+          "type": [
+            "null",
+            {
+            "name": "SettlementMarketStats",
+            "type": "map",
+            "values": [
+              {
+                "name": "NoSettlementResult",
+                "type": "record",
+                "fields": []
+              },
+              {
+                "name": "SettlementMarketStat",
+                "type": "record",
+                "fields": [
+                  {"name": "market_fee", "type": "float"},
+                  {"name": "const_fee_rate", "type": "float"},
+                  {"name": "feed_in_tariff", "type": "float"},
+                  {"name": "market_maker_rate", "type": "float"},
+                  {
+                    "name": "bids",
+                    "type": {
+                      "name": "Bids",
+                      "type": "array",
+                      "items": ["Bid"]
+                    }
+                  },
+                  {
+                    "name": "offers",
+                    "type": {
+                      "name": "Offers",
+                      "type": "array",
+                      "items": ["Offer"]
+                    }
+                  },
+                  {
+                    "name": "trades",
+                    "type": {
+                      "name": "Trades",
+                      "type": "array",
+                      "items": ["Trade"]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+          ]
+        },
+        {
+          "name": "forward_market_stats",
+          "type": [
+            "null",
+            {
+              "name": "ForwardMarketStats",
+              "type": "map",
+              "values": [
+                {
+                  "name": "ForwardMarketTypeStats",
+                  "type": "map",
+                  "values": [
+                    {
+                      "name": "NoForwardResult",
+                      "type": "record",
+                      "fields": []
+                    },
+                    {
+                      "name": "ForwardMarketTypeStat",
+                      "type": "record",
+                      "fields": [
+                        {"name": "market_fee", "type": "float"},
+                        {"name": "const_fee_rate", "type": "float"},
+                        {"name": "feed_in_tariff", "type": "float"},
+                        {"name": "market_maker_rate", "type": "float"},
+                        {
+                          "name": "bids",
+                          "type": {
+                            "name": "Bids",
+                            "type": "array",
+                            "items": ["Bid"]
+                          }
+                        },
+                        {
+                          "name": "offers",
+                          "type": {
+                            "name": "Offers",
+                            "type": "array",
+                            "items": ["Offer"]
+                          }
+                        },
+                        {
+                          "name": "trades",
+                          "type": {
+                            "name": "Trades",
+                            "type": "array",
+                            "items": ["Trade"]
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Load",
+      "type": "record",
+      "fields": [
+        {"name": "market_fee", "type": "float"},
+        {"name": "load_profile_kWh", "type": "float"},
+        {"name": "total_energy_demanded_wh", "type": "float"},
+        {"name": "energy_requirement_kWh", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": ["Bid"]
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": []
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PV",
+      "type": "record",
+      "fields": [
+        {"name": "available_energy_kWh", "type": "float"},
+        {"name": "pv_production_kWh", "type": "float"},
+        {"name": "market_fee", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": []
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": ["Offer"]
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Storage",
+      "type": "record",
+      "fields": [
+        {"name": "soc_history_%", "type": "float"},
+        {"name": "market_fee", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": []
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": ["Offer"]
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "HeatPump",
+      "type": "record",
+      "fields": [
+        {"name": "storage_temp_C", "type": "float"},
+        {"name": "temp_decrease_K", "type": "float"},
+        {"name": "temp_increase_K", "type": "float"},
+        {"name": "market_fee", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": ["Bid"]
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": []
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "InfiniteBus",
+      "type": "record",
+      "fields": [
+        {"name": "energy_rate", "type": "float"},
+        {"name": "market_fee", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": []
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": []
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SmartMeter",
+      "type": "record",
+      "fields": [
+        {"name": "smart_meter_profile_kWh", "type": "float"},
+        {"name": "market_fee", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": ["Bid"]
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": ["Offer"]
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CommercialProducer",
+      "type": "record",
+      "fields": [
+        {"name": "production_kWh", "type": "float"},
+        {"name": "market_fee", "type": "float"},
+        {
+          "name": "bids",
+          "type": {
+            "name": "Bids",
+            "type": "array",
+            "items": []
+          }
+        },
+        {
+          "name": "offers",
+          "type": {
+            "name": "Offers",
+            "type": "array",
+            "items": ["Offer"]
+          }
+        },
+        {
+          "name": "trades",
+          "type": {
+            "name": "Trades",
+            "type": "array",
+            "items": ["Trade"]
+          }
+        }
+      ]
+    }
+  ]
+}
