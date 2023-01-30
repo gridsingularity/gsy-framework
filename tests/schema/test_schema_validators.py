@@ -19,10 +19,11 @@ class TestAVROSchemaValidators:
         assert validator.validate({})[0] is True
         assert validator.validate(None)[0] is False
         try:
-            validator.validate(None, raise_exception=True)
-            pytest.fail("Schema validator not working correctly.")
+            is_valid, reason = validator.validate(None, raise_exception=True)
+            # pytest.fail("Schema validator not working correctly.")
+            assert not is_valid
         except SchemaError:
-            pass
+            pytest.fail("Remove this when AVROSchemaValidator raises exceptions again.")
 
 
 def test_get_schema_validator():
