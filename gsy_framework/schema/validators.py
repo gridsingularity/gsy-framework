@@ -1,9 +1,12 @@
 import abc
+import logging
 from pathlib import Path
 
 import avro.schema
 from avro.errors import AvroTypeException
 from avro.io import validate as validate_avro_schema
+
+logger = logging.getLogger()
 
 AVRO_SCHEMAS_PATH = Path(__file__).parent / "avro_schemas"
 
@@ -37,8 +40,12 @@ class AVROSchemaValidator(BaseSchemaValidator):
             validate_avro_schema(self.schema, data, raise_on_error=True)
             return True, ""
         except AvroTypeException as exc:
-            if raise_exception:
-                raise SchemaError(message="The provided data is invalid for the schema.") from exc
+            logger.exception("The provided data is invalid for the schema.")
+            # TODO: raise the exception when we are sure the schema
+            #  matches every corner case of the system + adapt test_schema_validators as well.
+            # if raise_exception:
+            #     raise SchemaError(
+            #         message="The provided data is invalid for the schema.") from exc
             return False, str(exc)
 
 
