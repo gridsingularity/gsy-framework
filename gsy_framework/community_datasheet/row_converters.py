@@ -2,7 +2,7 @@ import logging
 import re
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 
 import pendulum
 
@@ -87,12 +87,19 @@ class MembersRowConverter:
             cls, email: str, member_uuid: str, zip_code: str, address: str,
             market_maker_rate: float, feed_in_tariff: float, grid_fee_constant: float,
             taxes_surcharges: float, fixed_monthly_fee: float, marketplace_monthly_fee: float,
-            coefficient_percentage: float):
-
+            coefficient_percentage: float, geo_tag_location: List = None, asset_count: int = 0,
+            member_name: str = None):
+        """Create a community member dict from individual member information."""
+        zip_code = cls._parse_zip_code(zip_code)
+        if not geo_tag_location:
+            geo_tag_location = AssetCoordinatesBuilder().get_member_coordinates({
+                "address": address, "zip_code": zip_code
+            })
         return {
             "email": email,
             "uuid": member_uuid,
-            "zip_code": cls._parse_zip_code(zip_code),
+            "name": member_name or "",
+            "zip_code": zip_code,
             "address": address,
             "market_maker_rate": market_maker_rate,
             "feed_in_tariff": feed_in_tariff,
@@ -101,10 +108,8 @@ class MembersRowConverter:
             "fixed_monthly_fee": fixed_monthly_fee,
             "marketplace_monthly_fee": marketplace_monthly_fee,
             "coefficient_percentage": coefficient_percentage,
-            "geo_tag_location": AssetCoordinatesBuilder().get_member_coordinates({
-                "address": address, "zip_code": zip_code
-            }),
-            "asset_count": 0
+            "geo_tag_location": geo_tag_location,
+            "asset_count": asset_count
         }
 
     @classmethod
