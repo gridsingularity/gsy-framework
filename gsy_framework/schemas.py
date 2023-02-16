@@ -229,7 +229,8 @@ class ScenarioSchemas:
                         "enum": [HeatPumpSourceType.AIR.value, HeatPumpSourceType.GROUND.value]},
                     "initial_buying_rate": {"type": "number"},
                     "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "preferred_buying_rate": {"type": "number"}
+                    "preferred_buying_rate": {"type": "number"},
+                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                 }
             },
         },
