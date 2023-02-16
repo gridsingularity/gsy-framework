@@ -229,12 +229,7 @@ class ScenarioSchemas:
                         "enum": [HeatPumpSourceType.AIR.value, HeatPumpSourceType.GROUND.value]},
                     "initial_buying_rate": {"type": "number"},
                     "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "preferred_buying_rate": {"type": "number"},
-                    "fit_to_limit": {"type": "boolean"},
-                    "update_interval":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
-                                                                  {"type": "null"}]},
-                    "use_market_maker_rate": {"type": "boolean"}
+                    "preferred_buying_rate": {"type": "number"}
                 }
             },
         },
