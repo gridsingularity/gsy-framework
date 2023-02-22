@@ -1,10 +1,12 @@
 import abc
 import logging
 from pathlib import Path
+from typing import Dict
 
 import avro.schema
 from avro.errors import AvroTypeException
 from avro.io import validate as validate_avro_schema
+from avro import io
 
 logger = logging.getLogger()
 
@@ -47,6 +49,27 @@ class AVROSchemaValidator(BaseSchemaValidator):
             #     raise SchemaError(
             #         message="The provided data is invalid for the schema.") from exc
             return False, str(exc)
+
+
+class AVROSimulationSettingsValidator:
+
+    def __init__(self):
+        with open(AVRO_SCHEMAS_PATH / "launch_simulation_settings.json") as schema_file:
+            self.schema = avro.schema.parse(schema_file.read())
+
+    def validate(self, data: Dict, raise_exception: bool = False) -> (bool, str):
+        data["duration"] = data["duration"].total_seconds()
+        data["slot_length"] = data["slot_length"].total_seconds()
+        data["tick_length"] = data["tick_length"].total_seconds()
+        data["slot_length_realtime"] = data["slot_length_realtime"].total_seconds()
+        return super().validate(data, raise_exception)
+
+    def validate_and_serialize(self, data: Dict, raise_exception: bool):
+        self.validate(data, raise_exception)
+        writer = avro.io.DatumWriter(self.schema)
+        bytes_writer = io.BytesIO()
+        encoder = avro.io.BinaryEncoder(bytes_writer)
+        writer.write(data, encoder)
 
 
 def get_schema_validator(schema_name: str) -> BaseSchemaValidator:
