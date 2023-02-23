@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 import logging
 import re
 import uuid
@@ -6,6 +7,7 @@ from typing import Dict, Tuple, List
 
 import pendulum
 
+from gsy_framework import NULL_VALUES
 from gsy_framework.community_datasheet.exceptions import (
     CommunityDatasheetException, StringToTimedeltaConversionException)
 from gsy_framework.community_datasheet.location_converter import (
@@ -15,8 +17,6 @@ from gsy_framework.community_datasheet.sheet_headers import (
 from gsy_framework.constants_limits import ConstSettings
 
 logger = logging.getLogger(__name__)
-
-NULL_VALUES = (None, "")
 
 
 class StringToTimedeltaParser:
@@ -89,6 +89,7 @@ class MembersRowConverter:
             taxes_surcharges: float, fixed_monthly_fee: float, marketplace_monthly_fee: float,
             coefficient_percentage: float, geo_tag_location: List = None, asset_count: int = 0,
             member_name: str = None):
+        # pylint: disable=too-many-arguments
         """Create a community member dict from individual member information."""
         zip_code = cls._parse_zip_code(zip_code)
         if not geo_tag_location:
@@ -184,13 +185,15 @@ class PVRowConverter:
         Convert the row parsed from the Excel file to the asset representation used in scenarios.
         """
         cls._validate_row(row)
-
+        user_capacity_kW = row[PVSheetHeader.CAPACITY_KW]
+        capacity_kW = (
+            user_capacity_kW if user_capacity_kW is not None
+            else ConstSettings.PVSettings.DEFAULT_CAPACITY_KW)
         return {
             "name": row[PVSheetHeader.PV_NAME],
             "type": "PV",
             "uuid": str(uuid.uuid4()),
-            "capacity_kW": (
-                row[PVSheetHeader.CAPACITY_KW] or ConstSettings.PVSettings.DEFAULT_CAPACITY_KW),
+            "capacity_kW": capacity_kW,
             "tilt": row[PVSheetHeader.TILT],
             "azimuth": row[PVSheetHeader.AZIMUTH]
         }
@@ -217,9 +220,18 @@ class StorageRowConverter:
         """
         cls._validate_row(row)
 
+        user_min_allowed_soc = row[StorageSheetHeader.MINIMUM_ALLOWED_SOC]
         min_allowed_soc = (
-            row[StorageSheetHeader.MINIMUM_ALLOWED_SOC]
-            or ConstSettings.StorageSettings.MIN_ALLOWED_SOC)
+            user_min_allowed_soc if user_min_allowed_soc is not None
+            else ConstSettings.StorageSettings.MIN_ALLOWED_SOC)
+        user_battery_capacity = row[StorageSheetHeader.CAPACITY_KWH]
+        battery_capacity = (
+            user_battery_capacity if user_battery_capacity is not None
+            else ConstSettings.StorageSettings.CAPACITY)
+        user_abs_battery_power_kW = row[StorageSheetHeader.MAXIMUM_POWER_KW]
+        abs_battery_power_kW = (
+            user_abs_battery_power_kW if user_abs_battery_power_kW is not None
+            else ConstSettings.StorageSettings.MAX_ABS_POWER)
         # The community datasheet doesn't allow setting the initial SOC, so we intentionally set it
         # to be equal to the min_allowed_soc specified by the user.
         initial_soc = min_allowed_soc
@@ -228,14 +240,10 @@ class StorageRowConverter:
             "name": row[StorageSheetHeader.BATTERY_NAME],
             "type": "Storage",
             "uuid": str(uuid.uuid4()),
-            "battery_capacity_kWh": (
-                row[StorageSheetHeader.CAPACITY_KWH]
-                or ConstSettings.StorageSettings.CAPACITY),
+            "battery_capacity_kWh": battery_capacity,
             "min_allowed_soc": min_allowed_soc,
             "initial_soc": initial_soc,
-            "max_abs_battery_power_kW": (
-                row[StorageSheetHeader.MAXIMUM_POWER_KW]
-                or ConstSettings.StorageSettings.MAX_ABS_POWER)
+            "max_abs_battery_power_kW": abs_battery_power_kW
         }
 
     @classmethod
