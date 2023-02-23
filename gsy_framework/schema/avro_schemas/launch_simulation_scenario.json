@@ -1,55 +1,90 @@
 {
+  "name": "Scenario",
   "type": "record",
-  "name": "scenario",
-  "default": "undefined",
+  "namespace": "my.types",
   "fields": [
     {
+      "name": "ScenarioArea",
       "type": [
         {
-          "name": "emptyScenario",
-          "type": "record",
-          "fields": []
-        },
-        {
-          "name": "Area",
+          "name": "InfiniteBus",
           "type": "record",
           "fields": [
             {"name": "name", "type": "string"},
+            {"name": "type", "type": "string"},
             {"name": "uuid", "type": "string"},
-            {"name": "configuration_uuid", "type": "string", "default":  "undefined"},
-            {"name": "tags", "type": ["null", "array"]},
-            {"name": "address", "type": ["null", "string"]},
             {"name": "libraryUUID", "type": ["null", "string"]},
-            {"name": "feed_in_tariff", "type": ["null", "float"]},
-            {"name": "taxes_surcharges", "type": ["null", "float"]},
-            {"name": "fit_area_boundary", "type": ["null", "string"]},
-            {"name": "fixed_monthly_fee", "type": ["null", "float"]},
-            {"name": "grid_fee_constant", "type": ["null", "float"]},
-            {"name": "market_maker_rate", "type": ["null", "float"]},
-            {"name": "geo_tag_location", "type": ["null", "array"]},
-            {"name": "target_market_kpi", "type": ["null", "int"]},
-            {"name": "export_capacity_kVA", "type": ["null", "float"]},
-            {"name": "import_capacity_kVA", "type": ["null", "float"]},
-            {"name": "grid_fee_percentage", "type": ["null", "float"]},
-            {"name": "coefficient_percentage", "type": ["null", "float"]},
-            {"name": "marketplace_monthly_fee", "type": ["null", "float"]},
-            {"name": "allow_external_connection", "type": ["null", "boolean"]},
-            {"name": "baseline_peak_energy_export_kWh", "type": ["null", "float"]},
-            {"name": "baseline_peak_energy_import_kWh", "type": ["null", "float"]},
-            {"name": "name", "type": "string"},
-            {"name": "name", "type": "string"},
-            {"name": "name", "type": "string"},
-            {
-              "name": "children",
-              "type": [
-                "null",
-                {
-                  "type": "array",
-                  "items": "Area"
-                }
-              ]
-            }
+            {"name": "address", "type": ["null", "string"]},
+            {"name": "geo_tag_location", "type": [
+              "null", {
+                "type": "array",
+                "items":  "float"
+              }
+            ]},
+            {"name": "buying_rate_profile", "type": [
+              "null",
+              {"type": "map", "values" : "float", "default": {}}
+            ]},
+            {"name": "energy_rate_profile", "type": [
+              "null",
+              {"type": "map", "values" : "float", "default": {}}
+            ]},
+            {"name": "buying_rate_profile_uuid", "type": ["null", "string"]},
+            {"name": "energy_rate_profile_uuid", "type": ["null", "string"]},
+            {"name": "allow_external_connection", "type": "boolean"},
+            {"name": "display_type", "type": "string"},
+            {"name": "energy_sell_rate", "type": "float"},
+            {"name": "energy_buy_rate", "type": "float"}
           ]
+        },
+        {
+            "name": "Area",
+            "type": "record",
+            "fields": [
+              {"name": "name", "type": "string"},
+              {"name": "type", "type": "string"},
+              {"name": "uuid", "type": "string"},
+              {"name": "configuration_uuid", "type": "string", "default":  "undefined"},
+              {"name": "tags", "type": [
+                "null", {
+                  "type": "array",
+                  "items":  "string"
+                }
+              ]},
+              {"name": "address", "type": ["null", "string"]},
+              {"name": "libraryUUID", "type": ["null", "string"]},
+              {"name": "feed_in_tariff", "type": ["null", "float"]},
+              {"name": "taxes_surcharges", "type": ["null", "float"]},
+              {"name": "fit_area_boundary", "type": ["null", "boolean"]},
+              {"name": "fixed_monthly_fee", "type": ["null", "float"]},
+              {"name": "grid_fee_constant", "type": ["null", "float"]},
+              {"name": "market_maker_rate", "type": ["null", "float"]},
+              {"name": "geo_tag_location", "type": [
+                "null", {
+                  "type": "array",
+                  "items":  "float"
+                }
+              ]},
+              {"name": "target_market_kpi", "type": ["null", "int"]},
+              {"name": "export_capacity_kVA", "type": ["null", "float"]},
+              {"name": "import_capacity_kVA", "type": ["null", "float"]},
+              {"name": "grid_fee_percentage", "type": ["null", "float"]},
+              {"name": "coefficient_percentage", "type": ["null", "float"]},
+              {"name": "marketplace_monthly_fee", "type": ["null", "float"]},
+              {"name": "allow_external_connection", "type": ["null", "boolean"]},
+              {"name": "baseline_peak_energy_export_kWh", "type": ["null", "float"]},
+              {"name": "baseline_peak_energy_import_kWh", "type": ["null", "float"]},
+              {
+                "name": "children",
+                "type": [
+                  "null",
+                  {
+                    "type": "array",
+                    "items": ["Area", "my.types.InfiniteBus"]
+                  }
+                ]
+              }
+            ]
         }
       ]
     }

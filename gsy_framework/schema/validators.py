@@ -1,12 +1,14 @@
 import abc
 import logging
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 import avro.schema
 from avro.errors import AvroTypeException
 from avro.io import validate as validate_avro_schema
-from avro import io
+from io import BytesIO
+
+from gsy_framework.exceptions import GSySettingsException, GSyException
 
 logger = logging.getLogger()
 
@@ -51,25 +53,65 @@ class AVROSchemaValidator(BaseSchemaValidator):
             return False, str(exc)
 
 
-class AVROSimulationSettingsValidator:
+class AVROSchemaSerializer(AVROSchemaValidator):
+    """Serializer class that uses AVRO schemas for serializing and deserializing dicts to bytes."""
 
-    def __init__(self):
-        with open(AVRO_SCHEMAS_PATH / "launch_simulation_settings.json") as schema_file:
-            self.schema = avro.schema.parse(schema_file.read())
+    def _modify_input(self, data: Dict) -> Dict:
+        """Modify the input data dict in order for AVRO to properly serialize it."""
+        return data
+
+    def _modify_output(self, data: Dict) -> Dict:
+        """Modify the output data dict in order for AVRO  to properly deserialize it."""
+        return data
 
     def validate(self, data: Dict, raise_exception: bool = False) -> (bool, str):
-        data["duration"] = data["duration"].total_seconds()
-        data["slot_length"] = data["slot_length"].total_seconds()
-        data["tick_length"] = data["tick_length"].total_seconds()
-        data["slot_length_realtime"] = data["slot_length_realtime"].total_seconds()
+        try:
+            data = self._modify_input(data)
+        except GSyException as ex:
+            return False, str(ex)
         return super().validate(data, raise_exception)
 
-    def validate_and_serialize(self, data: Dict, raise_exception: bool):
-        self.validate(data, raise_exception)
+    def serialize(self, data: Dict, raise_exception: bool) -> Optional[bytes]:
+        """Validate and serialize dictionary."""
+        is_valid, _ = self.validate(data, raise_exception)
+        if not is_valid:
+            return None
         writer = avro.io.DatumWriter(self.schema)
-        bytes_writer = io.BytesIO()
+        bytes_writer = BytesIO()
         encoder = avro.io.BinaryEncoder(bytes_writer)
         writer.write(data, encoder)
+        return bytes_writer.getvalue()
+
+    def deserialize(self, data: Dict, raise_exception: bool) -> Optional[bytes]:
+        """Deserialize and validate dictionary."""
+        is_valid, _ = self.validate(data, raise_exception)
+        if not is_valid:
+            return None
+        writer = avro.io.DatumWriter(self.schema)
+        bytes_writer = BytesIO()
+        encoder = avro.io.BinaryEncoder(bytes_writer)
+        writer.write(data, encoder)
+        return bytes_writer.getvalue()
+
+
+class AVROSimulationSettingsValidator(AVROSchemaSerializer):
+    """Serializer class for the simulation settings."""
+
+    def __init__(self):
+        super().__init__("launch_simulation_settings")
+
+    def _modify_input(self, data: Dict) -> Dict:
+        try:
+            data["duration"] = int(data["duration"].total_seconds())
+            data["slot_length"] = int(data["slot_length"].total_seconds())
+            data["tick_length"] = int(data["tick_length"].total_seconds())
+            data["slot_length_realtime"] = int(data["slot_length_realtime"].total_seconds())
+        except (KeyError, ValueError, TypeError) as ex:
+            error_log = (
+                "Time related parameters on the settings were not set or incorrectly assigned.")
+            logger.error(error_log)
+            raise GSySettingsException(error_log) from ex
+        return data
 
 
 def get_schema_validator(schema_name: str) -> BaseSchemaValidator:
