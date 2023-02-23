@@ -114,7 +114,7 @@ class ConstSettings:
 
         # Max battery capacity in kWh.
         CAPACITY = 1.2
-        CAPACITY_LIMIT = RangeLimit(0.0001, 2000000)
+        CAPACITY_LIMIT = RangeLimit(0, 2000000)
         # Maximum battery power for supply/demand, in Watts.
         MAX_ABS_POWER = 5
         MAX_ABS_POWER_RANGE = RateRange(0.0001, 2000000)
