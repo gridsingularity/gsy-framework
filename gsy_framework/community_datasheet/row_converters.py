@@ -187,7 +187,7 @@ class PVRowConverter:
         cls._validate_row(row)
         user_capacity_kW = row[PVSheetHeader.CAPACITY_KW]
         capacity_kW = (
-            user_capacity_kW if user_capacity_kW is not None
+            user_capacity_kW if user_capacity_kW not in NULL_VALUES
             else ConstSettings.PVSettings.DEFAULT_CAPACITY_KW)
         return {
             "name": row[PVSheetHeader.PV_NAME],
@@ -222,15 +222,15 @@ class StorageRowConverter:
 
         user_min_allowed_soc = row[StorageSheetHeader.MINIMUM_ALLOWED_SOC]
         min_allowed_soc = (
-            user_min_allowed_soc if user_min_allowed_soc is not None
+            user_min_allowed_soc if user_min_allowed_soc not in NULL_VALUES
             else ConstSettings.StorageSettings.MIN_ALLOWED_SOC)
         user_battery_capacity = row[StorageSheetHeader.CAPACITY_KWH]
         battery_capacity = (
-            user_battery_capacity if user_battery_capacity is not None
+            user_battery_capacity if user_battery_capacity not in NULL_VALUES
             else ConstSettings.StorageSettings.CAPACITY)
         user_abs_battery_power_kW = row[StorageSheetHeader.MAXIMUM_POWER_KW]
         abs_battery_power_kW = (
-            user_abs_battery_power_kW if user_abs_battery_power_kW is not None
+            user_abs_battery_power_kW if user_abs_battery_power_kW not in NULL_VALUES
             else ConstSettings.StorageSettings.MAX_ABS_POWER)
         # The community datasheet doesn't allow setting the initial SOC, so we intentionally set it
         # to be equal to the min_allowed_soc specified by the user.
