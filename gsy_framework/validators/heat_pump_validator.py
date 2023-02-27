@@ -17,16 +17,16 @@ class HeatPumpValidator(BaseValidator):
 
         cls._check_range(
             name="tank_volume_l", value=kwargs["tank_volume_l"],
-            _min=HeatPumpSettings.TANK_VOLUME_L_LIMIT.min,
-            _max=HeatPumpSettings.TANK_VOLUME_L_LIMIT.max)
+            min_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.min,
+            max_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.max)
 
     @classmethod
     def _validate_energy(cls, **kwargs):
         """Validate energy related arguments."""
         cls._check_range(
             name="maximum_power_rating_kW", value=kwargs["maximum_power_rating_kW"],
-            _min=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
-            _max=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max)
+            min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
+            max_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max)
 
         if (kwargs["consumption_kW"] is not None and
                 kwargs["consumption_profile_uuid"] is not None):
@@ -43,8 +43,8 @@ class HeatPumpValidator(BaseValidator):
         if kwargs["consumption_profile_uuid"] is None:
             cls._check_range(
                 name="consumption_kW", value=kwargs["consumption_kW"],
-                _min=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
-                _max=kwargs["maximum_power_rating_kW"])
+                min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
+                max_value=kwargs["maximum_power_rating_kW"])
 
     @classmethod
     def _validate_temp(cls, **kwargs):
@@ -54,8 +54,8 @@ class HeatPumpValidator(BaseValidator):
         for temperature_arg_name in temperature_arg_names:
             cls._check_range(
                 name=temperature_arg_name, value=kwargs[temperature_arg_name],
-                _min=HeatPumpSettings.TEMP_C_LIMIT.min,
-                _max=HeatPumpSettings.TEMP_C_LIMIT.max)
+                min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
+                max_value=HeatPumpSettings.TEMP_C_LIMIT.max)
 
         min_temp_c = kwargs["min_temp_C"]
         max_temp_c = kwargs["max_temp_C"]
@@ -80,8 +80,8 @@ class HeatPumpValidator(BaseValidator):
         if kwargs["external_temp_profile_uuid"] is None:
             cls._check_range(
                 name="external_temp_C", value=kwargs["external_temp_C"],
-                _min=HeatPumpSettings.TEMP_C_LIMIT.min,
-                _max=HeatPumpSettings.TEMP_C_LIMIT.max)
+                min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
+                max_value=HeatPumpSettings.TEMP_C_LIMIT.max)
 
     @classmethod
     def _validate_rate(cls, **kwargs):
@@ -91,8 +91,8 @@ class HeatPumpValidator(BaseValidator):
         for buying_rate_arg_name in buying_rate_arg_names:
             cls._check_range(
                 name=buying_rate_arg_name, value=kwargs[buying_rate_arg_name],
-                _min=HeatPumpSettings.TEMP_C_LIMIT.min,
-                _max=HeatPumpSettings.TEMP_C_LIMIT.max)
+                min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
+                max_value=HeatPumpSettings.TEMP_C_LIMIT.max)
 
         initial_buying_rate = kwargs["initial_buying_rate"]
         preferred_buying_rate = kwargs["preferred_buying_rate"]
@@ -106,12 +106,12 @@ class HeatPumpValidator(BaseValidator):
             ]})
 
     @classmethod
-    def _check_range(cls, name, value, _min, _max):
+    def _check_range(cls, name, value, min_value, max_value):
         if value is None:
             raise GSyDeviceException(
                 {"misconfiguration": [
                     f"Value of {name} should not be None."]})
 
         validate_range_limit(
-            _min, value, _max,
-            {"misconfiguration": [f"{name} should be between {_min} & {_max}."]})
+            min_value, value, max_value,
+            {"misconfiguration": [f"{name} should be between {min_value} & {max_value}."]})
