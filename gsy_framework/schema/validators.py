@@ -1,12 +1,12 @@
 import abc
 import logging
+from io import BytesIO
 from pathlib import Path
 from typing import Dict, Optional
 
 import avro.schema
 from avro.errors import AvroTypeException
 from avro.io import validate as validate_avro_schema
-from io import BytesIO
 
 from gsy_framework.exceptions import GSySettingsException, GSyException
 
@@ -36,7 +36,7 @@ class BaseSchemaValidator(abc.ABC):
 class AVROSchemaValidator(BaseSchemaValidator):
     """Schema validator class that utilizes """
     def __init__(self, schema_name: str):
-        with open(AVRO_SCHEMAS_PATH / f"{schema_name}.json") as schema_file:
+        with open(AVRO_SCHEMAS_PATH / f"{schema_name}.json", encoding="utf-8") as schema_file:
             self.schema = avro.schema.parse(schema_file.read())
 
     def validate(self, data, raise_exception: bool = False) -> (bool, str):
