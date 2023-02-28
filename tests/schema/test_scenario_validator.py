@@ -1,4 +1,4 @@
-from gsy_framework.schema.validators import get_schema_validator
+from gsy_framework.schema.validators import get_schema_validator, AVROSchemaSerializer
 
 
 class TestScenarioValidator:
@@ -361,3 +361,11 @@ class TestScenarioValidator:
         is_valid, errors = validator.validate(self._data, True)
         assert not errors
         assert is_valid is True
+
+    def test_scenario_serializer_works(self):
+        serializer = AVROSchemaSerializer("launch_simulation_scenario")
+        serialized_data = serializer.serialize(self._data, True)
+        deserialized_data = serializer.deserialize(serialized_data)
+        assert deserialized_data["name"] == "Grid"
+        assert deserialized_data["tags"] is None
+        assert deserialized_data["uuid"] == "bd867ebb-f3c8-4d8d-926a-a4181fa86c3a"

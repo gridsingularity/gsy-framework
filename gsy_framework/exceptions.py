@@ -35,3 +35,7 @@ class GSyDeviceException(GSyException):
 
 class GSyReadProfileException(GSyException):
     pass
+
+
+class GSySerializationException(GSyException):
+    pass

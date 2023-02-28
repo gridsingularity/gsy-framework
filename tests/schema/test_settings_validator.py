@@ -1,53 +1,56 @@
-import pytest
 import io
+from copy import deepcopy
 from datetime import timedelta, date
 from math import isclose
-from copy import deepcopy
-from typing import Any
+from typing import Any, Dict
 
 import avro
+import pytest
 
-from gsy_framework.schema.validators import AVROSimulationSettingsValidator
+from gsy_framework.exceptions import GSySerializationException
+from gsy_framework.schema.validators import AVROSimulationSettingsSerializer
 
 
 class TestSimulationSettingsValidator:
+    # pylint: disable=attribute-defined-outside-init
 
     def setup_method(self):
         self._data = {
-            'duration': timedelta(days=7),
-            'slot_length': timedelta(seconds=900),
-            'tick_length': timedelta(seconds=15),
-            'market_count': 1,
-            'cloud_coverage': 0,
-            'pv_user_profile': None,
-            'market_maker_rate': 30,
-            'slot_length_realtime': timedelta(0),
-            'start_date': date(2022, 10, 17),
-            'spot_market_type': 2,
-            'advanced_settings': None,
-            'random_seed': 0,
-            'capacity_kW': 5.0,
-            'grid_fee_type': 1,
-            'external_connection_enabled': False,
-            'currency': 0,
-            'settlement_market_enabled': False,
-            'relative_std_from_forecast_percent': 10.0,
-            'bid_offer_match_algo': 1,
-            'scm_coefficient_algorithm': 1,
-            'type': 0
+            "duration": timedelta(days=7),
+            "slot_length": timedelta(seconds=900),
+            "tick_length": timedelta(seconds=15),
+            "market_count": 1,
+            "cloud_coverage": 0,
+            "pv_user_profile": None,
+            "market_maker_rate": 30,
+            "slot_length_realtime": timedelta(0),
+            "start_date": date(2022, 10, 17),
+            "spot_market_type": 2,
+            "advanced_settings": None,
+            "random_seed": 0,
+            "capacity_kW": 5.0,
+            "grid_fee_type": 1,
+            "external_connection_enabled": False,
+            "currency": 0,
+            "settlement_market_enabled": False,
+            "relative_std_from_forecast_percent": 10.0,
+            "bid_offer_match_algo": 1,
+            "scm_coefficient_algorithm": 1,
+            "type": 0
         }
 
-    def test_simulation_settings_validator_works(self):
-        serializer = AVROSimulationSettingsValidator()
-        serialized_data = serializer.serialize(self._data, True)
-        bytes_reader = io.BytesIO(serialized_data)
-        decoder = avro.io.BinaryDecoder(bytes_reader)
-        reader = avro.io.DatumReader(serializer.schema)
-        settings = reader.read(decoder)
-        assert isclose(settings["duration"], timedelta(days=7).total_seconds())
-        assert isclose(settings["slot_length"], timedelta(seconds=900).total_seconds())
-        assert isclose(settings["tick_length"], timedelta(seconds=15).total_seconds())
-        assert isclose(settings["slot_length_realtime"], timedelta(seconds=0).total_seconds())
+    @staticmethod
+    def _assert_all_settings_values(settings: Dict, compare_timedeltas: bool):
+        if compare_timedeltas:
+            assert settings["duration"] == timedelta(days=7)
+            assert settings["slot_length"] == timedelta(seconds=900)
+            assert settings["tick_length"] == timedelta(seconds=15)
+            assert settings["slot_length_realtime"] == timedelta(seconds=0)
+        else:
+            assert isclose(settings["duration"], timedelta(days=7).total_seconds())
+            assert isclose(settings["slot_length"], timedelta(seconds=900).total_seconds())
+            assert isclose(settings["tick_length"], timedelta(seconds=15).total_seconds())
+            assert isclose(settings["slot_length_realtime"], timedelta(seconds=0).total_seconds())
         assert settings["market_count"] == 1
         assert settings["cloud_coverage"] == 0
         assert settings["pv_user_profile"] is None
@@ -65,6 +68,15 @@ class TestSimulationSettingsValidator:
         assert settings["scm_coefficient_algorithm"] == 1
         assert settings["type"] == 0
 
+    def test_simulation_settings_validator_works(self):
+        serializer = AVROSimulationSettingsSerializer()
+        serialized_data = serializer.serialize(self._data, True)
+        bytes_reader = io.BytesIO(serialized_data)
+        decoder = avro.io.BinaryDecoder(bytes_reader)
+        reader = avro.io.DatumReader(serializer.schema)
+        settings = reader.read(decoder)
+        self._assert_all_settings_values(settings, False)
+
     @pytest.mark.parametrize("settings_key, settings_value", [
         ("type", "COLLABORATION"),
         ("settlement_market_enabled", 0),
@@ -79,6 +91,13 @@ class TestSimulationSettingsValidator:
             self, settings_key: str, settings_value: Any):
         incorrect_data = deepcopy(self._data)
         incorrect_data[settings_key] = settings_value
-        serializer = AVROSimulationSettingsValidator()
-        serialized_data = serializer.serialize(incorrect_data, True)
-        assert serialized_data is None
+        serializer = AVROSimulationSettingsSerializer()
+        with pytest.raises(GSySerializationException):
+            serializer.serialize(incorrect_data, True)
+
+    def test_simulation_settings_deserialization_works(self):
+        serializer = AVROSimulationSettingsSerializer()
+        serialized_data = serializer.serialize(self._data, True)
+
+        deserialized_data = serializer.deserialize(serialized_data)
+        self._assert_all_settings_values(deserialized_data, True)
