@@ -15,7 +15,7 @@ from gsy_framework.community_datasheet.location_converter import (
 from gsy_framework.community_datasheet.sheet_headers import (
     LoadSheetHeader, PVSheetHeader, StorageSheetHeader)
 from gsy_framework.constants_limits import ConstSettings
-
+from gsy_framework.utils import use_default_if_null
 logger = logging.getLogger(__name__)
 
 
@@ -185,15 +185,12 @@ class PVRowConverter:
         Convert the row parsed from the Excel file to the asset representation used in scenarios.
         """
         cls._validate_row(row)
-        user_capacity_kW = row[PVSheetHeader.CAPACITY_KW]
-        capacity_kW = (
-            user_capacity_kW if user_capacity_kW not in NULL_VALUES
-            else ConstSettings.PVSettings.DEFAULT_CAPACITY_KW)
         return {
             "name": row[PVSheetHeader.PV_NAME],
             "type": "PV",
             "uuid": str(uuid.uuid4()),
-            "capacity_kW": capacity_kW,
+            "capacity_kW": use_default_if_null(
+                row[PVSheetHeader.CAPACITY_KW], ConstSettings.PVSettings.DEFAULT_CAPACITY_KW),
             "tilt": row[PVSheetHeader.TILT],
             "azimuth": row[PVSheetHeader.AZIMUTH]
         }
@@ -220,18 +217,8 @@ class StorageRowConverter:
         """
         cls._validate_row(row)
 
-        user_min_allowed_soc = row[StorageSheetHeader.MINIMUM_ALLOWED_SOC]
-        min_allowed_soc = (
-            user_min_allowed_soc if user_min_allowed_soc not in NULL_VALUES
-            else ConstSettings.StorageSettings.MIN_ALLOWED_SOC)
-        user_battery_capacity = row[StorageSheetHeader.CAPACITY_KWH]
-        battery_capacity = (
-            user_battery_capacity if user_battery_capacity not in NULL_VALUES
-            else ConstSettings.StorageSettings.CAPACITY)
-        user_abs_battery_power_kW = row[StorageSheetHeader.MAXIMUM_POWER_KW]
-        abs_battery_power_kW = (
-            user_abs_battery_power_kW if user_abs_battery_power_kW not in NULL_VALUES
-            else ConstSettings.StorageSettings.MAX_ABS_POWER)
+        min_allowed_soc = use_default_if_null(row[StorageSheetHeader.MINIMUM_ALLOWED_SOC],
+                                              ConstSettings.StorageSettings.MIN_ALLOWED_SOC)
         # The community datasheet doesn't allow setting the initial SOC, so we intentionally set it
         # to be equal to the min_allowed_soc specified by the user.
         initial_soc = min_allowed_soc
@@ -240,10 +227,14 @@ class StorageRowConverter:
             "name": row[StorageSheetHeader.BATTERY_NAME],
             "type": "Storage",
             "uuid": str(uuid.uuid4()),
-            "battery_capacity_kWh": battery_capacity,
+            "battery_capacity_kWh": use_default_if_null(
+                row[StorageSheetHeader.CAPACITY_KWH],
+                ConstSettings.StorageSettings.CAPACITY),
             "min_allowed_soc": min_allowed_soc,
             "initial_soc": initial_soc,
-            "max_abs_battery_power_kW": abs_battery_power_kW
+            "max_abs_battery_power_kW": use_default_if_null(
+                row[StorageSheetHeader.MAXIMUM_POWER_KW],
+                ConstSettings.StorageSettings.MAX_ABS_POWER)
         }
 
     @classmethod
