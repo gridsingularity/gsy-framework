@@ -8,6 +8,7 @@ from jsonschema.exceptions import ValidationError
 from jsonschema.validators import extend
 from pendulum.datetime import DateTime
 
+from gsy_framework import NULL_VALUES
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheet
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.constants_limits import FIELDS_REQUIRED_FOR_REBASE
@@ -43,7 +44,7 @@ class CommunityDatasheetValidator:
         duplicates = [name for name, occurrences in asset_names.items() if occurrences > 1]
         if duplicates:
             raise CommunityDatasheetException(
-                f"Asset names must be unique. Foudn duplicate names: {duplicates}.")
+                f"Asset names must be unique. Found duplicate names: {duplicates}.")
 
     @staticmethod
     def _validate_loads(datasheet: CommunityDatasheet):
@@ -67,7 +68,7 @@ class CommunityDatasheetValidator:
 
             missing_attributes = [
                 field for field in FIELDS_REQUIRED_FOR_REBASE
-                if not pv_asset.get(field)
+                if pv_asset.get(field) in NULL_VALUES
             ]
 
             if missing_attributes:

@@ -1,0 +1,1 @@
+NULL_VALUES = (None, "")
