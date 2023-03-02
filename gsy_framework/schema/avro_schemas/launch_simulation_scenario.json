@@ -1,10 +1,9 @@
 {
   "name": "ScenarioArea",
   "type": "record",
-  "namespace": "my.types",
   "fields": [
     {"name": "name", "type": "string"},
-    {"name": "type", "type": ["null", "string"], "default":  "undefined"},
+    {"name": "type", "type": ["null", "string"], "default": "Area"},
     {"name": "uuid", "type": "string"},
     {"name": "configuration_uuid", "type": ["null", "string"], "default":  "undefined"},
     {"name": "collaboration_uuid", "type": ["null", "string"], "default":  "undefined"},
@@ -331,6 +330,39 @@
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name": "display_type", "type":  "string"}
+              ]
+            },
+            {
+              "name": "HeatPump",
+              "type": "record",
+              "fields": [
+                {"name": "name", "type": "string"},
+                {"name": "type", "type": "string"},
+                {"name": "uuid", "type": "string"},
+                {"name": "allow_external_connection", "type": ["null", "boolean"]},
+                {"name": "libraryUUID", "type": ["null", "string"]},
+                {"name": "address", "type": ["null", "string"]},
+                {"name": "geo_tag_location", "type": [
+                  "null", {
+                    "type": "array",
+                    "items":  "float"
+                  }
+                ]},
+                {"name": "update_interval", "type": ["null", "int"]},
+                {"name": "maximum_power_rating_kW", "type": "float"},
+                {"name": "min_temp_C", "type": "float"},
+                {"name": "max_temp_C", "type": "float"},
+                {"name": "initial_temp_C", "type": "float"},
+                {"name": "external_temp_C", "type": "float"},
+                {"name": "external_temp_profile_uuid", "type": ["null", "string"]},
+                {"name": "tank_volume_l", "type": "float"},
+                {"name": "consumption_kW", "type": "float"},
+                {"name": "consumption_profile_uuid", "type": ["null", "string"]},
+                {"name": "source_type", "type": "int"},
+                {"name": "final_buying_rate", "type": ["null", "float"]},
+                {"name": "initial_buying_rate", "type": ["null", "float"]},
+                {"name": "preferred_buying_rate", "type": ["null", "float"]},
+                {"name":  "display_type", "type":  "string"}
               ]
             }
           ]

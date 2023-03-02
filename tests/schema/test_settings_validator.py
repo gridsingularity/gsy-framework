@@ -8,13 +8,14 @@ import avro
 import pytest
 
 from gsy_framework.exceptions import GSySerializationException
-from gsy_framework.schema.validators import AVROSimulationSettingsSerializer
+from gsy_framework.schema.validators import get_schema_validator
 
 
 class TestSimulationSettingsValidator:
     # pylint: disable=attribute-defined-outside-init
 
     def setup_method(self):
+        self._serializer = get_schema_validator("launch_simulation_settings")
         self._data = {
             "duration": timedelta(days=7),
             "slot_length": timedelta(seconds=900),
@@ -69,11 +70,10 @@ class TestSimulationSettingsValidator:
         assert settings["type"] == 0
 
     def test_simulation_settings_validator_works(self):
-        serializer = AVROSimulationSettingsSerializer()
-        serialized_data = serializer.serialize(self._data, True)
+        serialized_data = self._serializer.serialize(self._data, True)
         bytes_reader = io.BytesIO(serialized_data)
         decoder = avro.io.BinaryDecoder(bytes_reader)
-        reader = avro.io.DatumReader(serializer.schema)
+        reader = avro.io.DatumReader(self._serializer.schema)
         settings = reader.read(decoder)
         self._assert_all_settings_values(settings, False)
 
@@ -91,13 +91,11 @@ class TestSimulationSettingsValidator:
             self, settings_key: str, settings_value: Any):
         incorrect_data = deepcopy(self._data)
         incorrect_data[settings_key] = settings_value
-        serializer = AVROSimulationSettingsSerializer()
         with pytest.raises(GSySerializationException):
-            serializer.serialize(incorrect_data, True)
+            self._serializer.serialize(incorrect_data, True)
 
     def test_simulation_settings_deserialization_works(self):
-        serializer = AVROSimulationSettingsSerializer()
-        serialized_data = serializer.serialize(self._data, True)
+        serialized_data = self._serializer.serialize(self._data, True)
 
-        deserialized_data = serializer.deserialize(serialized_data)
+        deserialized_data = self._serializer.deserialize(serialized_data)
         self._assert_all_settings_values(deserialized_data, True)
