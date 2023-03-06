@@ -31,6 +31,6 @@
     {"name": "relative_std_from_forecast_percent", "type": "float"},
     {"name": "bid_offer_match_algo", "type": "int"},
     {"name": "scm_coefficient_algorithm", "type": "int"},
-    {"name": "type", "type": "int"}
+    {"name": "type", "type": ["null","int"], "default":  "undefined"}
   ]
 }
