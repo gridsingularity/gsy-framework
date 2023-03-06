@@ -50,6 +50,7 @@ class ScenarioSchemas:
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "tags": {"anyOf": [{"type": "array"}, {"type": "null"}]},
+                    "geo_tag_location": {},
                     "children": {"anyOf": [
                         {
                             "type": "array",
@@ -78,6 +79,7 @@ class ScenarioSchemas:
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
+                    "geo_tag_location": {},
                     "panel_count": {"type": "number"},
                     "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "final_selling_rate": {"type": "number"},
@@ -107,6 +109,7 @@ class ScenarioSchemas:
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
+                    "geo_tag_location": {},
                     "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "final_selling_rate": {"type": "number"},
                     "fit_to_limit": {"type": "boolean"},
@@ -134,6 +137,7 @@ class ScenarioSchemas:
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
+                    "geo_tag_location": {},
                     "initial_soc": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "min_allowed_soc": {"type": "number"},
                     "battery_capacity_kWh": {"type": "number"},
@@ -160,6 +164,7 @@ class ScenarioSchemas:
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
+                    "geo_tag_location": {},
                     "avg_power_W":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "hrs_per_day":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "hrs_of_day": {"anyOf": [{"type": "array"}, {"type": "null"}]},
@@ -191,6 +196,7 @@ class ScenarioSchemas:
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
+                    "geo_tag_location": {},
                     "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "final_selling_rate": {"type": "number"},
                     "initial_buying_rate": {"type": "number"},
@@ -213,6 +219,7 @@ class ScenarioSchemas:
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
+                    "geo_tag_location": {},
                 }
             },
             "finite_power_plant": {
@@ -224,6 +231,7 @@ class ScenarioSchemas:
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
+                    "geo_tag_location": {},
                     "energy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "max_available_power_kW":  {"anyOf": [{"type": "number"}, {"type": "null"}]}
                 }
@@ -237,6 +245,7 @@ class ScenarioSchemas:
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
+                    "geo_tag_location": {},
                     "maximum_power_rating_kW": {"type": "number"},
                     "min_temp_C": {"type": "number"},
                     "max_temp_C": {"type": "number"},
