@@ -57,6 +57,7 @@ class AVROSchemaSerializer(BaseSchemaValidator):
     # pylint: disable=no-self-use
 
     def __init__(self, schema_name: str):
+        self._schema_name = schema_name
         with open(AVRO_SCHEMAS_PATH / f"{schema_name}.json", encoding="utf-8") as schema_file:
             self.schema = avro.schema.parse(schema_file.read())
 
@@ -65,7 +66,9 @@ class AVROSchemaSerializer(BaseSchemaValidator):
             validate_avro_schema(self.schema, data, raise_on_error=True)
             return True, ""
         except AvroTypeException as exc:
-            logger.exception("The provided data is invalid for the schema.")
+            logger.exception(
+                "The provided data %s is invalid for the schema %s. Error %s.",
+                data, self._schema_name, str(exc))
             # TODO: raise the exception when we are sure the schema
             #  matches every corner case of the system + adapt test_schema_validators as well.
             # if raise_exception:
