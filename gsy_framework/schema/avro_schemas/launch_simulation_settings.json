@@ -12,7 +12,7 @@
       {"type": "map", "values" : "float", "default": {}}
     ]},
     {"name": "market_maker_rate", "type": [
-      "float",
+      "float", "string",
       {"type": "map", "values" : "float", "default": {}}
     ]},
     {"name": "slot_length_realtime", "type": "long"},
