@@ -1,0 +1,36 @@
+{
+  "type": "record",
+  "name": "settings",
+  "fields": [
+    {"name": "duration", "type": "long"},
+    {"name": "slot_length", "type": "long"},
+    {"name": "tick_length", "type": "long"},
+    {"name": "market_count", "type": "int"},
+    {"name": "cloud_coverage", "type": "int"},
+    {"name": "pv_user_profile", "type": [
+      "null",
+      {"type": "map", "values" : "float", "default": {}}
+    ]},
+    {"name": "market_maker_rate", "type": [
+      "float", "string",
+      {"type": "map", "values" : "float", "default": {}}
+    ]},
+    {"name": "slot_length_realtime", "type": "long"},
+    {"name": "start_date", "type": [{"type": "int", "logicalType": "date"}, "null"]},
+    {"name": "spot_market_type", "type": "int"},
+    {"name": "advanced_settings", "type": [
+      "null",
+      {"type": "map", "values" : "string", "default": {}}
+    ]},
+    {"name": "random_seed", "type": "int"},
+    {"name": "capacity_kW", "type": "float"},
+    {"name": "grid_fee_type", "type": "int"},
+    {"name": "external_connection_enabled", "type": "boolean"},
+    {"name": "currency", "type": "int"},
+    {"name": "settlement_market_enabled", "type": "boolean"},
+    {"name": "relative_std_from_forecast_percent", "type": "float"},
+    {"name": "bid_offer_match_algo", "type": "int"},
+    {"name": "scm_coefficient_algorithm", "type": "int"},
+    {"name": "type", "type": ["null","int"], "default":  "undefined"}
+  ]
+}

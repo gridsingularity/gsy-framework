@@ -1,7 +1,6 @@
 import pytest
 
-from gsy_framework.schema.validators import (AVROSchemaValidator,
-                                             BaseSchemaValidator, SchemaError,
+from gsy_framework.schema.validators import (BaseSchemaValidator, SchemaError,
                                              get_schema_validator)
 
 
@@ -15,7 +14,7 @@ class TestAVROSchemaValidators:
     def test_v1_validators(schema_name):
         """This test makes sure that all the available schemas are
         compatible to the AVRO format. An exception is raised if the schema is malformed."""
-        validator = AVROSchemaValidator(schema_name=schema_name)
+        validator = get_schema_validator(schema_name=schema_name)
         assert validator.validate({})[0] is True
         assert validator.validate(None)[0] is False
         try:
