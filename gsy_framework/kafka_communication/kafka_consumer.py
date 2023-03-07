@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class KafkaConnection:
+    """Kafka consumer class. Connect to a topic, read and process messages from it."""
     def __init__(self, callback):
         if IS_KAFKA_RUNNING_LOCALLY:
             kwargs = {"bootstrap_servers": KAFKA_URL,
@@ -47,7 +48,8 @@ class KafkaConnection:
         self._consumer = KafkaConsumer(KAFKA_RESULTS_TOPIC, **kwargs)
         self._callback = callback
 
-    def _deserialize_message(self, msg):
+    @staticmethod
+    def _deserialize_message(msg):
         return json.loads(decompress(msg.value).decode("utf-8"))
 
     def _get_topic_partition(self):
@@ -70,6 +72,7 @@ class KafkaConnection:
                 payload = self._deserialize_message(msg)
                 self._callback(payload)
                 was_processed_correctly = True
+            # pylint: disable=broad-except
             except Exception as ex:
                 retry_counter += 1
                 logger.error(
@@ -77,6 +80,7 @@ class KafkaConnection:
                     "Traceback: %s", str(ex), traceback.format_exc())
 
     def execute_cycle(self):
+        """Main execution cycle of the Kafka consumer."""
         for msg in self._consumer:
             topic_partition = self._get_topic_partition()
             self._process_message_with_retries(msg)
