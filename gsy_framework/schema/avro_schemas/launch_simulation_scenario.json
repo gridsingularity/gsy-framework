@@ -298,7 +298,7 @@
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name":  "display_type", "type":  "string"},
-                {"name": "cap_price_strategy", "type": "boolean"}
+                {"name": "cap_price_strategy", "type": ["null", "boolean"]}
               ]
             },
             {
