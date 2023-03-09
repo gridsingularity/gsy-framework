@@ -86,6 +86,9 @@ class KafkaConnection:
             self._process_message_with_retries(msg)
             # Commit the message even though it has not been processed, since it failed in
             # multiple retries.
+            # Consumer offset is a cursor / pointer that keeps count of the last message that has
+            # been processed by a consumer in a partition. In order to indicate that the consumer
+            # has finished processing the message, we need to increase by one the message offset.
             self._consumer.commit({
                 topic_partition: OffsetAndMetadata(msg.offset + 1, None)
             })
