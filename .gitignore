@@ -14,6 +14,8 @@ dist
 *.egg-info
 __pycache__
 build/
+.DS_Store
+schema
 
 # iSort configuration
 .isort.cfg
