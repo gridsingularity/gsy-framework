@@ -34,6 +34,7 @@
     {"name": "coefficient_percentage", "type": ["null", "float"]},
     {"name": "marketplace_monthly_fee", "type": ["null", "float"]},
     {"name": "allow_external_connection", "type": ["null", "boolean"]},
+    {"name": "is_canary_network", "type": ["null", "boolean"]},
     {"name": "baseline_peak_energy_export_kWh", "type": ["null", "float"]},
     {"name": "baseline_peak_energy_import_kWh", "type": ["null", "float"]},
     {"name": "children", "type": [
