@@ -26,6 +26,11 @@ def is_load_node_type(area):
                             "SCMLoadHoursStrategy", "SCMLoadProfile"]
 
 
+def is_heatpump_node_type(area):
+    """Check if the given asset is a heat pump."""
+    return area["type"] in ["HeatPumpStrategy"]
+
+
 def is_bulk_power_producer(area):
     """Check if the given asset is a bulk power producer."""
     return area["type"] in ["CommercialStrategy", "MarketMakerStrategy"]
