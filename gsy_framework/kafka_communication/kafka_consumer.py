@@ -4,7 +4,7 @@ import traceback
 from zlib import decompress
 
 from kafka import KafkaConsumer
-from kafka.structs import OffsetAndMetadata
+from kafka.structs import OffsetAndMetadata, TopicPartition
 
 from gsy_framework.kafka_communication import (
     KAFKA_URL, IS_KAFKA_RUNNING_LOCALLY, KAFKA_USERNAME,
@@ -52,16 +52,6 @@ class KafkaConnection:
     def _deserialize_message(msg):
         return json.loads(decompress(msg.value).decode("utf-8"))
 
-    def _get_topic_partition(self):
-        topic_partitions = self._consumer.assignment()
-        if len(topic_partitions) != 1:
-            # More than one partitions are connected to this consumer, this needs to be
-            # reported as error.
-            logger.error(
-                "Consumer was connected to more than one topic / partition: %s",
-                topic_partitions)
-        return list(topic_partitions)[0]
-
     def _process_message_with_retries(self, msg):
         was_processed_correctly = False
         retry_counter = 0
@@ -82,7 +72,11 @@ class KafkaConnection:
     def execute_cycle(self):
         """Main execution cycle of the Kafka consumer."""
         for msg in self._consumer:
-            topic_partition = self._get_topic_partition()
+            topic_partitions = self._consumer.assignment()
+            if not any(tp.topic == msg.topic and tp.partition == msg.partition
+                       for tp in topic_partitions):
+                logger.error("Message topic / partition not part of this consumer (%s,%s)",
+                             msg.topic, msg.partition)
             self._process_message_with_retries(msg)
             # Commit the message even though it has not been processed, since it failed in
             # multiple retries.
@@ -90,5 +84,5 @@ class KafkaConnection:
             # been processed by a consumer in a partition. In order to indicate that the consumer
             # has finished processing the message, we need to increase by one the message offset.
             self._consumer.commit({
-                topic_partition: OffsetAndMetadata(msg.offset + 1, None)
+                TopicPartition(msg.topic, msg.partition): OffsetAndMetadata(msg.offset + 1, None)
             })
