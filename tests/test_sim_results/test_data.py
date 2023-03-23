@@ -13,6 +13,9 @@ area_result_dict = {
               "children": []},
              {"name": "H2 PV", "uuid": "9f905a1f-b1aa-461f-9290-0be561932bf4",
               "parent_uuid": "394ee848-5c6b-4fe3-a035-223a38c855d1", "type": "PVStrategy",
+              "children": []},
+             {"name": "H2 HeatPump", "uuid": "8115e950-7422-4942-b4e5-237658404d80",
+              "parent_uuid": "394ee848-5c6b-4fe3-a035-223a38c855d1", "type": "HeatPumpStrategy",
               "children": []}
          ]
          }
@@ -105,4 +108,13 @@ core_stats = {
              "time_slot": "2023-01-25T15:00:00", "offer_bid_trade_info": None}],
         "market_fee": 0.0,
         "pv_production_kWh": 0.3108,
-        "available_energy_kWh": 0.11080000000000001}}
+        "available_energy_kWh": 0.11080000000000001},
+    "8115e950-7422-4942-b4e5-237658404d80": {
+        "bids": [],
+        "offers": [],
+        "trades": [],
+        "market_fee": 0.0,
+        "storage_temp_C": 65,
+        "available_energy_kWh": 0.11080000000000001}
+
+}

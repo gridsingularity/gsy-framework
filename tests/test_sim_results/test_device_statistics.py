@@ -67,7 +67,35 @@ class TestDeviceStatistics:
                     },
                     "max_pv_production_kWh": {
                         current_market_slot: 0.3108}
-                }
+                },
+                "H2 HeatPump": {
+                    "trade_price_eur": {
+                        current_market_slot: None
+                    },
+                    "min_trade_price_eur": {
+                        current_market_slot: None
+                    },
+                    "max_trade_price_eur": {
+                        current_market_slot: None
+                    },
+                    "trade_energy_kWh": {
+                        current_market_slot: 0
+                    },
+                    "min_trade_energy_kWh": {
+                        current_market_slot: 0
+                    },
+                    "max_trade_energy_kWh": {
+                        current_market_slot: 0
+                    },
+                    "storage_temp_C": {
+                        current_market_slot: 65
+                    },
+                    "min_storage_temp_C": {
+                        current_market_slot: 65
+                    },
+                    "max_storage_temp_C": {
+                        current_market_slot: 65}
+                },
             }
         }
 
