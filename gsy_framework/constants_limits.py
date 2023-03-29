@@ -22,10 +22,9 @@ from datetime import date, datetime
 
 from pendulum import duration, instance
 
-from gsy_framework.enums import (
-    BidOfferMatchAlgoEnum, SpotMarketTypeEnum, CoefficientAlgorithm, AvailableMarketTypes,
-    HeatPumpSourceType
-)
+from gsy_framework.enums import (AvailableMarketTypes, BidOfferMatchAlgoEnum,
+                                 CoefficientAlgorithm, HeatPumpSourceType,
+                                 SpotMarketTypeEnum)
 
 RangeLimit = namedtuple("RangeLimit", ("min", "max"))
 RateRange = namedtuple("RateRange", ("initial", "final"))
@@ -114,10 +113,10 @@ class ConstSettings:
 
         # Max battery capacity in kWh.
         CAPACITY = 1.2
-        CAPACITY_LIMIT = RangeLimit(0.0001, 2000000)
+        CAPACITY_LIMIT = RangeLimit(0, 2000000)
         # Maximum battery power for supply/demand, in Watts.
         MAX_ABS_POWER = 5
-        MAX_ABS_POWER_RANGE = RateRange(0.0001, 2000000)
+        MAX_ABS_POWER_RANGE = RateRange(0, 2000000)
         # Energy buy-limit, storage never buys outside this limit.
         # Unit is ct/kWh.
         BUYING_RATE_RANGE = RateRange(0, 24.9)
@@ -185,7 +184,13 @@ class ConstSettings:
 
     class HeatPumpSettings:
         """Default values for the heat pump."""
+        # range limits
+        MAX_POWER_RATING_KW_LIMIT = RangeLimit(0, sys.maxsize)
+        TEMP_C_LIMIT = RangeLimit(-273.15, 6000)
+        TANK_VOLUME_L_LIMIT = RangeLimit(0, sys.maxsize)
+        BUYING_RATE_LIMIT = RateRange(0, 10000)
 
+        # default values
         MAX_POWER_RATING_KW = 3
         CONSUMPTION_KW = 0.5
         MIN_TEMP_C = 50

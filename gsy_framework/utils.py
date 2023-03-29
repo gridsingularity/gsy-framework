@@ -27,12 +27,13 @@ from functools import lru_cache, wraps
 from pkgutil import walk_packages
 from statistics import mean
 from threading import Timer
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Union
 from uuid import UUID
 
 from pendulum import DateTime, datetime, duration, from_format, instance
 from redis.exceptions import ConnectionError  # pylint: disable=redefined-builtin
 
+from gsy_framework import NULL_VALUES
 from gsy_framework.constants_limits import (
     DATE_TIME_FORMAT, DATE_TIME_FORMAT_HOURS, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
     DEFAULT_PRECISION, PROFILE_EXPANSION_DAYS, TIME_FORMAT, TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS,
@@ -578,3 +579,9 @@ def is_valid_uuid(uuid: str) -> bool:
         return False
 
     return True
+
+
+def use_default_if_null(input_value: Union[int, str, float], default_value: Union[int, str, float]
+                        ) -> Union[int, str, float]:
+    """Return input_value if not null, else return provided default_value"""
+    return input_value if input_value not in NULL_VALUES else default_value

@@ -1,0 +1,9 @@
+{
+  "name": "AggregatorDeviceMapping",
+  "type": "map",
+  "default": "undefined",
+  "values" : {
+    "type": "array",
+    "items":  "string"
+  }
+}

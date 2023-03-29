@@ -5,6 +5,7 @@ import uuid
 from itertools import chain
 from typing import Dict, List
 
+from gsy_framework import NULL_VALUES
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheetReader
 from gsy_framework.community_datasheet.community_datasheet_validator import (
     CommunityDatasheetValidator)
@@ -74,7 +75,7 @@ class CommunityDatasheetParser:
 
         # Each PV without profile must provide the parameters needed to call the Rebase API
         missing_attributes = [
-            field for field in FIELDS_REQUIRED_FOR_REBASE if not pv_asset.get(field)]
+            field for field in FIELDS_REQUIRED_FOR_REBASE if pv_asset.get(field) in NULL_VALUES]
 
         if missing_attributes:
             raise CommunityDatasheetException(
