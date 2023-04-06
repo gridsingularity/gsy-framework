@@ -37,7 +37,6 @@ class ScenarioSchemas:
                     "fixed_monthly_fee": {"type": ["number", "null"]},
                     "marketplace_monthly_fee": {"type": ["number", "null"]},
                     "market_maker_rate": {"type": ["number", "null"]},
-                    "target_market_kpi": {"type": ["number", "null"]},
                     "grid_fee_constant": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "grid_fee_percentage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "baseline_peak_energy_import_kWh":

@@ -27,7 +27,6 @@
         "items":  "float"
       }
     ]},
-    {"name": "target_market_kpi", "type": ["null", "int"]},
     {"name": "export_capacity_kVA", "type": ["null", "float"]},
     {"name": "import_capacity_kVA", "type": ["null", "float"]},
     {"name": "grid_fee_percentage", "type": ["null", "float"]},
@@ -164,7 +163,6 @@
                 {"name": "fit_to_limit", "type": ["null","boolean"]},
                 {"name": "cloud_coverage", "type": "int"},
                 {"name": "update_interval", "type": ["null", "int"]},
-                {"name": "target_device_kpi", "type": ["null", "int"]},
                 {"name": "final_selling_rate", "type": ["null", "float"]},
                 {"name": "initial_selling_rate", "type": ["null", "float"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
@@ -222,7 +220,6 @@
                 ]},
                 {"name": "final_buying_rate", "type": ["null", "float"]},
                 {"name": "initial_buying_rate", "type": ["null", "float"]},
-                {"name": "target_device_kpi", "type": ["null", "int"]},
                 {"name": "daily_load_profile", "type": ["null", "string"]},
                 {"name": "daily_load_profile_uuid", "type": ["null", "string"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
@@ -260,7 +257,6 @@
                 {"name": "hrs_per_day", "type": ["null", "int"]},
                 {"name": "final_buying_rate", "type": ["null", "float"]},
                 {"name": "initial_buying_rate", "type": ["null", "float"]},
-                {"name": "target_device_kpi", "type": ["null", "int"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "forecast_stream_enabled", "type": ["null", "boolean"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
@@ -295,7 +291,6 @@
                 {"name": "initial_selling_rate", "type": ["null", "float"]},
                 {"name": "energy_rate_increase_per_update", "type": ["null", "float"]},
                 {"name": "energy_rate_decrease_per_update", "type": ["null", "float"]},
-                {"name": "target_device_kpi", "type": ["null", "int"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name":  "display_type", "type":  "string"},
@@ -327,7 +322,6 @@
                 {"name": "initial_selling_rate", "type": ["null", "float"]},
                 {"name": "energy_rate_increase_per_update", "type": ["null", "float"]},
                 {"name": "energy_rate_decrease_per_update", "type": ["null", "float"]},
-                {"name": "target_device_kpi", "type": ["null", "int"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name": "display_type", "type":  "string"}

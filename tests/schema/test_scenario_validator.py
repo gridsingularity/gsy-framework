@@ -53,7 +53,6 @@ class TestScenarioValidator:
                         21.817164413489536,
                         38.398776189002916
                       ],
-                      "target_device_kpi": 0,
                       "final_selling_rate": 0.0,
                       "power_profile_uuid": "d8f9f372-d636-45da-a7f5-9ef02bbc8650",
                       "initial_selling_rate": 30.0,
@@ -75,7 +74,6 @@ class TestScenarioValidator:
                         38.398776189002916
                       ],
                       "final_buying_rate": 30.0,
-                      "target_device_kpi": 0,
                       "daily_load_profile":
                       "{\"filename\": \"CHR27 Family both at work, 2 children HH1.csv\"}",
                       "initial_buying_rate": 0.0,
@@ -94,7 +92,6 @@ class TestScenarioValidator:
                   ],
                   "fit_area_boundary": True,
                   "grid_fee_constant": None,
-                  "target_market_kpi": 0,
                   "export_capacity_kVA": None,
                   "grid_fee_percentage": None,
                   "import_capacity_kVA": None,
@@ -125,7 +122,6 @@ class TestScenarioValidator:
                         21.819383035040943,
                         38.40110442451805
                       ],
-                      "target_device_kpi": 0,
                       "final_selling_rate": 0.0,
                       "power_profile_uuid": "65517989-031d-465b-94f7-5889b1e6bcfa",
                       "initial_selling_rate": 30.0,
@@ -147,7 +143,6 @@ class TestScenarioValidator:
                         38.40110442451805
                       ],
                       "final_buying_rate": 30.0,
-                      "target_device_kpi": 0,
                       "daily_load_profile":
                       "{\"filename\": \"CHR41 Family with 3 children, both at work HH1.csv\"}",
                       "initial_buying_rate": 0.0,
@@ -166,7 +161,6 @@ class TestScenarioValidator:
                   ],
                   "fit_area_boundary": True,
                   "grid_fee_constant": None,
-                  "target_market_kpi": 0,
                   "export_capacity_kVA": None,
                   "grid_fee_percentage": None,
                   "import_capacity_kVA": None,
@@ -202,7 +196,6 @@ class TestScenarioValidator:
                     38.40017818882174
                   ],
                   "final_buying_rate": None,
-                  "target_device_kpi": 0,
                   "initial_buying_rate": 0.0,
                   "use_market_maker_rate": True,
                   "forecast_stream_enabled": None,
@@ -244,7 +237,6 @@ class TestScenarioValidator:
                         38.40119487732349
                       ],
                       "final_buying_rate": None,
-                      "target_device_kpi": 0,
                       "initial_buying_rate": 0.0,
                       "use_market_maker_rate": True,
                       "forecast_stream_enabled": None,
@@ -267,7 +259,6 @@ class TestScenarioValidator:
                         38.40119487732349
                       ],
                       "final_buying_rate": 22.0,
-                      "target_device_kpi": 0,
                       "cap_price_strategy": False,
                       "final_selling_rate": 25.0,
                       "initial_buying_rate": 12.0,
@@ -291,7 +282,6 @@ class TestScenarioValidator:
                   "fixed_monthly_fee": 0.0,
                   "grid_fee_constant": 1.0,
                   "market_maker_rate": 0.0,
-                  "target_market_kpi": 0,
                   "export_capacity_kVA": 23.0,
                   "grid_fee_percentage": None,
                   "import_capacity_kVA": 1.0,
@@ -316,7 +306,6 @@ class TestScenarioValidator:
                     38.39855216791665
                   ],
                   "final_buying_rate": 22.0,
-                  "target_device_kpi": 0,
                   "cap_price_strategy": False,
                   "final_selling_rate": 25.0,
                   "initial_buying_rate": 12.0,
@@ -333,7 +322,6 @@ class TestScenarioValidator:
               "geo_tag_location": None,
               "fit_area_boundary": True,
               "grid_fee_constant": None,
-              "target_market_kpi": 0,
               "export_capacity_kVA": None,
               "grid_fee_percentage": None,
               "import_capacity_kVA": None,
@@ -346,7 +334,6 @@ class TestScenarioValidator:
           "geo_tag_location": None,
           "fit_area_boundary": True,
           "grid_fee_constant": None,
-          "target_market_kpi": 0,
           "export_capacity_kVA": None,
           "grid_fee_percentage": None,
           "import_capacity_kVA": None,
