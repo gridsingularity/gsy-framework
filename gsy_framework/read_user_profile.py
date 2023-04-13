@@ -34,7 +34,6 @@ from gsy_framework.utils import (
 Exposes mixins that can be used from strategy classes.
 """
 
-
 DATE_TIME_FORMAT_SPACED = "YYYY-MM-DD HH:mm:ss"
 
 
@@ -42,10 +41,10 @@ class InputProfileTypes(Enum):
     """Different types of input profiles."""
 
     IDENTITY = 1  # Profile values are not converted (they're used as they are)
-    POWER = 2  # Profile values are treated as power values in W
-    # Profile values are treated as Rebase input. They are currently power values in W, but we want
-    # to be flexible to change in case they change it to some other unit
-    REBASE = 3
+    POWER_W = 2  # Profile power values in W (deprecated and only kept for old profiles in DB)
+    REBASE_W = 3  # Profile power values in W from REBASE API
+    # (deprecated; only kept for old profiles in DB)
+    ENERGY_KWH = 4
 
 
 def _str_to_datetime(time_str, time_format) -> DateTime:
@@ -334,7 +333,7 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
         zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
         filled_profile = _fill_gaps_in_profile(profile, zero_value_slot_profile)
 
-        if profile_type in [InputProfileTypes.POWER, InputProfileTypes.REBASE]:
+        if profile_type in [InputProfileTypes.POWER_W, InputProfileTypes.REBASE_W]:
             return _calculate_energy_from_power_profile(filled_profile, GlobalConfig.slot_length)
         else:
             return filled_profile
@@ -352,8 +351,8 @@ def _generate_slot_based_zero_values_dict_from_profile(profile, slot_length_mins
 
     profile_duration = end_time - start_datetime
     return {
-        start_datetime + duration(minutes=slot_length_mins*i): 0.0
-        for i in range((int(profile_duration.total_minutes()) // slot_length_mins)+1)
+        start_datetime + duration(minutes=slot_length_mins * i): 0.0
+        for i in range((int(profile_duration.total_minutes()) // slot_length_mins) + 1)
     }
 
 
