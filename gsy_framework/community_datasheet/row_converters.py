@@ -160,7 +160,8 @@ class LoadRowConverter:
         return {
             "name": row[LoadSheetHeader.LOAD_NAME],
             "type": "Load",
-            "uuid": str(uuid.uuid4())
+            "uuid": str(uuid.uuid4()),
+            "datastream_id": row[LoadSheetHeader.DATASTREAM_ID]
         }
 
     @classmethod
@@ -192,7 +193,8 @@ class PVRowConverter:
             "capacity_kW": use_default_if_null(
                 row[PVSheetHeader.CAPACITY_KW], ConstSettings.PVSettings.DEFAULT_CAPACITY_KW),
             "tilt": row[PVSheetHeader.TILT],
-            "azimuth": row[PVSheetHeader.AZIMUTH]
+            "azimuth": row[PVSheetHeader.AZIMUTH],
+            "datastream_id": row[LoadSheetHeader.DATASTREAM_ID]
         }
 
     @classmethod
