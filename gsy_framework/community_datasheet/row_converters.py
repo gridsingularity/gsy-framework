@@ -149,6 +149,7 @@ class MembersRowConverter:
 
 class LoadRowConverter:
     """Convert from the excel row to a grid representation of a Load asset."""
+    OPTIONAL_FIELDS = (LoadSheetHeader.DATASTREAM_ID, )
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
@@ -161,12 +162,13 @@ class LoadRowConverter:
             "name": row[LoadSheetHeader.LOAD_NAME],
             "type": "Load",
             "uuid": str(uuid.uuid4()),
-            "datastream_id": row[LoadSheetHeader.DATASTREAM_ID]
+            "forecast_stream_id": row.get(LoadSheetHeader.DATASTREAM_ID)
         }
 
     @classmethod
     def _validate_row(cls, row: Dict):
-        missing_fields = [field for field, value in row.items() if value in NULL_VALUES]
+        missing_fields = [field for field, value in row.items()
+                          if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES]
 
         if missing_fields:
             raise CommunityDatasheetException((
@@ -178,7 +180,8 @@ class PVRowConverter:
     """Convert from the excel row to a grid representation of a PV asset."""
 
     # These fields are optional because they can be ignored if a PV profile is explicitly provided
-    OPTIONAL_FIELDS = ("Capacity [kW]", "Tilt [°]", "Azimuth [°]")
+    OPTIONAL_FIELDS = (PVSheetHeader.CAPACITY_KW, PVSheetHeader.TILT, PVSheetHeader.AZIMUTH,
+                       PVSheetHeader.DATASTREAM_ID)
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
@@ -194,7 +197,7 @@ class PVRowConverter:
                 row[PVSheetHeader.CAPACITY_KW], ConstSettings.PVSettings.DEFAULT_CAPACITY_KW),
             "tilt": row[PVSheetHeader.TILT],
             "azimuth": row[PVSheetHeader.AZIMUTH],
-            "datastream_id": row[LoadSheetHeader.DATASTREAM_ID]
+            "forecast_stream_id": row.get(LoadSheetHeader.DATASTREAM_ID)
         }
 
     @classmethod

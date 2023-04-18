@@ -89,10 +89,17 @@ class MembersSheetParser(SheetParserInterface):
 
     EXPECTED_HEADER: Tuple[str]  # Fields of the header of the sheet
     ROW_CONVERTER_CLASS = MembersRowConverter
+    OPTIONAL_COLUMN_NAMES = []
 
     def __init__(self, worksheet: Worksheet) -> Dict:
         super().__init__(worksheet)
         self._header: Optional[Tuple[str]] = None  # Column headers found in the file
+
+    @property
+    def _mandatory_column_names(self) -> Tuple[str]:
+        """Return only mandatory column names, omitting the optional columns."""
+        return tuple(column_name for column_name in self.EXPECTED_HEADER
+                     if column_name not in self.OPTIONAL_COLUMN_NAMES)
 
     def _parse_rows(self) -> Dict:
         output = {}
@@ -119,7 +126,9 @@ class MembersSheetParser(SheetParserInterface):
     def _parse_header(self):
         """Use the first row as header and skip it."""
         self._header = tuple(field for field in next(self.rows) if field)
-        if not self._header == self.EXPECTED_HEADER:
+        mandatory_headers = tuple(column for column in self._header
+                                  if column not in self.OPTIONAL_COLUMN_NAMES)
+        if mandatory_headers != self._mandatory_column_names:
             raise CommunityDatasheetException(
                 f"Could not find expected headers: {self.EXPECTED_HEADER}. Found: {self._header}.")
 
@@ -165,6 +174,7 @@ class LoadSheetParser(MembersSheetParser):
 
     EXPECTED_HEADER = LoadSheetHeader.values()
     ROW_CONVERTER_CLASS = LoadRowConverter
+    OPTIONAL_COLUMN_NAMES = [LoadSheetHeader.DATASTREAM_ID]
 
 
 class PVSheetParser(MembersSheetParser):
@@ -172,6 +182,7 @@ class PVSheetParser(MembersSheetParser):
 
     EXPECTED_HEADER = PVSheetHeader.values()
     ROW_CONVERTER_CLASS = PVRowConverter
+    OPTIONAL_COLUMN_NAMES = [LoadSheetHeader.DATASTREAM_ID]
 
 
 class StorageSheetParser(MembersSheetParser):

@@ -83,6 +83,7 @@ class TestCommunityDatasheetParser:
                     "azimuth": None,
                     "geo_tag_location": (4.137182, 48.058159),
                     "cloud_coverage": 4,
+                    "forecast_stream_id": None,
                     "power_profile": {
                         "2021-08-02T00:00": 11.5,
                         "2021-08-02T01:00": 11.5,
@@ -114,6 +115,7 @@ class TestCommunityDatasheetParser:
                     "azimuth": 123,
                     "geo_tag_location": (4.137182, 48.058159),
                     "cloud_coverage": 5,
+                    "forecast_stream_id": None,
                 }
             ],
         }
@@ -152,6 +154,7 @@ class TestCommunityDatasheetParser:
                                     "type": "Load",
                                     "uuid": "mocked-uuid",
                                     "geo_tag_location": (4.137182, 48.058159),
+                                    "forecast_stream_id": None,
                                     "daily_load_profile": {
                                         "2021-08-02T00:00": 22.32,
                                         "2021-08-02T01:00": 20.72,
@@ -181,6 +184,7 @@ class TestCommunityDatasheetParser:
                                     "azimuth": None,
                                     "geo_tag_location": (4.137182, 48.058159),
                                     "cloud_coverage": 4,
+                                    "forecast_stream_id": None,
                                     "power_profile": {
                                         "2021-08-02T00:00": 11.5,
                                         "2021-08-02T01:00": 11.5,
@@ -237,6 +241,7 @@ class TestCommunityDatasheetParser:
                                     "azimuth": 123,
                                     "geo_tag_location": (4.137182, 48.058159),
                                     "cloud_coverage": 5,
+                                    "forecast_stream_id": None,
                                 },
                                 {
                                     "name": "Battery 2",
