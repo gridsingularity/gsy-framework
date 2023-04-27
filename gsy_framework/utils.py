@@ -28,7 +28,7 @@ from functools import lru_cache, wraps
 from pkgutil import walk_packages
 from statistics import mean
 from threading import Timer
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Union, Generator
 from uuid import UUID
 
 from pendulum import DateTime, datetime, duration, from_format, instance
@@ -592,10 +592,23 @@ def use_default_if_null(input_value: Union[int, str, float], default_value: Unio
     return input_value if input_value not in NULL_VALUES else default_value
 
 
-def _generate_time_slot_list(slot_length: timedelta, sim_duration: timedelta,
-                             start_date: datetime) -> List[datetime]:
-    return [start_date.add(minutes=slot_length.seconds / 60 * time_diff) for time_diff in
-            range(int(sim_duration.total_seconds() / slot_length.total_seconds()))]
+class GSyProfileException(Exception):
+    """Exception that is raised when handling profiles."""
+
+
+def _generate_time_slots(
+        slot_length: timedelta, sim_duration: timedelta, start_date: datetime
+) -> Generator:
+    return (start_date + timedelta(seconds=slot_length.total_seconds() * time_diff_count)
+            for time_diff_count in range(
+        int(sim_duration.total_seconds() / slot_length.total_seconds())))
+
+
+def _get_from_profile(profile: Dict[DateTime, float], key: DateTime) -> float:
+    try:
+        return profile[key]
+    except KeyError as ex:
+        raise GSyProfileException(f"The input profile does not contain the key {key}") from ex
 
 
 def resample_hourly_energy_profile(
@@ -604,22 +617,24 @@ def resample_hourly_energy_profile(
     """Resample hourly energy profile in order to fit to the set slot_length."""
     slot_length_minutes = slot_length.total_seconds() / 60
     if slot_length_minutes < 60:
-        assert 60 % slot_length_minutes == 0, "slot_length is not division of 1 hour"
+        if 60 % slot_length_minutes != 0:
+            raise GSyProfileException("slot_length is not division of 1 hour")
         scaling_factor = 60 / slot_length_minutes
         out_dict = {}
-        for time_slot in _generate_time_slot_list(slot_length, sim_duration, start_date):
+        for time_slot in _generate_time_slots(slot_length, sim_duration, start_date):
             hour_time_slot = datetime(time_slot.year, time_slot.month, time_slot.day,
                                       time_slot.hour)
-            out_dict[time_slot] = input_profile[hour_time_slot] / scaling_factor
+            out_dict[time_slot] = _get_from_profile(input_profile, hour_time_slot) / scaling_factor
         return out_dict
     if slot_length_minutes > 60:
-        assert slot_length_minutes % 60 == 0, "slot_length is not multiple of 1 hour"
-        out_dict = {k: 0. for k in _generate_time_slot_list(slot_length, sim_duration, start_date)}
+        if slot_length_minutes % 60 != 0:
+            raise GSyProfileException("slot_length is not multiple of 1 hour")
         number_of_aggregated_slots = int(slot_length_minutes / 60)
-        for time_slot in out_dict.keys():
-            for nn in range(number_of_aggregated_slots):
-                out_dict[time_slot] += input_profile[
-                    time_slot.add(minutes=slot_length_minutes * nn)]
-        return out_dict
-
+        return {
+            time_slot: sum(
+                _get_from_profile(
+                    input_profile, time_slot.add(minutes=slot_length_minutes * nn))
+                for nn in range(number_of_aggregated_slots))
+            for time_slot in _generate_time_slots(slot_length, sim_duration, start_date)
+        }
     return input_profile
