@@ -379,18 +379,6 @@ def read_profile_without_config(input_profile: Dict, slot_length_mins=15) -> Dic
         "Profile file cannot be read successfully. Please reconfigure the file path.")
 
 
-def read_and_convert_identity_profile_to_float(profile, current_timestamp: DateTime = None):
-    """Read and convert identity profile into float."""
-    parsed_profile = ast.literal_eval(str(profile))
-    generated_profile = read_arbitrary_profile(InputProfileTypes.IDENTITY, parsed_profile,
-                                               current_timestamp=current_timestamp)
-    return {k: float(v) for k, v in generated_profile.items()}
-
-
-def _convert_identity_profile_to_float(profile, _current_timestamp: DateTime = None):
-    return {k: float(v) for k, v in profile.items()}
-
-
 def _generate_time_slots(
         slot_length: timedelta, sim_duration: timedelta, start_date: datetime
 ) -> Generator:
