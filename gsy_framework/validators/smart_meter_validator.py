@@ -69,7 +69,7 @@ class SmartMeterValidator(BaseValidator):
 
         if (kwargs.get("initial_buying_rate") is not None
                 and kwargs.get("final_buying_rate") is not None
-                and kwargs["initial_buying_rate"] >= kwargs["final_buying_rate"]):
+                and kwargs["initial_buying_rate"] > kwargs["final_buying_rate"]):
             raise GSyDeviceException({
                 "misconfiguration": [
                     "initial_buying_rate should be less than or equal to final_buying_rate/"
