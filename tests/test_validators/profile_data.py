@@ -1,7 +1,8 @@
 from pendulum import datetime, duration
 
-START_DATE = datetime(2021, 1, 25, 0, 0)
-END_DATE = datetime(2021, 1, 25, 23, 45)
+START_TIME = datetime(2021, 1, 25, 0, 0)
+END_TIME_1DAY = datetime(2021, 1, 25, 23, 45)
+END_TIME_2DAY = datetime(2021, 1, 26, 23, 45)
 SLOT_LENGTH = duration(minutes=15)
 first_day = {"2021-01-25T00:00": 0.1, "2021-01-25T00:15": 0.1, "2021-01-25T00:30": 0.1,
              "2021-01-25T00:45": 0.1, "2021-01-25T01:00": 0.1, "2021-01-25T01:15": 0.1,
