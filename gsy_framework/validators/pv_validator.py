@@ -89,7 +89,7 @@ class PVValidator(BaseValidator):
 
         if (kwargs.get("initial_selling_rate") is not None
                 and kwargs.get("final_selling_rate") is not None
-                and kwargs["initial_selling_rate"] <= kwargs["final_selling_rate"]):
+                and kwargs["initial_selling_rate"] < kwargs["final_selling_rate"]):
             raise GSyDeviceException(
                 {"misconfiguration": [
                     "initial_selling_rate/market_maker_rate should be greater than or equal to "
