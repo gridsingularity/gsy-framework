@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 from unittest.mock import patch, MagicMock
+
 import pytest
 from pendulum import datetime, today, duration
 
@@ -25,8 +26,7 @@ from gsy_framework.constants_limits import GlobalConfig
 from gsy_framework.utils import (
     HomeRepresentationUtils, convert_datetime_to_ui_str_format, execute_function_util,
     scenario_representation_traversal, sort_list_of_dicts_by_attribute, str_to_pendulum_datetime,
-    is_time_slot_in_simulation_duration, resample_hourly_energy_profile,
-    convert_str_to_pendulum_in_dict
+    is_time_slot_in_simulation_duration
 )
 
 
@@ -120,44 +120,3 @@ class TestUtils:
 
         time_slot = GlobalConfig.start_date + GlobalConfig.sim_duration + duration(minutes=1)
         assert is_time_slot_in_simulation_duration(time_slot) is False
-
-    @staticmethod
-    def test_resample_energy_profile_performs_correctly_for_lower_resolutions():
-        input_profile = {"2021-01-25T00:00": 0.1, "2021-01-25T01:00": 0.1, "2021-01-25T02:00": 0.1,
-                         "2021-01-25T03:00": 0.1, "2021-01-25T04:00": 0.1}
-        result_profile = resample_hourly_energy_profile(
-            convert_str_to_pendulum_in_dict(input_profile),
-            duration(minutes=15),
-            duration(hours=4),
-            datetime(2021, 1, 25, 0, 0))
-        assert len(result_profile) == 16
-        first_time_stamp = next(iter(result_profile))
-        last_time_stamp = next(reversed(result_profile))
-        assert first_time_stamp == datetime(2021, 1, 25, 0, 0)
-        assert last_time_stamp == datetime(2021, 1, 25, 3, 45)
-        assert all(value == 0.025 for value in result_profile.values())
-
-    @staticmethod
-    def test_resample_energy_profile_performs_correctly_for_higher_resolutions():
-        input_profile = {"2021-01-25T00:00": 0.1, "2021-01-25T01:00": 0.1, "2021-01-25T02:00": 0.1,
-                         "2021-01-25T03:00": 0.1, "2021-01-25T04:00": 0.1, "2021-01-25T05:00": 0.1,
-                         "2021-01-25T06:00": 0.1}
-        result_profile = resample_hourly_energy_profile(
-            convert_str_to_pendulum_in_dict(input_profile),
-            duration(hours=2),
-            duration(hours=6),
-            datetime(2021, 1, 25, 0, 0))
-        assert result_profile == {datetime(2021, 1, 25, 0, 0, 0): 0.2,
-                                  datetime(2021, 1, 25, 2, 0, 0): 0.2,
-                                  datetime(2021, 1, 25, 4, 0, 0): 0.2}
-
-    @staticmethod
-    def test_resample_energy_profile_performs_correctly_for_equal_resolutions():
-        input_profile = {"2021-01-25T00:00": 0.1, "2021-01-25T01:00": 0.1, "2021-01-25T02:00": 0.1,
-                         "2021-01-25T03:00": 0.1, "2021-01-25T04:00": 0.1}
-        input_profile = convert_str_to_pendulum_in_dict(input_profile)
-        result_profile = resample_hourly_energy_profile(input_profile,
-                                                        duration(minutes=60),
-                                                        duration(hours=4),
-                                                        datetime(2021, 1, 25, 0, 0))
-        assert result_profile == input_profile
