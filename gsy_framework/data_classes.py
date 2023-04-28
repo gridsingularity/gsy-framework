@@ -201,12 +201,14 @@ class Offer(BaseBidOffer):
     def csv_values(self) -> Tuple:
         """Return values of class members that are needed for creation of CSV export."""
         rate = round(self.energy_rate, 4)
-        return self.creation_time, rate, self.energy, self.price, self.seller.name
+        return (self.creation_time, rate, self.energy, self.price, self.seller.name,
+                self.seller.origin)
 
     @classmethod
     def csv_fields(cls) -> Tuple:
         """Return labels for csv_values for CSV export."""
-        return "creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"
+        return ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller",
+                "seller origin")
 
     @property
     def accumulated_grid_fees(self):
@@ -254,12 +256,14 @@ class Bid(BaseBidOffer):
     def csv_values(self) -> Tuple:
         """Return values of class members that are needed for creation of CSV export."""
         rate = round(self.energy_rate, 4)
-        return self.creation_time, rate, self.energy, self.price, self.buyer.name
+        return (self.creation_time, rate, self.energy, self.price, self.buyer.name,
+                self.buyer.origin)
 
     @classmethod
     def csv_fields(cls) -> Tuple:
         """Return labels for csv_values for CSV export."""
-        return "creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"
+        return ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer",
+                "buyer origin")
 
     @property
     def accumulated_grid_fees(self):
@@ -349,14 +353,14 @@ class Trade:
     @classmethod
     def csv_fields(cls) -> Tuple:
         """Return labels for csv_values for CSV export."""
-        return ("creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer",
-                "matching_requirements")
+        return ("creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "seller origin",
+                "buyer", "buyer origin", "matching_requirements")
 
     def csv_values(self) -> Tuple:
         """Return values of class members that are needed for creation of CSV export."""
         rate = round(self.trade_rate, 4)
-        return (self.creation_time, rate, self.traded_energy, self.seller.name, self.buyer.name,
-                self.matching_requirements)
+        return (self.creation_time, rate, self.traded_energy, self.seller.name,
+                self.seller.origin, self.buyer.name, self.buyer.origin, self.matching_requirements)
 
     def to_json_string(self) -> str:
         """Return json string of the representation."""
