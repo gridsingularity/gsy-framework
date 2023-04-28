@@ -8,6 +8,7 @@ class LoadSheetHeader(str, Enum):
 
     MEMBER_NAME = "Member_name"
     LOAD_NAME = "Load_name"
+    DATASTREAM_ID = "Datastream_ID"
 
     @classmethod
     def values(cls):
@@ -23,6 +24,7 @@ class PVSheetHeader(str, Enum):
     CAPACITY_KW = "Capacity [kW]"
     TILT = "Tilt [°]"
     AZIMUTH = "Azimuth [°]"
+    DATASTREAM_ID = "Datastream_ID"
 
     @classmethod
     def values(cls):
