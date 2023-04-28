@@ -402,7 +402,7 @@ def resample_hourly_energy_profile(
     slot_length_minutes = slot_length.total_seconds() / 60
     if slot_length_minutes < 60:
         if 60 % slot_length_minutes != 0:
-            raise GSyProfileException("slot_length is not division of 1 hour")
+            raise GSyProfileException("slot_length is not an exact division of 60 minutes")
         scaling_factor = 60 / slot_length_minutes
         out_dict = {}
         for time_slot in _generate_time_slots(slot_length, sim_duration, start_date):
