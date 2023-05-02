@@ -56,10 +56,7 @@ class ProfileValidator:
             first_time = time_slot
 
     def _get_and_validate_time_diffs(self) -> timedelta:
-        first_time = self._profile_start_time
-        time_diffs = set()
-        for time_slot in list(self.profile.keys())[1:]:
-            time_diffs.add((time_slot-first_time).total_seconds())
-            first_time = time_slot
+        timestamps = list(self.profile.keys())
+        time_diffs = {end - start for start, end in zip(timestamps[:-1], timestamps[1:])}
         assert len(time_diffs) == 1
         return timedelta(seconds=next(iter(time_diffs)))
