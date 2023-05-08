@@ -4,17 +4,15 @@ from typing import Dict, Optional
 
 from pendulum import DateTime, duration
 
-from gsy_framework.utils import convert_str_to_pendulum_in_dict
-
 
 class ProfileValidator:
     """Validate profiles"""
 
     def __init__(
-            self, profile: Dict[str, float], start_time: Optional[DateTime] = None,
+            self, profile: Dict[DateTime, float], start_time: Optional[DateTime] = None,
             end_time: Optional[DateTime] = None, slot_length: Optional[timedelta] = None):
         assert len(profile) > 0, "profile is empty"
-        self.profile = OrderedDict(convert_str_to_pendulum_in_dict(profile))
+        self.profile = OrderedDict(profile)
         self.start_time = start_time if start_time else self._profile_start_time
         self.end_time = end_time if end_time else self._profile_end_time
         self.slot_length: timedelta = slot_length
@@ -57,6 +55,7 @@ class ProfileValidator:
 
     def _get_and_validate_time_diffs(self) -> timedelta:
         timestamps = list(self.profile.keys())
-        time_diffs = {end - start for start, end in zip(timestamps[:-1], timestamps[1:])}
+        time_diffs = {
+            (end - start).total_seconds() for start, end in zip(timestamps[:-1], timestamps[1:])}
         assert len(time_diffs) == 1
         return timedelta(seconds=next(iter(time_diffs)))

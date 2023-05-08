@@ -396,8 +396,8 @@ def _get_from_profile(profile: Dict[datetime, float], key: datetime) -> float:
 
 
 def resample_hourly_energy_profile(
-        input_profile: Dict[datetime, float], slot_length: timedelta, sim_duration: timedelta,
-        start_date: datetime) -> Dict[datetime, float]:
+        input_profile: Dict[DateTime, float], slot_length: timedelta, sim_duration: timedelta,
+        start_date: datetime) -> Dict[DateTime, float]:
     """Resample hourly energy profile in order to fit to the set slot_length."""
     slot_length_minutes = slot_length.total_seconds() / 60
     if slot_length_minutes < 60:
