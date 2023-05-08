@@ -29,6 +29,7 @@ class SCMBills(ResultsBaseClass):
             "bought_from_grid": 0.,
             "spent_to_grid": 0.,
             "sold_to_grid": 0.,
+            "sold_to_community": 0.,
             "earned_from_grid": 0.,
             "home_balance_kWh": 0.,
             "home_balance": 0.,
