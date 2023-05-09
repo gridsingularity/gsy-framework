@@ -1,4 +1,5 @@
 from pendulum import datetime, duration
+from gsy_framework.utils import convert_str_to_pendulum_in_dict
 
 START_TIME = datetime(2021, 1, 25, 0, 0)
 END_TIME_1DAY = datetime(2021, 1, 25, 23, 45)
@@ -71,5 +72,5 @@ second_day = {"2021-01-26T00:00": 0.1, "2021-01-26T00:15": 0.1, "2021-01-26T00:3
               "2021-01-26T23:15": 0.1, "2021-01-26T23:30": 0.1, "2021-01-26T23:45": 0.1
               }
 
-ONE_DAY_PROFILE = first_day
-MULTI_DAY_PROFILE = {**first_day, **second_day}
+ONE_DAY_PROFILE = convert_str_to_pendulum_in_dict(first_day)
+MULTI_DAY_PROFILE = convert_str_to_pendulum_in_dict({**first_day, **second_day})
