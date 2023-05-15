@@ -113,9 +113,11 @@ class BaseBidOffer:
             if order_dict_copy.get("time_slot") else None)
 
         if order_dict_copy.get("seller"):
-            order_dict_copy["seller"] = TraderDetails.from_json(order_dict_copy["seller"])
+            order_dict_copy["seller"] = TraderDetails.from_serializable_dict(
+                order_dict_copy["seller"])
         if order_dict_copy.get("buyer"):
-            order_dict_copy["buyer"] = TraderDetails.from_json(order_dict_copy["buyer"])
+            order_dict_copy["buyer"] = TraderDetails.from_serializable_dict(
+                order_dict_copy["buyer"])
 
         if object_type == "Offer":
             return Offer(**order_dict_copy)
@@ -158,9 +160,9 @@ class TraderDetails:
         }
 
     @staticmethod
-    def from_json(json_dict) -> "TraderDetails":
-        """Get a TraderDetails object from a JSON dict."""
-        return TraderDetails(**json_dict)
+    def from_serializable_dict(trader_details: Dict) -> "TraderDetails":
+        """Get a TraderDetails object from a serializable dictionary."""
+        return TraderDetails(**trader_details)
 
 
 class Offer(BaseBidOffer):
@@ -354,13 +356,13 @@ class Trade:
     def csv_fields(cls) -> Tuple:
         """Return labels for csv_values for CSV export."""
         return ("creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "seller origin",
-                "buyer", "buyer origin", "matching_requirements")
+                "buyer", "buyer origin")
 
     def csv_values(self) -> Tuple:
         """Return values of class members that are needed for creation of CSV export."""
         rate = round(self.trade_rate, 4)
         return (self.creation_time, rate, self.traded_energy, self.seller.name,
-                self.seller.origin, self.buyer.name, self.buyer.origin, self.matching_requirements)
+                self.seller.origin, self.buyer.name, self.buyer.origin)
 
     def to_json_string(self) -> str:
         """Return json string of the representation."""
@@ -396,10 +398,6 @@ class Trade:
             TradeBidOfferInfo.from_json(trade_dict["offer_bid_trade_info"])
             if trade_dict.get("offer_bid_trade_info") else None)
 
-        if trade_dict["seller"] is not None:
-            trade_dict["seller"] = TraderDetails.from_json(trade_dict["seller"])
-        if trade_dict["buyer"] is not None:
-            trade_dict["buyer"] = TraderDetails.from_json(trade_dict["buyer"])
         return cls.from_serializable_dict(trade_dict)
 
     @property
@@ -447,11 +445,12 @@ class Trade:
 
     @classmethod
     def from_serializable_dict(cls, trade_dict: Dict) -> "Trade":
-        """Return a json serializable representation of the class."""
+        """Return a Trade object parsed from trade_dict."""
         return Trade(
             id=trade_dict["id"],
             creation_time=trade_dict["creation_time"],
-            seller=trade_dict["seller"], buyer=trade_dict["buyer"],
+            seller=TraderDetails.from_serializable_dict(trade_dict["seller"]),
+            buyer=TraderDetails.from_serializable_dict(trade_dict["buyer"]),
             traded_energy=trade_dict["energy"], trade_price=trade_dict["price"],
             offer=trade_dict["offer"], bid=trade_dict["bid"],
             offer_bid_trade_info=trade_dict.get("offer_bid_trade_info"),

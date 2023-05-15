@@ -541,15 +541,14 @@ class TestTrade:
     def test_csv_fields():
         assert Trade.csv_fields() == (
             "creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "seller origin", "buyer",
-            "buyer origin", "matching_requirements")
+            "buyer origin")
 
     def test_csv_values(self):
         trade = Trade(**self.initial_data)
         rate = round(trade.trade_rate, 4)
         assert (trade.csv_values() ==
                 (trade.creation_time, rate, trade.traded_energy, trade.seller.name,
-                 trade.seller.origin, trade.buyer.name, trade.buyer.origin,
-                 trade.matching_requirements))
+                 trade.seller.origin, trade.buyer.name, trade.buyer.origin))
 
     def test_to_json_string(self):
         trade = Trade(**self.initial_data)
