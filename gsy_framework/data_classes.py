@@ -398,6 +398,11 @@ class Trade:
             TradeBidOfferInfo.from_json(trade_dict["offer_bid_trade_info"])
             if trade_dict.get("offer_bid_trade_info") else None)
 
+        if trade_dict["seller"] is not None:
+            trade_dict["seller"] = TraderDetails.from_serializable_dict(trade_dict["seller"])
+        if trade_dict["buyer"] is not None:
+            trade_dict["buyer"] = TraderDetails.from_serializable_dict(trade_dict["buyer"])
+
         return cls.from_serializable_dict(trade_dict)
 
     @property
@@ -449,8 +454,7 @@ class Trade:
         return Trade(
             id=trade_dict["id"],
             creation_time=trade_dict["creation_time"],
-            seller=TraderDetails.from_serializable_dict(trade_dict["seller"]),
-            buyer=TraderDetails.from_serializable_dict(trade_dict["buyer"]),
+            seller=trade_dict["seller"], buyer=trade_dict["buyer"],
             traded_energy=trade_dict["energy"], trade_price=trade_dict["price"],
             offer=trade_dict["offer"], bid=trade_dict["bid"],
             offer_bid_trade_info=trade_dict.get("offer_bid_trade_info"),
