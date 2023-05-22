@@ -19,8 +19,8 @@ import ast
 import csv
 import os
 from enum import Enum
-from typing import Any, Dict
-
+from typing import Any, Dict, Optional, Generator
+from datetime import timedelta, datetime
 from pendulum import DateTime, duration, from_format, from_timestamp, today
 
 from gsy_framework.constants_limits import (
@@ -30,38 +30,36 @@ from gsy_framework.utils import (
     convert_kW_to_kWh, find_object_of_same_weekday_and_time, generate_market_slot_list,
     return_ordered_dict)
 
-"""
-Exposes mixins that can be used from strategy classes.
-"""
-
-
 DATE_TIME_FORMAT_SPACED = "YYYY-MM-DD HH:mm:ss"
+
+
+class GSyProfileException(Exception):
+    """Exception that is raised when handling profiles."""
 
 
 class InputProfileTypes(Enum):
     """Different types of input profiles."""
 
     IDENTITY = 1  # Profile values are not converted (they're used as they are)
-    POWER = 2  # Profile values are treated as power values in W
-    # Profile values are treated as Rebase input. They are currently power values in W, but we want
-    # to be flexible to change in case they change it to some other unit
-    REBASE = 3
+    POWER_W = 2  # Profile power values in W (deprecated and only kept for old profiles in DB)
+    REBASE_W = 3  # Profile power values in W from REBASE API
+    # (deprecated; only kept for old profiles in DB)
+    ENERGY_KWH = 4
 
 
-def _str_to_datetime(time_str, time_format) -> DateTime:
+def _str_to_datetime(time_string, time_format) -> DateTime:
     """
-    Converts time_str into a pendulum (DateTime) object that either takes the global start date or
-    the provided one, dependant on the time_format
+    Converts time_string into a pendulum (DateTime) object that either takes the global start date
+    or the provided one, dependent on the time_format
     :return: DateTime
     """
-    time = from_format(time_str, time_format, tz=TIME_ZONE)
+    time = from_format(time_string, time_format, tz=TIME_ZONE)
     if time_format in [DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_FORMAT_SPACED]:
         return time
-    elif time_format == TIME_FORMAT:
+    if time_format == TIME_FORMAT:
         return GlobalConfig.start_date.add(
             hours=time.hour, minutes=time.minute, seconds=time.second)
-    else:
-        raise GSyReadProfileException("Provided time_format invalid.")
+    raise GSyReadProfileException("Provided time_format invalid.")
 
 
 def default_profile_dict(val=None, current_timestamp=None) -> Dict[DateTime, int]:
@@ -77,6 +75,7 @@ def default_profile_dict(val=None, current_timestamp=None) -> Dict[DateTime, int
 
 
 def is_number(number):
+    """return if number is float"""
     try:
         float(number)
         return True
@@ -90,13 +89,14 @@ def _remove_header(profile_dict: Dict) -> Dict:
     Header entries have values that are not representations of numbers
     """
     out_dict = {}
-    for k, v in profile_dict.items():
-        if is_number(v):
-            out_dict[k] = v
+    for time_stamp, value in profile_dict.items():
+        if is_number(value):
+            out_dict[time_stamp] = value
     return out_dict
 
 
 def _eval_single_format(time_dict, time_format):
+    # pylint: disable=expression-not-assigned
     try:
         [from_format(str(ti), time_format) for ti in time_dict.keys()]
         return time_format
@@ -121,7 +121,7 @@ def _eval_time_format(time_dict: Dict) -> str:
         f"'{DATE_TIME_FORMAT}', '{DATE_TIME_FORMAT_SECONDS}')")
 
 
-def _readCSV(path: str) -> Dict:
+def _read_csv(path: str) -> Dict:
     """
     Read a 2-column csv profile file. First column is the time, second column
     is the value (power, energy, rate, ...)
@@ -129,7 +129,7 @@ def _readCSV(path: str) -> Dict:
     :return: Dict[DateTime, value]
     """
     profile_data = {}
-    with open(path) as csv_file:
+    with open(path, encoding="utf-8") as csv_file:
         csv_rows = csv.reader(csv_file)
         for row in csv_rows:
             if len(row) == 0:
@@ -147,6 +147,7 @@ def _readCSV(path: str) -> Dict:
 
 
 def _interpolate_profile_values_to_slot(profile_data_W, slot_length):
+    # pylint: disable=invalid-name
     input_time_list = list(profile_data_W.keys())
 
     # add one market slot in order to have another data point for integration
@@ -160,8 +161,9 @@ def _interpolate_profile_values_to_slot(profile_data_W, slot_length):
     input_time_seconds_list = [(ti - time0).in_seconds()
                                for ti in input_time_list]
 
-    slot_time_list = [i for i in range(input_time_seconds_list[0], input_time_seconds_list[-1],
-                                       slot_length.in_seconds())]
+    slot_time_list = list(range(input_time_seconds_list[0], input_time_seconds_list[-1],
+                                slot_length.in_seconds())
+                          )
 
     second_power_list_W = [
         input_power_list_W[index - 1]
@@ -170,7 +172,7 @@ def _interpolate_profile_values_to_slot(profile_data_W, slot_length):
     ]
 
     avg_power_kW = []
-    for index, slot in enumerate(slot_time_list):
+    for index, _ in enumerate(slot_time_list):
         first_index = index * slot_length.in_seconds()
         if first_index <= len(second_power_list_W):
             avg_power_kW.append(second_power_list_W[first_index] / 1000.)
@@ -178,8 +180,10 @@ def _interpolate_profile_values_to_slot(profile_data_W, slot_length):
     return avg_power_kW, slot_time_list
 
 
-def _calculate_energy_from_power_profile(profile_data_W: Dict[DateTime, float],
-                                         slot_length: duration) -> Dict[DateTime, float]:
+def _calculate_energy_from_power_profile(
+        profile_data_W: Dict[DateTime, float],
+        slot_length: duration) -> Dict[DateTime, float]:
+    # pylint: disable=invalid-name
     """
     Calculates energy from power profile. Does not use numpy, calculates avg power for each
     market slot and based on that calculates energy.
@@ -239,14 +243,14 @@ def _read_from_different_sources_todict(
 
     if os.path.isfile(str(input_profile)):
         # input is csv file
-        profile = _readCSV(input_profile)
+        profile = _read_csv(input_profile)
 
-    elif isinstance(input_profile, dict) or isinstance(input_profile, str):
+    elif isinstance(input_profile, (dict, str)):
         # input is profile
 
         if isinstance(input_profile, str):
             # input in JSON formatting
-            profile = ast.literal_eval(input_profile.encode('utf-8').decode("utf-8-sig"))
+            profile = ast.literal_eval(input_profile.encode("utf-8").decode("utf-8-sig"))
             # Remove filename entry to support d3a-web profiles
             profile.pop("filename", None)
             profile = _remove_header(profile)
@@ -265,8 +269,7 @@ def _read_from_different_sources_todict(
             profile = {_str_to_datetime(key, time_format): val
                        for key, val in input_profile.items()}
 
-        elif isinstance(list(input_profile.keys())[0], int) or \
-                isinstance(list(input_profile.keys())[0], float):
+        elif isinstance(list(input_profile.keys())[0], (float, int)):
             # input is hourly profile
 
             profile = dict(
@@ -278,9 +281,7 @@ def _read_from_different_sources_todict(
             raise GSyReadProfileException(
                 "Unsupported input type : " + str(list(input_profile.keys())[0]))
 
-    elif isinstance(input_profile, int) or \
-            isinstance(input_profile, float) or \
-            isinstance(input_profile, tuple):
+    elif isinstance(input_profile, (float, int, tuple)):
         # input is single value
         profile = default_profile_dict(val=input_profile, current_timestamp=current_timestamp)
 
@@ -291,16 +292,17 @@ def _read_from_different_sources_todict(
     return profile
 
 
-def time_str(hour, minute):
+def _hour_time_str(hour: float, minute: float) -> str:
     return f"{hour:02}:{minute:02}"
 
 
-def copy_profile_to_multiple_days(in_profile):
-    daytime_dict = dict((time_str(time.hour, time.minute), time) for time in in_profile.keys())
+def _copy_profile_to_multiple_days(in_profile):
+    daytime_dict = dict(
+        (_hour_time_str(time.hour, time.minute), time) for time in in_profile.keys())
     out_profile = {}
     for slot_time in generate_market_slot_list():
         if slot_time not in out_profile.keys():
-            time_key = time_str(slot_time.hour, slot_time.minute)
+            time_key = _hour_time_str(slot_time.hour, slot_time.minute)
             if time_key in daytime_dict:
                 out_profile[slot_time] = in_profile[daytime_dict[time_key]]
     return out_profile
@@ -309,7 +311,7 @@ def copy_profile_to_multiple_days(in_profile):
 @return_ordered_dict
 def read_arbitrary_profile(profile_type: InputProfileTypes,
                            input_profile,
-                           current_timestamp: DateTime = None) -> Dict[DateTime, float]:
+                           current_timestamp: DateTime = None) -> Optional[Dict[DateTime, float]]:
     """
     Reads arbitrary profile.
     Handles csv, dict and string input.
@@ -328,16 +330,17 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
     profile_duration = profile_time_list[-1] - profile_time_list[0]
     if GlobalConfig.sim_duration > duration(days=1) >= profile_duration or \
             GlobalConfig.IS_CANARY_NETWORK:
-        profile = copy_profile_to_multiple_days(profile)
+        profile = _copy_profile_to_multiple_days(profile)
     if profile is not None:
-
-        zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
-        filled_profile = _fill_gaps_in_profile(profile, zero_value_slot_profile)
-
-        if profile_type in [InputProfileTypes.POWER, InputProfileTypes.REBASE]:
-            return _calculate_energy_from_power_profile(filled_profile, GlobalConfig.slot_length)
-        else:
+        if profile_type is not InputProfileTypes.ENERGY_KWH:
+            zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
+            filled_profile = _fill_gaps_in_profile(profile, zero_value_slot_profile)
+            if profile_type in [InputProfileTypes.POWER_W, InputProfileTypes.REBASE_W]:
+                return _calculate_energy_from_power_profile(
+                    filled_profile, GlobalConfig.slot_length)
             return filled_profile
+        return profile
+    return None
 
 
 def _generate_slot_based_zero_values_dict_from_profile(profile, slot_length_mins=15):
@@ -352,12 +355,13 @@ def _generate_slot_based_zero_values_dict_from_profile(profile, slot_length_mins
 
     profile_duration = end_time - start_datetime
     return {
-        start_datetime + duration(minutes=slot_length_mins*i): 0.0
-        for i in range((int(profile_duration.total_minutes()) // slot_length_mins)+1)
+        start_datetime + duration(minutes=slot_length_mins * i): 0.0
+        for i in range((int(profile_duration.total_minutes()) // slot_length_mins) + 1)
     }
 
 
 def read_profile_without_config(input_profile: Dict, slot_length_mins=15) -> Dict[DateTime, float]:
+    """Read profile without using a configuration."""
     profile = _read_from_different_sources_todict(input_profile)
     if profile is not None:
         slot_based_profile = _generate_slot_based_zero_values_dict_from_profile(
@@ -371,17 +375,50 @@ def read_profile_without_config(input_profile: Dict, slot_length_mins=15) -> Dic
             from_timestamp(slots[ii]): energy
             for ii, energy in enumerate(profile_values)
         }
-    else:
-        raise GSyReadProfileException(
-            "Profile file cannot be read successfully. Please reconfigure the file path.")
+
+    raise GSyReadProfileException(
+        "Profile file cannot be read successfully. Please reconfigure the file path.")
 
 
-def read_and_convert_identity_profile_to_float(profile, current_timestamp: DateTime = None):
-    parsed_profile = ast.literal_eval(str(profile))
-    generated_profile = read_arbitrary_profile(InputProfileTypes.IDENTITY, parsed_profile,
-                                               current_timestamp=current_timestamp)
-    return {k: float(v) for k, v in generated_profile.items()}
+def _generate_time_slots(
+        slot_length: timedelta, sim_duration: timedelta, start_date: datetime
+) -> Generator:
+    return (start_date + timedelta(seconds=slot_length.total_seconds() * time_diff_count)
+            for time_diff_count in range(
+        int(sim_duration.total_seconds() / slot_length.total_seconds())))
 
 
-def convert_identity_profile_to_float(profile, current_timestamp: DateTime = None):
-    return {k: float(v) for k, v in profile.items()}
+def _get_from_profile(profile: Dict[datetime, float], key: datetime) -> float:
+    try:
+        return profile[key]
+    except KeyError as ex:
+        raise GSyProfileException(f"The input profile does not contain the key {key}") from ex
+
+
+def resample_hourly_energy_profile(
+        input_profile: Dict[DateTime, float], slot_length: timedelta, sim_duration: timedelta,
+        start_date: datetime) -> Dict[DateTime, float]:
+    """Resample hourly energy profile in order to fit to the set slot_length."""
+    slot_length_minutes = slot_length.total_seconds() / 60
+    if slot_length_minutes < 60:
+        if 60 % slot_length_minutes != 0:
+            raise GSyProfileException("slot_length is not an exact division of 60 minutes")
+        scaling_factor = 60 / slot_length_minutes
+        out_dict = {}
+        for time_slot in _generate_time_slots(slot_length, sim_duration, start_date):
+            hour_time_slot = datetime(time_slot.year, time_slot.month, time_slot.day,
+                                      time_slot.hour, tzinfo=time_slot.tzinfo)
+            out_dict[time_slot] = _get_from_profile(input_profile, hour_time_slot) / scaling_factor
+        return out_dict
+    if slot_length_minutes > 60:
+        if slot_length_minutes % 60 != 0:
+            raise GSyProfileException("slot_length is not multiple of 1 hour")
+        number_of_aggregated_slots = int(slot_length_minutes / 60)
+        return {
+            time_slot: sum(
+                _get_from_profile(
+                    input_profile, time_slot.add(minutes=slot_length_minutes * nn))
+                for nn in range(number_of_aggregated_slots))
+            for time_slot in _generate_time_slots(slot_length, sim_duration, start_date)
+        }
+    return input_profile

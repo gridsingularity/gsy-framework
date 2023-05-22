@@ -98,7 +98,7 @@ def generate_market_slot_list(start_timestamp=None):
     No input arguments, required input is only handled by a preconfigured GlobalConfig
     @return: List with market slot datetimes
     """
-    time_span = duration(days=PROFILE_EXPANSION_DAYS)\
+    time_span = duration(days=PROFILE_EXPANSION_DAYS) \
         if GlobalConfig.IS_CANARY_NETWORK \
         else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
     time_span += duration(hours=ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS)
@@ -298,6 +298,7 @@ def create_subdict_or_update(indict, key, subdict):
 
 class RepeatingTimer(Timer):
     """Threading timer that repeats the execution of a function at predefined intervals."""
+
     def run(self):
         while not self.finished.is_set():
             self.function(*self.args, **self.kwargs)
@@ -441,15 +442,15 @@ def area_name_from_area_or_ma_name(name: str) -> str:
 def area_bought_from_child(trade: dict, area_name: str, child_names: list):
     """Check if the area with the given name bought energy from one of its children."""
     return (
-        area_name_from_area_or_ma_name(trade["buyer"]["name"]) == area_name
-        and area_name_from_area_or_ma_name(trade["seller"]["name"]) in child_names)
+            area_name_from_area_or_ma_name(trade["buyer"]["name"]) == area_name
+            and area_name_from_area_or_ma_name(trade["seller"]["name"]) in child_names)
 
 
 def area_sells_to_child(trade: dict, area_name: str, child_names: list):
     """Check if the area with the given name sold energy to one of its children."""
     return (
-        area_name_from_area_or_ma_name(trade["seller"]["name"]) == area_name
-        and area_name_from_area_or_ma_name(trade["buyer"]["name"]) in child_names)
+            area_name_from_area_or_ma_name(trade["seller"]["name"]) == area_name
+            and area_name_from_area_or_ma_name(trade["buyer"]["name"]) in child_names)
 
 
 # pylint: disable=invalid-name
@@ -472,9 +473,11 @@ def convert_kW_to_kWh(power_W, slot_length):
 
 def return_ordered_dict(function):
     """Decorator to convert the dictionary returned by the wrapped function into an OrderedDict."""
+
     @wraps(function)
     def wrapper(*args, **kwargs):
         return OrderedDict(sorted(function(*args, **kwargs).items()))
+
     return wrapper
 
 
@@ -494,6 +497,7 @@ def scenario_representation_traversal(sc_repr, parent=None):
 
 class HomeRepresentationUtils:
     """Class to calculate the stats of a home market."""
+
     @staticmethod
     def _is_home(representation):
         home_devices = ["PV", "Storage", "Load", "MarketMaker"]
@@ -504,12 +508,12 @@ class HomeRepresentationUtils:
     def is_home_area(cls, representation: Dict) -> bool:
         """Check if the representation is a market."""
         is_market_area = (
-            not key_in_dict_and_not_none(representation, "type")
-            or representation["type"] == "Area")
+                not key_in_dict_and_not_none(representation, "type")
+                or representation["type"] == "Area")
         has_home_assets = (
-            key_in_dict_and_not_none(representation, "children")
-            and representation["children"]
-            and cls._is_home(representation))
+                key_in_dict_and_not_none(representation, "children")
+                and representation["children"]
+                and cls._is_home(representation))
 
         return is_market_area and has_home_assets
 
