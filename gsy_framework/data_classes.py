@@ -405,12 +405,14 @@ class Trade:
     @property
     def is_bid_trade(self) -> bool:
         """Check if the instance is a bid trade."""
-        return self.match_details["bid"] is not None
+        return (self.offer_bid_trade_info.original_bid_rate is not None
+                if self.offer_bid_trade_info else False)
 
     @property
     def is_offer_trade(self) -> bool:
         """Check if the instance is an offer trade."""
-        return self.match_details["offer"] is not None
+        return (self.offer_bid_trade_info.original_offer_rate is not None
+                if self.offer_bid_trade_info else False)
 
     @property
     def trade_rate(self):

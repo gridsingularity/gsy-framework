@@ -526,6 +526,12 @@ class TestTrade:
             "buyer": self._buyer,
             "traded_energy": 1,
             "trade_price": 1,
+            "offer_bid_trade_info": TradeBidOfferInfo(
+                original_bid_rate=None,
+                propagated_bid_rate=None,
+                original_offer_rate=1,
+                propagated_offer_rate=2,
+                trade_rate=1),
             "matching_requirements": {"requirement": "value"}}
 
     def test_str(self):
@@ -583,8 +589,12 @@ class TestTrade:
         )
         assert trade.is_bid_trade is False
 
-        trade.match_details["bid"] = Bid("id", DateTime.now(), 1, 2, self._buyer)
-        trade.match_details["offer"] = None
+        trade.offer_bid_trade_info = TradeBidOfferInfo(
+            original_bid_rate=1,
+            propagated_bid_rate=2,
+            original_offer_rate=None,
+            propagated_offer_rate=None,
+            trade_rate=1)
         assert trade.is_bid_trade is True
 
     def test_is_offer_trade(self):
@@ -593,8 +603,12 @@ class TestTrade:
         )
         assert trade.is_offer_trade is True
 
-        trade.match_details["bid"] = Bid("id", DateTime.now(), 1, 2, self._buyer)
-        trade.match_details["offer"] = None
+        trade.offer_bid_trade_info = TradeBidOfferInfo(
+            original_bid_rate=1,
+            propagated_bid_rate=2,
+            original_offer_rate=None,
+            propagated_offer_rate=None,
+            trade_rate=1)
         assert trade.is_offer_trade is False
 
     def test_serializable_dict(self):
