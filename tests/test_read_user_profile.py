@@ -21,9 +21,10 @@ from pendulum import datetime, duration, today
 from gsy_framework.constants_limits import PROFILE_EXPANSION_DAYS, TIME_ZONE, GlobalConfig
 from gsy_framework.read_user_profile import (
     InputProfileTypes, _fill_gaps_in_profile, _generate_slot_based_zero_values_dict_from_profile,
-    _interpolate_profile_values_to_slot, read_and_convert_identity_profile_to_float,
-    read_arbitrary_profile, read_profile_without_config)
+    _interpolate_profile_values_to_slot, read_arbitrary_profile, read_profile_without_config,
+    resample_hourly_energy_profile)
 from gsy_framework.unit_test_utils import assert_dicts_identical
+from gsy_framework.utils import convert_str_to_pendulum_in_dict
 
 
 @pytest.fixture(name="set_is_canary_network")
@@ -42,14 +43,6 @@ def set_is_canary_network_fixture():
 
 class TestReadUserProfile:
     """Test reading the user profiles."""
-
-    @staticmethod
-    def test_read_and_convert_identity_profile_to_float():
-        profile = "30.4"
-        output_profile = read_and_convert_identity_profile_to_float(profile)
-        # All slots are generated (96 slots of 15 minutes each in one day)
-        assert len(output_profile) == 96
-        assert all(value == 30.4 for value in output_profile.values())
 
     @staticmethod
     def _validate_timedeltas_are_followed(profile):
@@ -155,3 +148,44 @@ class TestReadUserProfile:
         mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
         time_diff = list(mmr.keys())[-1] - today(tz=TIME_ZONE)
         assert time_diff.minutes == 45
+
+    @staticmethod
+    def test_resample_energy_profile_performs_correctly_for_lower_resolutions():
+        input_profile = {"2021-01-25T00:00": 0.1, "2021-01-25T01:00": 0.1, "2021-01-25T02:00": 0.1,
+                         "2021-01-25T03:00": 0.1, "2021-01-25T04:00": 0.1}
+        result_profile = resample_hourly_energy_profile(
+            convert_str_to_pendulum_in_dict(input_profile),
+            duration(minutes=15),
+            duration(hours=4),
+            datetime(2021, 1, 25, 0, 0))
+        assert len(result_profile) == 16
+        first_time_stamp = next(iter(result_profile))
+        last_time_stamp = next(reversed(result_profile))
+        assert first_time_stamp == datetime(2021, 1, 25, 0, 0)
+        assert last_time_stamp == datetime(2021, 1, 25, 3, 45)
+        assert all(value == 0.025 for value in result_profile.values())
+
+    @staticmethod
+    def test_resample_energy_profile_performs_correctly_for_higher_resolutions():
+        input_profile = {"2021-01-25T00:00": 0.1, "2021-01-25T01:00": 0.1, "2021-01-25T02:00": 0.1,
+                         "2021-01-25T03:00": 0.1, "2021-01-25T04:00": 0.1, "2021-01-25T05:00": 0.1,
+                         "2021-01-25T06:00": 0.1}
+        result_profile = resample_hourly_energy_profile(
+            convert_str_to_pendulum_in_dict(input_profile),
+            duration(hours=2),
+            duration(hours=6),
+            datetime(2021, 1, 25, 0, 0))
+        assert result_profile == {datetime(2021, 1, 25, 0, 0, 0): 0.2,
+                                  datetime(2021, 1, 25, 2, 0, 0): 0.2,
+                                  datetime(2021, 1, 25, 4, 0, 0): 0.2}
+
+    @staticmethod
+    def test_resample_energy_profile_performs_correctly_for_equal_resolutions():
+        input_profile = {"2021-01-25T00:00": 0.1, "2021-01-25T01:00": 0.1, "2021-01-25T02:00": 0.1,
+                         "2021-01-25T03:00": 0.1, "2021-01-25T04:00": 0.1}
+        input_profile = convert_str_to_pendulum_in_dict(input_profile)
+        result_profile = resample_hourly_energy_profile(input_profile,
+                                                        duration(minutes=60),
+                                                        duration(hours=4),
+                                                        datetime(2021, 1, 25, 0, 0))
+        assert result_profile == input_profile
