@@ -27,24 +27,11 @@ class HeatPumpValidator(BaseValidator):
             name="maximum_power_rating_kW", value=kwargs["maximum_power_rating_kW"],
             min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
             max_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max)
-
-        if (kwargs["consumption_kW"] is not None and
-                kwargs["consumption_profile_uuid"] is not None):
+        if (kwargs.get("consumption_kWh_profile") is None and
+                kwargs.get("consumption_kWh_profile_uuid") is None):
             raise GSyDeviceException(
                 {"misconfiguration": [
-                    "consumption_kW shouldn't be set with consumption_profile_uuid."]})
-
-        if (kwargs["consumption_kW"] is None and
-                kwargs["consumption_profile_uuid"] is None):
-            raise GSyDeviceException(
-                {"misconfiguration": [
-                    "Either consumption_kW or consumption_profile_uuid should be set."]})
-
-        if kwargs["consumption_profile_uuid"] is None:
-            cls._check_range(
-                name="consumption_kW", value=kwargs["consumption_kW"],
-                min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
-                max_value=kwargs["maximum_power_rating_kW"])
+                    "consumption_kWh_profile should be provided."]})
 
     @classmethod
     def _validate_temp(cls, **kwargs):
@@ -65,27 +52,27 @@ class HeatPumpValidator(BaseValidator):
                 {"misconfiguration": [
                     "Requirement 'min_temp_C <= max_temp_C' is not met."]})
 
-        if (kwargs["external_temp_C"] is not None and
-                kwargs["external_temp_profile_uuid"] is not None):
+        if (kwargs.get("external_temp_C_profile") is None and
+                kwargs.get("external_temp_C_profile_uuid") is None):
             raise GSyDeviceException(
                 {"misconfiguration": [
-                    "external_temp_C shouldn't be set with external_temp_profile_uuid."]})
-
-        if (kwargs["external_temp_C"] is None and
-                kwargs["external_temp_profile_uuid"] is None):
-            raise GSyDeviceException(
-                {"misconfiguration": [
-                    "Either external_temp_C or external_temp_profile_uuid should be set."]})
-
-        if kwargs["external_temp_profile_uuid"] is None:
-            cls._check_range(
-                name="external_temp_C", value=kwargs["external_temp_C"],
-                min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
-                max_value=HeatPumpSettings.TEMP_C_LIMIT.max)
+                    "external_temp_C_profile should be provided."]})
 
     @classmethod
     def _validate_rate(cls, **kwargs):
         """Validate energy rate related arguments."""
+        if not(kwargs.get("initial_buying_rate")
+               and kwargs.get("final_buying_rate")
+               and kwargs.get("update_interval")):
+            return
+        if (not kwargs.get("initial_buying_rate")
+                or not kwargs.get("final_buying_rate")
+                or not kwargs.get("update_interval")):
+            raise GSyDeviceException(
+                {"misconfiguration": [
+                    "All pricing parameters of heat pump should be provided:"
+                    "initial_buying_rate, final_buying_rate, update_interval"]})
+
         buying_rate_arg_names = [
             "initial_buying_rate", "preferred_buying_rate", "final_buying_rate"]
         for buying_rate_arg_name in buying_rate_arg_names:
