@@ -13,7 +13,7 @@ class HeatPumpValidator(BaseValidator):
     def validate(cls, **kwargs):
         cls._validate_energy(**kwargs)
         cls._validate_temp(**kwargs)
-        cls._validate_rate(**kwargs)
+        cls.validate_rate(**kwargs)
 
         cls._check_range(
             name="tank_volume_l", value=kwargs["tank_volume_l"],
@@ -59,7 +59,7 @@ class HeatPumpValidator(BaseValidator):
                     "external_temp_C_profile should be provided."]})
 
     @classmethod
-    def _validate_rate(cls, **kwargs):
+    def validate_rate(cls, **kwargs):
         """Validate energy rate related arguments."""
         if not(kwargs.get("initial_buying_rate")
                and kwargs.get("final_buying_rate")
