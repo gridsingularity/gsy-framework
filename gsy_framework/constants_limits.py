@@ -68,6 +68,7 @@ class ConstSettings:
         SDK_COM_QUEUE_NAME = "sdk-events-responses"
         CN_JOB_QUEUE_NAME = "canary_network"
         SIM_JOB_QUEUE_NAME = "exchange"
+        SIM_JOB_PAID_QUEUE_NAME = "exchange-paid"
 
         EXCHANGE_ERROR_CHANNEL = "gsy-e-errors"
 
