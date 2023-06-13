@@ -215,8 +215,8 @@ class AggregatorChannels:
     def events(self) -> str:
         return f"external-aggregator/{self._config_uuid}/{self._aggregator_uuid}/events/all"
 
-    @classmethod
-    def response(cls) -> str:
+    @property
+    def response(self) -> str:
         return "aggregator-response"
 
     @property
