@@ -207,7 +207,7 @@ class ExternalStrategyChannels:
 class AggregatorChannels:
     """Channels for external aggregator connection"""
 
-    def __init__(self, config_uuid: str, aggregator_uuid: str):
+    def __init__(self, config_uuid: str = "", aggregator_uuid: str = ""):
         self._config_uuid = config_uuid
         self._aggregator_uuid = aggregator_uuid
 
