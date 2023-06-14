@@ -250,3 +250,4 @@ class QueueNames:
     sdk_communication = "sdk-events-responses"
     canary_job = "canary_network"
     simulation_job = "exchange"
+    simulation_job_paid = "exchange-paid"
