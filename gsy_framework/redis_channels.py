@@ -221,7 +221,7 @@ class AggregatorChannels:
 
     @property
     def batch_commands(self) -> str:
-        return f"external-aggregator/{self._config_uuid}/{self._aggregator_uuid}/batch_commands"
+        return f"external-aggregator/{self._config_uuid}/batch_commands"
 
     @property
     def batch_commands_response(self) -> str:
