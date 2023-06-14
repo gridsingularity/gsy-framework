@@ -293,7 +293,6 @@ class GlobalConfig:
 
 class HeartBeat:
     """Default settings for heartbeat functionalities (to check the liveness of simulations)."""
-    CHANNEL_NAME = "d3a-heartbeat"
     RATE = 5  # in secs
     TOLERANCE = 16  # in secs
 
