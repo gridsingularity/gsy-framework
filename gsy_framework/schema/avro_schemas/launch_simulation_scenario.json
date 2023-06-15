@@ -158,6 +158,7 @@
                 ]},
                 {"name": "power_profile", "type": ["null", "string"]},
                 {"name": "power_profile_uuid", "type": ["null", "string"]},
+                {"name": "capacity_kW", "type": ["null", "float"]},
                 {"name": "tilt", "type": ["null", "float"]},
                 {"name": "azimuth", "type": ["null", "float"]},
                 {"name": "panel_count", "type": ["null", "int"]},
