@@ -1,5 +1,6 @@
 # pylint: disable=missing-function-docstring
 from dataclasses import dataclass
+import os
 
 
 class SimulationCommandChannels:
@@ -247,7 +248,16 @@ class ExchangeChannels:
 class QueueNames:
     """Names for redis queues"""
 
-    sdk_communication = "sdk-events-responses"
-    canary_job = "canary_network"
-    simulation_job = "exchange"
-    simulation_job_paid = "exchange-paid"
+    sdk_communication = os.environ.get("GSYE_SDK_EVENTS_RESPONSES_QUEUE", "sdk-events-responses")
+    canary_job = os.environ.get("GSYE_CANARY_JOB_QUEUE", "canary_network")
+    simulation_job = os.environ.get("GSYE_SIMULATION_JOB_QUEUE", "exchange")
+    simulation_job_paid = os.environ.get("GSYE_PAID_SIMULATION_JOB_QUEUE", "exchange-paid")
+
+    @property
+    def gsy_e_queue_name(self):
+        """Get simulation queue name."""
+        if os.environ.get("LISTEN_TO_CANARY_NETWORK_REDIS_QUEUE", "no") == "yes":
+            return self.canary_job
+        if os.environ.get("LISTEN_TO_PAID_CUSTOMER_REDIS_QUEUE", "no") == "yes":
+            return self.simulation_job_paid
+        return self.simulation_job
