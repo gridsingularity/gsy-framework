@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 from unittest.mock import patch, MagicMock
+
 import pytest
 from pendulum import datetime, today, duration
 
@@ -32,19 +33,19 @@ from gsy_framework.utils import (
 @pytest.fixture(name="scenario_repr")
 def scenario_repr_fixture():
     return {
-            "name": "grid",
-            "children": [
-                {"name": "S1 House", "children": [
-                    {"name": "Load", "type": "Load"},
-                    {"name": "Home Battery", "type": "Storage"}
-                ]},
-                {"name": "S2 House", "children": [
-                    {"name": "Load", "type": "Load"},
-                    {"name": "Home Battery", "type": "Storage"},
-                    {"name": "Home PV", "type": "PV"}
-                ]}
-            ]
-        }
+        "name": "grid",
+        "children": [
+            {"name": "S1 House", "children": [
+                {"name": "Load", "type": "Load"},
+                {"name": "Home Battery", "type": "Storage"}
+            ]},
+            {"name": "S2 House", "children": [
+                {"name": "Load", "type": "Load"},
+                {"name": "Home Battery", "type": "Storage"},
+                {"name": "Home PV", "type": "PV"}
+            ]}
+        ]
+    }
 
 
 class TestUtils:

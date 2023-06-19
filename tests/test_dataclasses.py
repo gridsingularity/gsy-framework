@@ -370,12 +370,14 @@ class TestOffer:
         )
         rate = round(offer.energy_rate, 4)
         assert offer.csv_values() == (
-            offer.creation_time, rate, offer.energy, offer.price, offer.seller.name)
+            offer.creation_time, rate, offer.energy, offer.price, offer.seller.name,
+            offer.seller.origin)
 
     @staticmethod
     def test_csv_fields():
         assert (Offer.csv_fields() ==
-                ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller"))
+                ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "seller",
+                 "seller origin"))
 
     def test_copy(self):
         offer = Offer(
@@ -479,12 +481,14 @@ class TestBid:
             **self.initial_data
         )
         rate = round(bid.energy_rate, 4)
-        assert bid.csv_values() == (bid.creation_time, rate, bid.energy, bid.price, bid.buyer.name)
+        assert bid.csv_values() == (bid.creation_time, rate, bid.energy, bid.price, bid.buyer.name,
+                                    bid.buyer.origin)
 
     @staticmethod
     def test_csv_fields():
         assert (Bid.csv_fields() ==
-                ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer"))
+                ("creation_time", "rate [ct./kWh]", "energy [kWh]", "price [ct.]", "buyer",
+                 "buyer origin"))
 
     def test_accumulated_grid_fees(self):
         bid = Bid(**self.initial_data)
@@ -536,15 +540,15 @@ class TestTrade:
     @staticmethod
     def test_csv_fields():
         assert Trade.csv_fields() == (
-            "creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "buyer",
-            "matching_requirements")
+            "creation_time", "rate [ct./kWh]", "energy [kWh]", "seller", "seller origin", "buyer",
+            "buyer origin")
 
     def test_csv_values(self):
         trade = Trade(**self.initial_data)
         rate = round(trade.trade_rate, 4)
         assert (trade.csv_values() ==
                 (trade.creation_time, rate, trade.traded_energy, trade.seller.name,
-                 trade.buyer.name, trade.matching_requirements))
+                 trade.seller.origin, trade.buyer.name, trade.buyer.origin))
 
     def test_to_json_string(self):
         trade = Trade(**self.initial_data)
