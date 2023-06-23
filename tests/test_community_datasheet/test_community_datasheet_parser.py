@@ -5,7 +5,8 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
-from gsy_framework.community_datasheet.community_datasheet_parser import CommunityDatasheetParser
+from gsy_framework.community_datasheet.community_datasheet_parser import (
+    CommunityDatasheetParser, DefaultCommunityAreaNames)
 from gsy_framework.community_datasheet.location_converter import LocationConverterException
 from gsy_framework.community_datasheet.row_converters import AssetCoordinatesBuilder
 
@@ -121,13 +122,13 @@ class TestCommunityDatasheetParser:
         }
 
         assert datasheet.grid == {
-            "name": "Grid Market",
+            "name": DefaultCommunityAreaNames.GRID.value,
             "allow_external_connection": False,
             "uuid": "mocked-uuid",
             "type": "Area",
             "children": [
                 {
-                    "name": "",
+                    "name": DefaultCommunityAreaNames.INFINITE_BUS.value,
                     "allow_external_connection": False,
                     "uuid": "mocked-uuid",
                     "type": "InfiniteBus",
@@ -135,7 +136,7 @@ class TestCommunityDatasheetParser:
                     "energy_buy_rate": 30,
                 },
                 {
-                    "name": "Community",
+                    "name": DefaultCommunityAreaNames.COMMUNITY.value,
                     "allow_external_connection": False,
                     "uuid": "mocked-uuid",
                     "type": "Area",
