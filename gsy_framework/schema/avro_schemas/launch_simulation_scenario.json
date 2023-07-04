@@ -33,6 +33,7 @@
     {"name": "grid_fee_percentage", "type": ["null", "float"]},
     {"name": "coefficient_percentage", "type": ["null", "float"]},
     {"name": "marketplace_monthly_fee", "type": ["null", "float"]},
+    {"name": "assistance_monthly_fee", "type": ["null", "float"]},
     {"name": "allow_external_connection", "type": ["null", "boolean"]},
     {"name": "is_canary_network", "type": ["null", "boolean"]},
     {"name": "baseline_peak_energy_export_kWh", "type": ["null", "float"]},

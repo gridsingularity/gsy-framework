@@ -57,10 +57,22 @@ class CommunityMembersSheetHeader(str, Enum):
     UTILITY_PRICE = "Utility price"
     FEED_IN_TARIFF = "Feed-in Tariff"
     GRID_FEE = "Grid fee"
+    COEFFICIENT = "Coefficient"
+
+    @classmethod
+    def values(cls):
+        """Return all available values of the header."""
+        return tuple(item.value for item in cls)
+
+
+class CommunityMembersSheetHeaderOptional(str, Enum):
+    """Class defining the header columns of the Storage Sheet."""
+
     TAXES = "Taxes and surcharges"
     FIXED_FEE = "Fixed fee"
     MARKETPLACE_FEE = "Marketplace fee"
-    COEFFICIENT = "Coefficient"
+    SERVICE_FEE = "Service fee"
+    ASSISTANCE_FEE = "Assistance fee"
 
     @classmethod
     def values(cls):

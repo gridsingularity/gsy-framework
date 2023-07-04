@@ -39,6 +39,7 @@
                 {"name": "home_uuid", "type": "string"},
                 {"name": "market_maker_rate", "type": "float"},
                 {"name": "marketplace_monthly_fee", "type": "float"},
+                {"name": "assistance_monthly_fee", "type": "float"},
                 {"name": "production_kWh", "type": "float"},
                 {"name": "self_consumed_energy_kWh", "type": "float"},
                 {"name": "sharing_coefficient_percent", "type": "float"},
