@@ -87,8 +87,8 @@ class MembersRowConverter:
             cls, email: str, member_uuid: str, zip_code: str, address: str,
             market_maker_rate: float, feed_in_tariff: float, grid_fee_constant: float,
             taxes_surcharges: float, fixed_monthly_fee: float, marketplace_monthly_fee: float,
-            assistance_monthly_fee: float, coefficient_percentage: float, geo_tag_location: List = None,
-            asset_count: int = 0, member_name: str = None):
+            assistance_monthly_fee: float, coefficient_percentage: float,
+            geo_tag_location: List = None, asset_count: int = 0, member_name: str = None):
         # pylint: disable=too-many-arguments
         """Create a community member dict from individual member information."""
         zip_code = cls._parse_zip_code(zip_code)
