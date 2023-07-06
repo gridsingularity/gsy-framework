@@ -12,8 +12,8 @@ from gsy_framework.community_datasheet.row_converters import (
     GeneralSettingsRowConverter, LoadRowConverter, MembersRowConverter,
     PVRowConverter, StorageRowConverter)
 from gsy_framework.community_datasheet.sheet_headers import (
-    CommunityMembersSheetHeader, LoadSheetHeader, PVSheetHeader,
-    StorageSheetHeader)
+    CommunityMembersSheetHeader, CommunityMembersSheetHeaderOptional, LoadSheetHeader,
+    PVSheetHeader, StorageSheetHeader)
 from gsy_framework.constants_limits import DATE_TIME_FORMAT
 
 
@@ -136,7 +136,10 @@ class MembersSheetParser(SheetParserInterface):
 class CommunityMembersSheetParser(MembersSheetParser):
     """Class to parse the "Community Members" sheets."""
 
-    EXPECTED_HEADER = CommunityMembersSheetHeader.values()
+    EXPECTED_HEADER = [
+        *CommunityMembersSheetHeader.values(),
+        *CommunityMembersSheetHeaderOptional.values()]
+    OPTIONAL_COLUMN_NAMES = CommunityMembersSheetHeaderOptional.values()
 
     def _parse_header(self):
         """Check the header and skip it to read the actual content."""

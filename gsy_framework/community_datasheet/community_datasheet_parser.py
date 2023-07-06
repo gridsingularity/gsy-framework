@@ -149,5 +149,6 @@ class CommunityDatasheetParser:
             "taxes_surcharges": member_info["taxes_surcharges"],
             "fixed_monthly_fee": member_info["fixed_monthly_fee"],
             "marketplace_monthly_fee": member_info["marketplace_monthly_fee"],
+            "assistance_monthly_fee": member_info["assistance_monthly_fee"],
             "coefficient_percentage": member_info["coefficient_percentage"],
         }
