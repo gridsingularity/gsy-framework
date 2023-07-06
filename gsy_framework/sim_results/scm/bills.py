@@ -105,8 +105,8 @@ class SCMBills(ResultsBaseClass):
                 )
 
                 area_bills["assistance_fees_percent"] = (
-                        (area_bills["assistance_fee"] / gsy_energy_bill_excl_revenue) * 100.
-                )
+                        (area_bills.get("assistance_fee", 0.0) /
+                         gsy_energy_bill_excl_revenue) * 100.)
 
             self.bills_redis_results[area["uuid"]] = area_bills
             self.bills_results[area["name"]] = area_bills
