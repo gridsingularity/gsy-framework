@@ -40,10 +40,12 @@ class SCMBills(ResultsBaseClass):
             "grid_fees": 0.,
             "fixed_fee": 0.,
             "marketplace_fee": 0.,
+            "assistance_fee": 0.,
             "energy_cost_percent": 0.,
             "grid_fees_percent": 0.,
             "tax_surcharges_percent": 0.,
             "marketplace_fees_percent": 0.,
+            "assistance_fees_percent": 0.,
             "fixed_fees_percent": 0.
         }
 
@@ -100,6 +102,10 @@ class SCMBills(ResultsBaseClass):
 
                 area_bills["marketplace_fees_percent"] = (
                         (area_bills["marketplace_fee"] / gsy_energy_bill_excl_revenue) * 100.
+                )
+
+                area_bills["assistance_fees_percent"] = (
+                        (area_bills["assistance_fee"] / gsy_energy_bill_excl_revenue) * 100.
                 )
 
             self.bills_redis_results[area["uuid"]] = area_bills

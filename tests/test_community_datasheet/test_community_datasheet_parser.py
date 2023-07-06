@@ -293,6 +293,7 @@ class TestAssetCoordinatesBuilder:
             "taxes": None,
             "fixed_fee": None,
             "marketplace_fee": None,
+            "assistance_fee": None,
             "coefficient_percent": None,
         }
         coordinates_builder = AssetCoordinatesBuilder()

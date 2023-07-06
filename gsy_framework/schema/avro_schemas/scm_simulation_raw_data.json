@@ -164,6 +164,7 @@
                 {"name": "home_balance", "type": "float"},
                 {"name": "home_balance_kWh", "type": "float"},
                 {"name": "marketplace_fee", "type": "float"},
+                {"name": "assistance_fee", "type": "float"},
                 {"name": "savings", "type": "float"},
                 {"name": "savings_percent", "type": "float"},
                 {"name": "sold_to_community", "type": "float"},
