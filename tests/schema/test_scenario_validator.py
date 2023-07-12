@@ -271,6 +271,7 @@ class TestScenarioValidator:
                   "import_capacity_kVA": 1.0,
                   "coefficient_percentage": 0.0,
                   "marketplace_monthly_fee": 0.0,
+                  "assistance_monthly_fee": 0.0,
                   "allow_external_connection": True,
                   "baseline_peak_energy_export_kWh": 43.0,
                   "baseline_peak_energy_import_kWh": 23.0

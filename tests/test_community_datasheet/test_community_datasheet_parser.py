@@ -19,8 +19,10 @@ class TestCommunityDatasheetParser:
     @patch(f"{BASE_MODULE}.AssetCoordinatesBuilder", spec=True)
     @patch(
         "gsy_framework.community_datasheet.row_converters.uuid.uuid4", return_value="mocked-uuid")
-    def test_parse(_uuid_mock, asset_coordinates_builder_cls_mock):
-        filename = FIXTURES_PATH / "community_datasheet.xlsx"
+    @pytest.mark.parametrize("cds_file", ["community_datasheet.xlsx",
+                                          "community_datasheet_alt.xlsx"])
+    def test_parse(_uuid_mock, asset_coordinates_builder_cls_mock, cds_file):
+        filename = FIXTURES_PATH / cds_file
         members_information = {
             "Member 1": {
                 "email": "some-email-1@some-email.com",
@@ -32,6 +34,7 @@ class TestCommunityDatasheetParser:
                 "taxes_surcharges": 0.5,
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
+                "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
                 "coefficient_percentage": 0.5,
                 "uuid": "mocked-uuid",
                 "asset_count": 3
@@ -46,6 +49,7 @@ class TestCommunityDatasheetParser:
                 "taxes_surcharges": 0.5,
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
+                "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
                 "coefficient_percentage": 0.5,
                 "uuid": "mocked-uuid",
                 "asset_count": 2
@@ -221,6 +225,7 @@ class TestCommunityDatasheetParser:
                             "taxes_surcharges": 0.5,
                             "fixed_monthly_fee": 0.5,
                             "marketplace_monthly_fee": 0.5,
+                            "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
                             "coefficient_percentage": 0.5,
                         },
                         {
@@ -259,6 +264,7 @@ class TestCommunityDatasheetParser:
                             "taxes_surcharges": 0.5,
                             "fixed_monthly_fee": 0.5,
                             "marketplace_monthly_fee": 0.5,
+                            "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
                             "coefficient_percentage": 0.5,
                         },
                     ],
@@ -287,6 +293,7 @@ class TestAssetCoordinatesBuilder:
             "taxes": None,
             "fixed_fee": None,
             "marketplace_fee": None,
+            "assistance_fee": None,
             "coefficient_percent": None,
         }
         coordinates_builder = AssetCoordinatesBuilder()
