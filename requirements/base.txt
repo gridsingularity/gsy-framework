@@ -75,9 +75,7 @@ python-dateutil==2.8.2
 pytzdata==2020.1
     # via pendulum
 pyyaml==6.0.1
-    # via
-    #   -r requirements/base.ini
-    #   pre-commit
+    # via pre-commit
 ratelim==0.1.6
     # via geocoder
 redis==3.5.3
