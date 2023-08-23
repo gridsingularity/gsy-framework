@@ -40,10 +40,12 @@ class SCMBills(ResultsBaseClass):
             "grid_fees": 0.,
             "fixed_fee": 0.,
             "marketplace_fee": 0.,
+            "assistance_fee": 0.,
             "energy_cost_percent": 0.,
             "grid_fees_percent": 0.,
             "tax_surcharges_percent": 0.,
             "marketplace_fees_percent": 0.,
+            "assistance_fees_percent": 0.,
             "fixed_fees_percent": 0.
         }
 
@@ -70,19 +72,21 @@ class SCMBills(ResultsBaseClass):
             area_bills["energy_benchmark"] = core_stats[area["uuid"]]["bills"].get(
                 "energy_benchmark", 0.)
 
+            base_energy_bill_excl_revenue = area_bills.get("base_energy_bill_excl_revenue", 0.)
+            gsy_energy_bill_excl_revenue = (
+                area_bills.get("gsy_energy_bill_excl_revenue", 0.))
+            gsy_energy_bill_excl_revenue_without_fees = area_bills.get(
+                "gsy_energy_bill_excl_revenue_without_fees", 0.)
             area_bills["savings"] = KPICalculationHelper().saving_absolute(
-                area_bills["base_energy_bill_excl_revenue"],
-                area_bills["gsy_energy_bill_excl_revenue"])
+                base_energy_bill_excl_revenue, gsy_energy_bill_excl_revenue)
 
             area_bills["savings_percent"] = KPICalculationHelper().saving_percentage(
-                area_bills["savings"], area_bills["base_energy_bill_excl_revenue"]
+                area_bills["savings"], base_energy_bill_excl_revenue
             )
 
-            gsy_energy_bill_excl_revenue = (
-                area_bills["gsy_energy_bill_excl_revenue"])
             if gsy_energy_bill_excl_revenue > FLOATING_POINT_TOLERANCE:
                 area_bills["energy_cost_percent"] = (
-                    (area_bills["gsy_energy_bill_excl_revenue_without_fees"] /
+                    (gsy_energy_bill_excl_revenue_without_fees /
                      gsy_energy_bill_excl_revenue) * 100.
                 )
 
@@ -101,6 +105,10 @@ class SCMBills(ResultsBaseClass):
                 area_bills["marketplace_fees_percent"] = (
                         (area_bills["marketplace_fee"] / gsy_energy_bill_excl_revenue) * 100.
                 )
+
+                area_bills["assistance_fees_percent"] = (
+                        (area_bills.get("assistance_fee", 0.0) /
+                         gsy_energy_bill_excl_revenue) * 100.)
 
             self.bills_redis_results[area["uuid"]] = area_bills
             self.bills_results[area["name"]] = area_bills

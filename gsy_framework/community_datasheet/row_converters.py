@@ -87,8 +87,8 @@ class MembersRowConverter:
             cls, email: str, member_uuid: str, zip_code: str, address: str,
             market_maker_rate: float, feed_in_tariff: float, grid_fee_constant: float,
             taxes_surcharges: float, fixed_monthly_fee: float, marketplace_monthly_fee: float,
-            coefficient_percentage: float, geo_tag_location: List = None, asset_count: int = 0,
-            member_name: str = None):
+            assistance_monthly_fee: float, coefficient_percentage: float,
+            geo_tag_location: List = None, asset_count: int = 0, member_name: str = None):
         # pylint: disable=too-many-arguments
         """Create a community member dict from individual member information."""
         zip_code = cls._parse_zip_code(zip_code)
@@ -108,6 +108,7 @@ class MembersRowConverter:
             "taxes_surcharges": taxes_surcharges,
             "fixed_monthly_fee": fixed_monthly_fee,
             "marketplace_monthly_fee": marketplace_monthly_fee,
+            "assistance_monthly_fee": assistance_monthly_fee,
             "coefficient_percentage": coefficient_percentage,
             "geo_tag_location": geo_tag_location,
             "asset_count": asset_count
@@ -119,11 +120,14 @@ class MembersRowConverter:
 
         cls._validate_row(row)
 
+        fixed_fee = row["Service fee"] if "Service fee" in row else row["Fixed fee"]
+        assistance_fee = row["Assistance fee"] if "Assistance fee" in row else 0.0
+
         return cls.create_member_dict(
             row["Email"], str(uuid.uuid4()), cls._parse_zip_code(row["ZIP code"]),
             row["Location/Address (optional)"], row["Utility price"],
             row["Feed-in Tariff"], row["Grid fee"], row["Taxes and surcharges"],
-            row["Fixed fee"], row["Marketplace fee"], row["Coefficient"])
+            fixed_fee, row["Marketplace fee"], assistance_fee, row["Coefficient"])
 
     @staticmethod
     def _parse_zip_code(zip_code: str) -> str:
