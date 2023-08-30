@@ -435,6 +435,9 @@
         {"name": "storage_temp_C", "type": "float"},
         {"name": "temp_decrease_K", "type": "float"},
         {"name": "temp_increase_K", "type": "float"},
+        {"name": "energy_consumption_kWh", "type": "float"},
+        {"name": "max_energy_demand_kWh", "type": "float"},
+        {"name": "min_energy_demand_kWh", "type": "float"},
         {"name": "market_fee", "type": "float"},
         {
           "name": "bids",

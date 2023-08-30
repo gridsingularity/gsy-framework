@@ -14,12 +14,15 @@ class TestSimulationAssetsInfo(unittest.TestCase):
     def test_update(self):
         core_stats = {
             str(uuid4()): {
+                "load_profile_kWh": 1,
                 "total_energy_demanded_wh": 10,
             },
             str(uuid4()): {
+                "load_profile_kWh": 2,
                 "total_energy_demanded_wh": 20,
             },
             str(uuid4()): {
+                "load_profile_kWh": 3,
                 "total_energy_demanded_wh": 30,
             },
             str(uuid4()): {
@@ -28,29 +31,35 @@ class TestSimulationAssetsInfo(unittest.TestCase):
             },
             str(uuid4()): {
                 "pv_production_kWh": 15,
-            }
+            },
+            str(uuid4()): {
+                "storage_temp_C": 12,
+                "energy_consumption_kWh": 20,
+            },
         }
         # Update the assets info for the first time
         self.assets_info.update({}, core_stats, "")
         expected_res = {
+            "number_of_heatpump_type": 1,
             "number_of_load_type": 3,
             "number_of_pv_type": 2,
-            "total_energy_demand_kwh": 0.06,
+            "total_energy_demand_kwh": 0.08,
             "total_energy_generated_kwh": 25
         }
-        actual_res = {key: self.assets_info.raw_results[key] for key in expected_res.keys()}
+        actual_res = {key: self.assets_info.raw_results[key] for key in expected_res}
         assert expected_res == actual_res
 
         # Update the assets info for the second time in order to see that total_energy_demand_kwh
         # is not but total_energy_generated_kwh is accumulated:
         self.assets_info.update({}, core_stats, "")
         expected_res = {
+            "number_of_heatpump_type": 1,
             "number_of_load_type": 3,
             "number_of_pv_type": 2,
-            "total_energy_demand_kwh": 0.06,
+            "total_energy_demand_kwh": 0.08,
             "total_energy_generated_kwh": 50
         }
-        actual_res = {key: self.assets_info.raw_results[key] for key in expected_res.keys()}
+        actual_res = {key: self.assets_info.raw_results[key] for key in expected_res}
         assert expected_res == actual_res
 
     def test_update_from_repr(self):
@@ -115,5 +124,5 @@ class TestSimulationAssetsInfo(unittest.TestCase):
             "number_of_house_type": 2,
             "avg_assets_per_house": 3
         }
-        actual_res = {key: self.assets_info.raw_results[key] for key in expected_res.keys()}
+        actual_res = {key: self.assets_info.raw_results[key] for key in expected_res}
         assert expected_res == actual_res
