@@ -95,8 +95,12 @@ class DeviceStatistics(ResultsBaseClass):
                 is_finite_power_plant_node_type(area_dict):
             cls._calculate_stats_for_infinite_bus(area_dict, subdict, core_stats,
                                                   current_market_slot)
-        else:
-            cls._calculate_stats_for_device(area_dict, subdict, core_stats, current_market_slot)
+            return
+        if is_heatpump_node_type(area_dict):
+            create_or_update_subdict(
+                subdict, "energy_consumption_kWh",
+                {current_market_slot: core_stats[area_dict["uuid"]]["energy_consumption_kWh"]})
+        cls._calculate_stats_for_device(area_dict, subdict, core_stats, current_market_slot)
 
     @classmethod
     def _calculate_stats_for_device(cls, area_dict, subdict, core_stats, current_market_slot):
