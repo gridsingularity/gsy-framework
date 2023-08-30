@@ -90,6 +90,9 @@ class TestDeviceStatistics:
                     "storage_temp_C": {
                         current_market_slot: 65
                     },
+                    "energy_consumption_kWh": {
+                        current_market_slot: 10
+                    },
                     "min_storage_temp_C": {
                         current_market_slot: 65
                     },
