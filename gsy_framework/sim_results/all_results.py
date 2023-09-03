@@ -1,4 +1,5 @@
 import logging
+import traceback
 from time import time
 from typing import Dict
 
@@ -77,7 +78,13 @@ class ResultsHandler:
             self.bids_offers_trades[area_uuid] = \
                 {k: area_result.get(k, []) for k in ("offers", "bids", "trades")}
         for result_object in self.results_mapping.values():
-            result_object.update(area_dict, core_stats, current_market_slot)
+            try:
+                result_object.update(area_dict, core_stats, current_market_slot)
+            except Exception as ex:
+                logging.error(
+                    "Result calculation failed on market slot %s with error %s, %s",
+                    current_market_slot, str(ex), traceback.format_exc())
+
         self._update_memory_utilization()
 
     def update_from_repr(self, area_representation: Dict):

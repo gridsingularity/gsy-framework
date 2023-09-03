@@ -115,6 +115,7 @@ core_stats = {
         "trades": [],
         "market_fee": 0.0,
         "storage_temp_C": 65,
+        "energy_consumption_kWh": 10,
         "available_energy_kWh": 0.11080000000000001}
 
 }

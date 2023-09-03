@@ -2,6 +2,7 @@
 
 import logging
 import uuid
+from enum import Enum
 from itertools import chain
 from typing import Dict, List
 
@@ -20,6 +21,13 @@ PROFILE_KEYS_BY_TYPE = {
     "PV": "power_profile",
     "SmartMeter": "smart_meter_profile"
 }
+
+
+class DefaultCommunityAreaNames(Enum):
+    """Enum for Community names that are always part of a SCM representation."""
+    GRID = "Grid"
+    COMMUNITY = "Community"
+    INFINITE_BUS = "InfiniteBus"
 
 
 class CommunityDatasheetParser:
@@ -108,13 +116,13 @@ class CommunityDatasheetParser:
             grid.append(home_representation)
 
         return {
-            "name": "Grid Market",
+            "name": DefaultCommunityAreaNames.GRID.value,
             "allow_external_connection": False,
             "uuid": str(uuid.uuid4()),
             "type": "Area",
             "children": [
                 {
-                    "name": "",
+                    "name": DefaultCommunityAreaNames.INFINITE_BUS.value,
                     "allow_external_connection": False,
                     "uuid": str(uuid.uuid4()),
                     "type": "InfiniteBus",
@@ -122,7 +130,7 @@ class CommunityDatasheetParser:
                     "energy_buy_rate": ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
                 },
                 {
-                    "name": "Community",
+                    "name": DefaultCommunityAreaNames.COMMUNITY.value,
                     "allow_external_connection": False,
                     "uuid": str(uuid.uuid4()),
                     "type": "Area",
@@ -149,5 +157,6 @@ class CommunityDatasheetParser:
             "taxes_surcharges": member_info["taxes_surcharges"],
             "fixed_monthly_fee": member_info["fixed_monthly_fee"],
             "marketplace_monthly_fee": member_info["marketplace_monthly_fee"],
+            "assistance_monthly_fee": member_info["assistance_monthly_fee"],
             "coefficient_percentage": member_info["coefficient_percentage"],
         }
