@@ -12,7 +12,7 @@ class SimulationAssetsInfo(ResultsBaseClass):
     FIELDS = ["number_of_house_type", "avg_assets_per_house", "number_of_load_type",
               "total_energy_demand_kwh", "number_of_pv_type", "total_energy_generated_kwh",
               "number_of_storage_type", "total_energy_capacity_kwh", "number_of_power_plant_type",
-              "max_power_plant_power_kw"]
+              "max_power_plant_power_kw", "number_of_heatpump_type"]
 
     def __init__(self):
         self.assets_info = {field: 0 for field in SimulationAssetsInfo.FIELDS}
@@ -27,12 +27,17 @@ class SimulationAssetsInfo(ResultsBaseClass):
         # total_energy_demand_kwh is already accumulated value and should only be replaced
         updated_results_dict = {
             "number_of_load_type": 0,
+            "number_of_heatpump_type": 0,
             "total_energy_demand_kwh": 0,
             "number_of_pv_type": 0,
             "total_energy_generated_kwh": self.assets_info["total_energy_generated_kwh"]
         }
         for area_result in core_stats.values():
-            if "total_energy_demanded_wh" in area_result:
+            if "storage_temp_C" in area_result:
+                updated_results_dict["number_of_heatpump_type"] += 1
+                updated_results_dict["total_energy_demand_kwh"] += \
+                    area_result["energy_consumption_kWh"] / 1000.0
+            if "load_profile_kWh" in area_result:
                 updated_results_dict["number_of_load_type"] += 1
                 updated_results_dict["total_energy_demand_kwh"] += \
                     area_result["total_energy_demanded_wh"] / 1000.0

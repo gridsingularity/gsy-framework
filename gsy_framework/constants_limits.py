@@ -200,7 +200,7 @@ class ConstSettings:
         TANK_VOL_L = 50
         SOURCE_TYPE = HeatPumpSourceType.AIR.value
         BUYING_RATE_RANGE = RateRange(0, 30)
-        PREFERRED_BUYING_RATE = 15
+        PREFERRED_BUYING_RATE = 30
 
     class MASettings:
         """Default settings for Market Agents."""

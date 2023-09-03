@@ -21,7 +21,7 @@ from typing import Dict
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
 from gsy_framework.sim_results import (
     is_load_node_type, is_producer_node_type, is_prosumer_node_type, is_buffer_node_type,
-    area_sells_to_child, child_buys_from_area)
+    is_heatpump_node_type, area_sells_to_child, child_buys_from_area)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import (
     add_or_create_key, area_name_from_area_or_ma_name, subtract_or_create_key, round_floats_for_ui)
@@ -69,8 +69,12 @@ class CumulativeGridTrades(ResultsBaseClass):
         for child_dict in area_dict["children"]:
             if is_load_node_type(child_dict):
                 accumulated_trades = self._accumulate_load_trades(
-                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
-                )
+                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades,
+                    is_heatpump=False)
+            elif is_heatpump_node_type(child_dict):
+                accumulated_trades = self._accumulate_load_trades(
+                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades,
+                    is_heatpump=True)
             if is_producer_node_type(child_dict):
                 accumulated_trades = self._accumulate_producer_trades(
                     child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
@@ -92,11 +96,12 @@ class CumulativeGridTrades(ResultsBaseClass):
         return accumulated_trades
 
     @staticmethod
-    def _accumulate_load_trades(load, grid, flattened_area_core_stats_dict, accumulated_trades):
+    def _accumulate_load_trades(
+            load, grid, flattened_area_core_stats_dict, accumulated_trades, is_heatpump=False):
         if load["uuid"] not in accumulated_trades:
             accumulated_trades[load["uuid"]] = {
                 "name": load["name"],
-                "type": "load",
+                "type": "load" if not is_heatpump else "heatpump",
                 "produced": 0.0,
                 "earned": 0.0,
                 "consumedFrom": {},
