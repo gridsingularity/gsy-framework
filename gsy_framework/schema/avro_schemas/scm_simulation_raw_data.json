@@ -170,6 +170,7 @@
                 {"name": "assistance_fee", "type": "float"},
                 {"name": "savings", "type": "float"},
                 {"name": "savings_percent", "type": "float"},
+                {"name": "self_consumed_savings", "type": "float"},
                 {"name": "sold_to_community", "type": "float"},
                 {"name": "sold_to_grid", "type": "float"},
                 {"name": "spent_to_community", "type": "float"},

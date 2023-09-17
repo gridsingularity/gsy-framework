@@ -39,6 +39,7 @@ class SCMBills(ResultsBaseClass):
             "gsy_energy_bill_revenue": 0.,
             "gsy_energy_bill_excl_fees": 0.,
             "gsy_total_benefit": 0.,
+            "savings": 0.,
             "tax_surcharges": 0.,
             "grid_fees": 0.,
             "fixed_fee": 0.,
