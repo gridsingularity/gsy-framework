@@ -36,6 +36,10 @@ class SCMBills(ResultsBaseClass):
             "base_energy_bill_excl_revenue": 0.,
             "gsy_energy_bill_excl_revenue": 0.,
             "gsy_energy_bill_excl_revenue_without_fees": 0.,
+            "gsy_energy_bill_revenue": 0.,
+            "gsy_energy_bill_excl_fees": 0.,
+            "gsy_total_benefit": 0.,
+            "savings": 0.,
             "tax_surcharges": 0.,
             "grid_fees": 0.,
             "fixed_fee": 0.,
@@ -47,7 +51,6 @@ class SCMBills(ResultsBaseClass):
             "marketplace_fees_percent": 0.,
             "assistance_fees_percent": 0.,
             "fixed_fees_percent": 0.,
-            "self_consumed_savings": 0.
         }
 
     def update(self, area_result_dict, core_stats, current_market_slot):
@@ -78,7 +81,6 @@ class SCMBills(ResultsBaseClass):
                 area_bills.get("gsy_energy_bill_excl_revenue", 0.))
             gsy_energy_bill_excl_revenue_without_fees = area_bills.get(
                 "gsy_energy_bill_excl_revenue_without_fees", 0.)
-            area_bills["savings"] = area_bills.get("self_consumed_savings", 0.)
 
             area_bills["savings_percent"] = KPICalculationHelper().saving_percentage(
                 area_bills["savings"], base_energy_bill_excl_revenue
