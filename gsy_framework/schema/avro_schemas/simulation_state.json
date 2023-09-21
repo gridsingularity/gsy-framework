@@ -1,0 +1,401 @@
+{
+  "name": "sim_state",
+  "type": "map",
+  "values": [
+    {
+      "name": "general",
+      "type": "record",
+      "fields": [
+        {
+          "name": "paused",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        {
+          "name": "stopped",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        {
+          "name": "seed",
+          "type": [
+            "int",
+            "null"
+          ]
+        },
+        {
+          "name": "sim_status",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "name": "simulation_id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "name": "run_start",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "name": "paused_time",
+          "type": [
+            "float",
+            "null"
+          ]
+        },
+        {
+          "name": "slot_number",
+          "type": [
+            "int",
+            "null"
+          ]
+        },
+        {
+          "name": "slot_length_realtime_s",
+          "type": [
+            "int",
+            "null"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "areas",
+      "type": "map",
+      "values": [
+        {
+          "name": "NoAreaStats",
+          "type": "record",
+          "fields": []
+        },
+        {
+          "name": "MarketAreaStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "area_stats",
+              "default": "null",
+              "type": [
+                "null",
+                {
+                  "name": "AreaStatsRecord",
+                  "type": "record",
+                  "fields": [
+                    {
+                      "name": "rate_stats_market",
+                      "type": {
+                        "type": "map",
+                        "values": [
+                          {
+                            "name": "RateStatsMarketMap",
+                            "type": "map",
+                            "values": [
+                              "null",
+                              "float"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "name": "exported_energy",
+                      "type": {
+                        "type": "map",
+                        "values": "float"
+                      }
+                    },
+                    {
+                      "name": "imported_energy",
+                      "type": {
+                        "type": "map",
+                        "values": "float"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "LoadAreaStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "desired_energy_Wh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "total_energy_demanded_Wh",
+              "type": "float"
+            },
+            {
+              "name": "area_stats",
+              "type": [
+                "null",
+                "AreaStatsRecord"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "InfiniteBusStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_rate",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "energy_buy_rate",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "area_stats",
+              "type": [
+                "null",
+                "AreaStatsRecord"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "PVAreaStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_production_forecast_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "available_energy_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "area_stats",
+              "type": [
+                "null",
+                "AreaStatsRecord"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "StorageAreaStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "area_stats",
+              "type": [
+                "null",
+                "AreaStatsRecord"
+              ]
+            },
+            {
+              "name": "battery_energy_per_slot",
+              "type": "float"
+            },
+            {
+              "name": "used_storage",
+              "type": "float"
+            },
+            {
+              "name": "used_history",
+              "type": {
+                "type": "map",
+                "values": "string"
+              }
+            },
+            {
+              "name": "charge_history",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "offered_buy_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "offered_history",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "pledged_buy_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "offered_sell_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "pledged_sell_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "charge_history_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "energy_to_buy_dict",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "energy_to_sell_dict",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            }
+          ]
+        },
+        {
+          "name": "HeatPumpAreaStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "area_stats",
+              "type": [
+                "null",
+                "AreaStatsRecord"
+              ]
+            },
+            {
+              "name": "storage_temp_C",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "temp_decrease_K",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "temp_increase_K",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "max_energy_demand_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "min_energy_demand_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "energy_consumption_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
