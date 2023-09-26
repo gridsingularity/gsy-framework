@@ -93,11 +93,14 @@ class HeatPumpValidator(BaseValidator):
     @staticmethod
     def _validate_source_type(**kwargs):
         if kwargs.get("source_type"):
-            allowed_source_type_ints = [st.value for st in HeatPumpSourceType]
-            if kwargs.get("source_type") not in allowed_source_type_ints:
+            try:
+                if kwargs["source_type"] is not None:
+                    HeatPumpSourceType(kwargs["source_type"])
+            except ValueError as ex:
                 raise GSyDeviceException(
                     {"misconfiguration": [
-                        f"HeatPump source type not one of {allowed_source_type_ints}"]})
+                        "HeatPump source type not one of "
+                        f"{[st.value for st in HeatPumpSourceType]}"]}) from ex
 
     @classmethod
     def _validate_tank_volume(cls, **kwargs):
