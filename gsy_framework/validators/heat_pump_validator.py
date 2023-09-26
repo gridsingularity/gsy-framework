@@ -2,6 +2,7 @@ from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators.base_validator import BaseValidator
 from gsy_framework.validators.utils import validate_range_limit
+from gsy_framework.enums import HeatPumpSourceType
 
 HeatPumpSettings = ConstSettings.HeatPumpSettings
 
@@ -14,19 +15,17 @@ class HeatPumpValidator(BaseValidator):
         cls._validate_energy(**kwargs)
         cls._validate_temp(**kwargs)
         cls.validate_rate(**kwargs)
-
-        cls._check_range(
-            name="tank_volume_l", value=kwargs["tank_volume_l"],
-            min_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.min,
-            max_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.max)
+        cls._validate_source_type(**kwargs)
+        cls._validate_tank_volume(**kwargs)
 
     @classmethod
     def _validate_energy(cls, **kwargs):
         """Validate energy related arguments."""
-        cls._check_range(
-            name="maximum_power_rating_kW", value=kwargs["maximum_power_rating_kW"],
-            min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
-            max_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max)
+        if kwargs.get("maximum_power_rating_kW"):
+            cls._check_range(
+                name="maximum_power_rating_kW", value=kwargs.get("maximum_power_rating_kW"),
+                min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
+                max_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max)
         if (kwargs.get("consumption_kWh_profile") is None and
                 kwargs.get("consumption_kWh_profile_uuid") is None):
             raise GSyDeviceException(
@@ -39,18 +38,17 @@ class HeatPumpValidator(BaseValidator):
         temperature_arg_names = [
             "min_temp_C", "max_temp_C", "initial_temp_C"]
         for temperature_arg_name in temperature_arg_names:
-            cls._check_range(
-                name=temperature_arg_name, value=kwargs[temperature_arg_name],
-                min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
-                max_value=HeatPumpSettings.TEMP_C_LIMIT.max)
+            if kwargs.get(temperature_arg_name):
+                cls._check_range(
+                    name=temperature_arg_name, value=kwargs[temperature_arg_name],
+                    min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
+                    max_value=HeatPumpSettings.TEMP_C_LIMIT.max)
 
-        min_temp_c = kwargs["min_temp_C"]
-        max_temp_c = kwargs["max_temp_C"]
-
-        if not min_temp_c <= max_temp_c:
-            raise GSyDeviceException(
-                {"misconfiguration": [
-                    "Requirement 'min_temp_C <= max_temp_C' is not met."]})
+        if kwargs.get("min_temp_C") and kwargs.get("max_temp_C"):
+            if not kwargs["min_temp_C"] <= kwargs["max_temp_C"]:
+                raise GSyDeviceException(
+                    {"misconfiguration": [
+                        "Requirement 'min_temp_C <= max_temp_C' is not met."]})
 
         if (kwargs.get("external_temp_C_profile") is None and
                 kwargs.get("external_temp_C_profile_uuid") is None):
@@ -91,6 +89,23 @@ class HeatPumpValidator(BaseValidator):
                 "Requirement "
                 "'initial_buying_rate <= preferred_buying_rate <= final_buying_rate' is not met."
             ]})
+
+    @staticmethod
+    def _validate_source_type(**kwargs):
+        if kwargs.get("source_type"):
+            allowed_source_type_ints = [st.value for st in HeatPumpSourceType]
+            if kwargs.get("source_type") not in allowed_source_type_ints:
+                raise GSyDeviceException(
+                    {"misconfiguration": [
+                        f"HeatPump source type not one of {allowed_source_type_ints}"]})
+
+    @classmethod
+    def _validate_tank_volume(cls, **kwargs):
+        if kwargs.get("tank_volume_l"):
+            cls._check_range(
+                name="tank_volume_l", value=kwargs["tank_volume_l"],
+                min_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.min,
+                max_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.max)
 
     @classmethod
     def _check_range(cls, name, value, min_value, max_value):
