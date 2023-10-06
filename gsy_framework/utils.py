@@ -471,6 +471,13 @@ def convert_kW_to_kWh(power_W, slot_length):
     return convert_W_to_Wh(power_W, slot_length)
 
 
+# pylint: disable=invalid-name
+def convert_kWh_to_W(energy_kWh, slot_length):
+    """Convert W power into energy in Wh (based on the duration of the market slot)."""
+    energy_Wh = energy_kWh * 1000.0
+    return energy_Wh / (slot_length / duration(hours=1))
+
+
 def return_ordered_dict(function):
     """Decorator to convert the dictionary returned by the wrapped function into an OrderedDict."""
 
