@@ -7,7 +7,7 @@ HeatPumpSettings = ConstSettings.HeatPumpSettings
 
 
 class HeatPumpValidator(BaseValidator):
-    """Validator class for HeatPump devices."""
+    """Validator class for HeatPump assets."""
 
     @classmethod
     def validate(cls, **kwargs):
@@ -21,17 +21,27 @@ class HeatPumpValidator(BaseValidator):
             max_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.max)
 
     @classmethod
+    def _validate_profiles(cls, **kwargs):
+        """Validate profile arguments."""
+        if (kwargs.get("consumption_kWh_profile") is None and
+                kwargs.get("consumption_kWh_profile_uuid") is None):
+            raise GSyDeviceException(
+                {"misconfiguration": [
+                    "consumption_kWh_profile should be provided."]})
+
+        if (kwargs.get("external_temp_C_profile") is None and
+                kwargs.get("external_temp_C_profile_uuid") is None):
+            raise GSyDeviceException(
+                {"misconfiguration": [
+                    "external_temp_C_profile should be provided."]})
+
+    @classmethod
     def _validate_energy(cls, **kwargs):
         """Validate energy related arguments."""
         cls._check_range(
             name="maximum_power_rating_kW", value=kwargs["maximum_power_rating_kW"],
             min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
             max_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max)
-        if (kwargs.get("consumption_kWh_profile") is None and
-                kwargs.get("consumption_kWh_profile_uuid") is None):
-            raise GSyDeviceException(
-                {"misconfiguration": [
-                    "consumption_kWh_profile should be provided."]})
 
     @classmethod
     def _validate_temp(cls, **kwargs):
@@ -51,12 +61,6 @@ class HeatPumpValidator(BaseValidator):
             raise GSyDeviceException(
                 {"misconfiguration": [
                     "Requirement 'min_temp_C <= max_temp_C' is not met."]})
-
-        if (kwargs.get("external_temp_C_profile") is None and
-                kwargs.get("external_temp_C_profile_uuid") is None):
-            raise GSyDeviceException(
-                {"misconfiguration": [
-                    "external_temp_C_profile should be provided."]})
 
     @classmethod
     def validate_rate(cls, **kwargs):
@@ -102,3 +106,26 @@ class HeatPumpValidator(BaseValidator):
         validate_range_limit(
             min_value, value, max_value,
             {"misconfiguration": [f"{name} should be between {min_value} & {max_value}."]})
+
+
+class VirtualHeatPumpValidator(HeatPumpValidator):
+    """Validator class for VirtualHeatPump assets."""
+
+    @classmethod
+    def _validate_profiles(cls, **kwargs):
+        """Validate profile arguments."""
+        if (kwargs.get("water_supply_temp_C_profile") is None and
+                kwargs.get("water_supply_temp_C_profile_uuid") is None):
+            raise GSyDeviceException(
+                {"misconfiguration": [
+                    "water_supply_temp_C_profile should be provided."]})
+        if (kwargs.get("water_return_temp_C_profile") is None and
+                kwargs.get("water_return_temp_C_profile_uuid") is None):
+            raise GSyDeviceException(
+                {"misconfiguration": [
+                    "water_return_temp_C_profile should be provided."]})
+        if (kwargs.get("dh_water_flow_m3_profile") is None and
+                kwargs.get("dh_water_flow_m3_profile_uuid") is None):
+            raise GSyDeviceException(
+                {"misconfiguration": [
+                    "dh_water_flow_m3_profile should be provided."]})
