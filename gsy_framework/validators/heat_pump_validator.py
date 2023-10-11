@@ -14,6 +14,7 @@ class HeatPumpValidator(BaseValidator):
         cls._validate_energy(**kwargs)
         cls._validate_temp(**kwargs)
         cls.validate_rate(**kwargs)
+        cls._validate_profiles(**kwargs)
 
         cls._check_range(
             name="tank_volume_l", value=kwargs["tank_volume_l"],
@@ -56,11 +57,12 @@ class HeatPumpValidator(BaseValidator):
 
         min_temp_c = kwargs["min_temp_C"]
         max_temp_c = kwargs["max_temp_C"]
+        initial_temp_c = kwargs["initial_temp_C"]
 
-        if not min_temp_c <= max_temp_c:
+        if not min_temp_c <= initial_temp_c <= max_temp_c:
             raise GSyDeviceException(
                 {"misconfiguration": [
-                    "Requirement 'min_temp_C <= max_temp_C' is not met."]})
+                    "Requirement 'min_temp_C <= initial_temp_C <= max_temp_C' is not met."]})
 
     @classmethod
     def validate_rate(cls, **kwargs):
@@ -82,8 +84,8 @@ class HeatPumpValidator(BaseValidator):
         for buying_rate_arg_name in buying_rate_arg_names:
             cls._check_range(
                 name=buying_rate_arg_name, value=kwargs[buying_rate_arg_name],
-                min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
-                max_value=HeatPumpSettings.TEMP_C_LIMIT.max)
+                min_value=HeatPumpSettings.BUYING_RATE_LIMIT.initial,
+                max_value=HeatPumpSettings.BUYING_RATE_LIMIT.final)
 
         initial_buying_rate = kwargs["initial_buying_rate"]
         preferred_buying_rate = kwargs["preferred_buying_rate"]

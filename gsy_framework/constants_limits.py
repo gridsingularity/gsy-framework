@@ -186,7 +186,7 @@ class ConstSettings:
         """Default values for the heat pump."""
         # range limits
         MAX_POWER_RATING_KW_LIMIT = RangeLimit(0, sys.maxsize)
-        TEMP_C_LIMIT = RangeLimit(-273.15, 6000)
+        TEMP_C_LIMIT = RangeLimit(0.0, 200.0)
         TANK_VOLUME_L_LIMIT = RangeLimit(0, sys.maxsize)
         BUYING_RATE_LIMIT = RateRange(0, 10000)
 

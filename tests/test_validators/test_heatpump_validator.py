@@ -1,0 +1,120 @@
+import pytest
+
+from gsy_framework.exceptions import GSyDeviceException
+from gsy_framework.validators.heat_pump_validator import (
+    HeatPumpValidator, VirtualHeatPumpValidator)
+
+_params = {
+    "min_temp_C": 10,
+    "max_temp_C": 70,
+    "initial_temp_C": 30,
+    "maximum_power_rating_kW": 10,
+    "initial_buying_rate": 20,
+    "final_buying_rate": 30,
+    "update_interval": 1,
+    "preferred_buying_rate": 25,
+    "tank_volume_l": 500
+}
+_hp_params = {
+    **_params,
+    "external_temp_C_profile": {},
+    "external_temp_C_profile_uuid": "1234",
+    "consumption_kWh_profile": {},
+    "consumption_kWh_profile_uuid": "4321",
+}
+_virtual_hp_params = {
+    **_params,
+    "water_supply_temp_C_profile": {},
+    "water_supply_temp_C_profile_uuid": "1234",
+    "water_return_temp_C_profile": {},
+    "water_return_temp_C_profile_uuid": "4321",
+    "dh_water_flow_m3_profile": {},
+    "dh_water_flow_m3_profile_uuid": "4321",
+}
+
+
+class TestHeatpumpValidator:
+
+    @staticmethod
+    @pytest.mark.parametrize("hp_validator_class, hp_params, ", [
+        (HeatPumpValidator, _hp_params),
+        (VirtualHeatPumpValidator, _virtual_hp_params)])
+    def test_heatpump_validator_succeeds(hp_validator_class, hp_params):
+        hp_validator_class().validate(**hp_params)
+
+    @staticmethod
+    @pytest.mark.parametrize("hp_validator_class, hp_params, ", [
+        (HeatPumpValidator, _hp_params),
+        (VirtualHeatPumpValidator, _virtual_hp_params)])
+    def test_heatpump_validator_checks_temp_power_params(hp_validator_class, hp_params):
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "min_temp_C": -10})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "max_temp_C": -10})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "initial_temp_C": -10})
+
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "min_temp_C": 80})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "max_temp_C": 5})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "initial_temp_C": 9})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "initial_temp_C": 71})
+
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "tank_volume_l": -1})
+
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "maximum_power_rating_kW": -10})
+
+    @staticmethod
+    @pytest.mark.parametrize("hp_validator_class, hp_params, ", [
+        (HeatPumpValidator, _hp_params),
+        (VirtualHeatPumpValidator, _virtual_hp_params)])
+    def test_heatpump_validator_checks_price_params(hp_validator_class, hp_params):
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "initial_buying_rate": -10})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "final_buying_rate": -10})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "preferred_buying_rate": -10})
+
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "initial_buying_rate": 31})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "final_buying_rate": 19})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "preferred_buying_rate": 19})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "preferred_buying_rate": 31})
+
+    @staticmethod
+    def test_heatpump_validator_checks_profile_params():
+        with pytest.raises(GSyDeviceException):
+            HeatPumpValidator().validate(**{
+                **_hp_params,
+                "external_temp_C_profile": None, "external_temp_C_profile_uuid": None})
+
+        with pytest.raises(GSyDeviceException):
+            HeatPumpValidator().validate(**{
+                **_hp_params,
+                "consumption_kWh_profile": None, "consumption_kWh_profile_uuid": None})
+
+    @staticmethod
+    def test_virtual_heatpump_validator_checks_profile_params():
+        with pytest.raises(GSyDeviceException):
+            VirtualHeatPumpValidator().validate(**{
+                **_hp_params,
+                "water_supply_temp_C_profile": None, "water_supply_temp_C_profile_uuid": None})
+
+        with pytest.raises(GSyDeviceException):
+            VirtualHeatPumpValidator().validate(**{
+                **_hp_params,
+                "water_return_temp_C_profile": None, "water_return_temp_C_profile_uuid": None})
+
+        with pytest.raises(GSyDeviceException):
+            VirtualHeatPumpValidator().validate(**{
+                **_hp_params,
+                "dh_water_flow_m3_profile": None, "dh_water_flow_m3_profile_uuid": None})
