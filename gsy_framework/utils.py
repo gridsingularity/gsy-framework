@@ -454,25 +454,25 @@ def area_sells_to_child(trade: dict, area_name: str, child_names: list):
 
 
 # pylint: disable=invalid-name
-def convert_W_to_kWh(power_W, slot_length):
+def convert_W_to_kWh(power_W: float, slot_length: duration) -> float:
     """Convert W power into energy in kWh (based on the duration of the market slot)."""
     return (slot_length / duration(hours=1)) * power_W / 1000
 
 
 # pylint: disable=invalid-name
-def convert_W_to_Wh(power_W, slot_length):
+def convert_W_to_Wh(power_W: float, slot_length: duration) -> float:
     """Convert W power into energy in Wh (based on the duration of the market slot)."""
     return (slot_length / duration(hours=1)) * power_W
 
 
 # pylint: disable=invalid-name
-def convert_kW_to_kWh(power_W, slot_length):
+def convert_kW_to_kWh(power_W: float, slot_length: duration) -> float:
     """Convert kW power into kWh energy (based on the duration of the market slot)."""
     return convert_W_to_Wh(power_W, slot_length)
 
 
 # pylint: disable=invalid-name
-def convert_kWh_to_W(energy_kWh, slot_length):
+def convert_kWh_to_W(energy_kWh: float, slot_length: duration) -> float:
     """Convert W power into energy in Wh (based on the duration of the market slot)."""
     energy_Wh = energy_kWh * 1000.0
     return energy_Wh / (slot_length / duration(hours=1))
