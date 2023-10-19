@@ -24,7 +24,7 @@ from pendulum import duration, instance
 
 from gsy_framework.enums import (AvailableMarketTypes, BidOfferMatchAlgoEnum,
                                  CoefficientAlgorithm, HeatPumpSourceType,
-                                 SpotMarketTypeEnum)
+                                 SpotMarketTypeEnum, ConfigurationType)
 
 RangeLimit = namedtuple("RangeLimit", ("min", "max"))
 RateRange = namedtuple("RateRange", ("initial", "final"))
@@ -222,8 +222,8 @@ class ConstSettings:
         # Value 2 stands for integer precision/relaxation algorithm
         PAY_AS_CLEAR_AGGREGATION_ALGORITHM = 1
 
-        MIN_OFFER_AGE = 2
-        MIN_BID_AGE = 2
+        MIN_OFFER_AGE = 0
+        MIN_BID_AGE = 0
 
     class BlockchainSettings:
         """Default settings for blockchain functionality."""
@@ -273,7 +273,7 @@ class GlobalConfig:
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     POWER_FLOW = False
-    IS_CANARY_NETWORK = False
+    CONFIG_TYPE = ConfigurationType.SIMULATION.value
     FEED_IN_TARIFF = 20
 
     # Default simulation settings gsy-e side:

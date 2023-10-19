@@ -34,6 +34,7 @@ from pendulum import DateTime, datetime, duration, from_format, instance
 from redis.exceptions import ConnectionError  # pylint: disable=redefined-builtin
 
 from gsy_framework import NULL_VALUES
+from gsy_framework.enums import ConfigurationType
 from gsy_framework.constants_limits import (
     DATE_TIME_FORMAT, DATE_TIME_FORMAT_HOURS, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
     DEFAULT_PRECISION, PROFILE_EXPANSION_DAYS, TIME_FORMAT, TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS,
@@ -99,7 +100,7 @@ def generate_market_slot_list(start_timestamp=None):
     @return: List with market slot datetimes
     """
     time_span = duration(days=PROFILE_EXPANSION_DAYS) \
-        if GlobalConfig.IS_CANARY_NETWORK \
+        if GlobalConfig.CONFIG_TYPE \
         else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
     time_span += duration(hours=ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS)
     market_slot_list = \
@@ -579,7 +580,7 @@ def is_time_slot_in_simulation_duration(
     else:
         start_date = config.start_date
         end_date = config.end_date
-    return start_date <= time_slot < end_date or GlobalConfig.IS_CANARY_NETWORK
+    return start_date <= time_slot < end_date or is_canary_network()
 
 
 def is_valid_uuid(uuid: str) -> bool:
@@ -596,3 +597,8 @@ def use_default_if_null(input_value: Union[int, str, float], default_value: Unio
                         ) -> Union[int, str, float]:
     """Return input_value if not null, else return provided default_value"""
     return input_value if input_value not in NULL_VALUES else default_value
+
+
+def is_canary_network():
+    """Return if the GlobalConfig is set up for a Canary Network"""
+    return GlobalConfig.CONFIG_TYPE == ConfigurationType.CANARY_NETWORK.value

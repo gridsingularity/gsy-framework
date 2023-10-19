@@ -19,6 +19,7 @@ import pytest
 from pendulum import datetime, duration, today
 
 from gsy_framework.constants_limits import PROFILE_EXPANSION_DAYS, TIME_ZONE, GlobalConfig
+from gsy_framework.enums import ConfigurationType
 from gsy_framework.read_user_profile import (
     InputProfileTypes, _fill_gaps_in_profile, _generate_slot_based_zero_values_dict_from_profile,
     _interpolate_profile_values_to_slot, read_arbitrary_profile, read_profile_without_config,
@@ -34,11 +35,13 @@ def set_is_canary_network_fixture():
 
     def _setup(value):
         nonlocal original_value
-        original_value = GlobalConfig.IS_CANARY_NETWORK
-        GlobalConfig.IS_CANARY_NETWORK = value
+        original_value = GlobalConfig.CONFIG_TYPE
+        GlobalConfig.CONFIG_TYPE = (
+            ConfigurationType.CANARY_NETWORK.value
+            if value else ConfigurationType.SIMULATION.value)
 
     yield _setup
-    GlobalConfig.IS_CANARY_NETWORK = original_value
+    GlobalConfig.CONFIG_TYPE = original_value
 
 
 class TestReadUserProfile:
