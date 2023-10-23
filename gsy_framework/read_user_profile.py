@@ -28,7 +28,7 @@ from gsy_framework.constants_limits import (
 from gsy_framework.exceptions import GSyReadProfileException
 from gsy_framework.utils import (
     convert_kW_to_kWh, find_object_of_same_weekday_and_time, generate_market_slot_list,
-    return_ordered_dict, is_canary_network)
+    return_ordered_dict)
 
 
 DATE_TIME_FORMAT_SPACED = "YYYY-MM-DD HH:mm:ss"
@@ -329,7 +329,8 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
                                                   current_timestamp=current_timestamp)
     profile_time_list = list(profile.keys())
     profile_duration = profile_time_list[-1] - profile_time_list[0]
-    if GlobalConfig.sim_duration > duration(days=1) >= profile_duration or is_canary_network():
+    if (GlobalConfig.sim_duration > duration(days=1) >= profile_duration or
+            GlobalConfig.is_canary_network()):
         profile = _copy_profile_to_multiple_days(profile)
     if profile is not None:
         if profile_type is not InputProfileTypes.ENERGY_KWH:

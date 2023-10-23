@@ -289,6 +289,11 @@ class GlobalConfig:
     # Allow orders to contain additional requirements and attributes
     enable_degrees_of_freedom = True
 
+    @classmethod
+    def is_canary_network(cls):
+        """Return if the GlobalConfig is set up for a Canary Network"""
+        return cls.CONFIG_TYPE == ConfigurationType.CANARY_NETWORK.value
+
 
 class HeartBeat:
     """Default settings for heartbeat functionalities (to check the liveness of simulations)."""
