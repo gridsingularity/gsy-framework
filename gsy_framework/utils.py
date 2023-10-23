@@ -98,9 +98,9 @@ def generate_market_slot_list(start_timestamp=None):
     No input arguments, required input is only handled by a preconfigured GlobalConfig
     @return: List with market slot datetimes
     """
-    time_span = duration(days=PROFILE_EXPANSION_DAYS) \
-        if GlobalConfig.CONFIG_TYPE \
-        else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
+    time_span = (duration(days=PROFILE_EXPANSION_DAYS)
+                 if GlobalConfig.is_canary_network()
+                 else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS)))
     time_span += duration(hours=ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS)
     market_slot_list = \
         generate_market_slot_list_from_config(sim_duration=time_span,
