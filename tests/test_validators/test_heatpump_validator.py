@@ -1,3 +1,5 @@
+from copy import copy
+
 import pytest
 
 from gsy_framework.exceptions import GSyDeviceException
@@ -92,12 +94,13 @@ class TestHeatpumpValidator:
 
         hp_validator_class().validate(**{**hp_params})
 
-        wrong_price_params = hp_params
+        wrong_price_params = copy(hp_params)
         wrong_price_params["update_interval"] = 0
         with pytest.raises(GSyDeviceException):
             hp_validator_class().validate(**wrong_price_params)
 
         for none_param_key in ["update_interval", "final_buying_rate", "initial_buying_rate"]:
+            wrong_price_params = copy(hp_params)
             wrong_price_params[none_param_key] = None
             with pytest.raises(GSyDeviceException):
                 hp_validator_class().validate(**wrong_price_params)
