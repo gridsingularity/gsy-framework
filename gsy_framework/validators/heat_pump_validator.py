@@ -67,17 +67,17 @@ class HeatPumpValidator(BaseValidator):
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate energy rate related arguments."""
-        if not(kwargs.get("initial_buying_rate")
-               and kwargs.get("final_buying_rate")
-               and kwargs.get("update_interval")):
-            return
-        if (not kwargs.get("initial_buying_rate")
-                or not kwargs.get("final_buying_rate")
-                or not kwargs.get("update_interval")):
+        if (kwargs.get("initial_buying_rate") is None
+                or kwargs.get("final_buying_rate") is None
+                or kwargs.get("update_interval") is None):
             raise GSyDeviceException(
                 {"misconfiguration": [
                     "All pricing parameters of heat pump should be provided:"
                     "initial_buying_rate, final_buying_rate, update_interval"]})
+
+        if kwargs.get("update_interval") == 0:
+            raise GSyDeviceException(
+                {"misconfiguration": ["update_interval should not be zero"]})
 
         buying_rate_arg_names = [
             "initial_buying_rate", "preferred_buying_rate", "final_buying_rate"]
