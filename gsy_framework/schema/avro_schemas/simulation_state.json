@@ -92,47 +92,34 @@
               ]
             },
             {
-              "name": "area_stats",
-              "default": "null",
-              "type": [
-                "null",
-                {
-                  "name": "AreaStatsRecord",
-                  "type": "record",
-                  "fields": [
-                    {
-                      "name": "rate_stats_market",
-                      "type": {
-                        "type": "map",
-                        "values": [
-                          {
-                            "name": "RateStatsMarketMap",
-                            "type": "map",
-                            "values": [
-                              "null",
-                              "float"
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "name": "exported_energy",
-                      "type": {
-                        "type": "map",
-                        "values": "float"
-                      }
-                    },
-                    {
-                      "name": "imported_energy",
-                      "type": {
-                        "type": "map",
-                        "values": "float"
-                      }
-                    }
-                  ]
-                }
-              ]
+              "name": "rate_stats_market",
+              "type": {
+                "type": "map",
+                "values": [
+                  {
+                    "name": "RateStatsMarketMap",
+                    "type": "map",
+                    "values": [
+                      "null",
+                      "float"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "exported_energy",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "imported_energy",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
             }
           ]
         },
@@ -157,13 +144,6 @@
             {
               "name": "total_energy_demanded_Wh",
               "type": "float"
-            },
-            {
-              "name": "area_stats",
-              "type": [
-                "null",
-                "AreaStatsRecord"
-              ]
             }
           ]
         },
@@ -191,13 +171,6 @@
                 "type": "map",
                 "values": "float"
               }
-            },
-            {
-              "name": "area_stats",
-              "type": [
-                "null",
-                "AreaStatsRecord"
-              ]
             }
           ]
         },
@@ -225,13 +198,6 @@
                 "type": "map",
                 "values": "float"
               }
-            },
-            {
-              "name": "area_stats",
-              "type": [
-                "null",
-                "AreaStatsRecord"
-              ]
             }
           ]
         },
@@ -244,13 +210,6 @@
               "type": [
                 "null",
                 "int"
-              ]
-            },
-            {
-              "name": "area_stats",
-              "type": [
-                "null",
-                "AreaStatsRecord"
               ]
             },
             {
@@ -342,13 +301,6 @@
               "type": [
                 "null",
                 "int"
-              ]
-            },
-            {
-              "name": "area_stats",
-              "type": [
-                "null",
-                "AreaStatsRecord"
               ]
             },
             {
