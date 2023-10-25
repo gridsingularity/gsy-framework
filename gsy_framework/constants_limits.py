@@ -274,7 +274,7 @@ class GlobalConfig:
     MARKET_MAKER_RATE = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     POWER_FLOW = False
     IS_CANARY_NETWORK = False
-    FEED_IN_TARIFF = 20
+    FEED_IN_TARIFF = 0
 
     # Default simulation settings gsy-e side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))

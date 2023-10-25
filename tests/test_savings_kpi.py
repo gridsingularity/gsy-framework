@@ -7,6 +7,8 @@ from gsy_framework.constants_limits import GlobalConfig
 
 
 class FakeEndpointBuffer:
+    """Fake class for EndpointBuffer"""
+
     grid_uuid = str(uuid4())
     house1_uuid = str(uuid4())
     house2_uuid = str(uuid4())
@@ -35,19 +37,19 @@ class FakeEndpointBuffer:
                 ]}
         ]}
     core_stats = {
-        grid_uuid: {"const_fee_rate": 1, "feed_in_tariff": 20.0, "market_maker_rate": 30.0},
-        house1_uuid: {"const_fee_rate": 0.5, "feed_in_tariff": 20.0, "market_maker_rate": 30.0}
+        grid_uuid: {"const_fee_rate": 1, "feed_in_tariff": 0.0, "market_maker_rate": 30.0},
+        house1_uuid: {"const_fee_rate": 0.5, "feed_in_tariff": 0.0, "market_maker_rate": 30.0}
     }
     current_market_slot = "2021-09-13T12:45"
 
 
 @pytest.fixture(name="savings_kpi")
-def savings_kpi_fixture():
+def fixture_savings_kpi():
     return SavingsKPI()
 
 
 @pytest.fixture(name="kpi")
-def kpi_fixture():
+def fixture_kpi():
     return KPI()
 
 
@@ -106,12 +108,12 @@ def test_market_maker_rate_including_path_grid_fees(kpi, savings_kpi):
                endpoint_buffer.current_market_slot)
     house1_core_stats = endpoint_buffer.core_stats.get(endpoint_buffer.house1_uuid, {})
 
-    expected_mmr_minus_glp = savings_kpi._get_market_maker_rate_including_path_grid_fees(
+    actual_mmr_minus_glp = savings_kpi._get_market_maker_rate_including_path_grid_fees(
         house1_core_stats,
         kpi.area_uuid_cum_grid_fee_mapping[endpoint_buffer.house1_uuid])
 
-    actual_mmr_minus_glp = GlobalConfig.market_maker_rate + (
+    expected_mmr_minus_glp = GlobalConfig.market_maker_rate + (
             endpoint_buffer.core_stats[endpoint_buffer.grid_uuid]["const_fee_rate"] +
             endpoint_buffer.core_stats[endpoint_buffer.house1_uuid]["const_fee_rate"])
 
-    assert actual_mmr_minus_glp == expected_mmr_minus_glp
+    assert expected_mmr_minus_glp == actual_mmr_minus_glp
