@@ -68,10 +68,6 @@ class HeatPumpValidator(BaseValidator):
     def validate_rate(cls, **kwargs):
         """Validate energy rate related arguments."""
         if (kwargs.get("initial_buying_rate") is None
-                and kwargs.get("final_buying_rate") is None
-                and kwargs.get("update_interval") is None):
-            return
-        if (kwargs.get("initial_buying_rate") is None
                 or kwargs.get("final_buying_rate") is None
                 or kwargs.get("update_interval") is None):
             raise GSyDeviceException(

@@ -39,6 +39,7 @@ class ConstSettings:
 
         # Max energy price (market maker rate) in ct / kWh
         DEFAULT_MARKET_MAKER_RATE = 30  # 0.3 Eur
+        DEFAULT_FEED_IN_TARIFF = 0
         # interval between offer/bid postings
         DEFAULT_UPDATE_INTERVAL = 1  # in minutes
         MIN_UPDATE_INTERVAL = 1  # in minutes
