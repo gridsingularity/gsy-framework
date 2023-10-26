@@ -95,12 +95,12 @@ class TestHeatpumpValidator:
         hp_validator_class().validate(**{**hp_params})
 
         wrong_price_params = copy(hp_params)
-        wrong_price_params["update_interval"] = 0
+        wrong_price_params["initial_buying_rate"] = 0
+        wrong_price_params["update_interval"] = 0  # not allowed value
         with pytest.raises(GSyDeviceException):
             hp_validator_class().validate(**wrong_price_params)
 
-        for none_param_key in ["update_interval", "final_buying_rate", "initial_buying_rate"]:
-            wrong_price_params = copy(hp_params)
+        for none_param_key in ["update_interval", "initial_buying_rate"]:
             wrong_price_params[none_param_key] = None
             with pytest.raises(GSyDeviceException):
                 hp_validator_class().validate(**wrong_price_params)

@@ -67,9 +67,9 @@ class HeatPumpValidator(BaseValidator):
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate energy rate related arguments."""
-        if not(kwargs.get("initial_buying_rate")
-               and kwargs.get("final_buying_rate")
-               and kwargs.get("update_interval")):
+        if (kwargs.get("initial_buying_rate") is None
+                and kwargs.get("final_buying_rate") is None
+                and kwargs.get("update_interval") is None):
             return
         if (kwargs.get("initial_buying_rate") is None
                 or kwargs.get("update_interval") is None):
