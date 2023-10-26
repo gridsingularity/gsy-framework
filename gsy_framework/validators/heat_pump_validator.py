@@ -1,4 +1,4 @@
-from gsy_framework.constants_limits import ConstSettings
+from gsy_framework.constants_limits import ConstSettings, GlobalConfig
 from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators.base_validator import BaseValidator
 from gsy_framework.validators.utils import validate_range_limit
@@ -67,20 +67,23 @@ class HeatPumpValidator(BaseValidator):
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate energy rate related arguments."""
-        if not(kwargs.get("initial_buying_rate")
-               and kwargs.get("final_buying_rate")
-               and kwargs.get("update_interval")):
+        if (kwargs.get("initial_buying_rate") is None
+                and kwargs.get("final_buying_rate") is None
+                and kwargs.get("update_interval") is None):
             return
-        if (not kwargs.get("initial_buying_rate")
-                or not kwargs.get("final_buying_rate")
-                or not kwargs.get("update_interval")):
+        if (kwargs.get("initial_buying_rate") is None
+                or kwargs.get("update_interval") is None):
             raise GSyDeviceException(
                 {"misconfiguration": [
                     "All pricing parameters of heat pump should be provided:"
-                    "initial_buying_rate, final_buying_rate, update_interval"]})
+                    "initial_buying_rate, update_interval"]})
+
+        if kwargs.get("update_interval") == 0:
+            raise GSyDeviceException(
+                {"misconfiguration": ["update_interval should not be zero"]})
 
         buying_rate_arg_names = [
-            "initial_buying_rate", "preferred_buying_rate", "final_buying_rate"]
+            "initial_buying_rate", "preferred_buying_rate"]
         for buying_rate_arg_name in buying_rate_arg_names:
             cls._check_range(
                 name=buying_rate_arg_name, value=kwargs[buying_rate_arg_name],
@@ -89,7 +92,9 @@ class HeatPumpValidator(BaseValidator):
 
         initial_buying_rate = kwargs["initial_buying_rate"]
         preferred_buying_rate = kwargs["preferred_buying_rate"]
-        final_buying_rate = kwargs["final_buying_rate"]
+        final_buying_rate = (
+            kwargs.get("final_buying_rate") if kwargs.get("final_buying_rate")
+            else GlobalConfig.MARKET_MAKER_RATE)
 
         validate_range_limit(
             initial_buying_rate, preferred_buying_rate, final_buying_rate,

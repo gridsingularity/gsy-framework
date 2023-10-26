@@ -39,6 +39,7 @@ class ConstSettings:
 
         # Max energy price (market maker rate) in ct / kWh
         DEFAULT_MARKET_MAKER_RATE = 30  # 0.3 Eur
+        DEFAULT_FEED_IN_TARIFF = 0
         # interval between offer/bid postings
         DEFAULT_UPDATE_INTERVAL = 1  # in minutes
         MIN_UPDATE_INTERVAL = 1  # in minutes
@@ -273,8 +274,8 @@ class GlobalConfig:
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     POWER_FLOW = False
+    FEED_IN_TARIFF = 0
     CONFIG_TYPE = ConfigurationType.SIMULATION.value
-    FEED_IN_TARIFF = 20
 
     # Default simulation settings gsy-e side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))
