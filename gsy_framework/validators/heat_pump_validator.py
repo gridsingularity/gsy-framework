@@ -71,11 +71,12 @@ class HeatPumpValidator(BaseValidator):
                 and kwargs.get("final_buying_rate") is None
                 and kwargs.get("update_interval") is None):
             return
+
         if (kwargs.get("initial_buying_rate") is None
                 or kwargs.get("update_interval") is None):
             raise GSyDeviceException(
                 {"misconfiguration": [
-                    "All pricing parameters of heat pump should be provided:"
+                    "All pricing parameters of heat pump should be provided: "
                     "initial_buying_rate, update_interval"]})
 
         if kwargs.get("update_interval") == 0:
@@ -93,9 +94,8 @@ class HeatPumpValidator(BaseValidator):
         initial_buying_rate = kwargs["initial_buying_rate"]
         preferred_buying_rate = kwargs["preferred_buying_rate"]
         final_buying_rate = (
-            kwargs.get("final_buying_rate") if kwargs.get("final_buying_rate")
-            else GlobalConfig.MARKET_MAKER_RATE)
-
+            GlobalConfig.MARKET_MAKER_RATE if kwargs.get("use_market_maker_rate")
+            else kwargs.get("final_buying_rate"))
         validate_range_limit(
             initial_buying_rate, preferred_buying_rate, final_buying_rate,
             {"misconfiguration": [
