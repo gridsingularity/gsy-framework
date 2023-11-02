@@ -148,6 +148,44 @@
           ]
         },
         {
+          "name": "SmartMeterAreaStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_production_forecast_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "available_energy_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "desired_energy_Wh",
+              "type": ["null", {
+                "type": "map",
+                "values": "float"
+              }]
+            },
+            {
+              "name": "total_energy_demanded_Wh",
+              "type": ["null", "float"]
+            }
+          ]
+        },
+        {
           "name": "InfiniteBusStats",
           "type": "record",
           "fields": [
