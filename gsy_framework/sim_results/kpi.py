@@ -20,7 +20,7 @@ from typing import Dict, List
 
 from gsy_framework.sim_results import (is_buffer_node_type, is_load_node_type,
                                        is_producer_node_type,
-                                       is_prosumer_node_type)
+                                       is_prosumer_node_type, is_heatpump_node_type)
 from gsy_framework.sim_results.kpi_calculation_helper import (
     KPICalculationHelper)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
@@ -52,7 +52,7 @@ class KPIState:
         if "DH" in area_dict["name"]:
             return
         for child in area_dict["children"]:
-            if is_producer_node_type(child):
+            if is_producer_node_type(child) or is_heatpump_node_type(child):
                 if_not_in_list_append(self.producer_list, child["uuid"])
                 if_not_in_list_append(self.areas_to_trace_list, child["parent_uuid"])
             elif is_load_node_type(child):
