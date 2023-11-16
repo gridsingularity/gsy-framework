@@ -66,6 +66,8 @@ class KPIState:
                 self.accumulate_devices(child)
 
     def _accumulate_total_energy_demanded(self, area_dict: Dict, core_stats: Dict):
+        if "DH" in area_dict["name"]:
+            return
         for child in area_dict["children"]:
             child_stats = core_stats.get(child["uuid"], {})
             if is_load_node_type(child):
@@ -157,6 +159,7 @@ class KPIState:
     def update_area_kpi(self, area_dict: Dict, core_stats: Dict):
         """Update kpi after every market cycle"""
         self.total_energy_demanded_wh = 0
+
         self._accumulate_total_energy_demanded(area_dict, core_stats)
         self._accumulate_energy_trace(core_stats, "P2P" in area_dict["name"])
 
