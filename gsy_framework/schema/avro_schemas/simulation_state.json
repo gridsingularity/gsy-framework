@@ -382,6 +382,13 @@
                 "type": "map",
                 "values": "float"
               }
+            },
+            {
+              "name": "total_traded_energy_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
             }
           ]
         }

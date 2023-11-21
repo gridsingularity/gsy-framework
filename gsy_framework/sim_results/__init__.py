@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from gsy_framework.utils import area_name_from_area_or_ma_name
 
+
 def is_load_node_type(area):
     """Check if the given asset is a load."""
     return area["type"] in ["LoadHoursStrategy", "DefinedLoadStrategy",
@@ -27,7 +28,7 @@ def is_load_node_type(area):
 
 def is_heatpump_node_type(area):
     """Check if the given asset is a heat pump."""
-    return area["type"] in ["HeatPumpStrategy"]
+    return area["type"] in ["HeatPumpStrategy", "VirtualHeatpumpStrategy"]
 
 
 def is_bulk_power_producer(area):
