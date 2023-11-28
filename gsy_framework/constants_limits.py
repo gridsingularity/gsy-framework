@@ -261,8 +261,7 @@ class ConstSettings:
         MARKET_ALGORITHM_LIMIT = RangeLimit(1, 3)
 
         @classmethod
-        @property
-        def is_no_community_self_consumption(cls):
+        def is_no_community_self_consumption(cls) -> bool:
             """Check whether the SCM mode is set to no-community-self-consumption."""
             return cls.MARKET_ALGORITHM == CoefficientAlgorithm.NO_COMMUNITY_SELF_CONSUMPTION.value
 
