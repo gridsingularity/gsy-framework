@@ -24,6 +24,7 @@ class CoefficientAlgorithm(Enum):
 
     STATIC = 1
     DYNAMIC = 2
+    NO_COMMUNITY_SELF_CONSUMPTION = 3
 
 
 class CloudCoverage(Enum):
