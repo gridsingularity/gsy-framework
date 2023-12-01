@@ -339,6 +339,20 @@
               }
             },
             {
+              "name": "cop",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "unmatched_demand_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
               "name": "energy_consumption_kWh",
               "type": {
                 "type": "map",
