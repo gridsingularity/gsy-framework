@@ -24,7 +24,7 @@ from pendulum import duration, instance
 
 from gsy_framework.enums import (AvailableMarketTypes, BidOfferMatchAlgoEnum,
                                  CoefficientAlgorithm, HeatPumpSourceType,
-                                 SpotMarketTypeEnum)
+                                 SpotMarketTypeEnum, ConfigurationType)
 
 RangeLimit = namedtuple("RangeLimit", ("min", "max"))
 RateRange = namedtuple("RateRange", ("initial", "final"))
@@ -39,6 +39,7 @@ class ConstSettings:
 
         # Max energy price (market maker rate) in ct / kWh
         DEFAULT_MARKET_MAKER_RATE = 30  # 0.3 Eur
+        DEFAULT_FEED_IN_TARIFF = 0
         # interval between offer/bid postings
         DEFAULT_UPDATE_INTERVAL = 1  # in minutes
         MIN_UPDATE_INTERVAL = 1  # in minutes
@@ -186,7 +187,7 @@ class ConstSettings:
         """Default values for the heat pump."""
         # range limits
         MAX_POWER_RATING_KW_LIMIT = RangeLimit(0, sys.maxsize)
-        TEMP_C_LIMIT = RangeLimit(-273.15, 6000)
+        TEMP_C_LIMIT = RangeLimit(0.0, 200.0)
         TANK_VOLUME_L_LIMIT = RangeLimit(0, sys.maxsize)
         BUYING_RATE_LIMIT = RateRange(0, 10000)
 
@@ -273,8 +274,8 @@ class GlobalConfig:
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     POWER_FLOW = False
-    IS_CANARY_NETWORK = False
-    FEED_IN_TARIFF = 20
+    FEED_IN_TARIFF = 0
+    CONFIG_TYPE = ConfigurationType.SIMULATION.value
 
     # Default simulation settings gsy-e side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))
@@ -288,6 +289,11 @@ class GlobalConfig:
     grid_fee_type = ConstSettings.MASettings.GRID_FEE_TYPE
     # Allow orders to contain additional requirements and attributes
     enable_degrees_of_freedom = True
+
+    @classmethod
+    def is_canary_network(cls):
+        """Return if the GlobalConfig is set up for a Canary Network"""
+        return cls.CONFIG_TYPE == ConfigurationType.CANARY_NETWORK.value
 
 
 class HeartBeat:

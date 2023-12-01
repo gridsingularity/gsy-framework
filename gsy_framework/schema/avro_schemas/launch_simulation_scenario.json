@@ -6,7 +6,6 @@
     {"name": "type", "type": ["null", "string"], "default": "Area"},
     {"name": "uuid", "type": "string"},
     {"name": "configuration_uuid", "type": ["null", "string"], "default":  "undefined"},
-    {"name": "collaboration_uuid", "type": ["null", "string"], "default":  "undefined"},
     {"name": "tags", "type": [
       "null", {
         "type": "array",
@@ -35,7 +34,6 @@
     {"name": "marketplace_monthly_fee", "type": ["null", "float"]},
     {"name": "assistance_monthly_fee", "type": ["null", "float"]},
     {"name": "allow_external_connection", "type": ["null", "boolean"]},
-    {"name": "is_canary_network", "type": ["null", "boolean"]},
     {"name": "baseline_peak_energy_export_kWh", "type": ["null", "float"]},
     {"name": "baseline_peak_energy_import_kWh", "type": ["null", "float"]},
     {"name": "children", "type": [
@@ -361,7 +359,8 @@
                 {"name": "final_buying_rate", "type": ["null", "float"]},
                 {"name": "initial_buying_rate", "type": ["null", "float"]},
                 {"name": "preferred_buying_rate", "type": ["null", "float"]},
-                {"name":  "display_type", "type":  "string"}
+                {"name": "display_type", "type":  "string"},
+                {"name": "use_market_maker_rate", "type": ["null", "boolean"]}
               ]
             }
           ]
