@@ -98,9 +98,9 @@ def generate_market_slot_list(start_timestamp=None):
     No input arguments, required input is only handled by a preconfigured GlobalConfig
     @return: List with market slot datetimes
     """
-    time_span = duration(days=PROFILE_EXPANSION_DAYS) \
-        if GlobalConfig.IS_CANARY_NETWORK \
-        else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
+    time_span = (duration(days=PROFILE_EXPANSION_DAYS)
+                 if GlobalConfig.is_canary_network()
+                 else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS)))
     time_span += duration(hours=ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS)
     market_slot_list = \
         generate_market_slot_list_from_config(sim_duration=time_span,
@@ -454,21 +454,28 @@ def area_sells_to_child(trade: dict, area_name: str, child_names: list):
 
 
 # pylint: disable=invalid-name
-def convert_W_to_kWh(power_W, slot_length):
+def convert_W_to_kWh(power_W: float, slot_length: duration) -> float:
     """Convert W power into energy in kWh (based on the duration of the market slot)."""
     return (slot_length / duration(hours=1)) * power_W / 1000
 
 
 # pylint: disable=invalid-name
-def convert_W_to_Wh(power_W, slot_length):
+def convert_W_to_Wh(power_W: float, slot_length: duration) -> float:
     """Convert W power into energy in Wh (based on the duration of the market slot)."""
     return (slot_length / duration(hours=1)) * power_W
 
 
 # pylint: disable=invalid-name
-def convert_kW_to_kWh(power_W, slot_length):
+def convert_kW_to_kWh(power_W: float, slot_length: duration) -> float:
     """Convert kW power into kWh energy (based on the duration of the market slot)."""
     return convert_W_to_Wh(power_W, slot_length)
+
+
+# pylint: disable=invalid-name
+def convert_kWh_to_W(energy_kWh: float, slot_length: duration) -> float:
+    """Convert W power into energy in Wh (based on the duration of the market slot)."""
+    energy_Wh = energy_kWh * 1000.0
+    return energy_Wh / (slot_length / duration(hours=1))
 
 
 def return_ordered_dict(function):
@@ -500,7 +507,8 @@ class HomeRepresentationUtils:
 
     @staticmethod
     def _is_home(representation):
-        home_devices = ["PV", "Storage", "Load", "MarketMaker"]
+        home_devices = ["PV", "Storage", "Load", "MarketMaker", "HeatPump", "WindTurbine",
+                        "SmartMeter"]
         return all("type" in c and c["type"] in home_devices
                    for c in representation["children"])
 
@@ -572,7 +580,7 @@ def is_time_slot_in_simulation_duration(
     else:
         start_date = config.start_date
         end_date = config.end_date
-    return start_date <= time_slot < end_date or GlobalConfig.IS_CANARY_NETWORK
+    return start_date <= time_slot < end_date or GlobalConfig.is_canary_network()
 
 
 def is_valid_uuid(uuid: str) -> bool:

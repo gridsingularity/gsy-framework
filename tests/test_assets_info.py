@@ -88,6 +88,24 @@ class TestSimulationAssetsInfo(unittest.TestCase):
                         "children":
                             [
                                 {
+                                    "type": "HeatPump"
+                                },
+                            ]
+                    },
+                    {
+                        "type": "Area",
+                        "children":
+                            [
+                                {
+                                    "type": "SmartMeter"
+                                },
+                            ]
+                    },
+                    {
+                        "type": "Area",
+                        "children":
+                            [
+                                {
                                     "type": "Load"
                                 },
                                 {
@@ -121,8 +139,8 @@ class TestSimulationAssetsInfo(unittest.TestCase):
             "total_energy_capacity_kwh": 45,
             "number_of_power_plant_type": 2,
             "max_power_plant_power_kw": 45,
-            "number_of_house_type": 2,
-            "avg_assets_per_house": 3
+            "number_of_house_type": 4,
+            "avg_assets_per_house": 2
         }
         actual_res = {key: self.assets_info.raw_results[key] for key in expected_res}
         assert expected_res == actual_res

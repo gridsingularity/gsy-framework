@@ -1,0 +1,280 @@
+{
+  "areas": {
+    "3941b529-9ce6-4b83-bcf6-d4c192f58249": {
+      "energy_rate": {
+        "2023-05-23T00:00": 30.0,
+        "2023-05-23T01:00": 30.0,
+        "2023-05-23T02:00": 30.0,
+        "2023-05-23T03:00": 30.0,
+        "2023-05-23T04:00": 30.0,
+        "2023-05-23T05:00": 30.0,
+        "2023-05-23T06:00": 30.0,
+        "2023-05-23T07:00": 30.0,
+        "2023-05-23T08:00": 30.0,
+        "2023-05-23T09:00": 30.0,
+        "2023-05-23T10:00": 30.0,
+        "2023-05-23T11:00": 30.0,
+        "2023-05-23T12:00": 30.0,
+        "2023-05-23T13:00": 30.0,
+        "2023-05-23T14:00": 30.0,
+        "2023-05-23T15:00": 30.0,
+        "2023-05-23T16:00": 30.0,
+        "2023-05-23T17:00": 30.0,
+        "2023-05-23T18:00": 30.0,
+        "2023-05-23T19:00": 30.0,
+        "2023-05-23T20:00": 30.0,
+        "2023-05-23T21:00": 30.0,
+        "2023-05-23T22:00": 30.0,
+        "2023-05-23T23:00": 30.0
+      },
+      "current_tick": 1440,
+      "energy_buy_rate": {
+        "2023-05-23T00:00": 12.0,
+        "2023-05-23T01:00": 12.0,
+        "2023-05-23T02:00": 12.0,
+        "2023-05-23T03:00": 12.0,
+        "2023-05-23T04:00": 12.0,
+        "2023-05-23T05:00": 12.0,
+        "2023-05-23T06:00": 12.0,
+        "2023-05-23T07:00": 12.0,
+        "2023-05-23T08:00": 12.0,
+        "2023-05-23T09:00": 12.0,
+        "2023-05-23T10:00": 12.0,
+        "2023-05-23T11:00": 12.0,
+        "2023-05-23T12:00": 12.0,
+        "2023-05-23T13:00": 12.0,
+        "2023-05-23T14:00": 12.0,
+        "2023-05-23T15:00": 12.0,
+        "2023-05-23T16:00": 12.0,
+        "2023-05-23T17:00": 12.0,
+        "2023-05-23T18:00": 12.0,
+        "2023-05-23T19:00": 12.0,
+        "2023-05-23T20:00": 12.0,
+        "2023-05-23T21:00": 12.0,
+        "2023-05-23T22:00": 12.0,
+        "2023-05-23T23:00": 12.0
+      }
+    },
+    "6dbb7e00-c347-4f20-86b0-a32f5dbf8ee5": {
+      "exported_energy": {
+        "2023-05-23T23:00": 0.0
+      },
+      "imported_energy": {
+        "2023-05-23T23:00": 0.0
+      },
+      "rate_stats_market": {
+        "2023-05-23T23:00": {
+          "avg_trade_rate": null,
+          "max_trade_rate": null,
+          "min_trade_rate": null,
+          "median_trade_rate": null,
+          "total_traded_energy_kWh": null
+        }
+      },
+      "current_tick": 1440
+    },
+    "7365a0af-4315-4c33-96aa-f7f8a7339a07": {
+      "current_tick": 1440,
+      "available_energy_kWh": {
+        "2023-05-23T22:00": 0.0,
+        "2023-05-23T23:00": 0.0
+      },
+      "energy_production_forecast_kWh": {
+        "2023-05-23T22:00": 0.0,
+        "2023-05-23T23:00": 0.0
+      }
+    },
+    "75c69b2a-85ad-410a-8a82-8dbf9b72ff76": {
+      "exported_energy": {},
+      "imported_energy": {},
+      "rate_stats_market": {},
+      "current_tick": 1440
+    },
+    "b5c21c73-e155-4bad-928f-53eb87f7b2dc": {
+      "current_tick": 1440,
+      "used_history": {
+        "2023-05-23T22:00": "-",
+        "2023-05-23T23:00": "-"
+      },
+      "used_storage": 0.12,
+      "charge_history": {
+        "2023-05-23T22:00": 10.0,
+        "2023-05-23T23:00": 10.0
+      },
+      "offered_buy_kWh": {
+        "2023-05-23T22:00": 1.08,
+        "2023-05-23T23:00": 1.08
+      },
+      "offered_history": {
+        "2023-05-23T22:00": 0,
+        "2023-05-23T23:00": 0
+      },
+      "pledged_buy_kWh": {
+        "2023-05-23T22:00": 0,
+        "2023-05-23T23:00": 0
+      },
+      "offered_sell_kWh": {
+        "2023-05-23T22:00": 0,
+        "2023-05-23T23:00": 0
+      },
+      "pledged_sell_kWh": {
+        "2023-05-23T22:00": 0,
+        "2023-05-23T23:00": 0
+      },
+      "charge_history_kWh": {
+        "2023-05-23T22:00": 0.12,
+        "2023-05-23T23:00": 0.12
+      },
+      "energy_to_buy_dict": {
+        "2023-05-23T22:00": 0.0,
+        "2023-05-23T23:00": 0.0
+      },
+      "energy_to_sell_dict": {
+        "2023-05-23T22:00": 0.0,
+        "2023-05-23T23:00": 0.0
+      },
+      "battery_energy_per_slot": 5.0
+    },
+    "cc2221e7-7672-4867-8735-2dab899aae80": {
+      "exported_energy": {
+        "2023-05-23T23:00": 0.0
+      },
+      "imported_energy": {
+        "2023-05-23T23:00": 0.0
+      },
+      "rate_stats_market": {
+        "2023-05-23T23:00": {
+          "avg_trade_rate": 30.0,
+          "max_trade_rate": 30.0,
+          "min_trade_rate": 30.0,
+          "median_trade_rate": 30.0,
+          "total_traded_energy_kWh": 0.1
+        }
+      },
+      "current_tick": 1440
+    },
+    "cd80ac11-5c53-4e91-9189-6b9a64568a96": {
+      "exported_energy": {
+        "2023-05-23T23:00": 0.0
+      },
+      "imported_energy": {
+        "2023-05-23T23:00": 0.1
+      },
+      "rate_stats_market": {
+        "2023-05-23T23:00": {
+          "avg_trade_rate": 30.0,
+          "max_trade_rate": 30.0,
+          "min_trade_rate": 30.0,
+          "median_trade_rate": 30.0,
+          "total_traded_energy_kWh": 0.1
+        }
+      },
+      "current_tick": 1440
+    },
+    "d198861f-d165-4e9b-b593-6987bd3a2b3a": {
+      "exported_energy": {
+        "2023-05-23T23:00": 0.0
+      },
+      "imported_energy": {
+        "2023-05-23T23:00": 0.1
+      },
+      "rate_stats_market": {
+        "2023-05-23T23:00": {
+          "avg_trade_rate": 30.0,
+          "max_trade_rate": 30.0,
+          "min_trade_rate": 30.0,
+          "median_trade_rate": 30.0,
+          "total_traded_energy_kWh": 0.1
+        }
+      },
+      "current_tick": 1440
+    },
+    "ec50c510-3876-4efa-af90-a92895a32459": {
+      "current_tick": 1440,
+      "desired_energy_Wh": {
+        "2023-05-23T22:00": 100.0,
+        "2023-05-23T23:00": 100.0
+      },
+      "total_energy_demanded_Wh": 2300.0
+    },
+    "eca90c5e-7266-4e73-84ad-5aae9e2ddb4d": {
+      "exported_energy": {
+        "2023-05-23T23:00": 0.0
+      },
+      "imported_energy": {
+        "2023-05-23T23:00": 0.0
+      },
+      "rate_stats_market": {
+        "2023-05-23T23:00": {
+          "avg_trade_rate": null,
+          "max_trade_rate": null,
+          "min_trade_rate": null,
+          "median_trade_rate": null,
+          "total_traded_energy_kWh": null
+        }
+      },
+      "current_tick": 1440
+    },
+    "efd2bcf1-c175-4a88-be78-a9530dd29670": {
+      "current_tick": 1440,
+      "storage_temp_C": {
+        "2023-05-23T22:00": 5.0,
+        "2023-05-23T23:00": 5.0
+      },
+      "temp_decrease_K": {
+        "2023-05-23T22:00": 0.0,
+        "2023-05-23T23:00": 0.0
+      },
+      "cop": {
+        "2023-05-23T22:00": 4.0,
+        "2023-05-23T23:00": 6.0
+      },
+      "unmatched_demand_kWh": {
+        "2023-05-23T22:00": 4.0,
+        "2023-05-23T23:00": 6.0
+      },
+      "temp_increase_K": {},
+      "max_energy_demand_kWh": {
+        "2023-05-23T22:00": 4.276815903856106,
+        "2023-05-23T23:00": 5.020064521205445
+      },
+      "min_energy_demand_kWh": {
+        "2023-05-23T22:00": 0.0,
+        "2023-05-23T23:00": 0.0
+      },
+      "energy_consumption_kWh": {
+        "2023-05-23T22:00": 0.04,
+        "2023-05-23T23:00": 0.6
+      }
+    },
+    "ffe6fad2-b480-4729-be69-c8bb6dc594ff": {
+      "exported_energy": {
+        "2023-05-23T23:00": 0.0
+      },
+      "imported_energy": {
+        "2023-05-23T23:00": 0.0
+      },
+      "rate_stats_market": {
+        "2023-05-23T23:00": {
+          "avg_trade_rate": null,
+          "max_trade_rate": null,
+          "min_trade_rate": null,
+          "median_trade_rate": null,
+          "total_traded_energy_kWh": null
+        }
+      },
+      "current_tick": 1440
+    }
+  },
+  "general": {
+    "seed": 0,
+    "paused": false,
+    "stopped": false,
+    "run_start": "2023-09-21T13:05",
+    "sim_status": "finished",
+    "paused_time": 0,
+    "slot_number": 23,
+    "simulation_id": "24c5afa2-6aec-4362-a33b-cbc311055551",
+    "slot_length_realtime_s": 0
+  }
+}
