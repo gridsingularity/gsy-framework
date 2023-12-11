@@ -204,7 +204,7 @@ class DeviceStatistics(ResultsBaseClass):
         for child in area_dict["children"]:
             if child["name"] not in subdict.keys():
                 subdict.update({child["name"]: {}})
-            if child["children"] == [] and core_stats != {}:
+            if not child["children"] and core_stats != {}:
                 cls._get_device_statistics(
                     child, subdict[child["name"]], flat_result_dict,
                     core_stats, current_market_slot)
