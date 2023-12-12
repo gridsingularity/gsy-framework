@@ -2,6 +2,7 @@ from gsy_framework.constants_limits import ConstSettings, GlobalConfig
 from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators.base_validator import BaseValidator
 from gsy_framework.validators.utils import validate_range_limit
+from gsy_framework.enums import HeatPumpSourceType
 
 HeatPumpSettings = ConstSettings.HeatPumpSettings
 
@@ -14,12 +15,10 @@ class HeatPumpValidator(BaseValidator):
         cls._validate_energy(**kwargs)
         cls._validate_temp(**kwargs)
         cls.validate_rate(**kwargs)
+        cls._validate_source_type(**kwargs)
+        cls._validate_tank_volume(**kwargs)
         cls._validate_profiles(**kwargs)
-
-        cls._check_range(
-            name="tank_volume_l", value=kwargs["tank_volume_l"],
-            min_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.min,
-            max_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.max)
+        cls._validate_max_power(**kwargs)
 
     @classmethod
     def _validate_profiles(cls, **kwargs):
@@ -37,12 +36,21 @@ class HeatPumpValidator(BaseValidator):
                     "external_temp_C_profile should be provided."]})
 
     @classmethod
-    def _validate_energy(cls, **kwargs):
+    def _validate_max_power(cls, **kwargs):
         """Validate energy related arguments."""
-        cls._check_range(
-            name="maximum_power_rating_kW", value=kwargs["maximum_power_rating_kW"],
-            min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
-            max_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max)
+        if kwargs.get("maximum_power_rating_kW"):
+            cls._check_range(
+                name="maximum_power_rating_kW", value=kwargs["maximum_power_rating_kW"],
+                min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
+                max_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max)
+
+    @classmethod
+    def _validate_energy(cls, **kwargs):
+        if (kwargs.get("consumption_kWh_profile") is None and
+                kwargs.get("consumption_kWh_profile_uuid") is None):
+            raise GSyDeviceException(
+                {"misconfiguration": [
+                    "consumption_kWh_profile should be provided."]})
 
     @classmethod
     def _validate_temp(cls, **kwargs):
@@ -50,14 +58,21 @@ class HeatPumpValidator(BaseValidator):
         temperature_arg_names = [
             "min_temp_C", "max_temp_C", "initial_temp_C"]
         for temperature_arg_name in temperature_arg_names:
-            cls._check_range(
-                name=temperature_arg_name, value=kwargs[temperature_arg_name],
-                min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
-                max_value=HeatPumpSettings.TEMP_C_LIMIT.max)
+            if kwargs.get(temperature_arg_name):
+                cls._check_range(
+                    name=temperature_arg_name, value=kwargs[temperature_arg_name],
+                    min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
+                    max_value=HeatPumpSettings.TEMP_C_LIMIT.max)
 
-        min_temp_c = kwargs["min_temp_C"]
-        max_temp_c = kwargs["max_temp_C"]
-        initial_temp_c = kwargs["initial_temp_C"]
+        min_temp_c = kwargs.get("min_temp_C")
+        max_temp_c = kwargs.get("max_temp_C")
+        initial_temp_c = kwargs.get("initial_temp_C")
+        if min_temp_c is None:
+            min_temp_c = HeatPumpSettings.MIN_TEMP_C
+        if max_temp_c is None:
+            max_temp_c = HeatPumpSettings.MAX_TEMP_C
+        if initial_temp_c is None:
+            initial_temp_c = HeatPumpSettings.INIT_TEMP_C
 
         if not min_temp_c <= initial_temp_c <= max_temp_c:
             raise GSyDeviceException(
@@ -104,6 +119,26 @@ class HeatPumpValidator(BaseValidator):
                 "'initial_buying_rate <= preferred_buying_rate <= final_buying_rate' is not met."
             ]})
 
+    @staticmethod
+    def _validate_source_type(**kwargs):
+        if kwargs.get("source_type"):
+            try:
+                if kwargs["source_type"] is not None:
+                    HeatPumpSourceType(kwargs["source_type"])
+            except ValueError as ex:
+                raise GSyDeviceException(
+                    {"misconfiguration": [
+                        "HeatPump source type not one of "
+                        f"{[st.value for st in HeatPumpSourceType]}"]}) from ex
+
+    @classmethod
+    def _validate_tank_volume(cls, **kwargs):
+        if kwargs.get("tank_volume_l"):
+            cls._check_range(
+                name="tank_volume_l", value=kwargs["tank_volume_l"],
+                min_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.min,
+                max_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.max)
+
     @classmethod
     def _check_range(cls, name, value, min_value, max_value):
         if value is None:
@@ -137,3 +172,7 @@ class VirtualHeatPumpValidator(HeatPumpValidator):
             raise GSyDeviceException(
                 {"misconfiguration": [
                     "dh_water_flow_m3_profile should be provided."]})
+
+    @classmethod
+    def _validate_energy(cls, **kwargs):
+        pass

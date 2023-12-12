@@ -24,7 +24,7 @@ from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators import (
     SmartMeterValidator, LoadValidator, PVValidator, StorageValidator, CommercialProducerValidator,
-    InfiniteBusValidator, MarketMakerValidator, FiniteDieselGeneratorValidator)
+    InfiniteBusValidator, MarketMakerValidator, FiniteDieselGeneratorValidator, HeatPumpValidator)
 
 GeneralSettings = ConstSettings.GeneralSettings
 LoadSettings = ConstSettings.LoadSettings
@@ -308,3 +308,19 @@ class TestSmartMeterValidator:
     def test_pv_orientation_setting_succeeds(valid_arguments):
         """The PV device validation succeeds when valid arguments are provided."""
         assert PVValidator.validate(**valid_arguments) is None
+
+
+class TestHeatPumpValidator:
+
+    @staticmethod
+    @pytest.mark.parametrize("source_type_int, should_fail",
+                             [[0, False],
+                              [1, False],
+                              [2, True]])
+    def test_source_type(source_type_int, should_fail):
+        try:
+            HeatPumpValidator.validate(source_type=source_type_int,
+                                       consumption_kWh_profile_uuid="",
+                                       external_temp_C_profile_uuid="")
+        except GSyDeviceException:
+            assert should_fail
