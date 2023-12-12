@@ -346,6 +346,20 @@
               }
             },
             {
+              "name": "condenser_temp_C",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "heat_demand_J",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
               "name": "unmatched_demand_kWh",
               "type": {
                 "type": "map",
