@@ -258,7 +258,13 @@ class ConstSettings:
         """Default settings for the community manager."""
         GRID_FEES_REDUCTION = 0.28
         MARKET_ALGORITHM = CoefficientAlgorithm.STATIC.value
-        MARKET_ALGORITHM_LIMIT = RangeLimit(1, 2)
+        MARKET_ALGORITHM_LIMIT = RangeLimit(1, 3)
+
+
+def is_no_community_self_consumption() -> bool:
+    """Check whether the SCM mode is set to no-community-self-consumption."""
+    return (ConstSettings.SCMSettings.MARKET_ALGORITHM ==
+            CoefficientAlgorithm.NO_COMMUNITY_SELF_CONSUMPTION.value)
 
 
 class GlobalConfig:
