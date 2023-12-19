@@ -507,7 +507,8 @@ class HomeRepresentationUtils:
 
     @staticmethod
     def _is_home(representation):
-        home_devices = ["PV", "Storage", "Load", "MarketMaker"]
+        home_devices = ["PV", "Storage", "Load", "MarketMaker", "HeatPump", "WindTurbine",
+                        "SmartMeter"]
         return all("type" in c and c["type"] in home_devices
                    for c in representation["children"])
 

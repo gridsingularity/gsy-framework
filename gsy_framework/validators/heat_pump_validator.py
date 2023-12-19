@@ -94,8 +94,9 @@ class HeatPumpValidator(BaseValidator):
         initial_buying_rate = kwargs["initial_buying_rate"]
         preferred_buying_rate = kwargs["preferred_buying_rate"]
         final_buying_rate = (
-            GlobalConfig.MARKET_MAKER_RATE if kwargs.get("use_market_maker_rate")
+            GlobalConfig.MARKET_MAKER_RATE if kwargs.get("use_market_maker_rate") is True
             else kwargs.get("final_buying_rate"))
+
         validate_range_limit(
             initial_buying_rate, preferred_buying_rate, final_buying_rate,
             {"misconfiguration": [
