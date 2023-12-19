@@ -49,8 +49,6 @@ class KPIState:
 
     def accumulate_devices(self, area_dict: Dict):
         """Accumulate all child devices with respective types"""
-        if "DH" in area_dict["name"]:
-            return
         for child in area_dict["children"]:
             if is_producer_node_type(child):
                 if_not_in_list_append(self.producer_list, child["uuid"])
@@ -66,8 +64,6 @@ class KPIState:
                 self.accumulate_devices(child)
 
     def _accumulate_total_energy_demanded(self, area_dict: Dict, core_stats: Dict):
-        if "DH" in area_dict["name"]:
-            return
         for child in area_dict["children"]:
             child_stats = core_stats.get(child["uuid"], {})
             if is_load_node_type(child):
@@ -147,7 +143,7 @@ class KPIState:
             self.total_self_consumption_wh += trade["energy"] * 1000
             self.demanded_buffer_wh += trade["energy"] * 1000
 
-    def _accumulate_energy_trace(self, core_stats, p2p=True):
+    def _accumulate_energy_trace(self, core_stats):
         for target_area_uuid in self.areas_to_trace_list:
             target_core_stats = core_stats.get(target_area_uuid, {})
             for trade in target_core_stats.get("trades", []):
@@ -155,16 +151,15 @@ class KPIState:
                 self._accumulate_self_production(trade)
                 self._accumulate_self_consumption_buffer(trade)
                 self._dissipate_self_consumption_buffer(trade)
-                if p2p:
-                    self._accumulate_infinite_consumption(trade)
-                    self._dissipate_infinite_consumption(trade)
+                self._accumulate_infinite_consumption(trade)
+                self._dissipate_infinite_consumption(trade)
 
     def update_area_kpi(self, area_dict: Dict, core_stats: Dict):
         """Update kpi after every market cycle"""
         self.total_energy_demanded_wh = 0
 
         self._accumulate_total_energy_demanded(area_dict, core_stats)
-        self._accumulate_energy_trace(core_stats, "P2P" in area_dict["name"])
+        self._accumulate_energy_trace(core_stats)
 
 
 class SavingsKPI:
@@ -208,8 +203,6 @@ class SavingsKPI:
         Args:
             area_dict: It contains the respective area's core info
         """
-        if "DH" in area_dict["name"]:
-            return
         for child in area_dict["children"]:
             if is_producer_node_type(child):
                 self.producer_ess_set.add(child["uuid"])
