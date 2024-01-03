@@ -297,11 +297,12 @@ def _hour_time_str(hour: float, minute: float) -> str:
     return f"{hour:02}:{minute:02}"
 
 
-def _copy_profile_to_multiple_days(in_profile):
+def _copy_profile_to_multiple_days(
+        in_profile: Dict, current_timestamp: Optional[datetime] = None) -> Dict:
     daytime_dict = dict(
         (_hour_time_str(time.hour, time.minute), time) for time in in_profile.keys())
     out_profile = {}
-    for slot_time in generate_market_slot_list():
+    for slot_time in generate_market_slot_list(start_timestamp=current_timestamp):
         if slot_time not in out_profile.keys():
             time_key = _hour_time_str(slot_time.hour, slot_time.minute)
             if time_key in daytime_dict:
@@ -329,9 +330,10 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
                                                   current_timestamp=current_timestamp)
     profile_time_list = list(profile.keys())
     profile_duration = profile_time_list[-1] - profile_time_list[0]
-    if (GlobalConfig.sim_duration > duration(days=1) >= profile_duration or
+    if ((GlobalConfig.sim_duration > duration(days=1) and
+         GlobalConfig.sim_duration > profile_duration) or
             GlobalConfig.is_canary_network()):
-        profile = _copy_profile_to_multiple_days(profile)
+        profile = _copy_profile_to_multiple_days(profile, current_timestamp=current_timestamp)
     if profile is not None:
         if profile_type is not InputProfileTypes.ENERGY_KWH:
             zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
