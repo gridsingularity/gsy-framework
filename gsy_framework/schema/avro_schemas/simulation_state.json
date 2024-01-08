@@ -417,6 +417,14 @@
                 "type": "map",
                 "values": "float"
               }
+            },
+            {
+              "name": "slot_length",
+              "type": "float"
+            },
+            {
+              "name": "min_storage_temp_C",
+              "type": "float"
             }
           ]
         }
