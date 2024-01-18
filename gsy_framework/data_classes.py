@@ -49,7 +49,7 @@ class BaseBidOffer:
         self.id = str(id)
         self.creation_time = creation_time
         self.time_slot = time_slot  # market slot of creation
-        self.original_price = original_price or price
+        self.original_price = limit_float_precision(original_price or price)
         self.price = limit_float_precision(price)
         self.energy = limit_float_precision(energy)
         self.type = self.__class__.__name__
@@ -57,7 +57,12 @@ class BaseBidOffer:
     @property
     def energy_rate(self) -> float:
         """Dynamically calculate rate of energy."""
-        return limit_float_precision(self.price / self.energy)
+        return round(self.price / self.energy, 5)
+
+    @property
+    def original_energy_rate(self) -> float:
+        """Dynamically calculate energy rate of original order."""
+        return round(self.original_price / self.energy, 5)
 
     def update_price(self, price: float) -> None:
         """Update price member."""
