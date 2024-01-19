@@ -30,7 +30,7 @@ from gsy_framework.data_classes import (
     BidOfferMatch, BaseBidOffer, Offer, Bid, json_datetime_serializer,
     TradeBidOfferInfo, Trade, BalancingOffer, BalancingTrade, Clearing,
     MarketClearingState, TraderDetails)
-from gsy_framework.utils import datetime_to_string_incl_seconds, limit_float_precision
+from gsy_framework.utils import datetime_to_string_incl_seconds
 
 
 DEFAULT_DATETIME = datetime(2021, 11, 3, 10, 45)
@@ -183,8 +183,8 @@ class TestBaseBidOffer:
         assert bid_offer.price == self.initial_data["price"]
         assert bid_offer.energy == self.initial_data["energy"]
         assert bid_offer.original_price == self.initial_data["original_price"]
-        assert bid_offer.energy_rate == limit_float_precision(self.initial_data["price"] /
-                                                              self.initial_data["energy"])
+        assert bid_offer.energy_rate == round(
+            self.initial_data["price"] / self.initial_data["energy"], 5)
 
         # Test whether the original_price will resort to the "price" member
         self.initial_data.pop("original_price")
@@ -301,8 +301,8 @@ class TestOffer:
         assert offer.price == self.initial_data["price"]
         assert offer.energy == self.initial_data["energy"]
         assert offer.original_price == self.initial_data["original_price"]
-        assert offer.energy_rate == limit_float_precision(self.initial_data["price"] /
-                                                          self.initial_data["energy"])
+        assert offer.energy_rate == round(
+            self.initial_data["price"] / self.initial_data["energy"], 5)
         assert offer.seller.name == "seller"
         assert offer.seller.uuid == self.initial_data["seller"].uuid
         assert offer.seller.origin is None
@@ -412,8 +412,8 @@ class TestBid:
         assert bid.price == self.initial_data["price"]
         assert bid.energy == self.initial_data["energy"]
         assert bid.original_price == self.initial_data["original_price"]
-        assert bid.energy_rate == limit_float_precision(self.initial_data["price"] /
-                                                        self.initial_data["energy"])
+        assert bid.energy_rate == round(
+            self.initial_data["price"] / self.initial_data["energy"], 5)
         assert bid.buyer.name == "buyer"
         assert bid.buyer.uuid == self.initial_data["buyer"].uuid
         assert bid.buyer.origin is None
