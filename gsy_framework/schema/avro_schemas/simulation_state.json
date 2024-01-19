@@ -413,10 +413,15 @@
             },
             {
               "name": "total_traded_energy_kWh",
-              "type": {
-                "type": "map",
-                "values": "float"
-              }
+              "type": "float"
+            },
+            {
+              "name": "slot_length",
+              "type": "float"
+            },
+            {
+              "name": "min_storage_temp_C",
+              "type": "float"
             }
           ]
         }
