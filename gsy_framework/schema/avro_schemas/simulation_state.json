@@ -148,6 +148,26 @@
           ]
         },
         {
+          "name": "MarketMakerStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_rate",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            }
+          ]
+        },
+        {
           "name": "InfiniteBusStats",
           "type": "record",
           "fields": [
@@ -167,26 +187,6 @@
             },
             {
               "name": "energy_buy_rate",
-              "type": {
-                "type": "map",
-                "values": "float"
-              }
-            }
-          ]
-        },
-        {
-          "name": "MarketMakerStats",
-          "type": "record",
-          "fields": [
-            {
-              "name": "current_tick",
-              "type": [
-                "null",
-                "int"
-              ]
-            },
-            {
-              "name": "energy_rate",
               "type": {
                 "type": "map",
                 "values": "float"
