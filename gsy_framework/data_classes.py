@@ -30,7 +30,8 @@ from typing import Dict, Optional, Tuple, Union
 
 from pendulum import DateTime
 
-from gsy_framework.constants_limits import DEFAULT_PRECISION, FLOATING_POINT_TOLERANCE
+from gsy_framework.constants_limits import (
+    DEFAULT_PRECISION, FLOATING_POINT_TOLERANCE, ENERGY_RATE_PRECISION)
 from gsy_framework.utils import (
     limit_float_precision, datetime_to_string_incl_seconds, str_to_pendulum_datetime)
 
@@ -57,12 +58,12 @@ class BaseBidOffer:
     @property
     def energy_rate(self) -> float:
         """Dynamically calculate rate of energy."""
-        return round(self.price / self.energy, 5)
+        return round(self.price / self.energy, ENERGY_RATE_PRECISION)
 
     @property
     def original_energy_rate(self) -> float:
         """Dynamically calculate energy rate of original order."""
-        return round(self.original_price / self.energy, 5)
+        return round(self.original_price / self.energy, ENERGY_RATE_PRECISION)
 
     def update_price(self, price: float) -> None:
         """Update price member."""
