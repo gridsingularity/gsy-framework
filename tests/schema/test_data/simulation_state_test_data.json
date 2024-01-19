@@ -254,10 +254,9 @@
         "2023-05-23T22:00": 0.04,
         "2023-05-23T23:00": 0.6
       },
-      "total_traded_energy_kWh": {
-        "2023-05-23T22:00": 0.04,
-        "2023-05-23T23:00": 0.6
-      }
+      "total_traded_energy_kWh": 0.1,
+      "slot_length": 900,
+      "min_storage_temp_C": 20
     },
     "ffe6fad2-b480-4729-be69-c8bb6dc594ff": {
       "exported_energy": {
