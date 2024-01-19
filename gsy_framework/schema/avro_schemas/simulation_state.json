@@ -175,6 +175,26 @@
           ]
         },
         {
+          "name": "MarketMakerStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_rate",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            }
+          ]
+        },
+        {
           "name": "PVAreaStats",
           "type": "record",
           "fields": [
