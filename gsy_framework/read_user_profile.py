@@ -329,7 +329,7 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
     profile = _read_from_different_sources_todict(input_profile,
                                                   current_timestamp=current_timestamp)
     profile_time_list = list(profile.keys())
-    profile_duration = profile_time_list[-1] - profile_time_list[0]
+    profile_duration = profile_time_list[-1] - profile_time_list[0] + GlobalConfig.slot_length
     if ((GlobalConfig.sim_duration > duration(days=1) and
          profile_duration == duration(days=1)) or
             GlobalConfig.is_canary_network()):
