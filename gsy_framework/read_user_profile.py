@@ -331,9 +331,10 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
     profile_time_list = list(profile.keys())
     profile_duration = profile_time_list[-1] - profile_time_list[0]
     if ((GlobalConfig.sim_duration > duration(days=1) and
-         GlobalConfig.sim_duration > profile_duration) or
+         profile_duration == duration(days=1)) or
             GlobalConfig.is_canary_network()):
         profile = _copy_profile_to_multiple_days(profile, current_timestamp=current_timestamp)
+
     if profile is not None:
         if profile_type is not InputProfileTypes.ENERGY_KWH:
             zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
