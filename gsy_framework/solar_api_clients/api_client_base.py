@@ -29,6 +29,10 @@ class SolarAPIClientBase(abc.ABC):
 
     def __init__(self, api_url: str):
         self.api_url = api_url
+        self._use_historical_data = False
+
+    def _set_use_historical_data(self, _input_datetime: DateTime) -> None:
+        self._use_historical_data = True
 
     def get_solar_energy_profile(
             self, request_parameters: PvApiParameters, start_date: DateTime, end_date: DateTime,
@@ -38,6 +42,7 @@ class SolarAPIClientBase(abc.ABC):
         return: Dictionary of raw data including a time series of energy production with
                 resolution of 1 hour.
         """
+        self._set_use_historical_data(start_date)
         raw_data = self._request_raw_solar_energy_data(
             request_parameters,
             self._get_corresponding_historical_time_stamp(start_date),
