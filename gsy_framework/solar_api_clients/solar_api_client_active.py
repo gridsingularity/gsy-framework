@@ -23,14 +23,16 @@ FIRST_AVAILABLE_YEAR = 1979
 class SolarAPIClientActive(SolarAPIClientBase):
     """ETL for energy data from active solar API."""
 
-    @staticmethod
-    def _get_corresponding_historical_time_stamp(input_datetime: DateTime) -> DateTime:
+    def _set_use_historical_data(self, input_datetime: DateTime):
+        self._use_historical_data = ((input_datetime.year >= today().year) or
+                                     (input_datetime.year < FIRST_AVAILABLE_YEAR))
+
+    def _get_corresponding_historical_time_stamp(self, input_datetime: DateTime) -> DateTime:
         """
         Substitute the year of the input_datetime with the leap/normal years used as reference.
         """
-        if ((input_datetime.year >= today().year) or
-                (input_datetime.year < FIRST_AVAILABLE_YEAR)):
-            # if the user request pseudo-future data, use historical years
+
+        if self._use_historical_data:
             request_year = (LEAP_YEAR
                             if input_datetime.is_leap_year() else NORMAL_YEAR)
             output_datetime = input_datetime.set(year=request_year)
@@ -72,8 +74,7 @@ class SolarAPIClientActive(SolarAPIClientBase):
 
         return response.json()
 
-    @staticmethod
-    def _create_time_series_from_solar_profile(request_data: Dict,
+    def _create_time_series_from_solar_profile(self, request_data: Dict,
                                                out_start_year: int,
                                                out_end_year: int) -> Dict[DateTime, float]:
         """
@@ -84,15 +85,18 @@ class SolarAPIClientActive(SolarAPIClientBase):
             for index, energy in enumerate(request_data["Physical_Forecast"]):
                 time_key = from_format(request_data["valid_datetime"][index],
                                        TIME_OUTPUT_FORMAT, tz=TIME_ZONE)
-                if time_key.year == LEAP_YEAR:
-                    out_year = out_start_year
-                elif time_key.year == NORMAL_YEAR:
-                    out_year = out_end_year
+                if self._use_historical_data:
+                    if time_key.year == LEAP_YEAR:
+                        out_year = out_start_year
+                    elif time_key.year == NORMAL_YEAR:
+                        out_year = out_end_year
+                    else:
+                        error_message = f"Unexpected year value for {time_key}"
+                        logging.error(error_message)
+                        assert False, error_message
+                    out_dict[time_key.set(year=out_year)] = energy
                 else:
-                    error_message = f"Unexpected year value for {time_key}"
-                    logging.error(error_message)
-                    assert False, error_message
-                out_dict[time_key.set(year=out_year)] = energy
+                    out_dict[time_key] = energy
             return out_dict
 
         except Exception as error:
