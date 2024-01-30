@@ -384,8 +384,12 @@ COMMUNITY_DATASHEET_SCHEMA = {
                     "type": "string",
                     "enum": ["constant", "dynamic"]
                 },
+                "group_settings": {
+                    "type": "string",
+                    "enum": ["constant", "dynamic"]
+                },
             },
-            "required": ["start_date", "end_date", "slot_length", "currency", "coefficient_type"]
+            "required": ["start_date", "end_date", "slot_length", "currency"]
         },
         "grid": {"type": ["object"]}
     }
