@@ -257,6 +257,7 @@ class ConstSettings:
     class SCMSettings:
         """Default settings for the community manager."""
         GRID_FEES_REDUCTION = 0.28
+        INTRACOMMUNITY_BASE_RATE_EUR = None
         MARKET_ALGORITHM = CoefficientAlgorithm.STATIC.value
         MARKET_ALGORITHM_LIMIT = RangeLimit(1, 3)
 
