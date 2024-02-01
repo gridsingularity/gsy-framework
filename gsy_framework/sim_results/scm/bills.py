@@ -31,6 +31,7 @@ class SCMBills(ResultsBaseClass):
             "sold_to_grid": 0.,
             "sold_to_community": 0.,
             "earned_from_grid": 0.,
+            "earned_from_community": 0.,
             "home_balance_kWh": 0.,
             "home_balance": 0.,
             "base_energy_bill_excl_revenue": 0.,
