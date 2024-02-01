@@ -34,7 +34,7 @@
     {"name": "scm_coefficient_algorithm", "type": ["null", "int"], "default":  "null"},
     {"name": "scm", "type": [
       "null",
-      {"type": "map", "values" : ["float", "int", "string"], "default": {}}
+      {"type": "map", "values" : ["float", "int", "string", "null"], "default": {}}
     ]}
   ]
 }
