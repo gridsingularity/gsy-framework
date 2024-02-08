@@ -185,7 +185,7 @@ class PVSheetParser(MembersSheetParser):
 
     EXPECTED_HEADER = PVSheetHeader.values()
     ROW_CONVERTER_CLASS = PVRowConverter
-    OPTIONAL_COLUMN_NAMES = [LoadSheetHeader.DATASTREAM_ID]
+    OPTIONAL_COLUMN_NAMES = [PVSheetHeader.DATASTREAM_ID]
 
 
 class StorageSheetParser(MembersSheetParser):
@@ -193,6 +193,7 @@ class StorageSheetParser(MembersSheetParser):
 
     EXPECTED_HEADER = StorageSheetHeader.values()
     ROW_CONVERTER_CLASS = StorageRowConverter
+    OPTIONAL_COLUMN_NAMES = [StorageSheetHeader.DATASTREAM_ID]
 
 
 class ProfileSheetParser(MembersSheetParser):
