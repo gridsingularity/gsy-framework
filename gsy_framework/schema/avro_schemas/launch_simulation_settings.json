@@ -6,11 +6,6 @@
     {"name": "slot_length", "type": "long"},
     {"name": "tick_length", "type": "long"},
     {"name": "market_count", "type": "int"},
-    {"name": "cloud_coverage", "type": "int"},
-    {"name": "pv_user_profile", "type": [
-      "null",
-      {"type": "map", "values" : "float", "default": {}}
-    ]},
     {"name": "market_maker_rate", "type": [
       "float", "string",
       {"type": "map", "values" : "float", "default": {}}
