@@ -169,8 +169,6 @@ class ScenarioSchemas:
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
                     "avg_power_W":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "hrs_per_day":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "hrs_of_day": {"anyOf": [{"type": "array"}, {"type": "null"}]},
                     "initial_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "fit_to_limit": {"type": ["boolean", "null"]},

@@ -56,12 +56,7 @@ def validate_global_settings(settings: Dict) -> None:
                                        f"({slot_length.in_minutes()} min, limits: "
                                        f"[{min_slot_length.in_minutes()} min, "
                                        f"{max_slot_length.in_minutes()} min])")
-    if ("cloud_coverage" in settings and
-            not (ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[0]
-                 <= settings["cloud_coverage"] <=
-                 ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT[1])):
-        raise GSySettingsException("Invalid cloud coverage value "
-                                   f"({settings['cloud_coverage']}).")
+
     if ("spot_market_type" in settings
             and not ConstSettings.MASettings.MARKET_TYPE_LIMIT[0]
             <= settings["spot_market_type"]

@@ -42,45 +42,16 @@ class LoadValidator(BaseValidator):
                                  kwargs["avg_power_W"],
                                  LoadSettings.AVG_POWER_LIMIT.max, error_message)
 
-        if ((kwargs.get("avg_power_W") is not None
-                or kwargs.get("hrs_per_day") is not None
-                or kwargs.get("hrs_of_day") is not None)
+        if (kwargs.get("avg_power_W") is not None
                 and kwargs.get("daily_load_profile") is not None):
             raise GSyDeviceException(
-                {"misconfiguration": ["daily_load_profile shouldn't be set with "
-                                      "avg_power_W, hrs_per_day & hrs_of_day."]})
+                {"misconfiguration": ["daily_load_profile shouldn't be set with avg_power_W."]})
 
-        if kwargs.get("hrs_per_day") is not None:
-            error_message = {"misconfiguration": ["hrs_per_day should be in between "
-                                                  f"{LoadSettings.HOURS_LIMIT.min} & "
-                                                  f"{LoadSettings.HOURS_LIMIT.max}."]}
-            validate_range_limit(LoadSettings.HOURS_LIMIT.min,
-                                 kwargs["hrs_per_day"],
-                                 LoadSettings.HOURS_LIMIT.max, error_message)
-
-        if kwargs.get("hrs_of_day") is not None and any(
-                not LoadSettings.HOURS_LIMIT.min <= h <= LoadSettings.HOURS_LIMIT.max
-                for h in kwargs["hrs_of_day"]):
-            raise GSyDeviceException(
-                {"misconfiguration": ["hrs_of_day should be less between "
-                                      f"{LoadSettings.HOURS_LIMIT.min} & "
-                                      f"{LoadSettings.HOURS_LIMIT.max}."]})
-
-        if (kwargs.get("hrs_of_day") is not None and kwargs.get("hrs_per_day") is not None
-                and (len(kwargs["hrs_of_day"]) < kwargs["hrs_per_day"])):
+        if (kwargs.get("avg_power_W") is not None
+                and kwargs.get("daily_load_profile") is not None):
             raise GSyDeviceException(
                 {"misconfiguration": [
-                    "length of hrs_of_day list should be greater than or equal hrs_per_day."]})
-
-        if (
-                kwargs.get("avg_power_W") is not None
-                or kwargs.get("hrs_per_day") is not None
-                or kwargs.get("hrs_of_day") is not None
-                ) and kwargs.get("daily_load_profile") is not None:
-            raise GSyDeviceException(
-                {"misconfiguration": [
-                    "daily_load_profile and all or one [hrs_per_day, hrs_of_day, avg_power_W] "
-                    "can't be set together."]})
+                    "daily_load_profile and avg_power_W can't be set together."]})
 
     @classmethod
     def validate_rate(cls, **kwargs):
