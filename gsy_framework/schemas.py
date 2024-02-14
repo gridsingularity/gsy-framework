@@ -63,6 +63,7 @@ class ScenarioSchemas:
                                 {"$ref": "#/definitions/infinite_power_plant"},
                                 {"$ref": "#/definitions/finite_power_plant"},
                                 {"$ref": "#/definitions/storage"},
+                                {"$ref": "#/definitions/scm_storage"},
                                 {"$ref": "#/definitions/wind_turbine"},
                                 {"$ref": "#/definitions/heat_pump"},
                             ]}, "default": []
@@ -90,6 +91,7 @@ class ScenarioSchemas:
                                                                   {"type": "null"}]},
                     "capacity_kW": {"type": "number"},
                     "cloud_coverage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "forecast_stream_id": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "power_profile": {
                         "anyOf": [
                             {"type": "object"},
@@ -167,15 +169,16 @@ class ScenarioSchemas:
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
                     "avg_power_W":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "initial_buying_rate": {"type": "number"},
+                    "initial_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "fit_to_limit": {"type": "boolean"},
+                    "fit_to_limit": {"type": ["boolean", "null"]},
                     "update_interval":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "grid_connected": {"type": "boolean"},
+                    "grid_connected": {"type": ["boolean", "null"]},
                     "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
                                                                   {"type": "null"}]},
+                    "forecast_stream_id": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "daily_load_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-                    "use_market_maker_rate": {"type": "boolean"},
+                    "use_market_maker_rate": {"type": ["boolean", "null"]},
                     "daily_load_profile": {
                         "anyOf": [
                             {"type": "object"},
@@ -219,6 +222,8 @@ class ScenarioSchemas:
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
+                    "energy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_buy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
                 }
             },
             "finite_power_plant": {
@@ -263,6 +268,36 @@ class ScenarioSchemas:
                     "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                 }
             },
+            "scm_storage": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "type": {"enum": ["ScmStorage"]},
+                    "uuid": {"type": "string"},
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "address": {"type": ["string", "null"]},
+                    "allow_external_connection": {"type": ["null", "boolean"]},
+                    "geo_tag_location": {},
+                    "initial_buying_rate": {"type": "number"},
+                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "fit_to_limit": {"type": "boolean"},
+                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
+                                                                  {"type": "null"}]},
+                    "use_market_maker_rate": {"type": "boolean"},
+                    "forecast_stream_id": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "prosumption_kWh_profile_uuid": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "prosumption_kWh_profile": {
+                        "anyOf": [
+                            {"type": "object"},
+                            {"type": "array"},
+                            {"type": "null"},
+                            {"type": "string"}
+                        ]
+                    }
+                }
+            },
         },
         "anyOf": [
             {"$ref": "#/definitions/area"},
@@ -272,6 +307,7 @@ class ScenarioSchemas:
             {"$ref": "#/definitions/infinite_power_plant"},
             {"$ref": "#/definitions/finite_power_plant"},
             {"$ref": "#/definitions/storage"},
+            {"$ref": "#/definitions/scm_storage"},
             {"$ref": "#/definitions/wind_turbine"},
             {"$ref": "#/definitions/heat_pump"},
         ],

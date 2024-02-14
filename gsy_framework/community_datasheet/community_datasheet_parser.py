@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 PROFILE_KEYS_BY_TYPE = {
     "Load": "daily_load_profile",
     "PV": "power_profile",
-    "SmartMeter": "smart_meter_profile"
+    "SmartMeter": "smart_meter_profile",
+    "ScmStorage": "prosumption_kWh_profile"
 }
 
 
