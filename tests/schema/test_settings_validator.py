@@ -21,8 +21,6 @@ class TestSimulationSettingsValidator:
             "slot_length": timedelta(seconds=900),
             "tick_length": timedelta(seconds=15),
             "market_count": 1,
-            "cloud_coverage": 0,
-            "pv_user_profile": None,
             "market_maker_rate": 30,
             "slot_length_realtime": timedelta(0),
             "start_date": date(2022, 10, 17),
@@ -58,8 +56,6 @@ class TestSimulationSettingsValidator:
             assert isclose(settings["tick_length"], timedelta(seconds=15).total_seconds())
             assert isclose(settings["slot_length_realtime"], timedelta(seconds=0).total_seconds())
         assert settings["market_count"] == 1
-        assert settings["cloud_coverage"] == 0
-        assert settings["pv_user_profile"] is None
         assert settings["market_maker_rate"] == 30
         assert settings["start_date"] == date(2022, 10, 17)
         assert settings["spot_market_type"] == 2
