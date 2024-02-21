@@ -121,10 +121,6 @@
     },
     "b5c21c73-e155-4bad-928f-53eb87f7b2dc": {
       "current_tick": 1440,
-      "used_history": {
-        "2023-05-23T22:00": "-",
-        "2023-05-23T23:00": "-"
-      },
       "used_storage": 0.12,
       "charge_history": {
         "2023-05-23T22:00": 10.0,
