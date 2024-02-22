@@ -25,7 +25,11 @@
     {"name": "settlement_market_enabled", "type": "boolean"},
     {"name": "relative_std_from_forecast_percent", "type": "float"},
     {"name": "bid_offer_match_algo", "type": "int"},
-    {"name": "scm_coefficient_algorithm", "type": "int"},
-    {"name": "type", "type": ["null","int"], "default":  "undefined"}
+    {"name": "type", "type": ["null","int"], "default":  "undefined"},
+    {"name": "scm_coefficient_algorithm", "type": ["null", "int"], "default":  "null"},
+    {"name": "scm", "type": [
+      "null",
+      {"type": "map", "values" : ["float", "int", "string", "null"], "default": {}}
+    ]}
   ]
 }

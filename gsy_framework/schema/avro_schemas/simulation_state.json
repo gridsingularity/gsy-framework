@@ -279,13 +279,6 @@
               "type": "float"
             },
             {
-              "name": "used_history",
-              "type": {
-                "type": "map",
-                "values": "string"
-              }
-            },
-            {
               "name": "charge_history",
               "type": {
                 "type": "map",
@@ -303,7 +296,7 @@
               "name": "offered_history",
               "type": {
                 "type": "map",
-                "values": "float"
+                "values": ["string", "float"]
               }
             },
             {
