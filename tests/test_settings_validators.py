@@ -95,14 +95,6 @@ class TestValidateGlobalSettings:
             {"bid_offer_match_algo":
              ConstSettings.MASettings.BID_OFFER_MATCH_TYPE_LIMIT.max})
 
-    def test_wrong_cloud_coverage(self):
-        with pytest.raises(GSySettingsException):
-            validate_global_settings(
-                {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.min - 1})
-        with pytest.raises(GSySettingsException):
-            validate_global_settings(
-                {"cloud_coverage": ConstSettings.PVSettings.CLOUD_COVERAGE_LIMIT.max + 1})
-
     def test_wrong_capacity_kW(self):
         with pytest.raises(GSySettingsException):
             validate_global_settings(

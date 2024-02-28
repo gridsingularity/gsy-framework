@@ -20,7 +20,7 @@ from typing import Dict, List
 
 from gsy_framework.sim_results import (is_buffer_node_type, is_load_node_type,
                                        is_producer_node_type,
-                                       is_prosumer_node_type)
+                                       is_prosumer_node_type, is_heatpump_node_type)
 from gsy_framework.sim_results.kpi_calculation_helper import (
     KPICalculationHelper)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
@@ -53,7 +53,7 @@ class KPIState:
             if is_producer_node_type(child):
                 if_not_in_list_append(self.producer_list, child["uuid"])
                 if_not_in_list_append(self.areas_to_trace_list, child["parent_uuid"])
-            elif is_load_node_type(child):
+            elif is_load_node_type(child) or is_heatpump_node_type(child):
                 if_not_in_list_append(self.consumer_list, child["uuid"])
                 if_not_in_list_append(self.areas_to_trace_list, child["parent_uuid"])
             elif is_prosumer_node_type(child):
@@ -68,6 +68,9 @@ class KPIState:
             child_stats = core_stats.get(child["uuid"], {})
             if is_load_node_type(child):
                 self.total_energy_demanded_wh += child_stats.get("total_energy_demanded_wh", 0)
+            if is_heatpump_node_type(child):
+                self.total_energy_demanded_wh += (
+                        child_stats.get("total_traded_energy_kWh", 0) * 1000.0)
             if child["children"]:
                 self._accumulate_total_energy_demanded(child, core_stats)
 
@@ -154,6 +157,7 @@ class KPIState:
     def update_area_kpi(self, area_dict: Dict, core_stats: Dict):
         """Update kpi after every market cycle"""
         self.total_energy_demanded_wh = 0
+
         self._accumulate_total_energy_demanded(area_dict, core_stats)
         self._accumulate_energy_trace(core_stats)
 
@@ -202,7 +206,7 @@ class SavingsKPI:
         for child in area_dict["children"]:
             if is_producer_node_type(child):
                 self.producer_ess_set.add(child["uuid"])
-            elif is_load_node_type(child):
+            elif is_load_node_type(child) or is_heatpump_node_type(child):
                 self.consumer_ess_set.add(child["uuid"])
             elif is_prosumer_node_type(child):
                 self.producer_ess_set.add(child["uuid"])

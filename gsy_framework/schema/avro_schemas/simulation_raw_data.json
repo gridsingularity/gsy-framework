@@ -438,7 +438,10 @@
         {"name": "energy_consumption_kWh", "type": "float"},
         {"name": "max_energy_demand_kWh", "type": "float"},
         {"name": "min_energy_demand_kWh", "type": "float"},
+        {"name": "total_traded_energy_kWh", "type":  "float"},
         {"name": "cop", "type": "float"},
+        {"name": "condenser_temp_C", "type": "float"},
+        {"name": "heat_demand_J", "type": "float"},
         {"name": "unmatched_demand_kWh", "type": "float"},
         {"name": "market_fee", "type": "float"},
         {

@@ -37,9 +37,7 @@ class StorageSheetHeader(str, Enum):
 
     MEMBER_NAME = "Member_name"
     BATTERY_NAME = "Battery_name"
-    CAPACITY_KWH = "Capacity [kWh]"
-    MINIMUM_ALLOWED_SOC = "Minimum allowed SoC [-]"
-    MAXIMUM_POWER_KW = "Maximum power [kW]"
+    DATASTREAM_ID = "Datastream_ID"
 
     @classmethod
     def values(cls):

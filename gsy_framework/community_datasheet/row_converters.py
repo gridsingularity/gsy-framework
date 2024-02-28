@@ -201,7 +201,7 @@ class PVRowConverter:
                 row[PVSheetHeader.CAPACITY_KW], ConstSettings.PVSettings.DEFAULT_CAPACITY_KW),
             "tilt": row[PVSheetHeader.TILT],
             "azimuth": row[PVSheetHeader.AZIMUTH],
-            "forecast_stream_id": row.get(LoadSheetHeader.DATASTREAM_ID)
+            "forecast_stream_id": row.get(PVSheetHeader.DATASTREAM_ID)
         }
 
     @classmethod
@@ -218,6 +218,7 @@ class PVRowConverter:
 
 class StorageRowConverter:
     """Convert from the excel row to a grid representation of a Storage asset."""
+    OPTIONAL_FIELDS = (StorageSheetHeader.DATASTREAM_ID, )
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
@@ -226,29 +227,17 @@ class StorageRowConverter:
         """
         cls._validate_row(row)
 
-        min_allowed_soc = use_default_if_null(row[StorageSheetHeader.MINIMUM_ALLOWED_SOC],
-                                              ConstSettings.StorageSettings.MIN_ALLOWED_SOC)
-        # The community datasheet doesn't allow setting the initial SOC, so we intentionally set it
-        # to be equal to the min_allowed_soc specified by the user.
-        initial_soc = min_allowed_soc
-
         return {
             "name": row[StorageSheetHeader.BATTERY_NAME],
-            "type": "Storage",
+            "type": "ScmStorage",
             "uuid": str(uuid.uuid4()),
-            "battery_capacity_kWh": use_default_if_null(
-                row[StorageSheetHeader.CAPACITY_KWH],
-                ConstSettings.StorageSettings.CAPACITY),
-            "min_allowed_soc": min_allowed_soc,
-            "initial_soc": initial_soc,
-            "max_abs_battery_power_kW": use_default_if_null(
-                row[StorageSheetHeader.MAXIMUM_POWER_KW],
-                ConstSettings.StorageSettings.MAX_ABS_POWER)
+            "forecast_stream_id": row.get(StorageSheetHeader.DATASTREAM_ID)
         }
 
     @classmethod
     def _validate_row(cls, row: Dict):
-        missing_fields = [field for field, value in row.items() if value in NULL_VALUES]
+        missing_fields = [field for field, value in row.items()
+                          if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES]
 
         if missing_fields:
             raise CommunityDatasheetException((

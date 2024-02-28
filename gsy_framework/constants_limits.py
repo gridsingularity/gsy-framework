@@ -257,8 +257,15 @@ class ConstSettings:
     class SCMSettings:
         """Default settings for the community manager."""
         GRID_FEES_REDUCTION = 0.28
+        INTRACOMMUNITY_BASE_RATE_EUR = None
         MARKET_ALGORITHM = CoefficientAlgorithm.STATIC.value
-        MARKET_ALGORITHM_LIMIT = RangeLimit(1, 2)
+        MARKET_ALGORITHM_LIMIT = RangeLimit(1, 3)
+
+
+def is_no_community_self_consumption() -> bool:
+    """Check whether the SCM mode is set to no-community-self-consumption."""
+    return (ConstSettings.SCMSettings.MARKET_ALGORITHM ==
+            CoefficientAlgorithm.NO_COMMUNITY_SELF_CONSUMPTION.value)
 
 
 class GlobalConfig:
@@ -316,6 +323,7 @@ PROFILE_EXPANSION_DAYS = 7
 JWT_TOKEN_EXPIRY_IN_SECS = 48 * 3600
 
 DEFAULT_PRECISION = 8
+ENERGY_RATE_PRECISION = 5
 FLOATING_POINT_TOLERANCE = 0.00001
 
 FIELDS_REQUIRED_FOR_REBASE = ("capacity_kW", "tilt", "azimuth", "geo_tag_location")
