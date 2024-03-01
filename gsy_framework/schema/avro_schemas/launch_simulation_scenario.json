@@ -299,6 +299,52 @@
               ]
             },
             {
+              "name": "ScmStorage",
+              "type": "record",
+              "fields": [
+                {"name": "name", "type": "string"},
+                {"name": "type", "type": "string"},
+                {"name": "uuid", "type": "string"},
+                {"name": "libraryUUID", "type": ["null", "string"]},
+                {"name": "address", "type": ["null", "string"]},
+                {"name": "geo_tag_location", "type": [
+                  "null", {
+                    "type": "array",
+                    "items":  "float"
+                  }
+                ]},
+                {"name": "prosumption_kWh_profile", "type": ["null", "string"]},
+                {"name": "prosumption_kWh_profile_uuid", "type": ["null", "string"]},
+                {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
+                {"name": "allow_external_connection", "type": ["null", "boolean"]},
+                {"name":  "display_type", "type":  "string"},
+                {"name": "forecast_stream_id", "type": ["null", "string"]}
+              ]
+            },
+            {
+              "name": "ScmHeatPump",
+              "type": "record",
+              "fields": [
+                {"name": "name", "type": "string"},
+                {"name": "type", "type": "string"},
+                {"name": "uuid", "type": "string"},
+                {"name": "libraryUUID", "type": ["null", "string"]},
+                {"name": "address", "type": ["null", "string"]},
+                {"name": "geo_tag_location", "type": [
+                  "null", {
+                    "type": "array",
+                    "items":  "float"
+                  }
+                ]},
+                {"name": "consumption_kWh_profile", "type": ["null", "string"]},
+                {"name": "consumption_kWh_profile_uuid", "type": ["null", "string"]},
+                {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
+                {"name": "allow_external_connection", "type": ["null", "boolean"]},
+                {"name":  "display_type", "type":  "string"},
+                {"name": "forecast_stream_id", "type": ["null", "string"]}
+              ]
+            },
+            {
               "name": "SmartMeter",
               "type": "record",
               "fields": [
