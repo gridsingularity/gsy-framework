@@ -7,6 +7,7 @@ ACCUMULATED_KEYS_LIST = ["Accumulated Trades", "External Trades", "Totals", "Mar
 
 
 class TestBills(unittest.TestCase):
+    # pylint: disable=protected-access
 
     def setUp(self):
         self.bills = MarketEnergyBills()
@@ -17,11 +18,11 @@ class TestBills(unittest.TestCase):
     @property
     def _empty_bills(self):
         return {
-            'bought': 0.0, 'sold': 0.0, 'spent': 0.0, 'earned': 0.0, 'total_energy': 0.0,
-            'total_cost': 0.0, 'market_fee': 0.0, 'type': 'Area'
+            "bought": 0.0, "sold": 0.0, "spent": 0.0, "earned": 0.0, "total_energy": 0.0,
+            "total_cost": 0.0, "market_fee": 0.0, "type": "Area"
         }
 
-    def create_empty_results_with_children(self, uuid_or_name_list):
+    def _create_empty_results_with_children(self, uuid_or_name_list):
         result_dict = {k: self._empty_bills for k in ACCUMULATED_KEYS_LIST}
         result_dict.update({u: self._empty_bills for u in uuid_or_name_list})
         return result_dict
@@ -41,12 +42,12 @@ class TestBills(unittest.TestCase):
             {"name": "house2", "uuid": house2_uuid, "parent_uuid": grid_uuid, "children": [
                 {"name": "pv2", "uuid": pv2_uuid, "parent_uuid": house2_uuid, "children": []},
             ]}
-            ]
-        }
+        ]
+                     }
         uuid_results = {
-            grid_uuid: self.create_empty_results_with_children([house1_uuid, house2_uuid]),
-            house1_uuid: self.create_empty_results_with_children([pv_uuid, load_uuid]),
-            house2_uuid: self.create_empty_results_with_children([pv2_uuid]),
+            grid_uuid: self._create_empty_results_with_children([house1_uuid, house2_uuid]),
+            house1_uuid: self._create_empty_results_with_children([pv_uuid, load_uuid]),
+            house2_uuid: self._create_empty_results_with_children([pv2_uuid]),
             pv_uuid: self._empty_bills,
             load_uuid: self._empty_bills,
             pv2_uuid: self._empty_bills,
@@ -66,9 +67,9 @@ class TestBills(unittest.TestCase):
         load_uuid = str(uuid4())
         pv2_uuid = str(uuid4())
         name_results = {
-            grid_uuid: self.create_empty_results_with_children(["house1", "house2"]),
-            house1_uuid: self.create_empty_results_with_children(["pv", "load"]),
-            house2_uuid: self.create_empty_results_with_children(["pv2"]),
+            grid_uuid: self._create_empty_results_with_children(["house1", "house2"]),
+            house1_uuid: self._create_empty_results_with_children(["pv", "load"]),
+            house2_uuid: self._create_empty_results_with_children(["pv2"]),
             pv_uuid: self._empty_bills,
             load_uuid: self._empty_bills,
             pv2_uuid: self._empty_bills,
@@ -81,14 +82,15 @@ class TestBills(unittest.TestCase):
             {"name": "house2", "uuid": house2_uuid, "parent_uuid": grid_uuid, "children": [
                 {"name": "pv2", "uuid": pv2_uuid, "parent_uuid": house2_uuid, "children": []},
             ]}
-            ]
-        }
+        ]
+                     }
 
         self.bills.restore_area_results_state(area_dict, name_results[grid_uuid])
         assert_dicts_identical(self.bills.bills_redis_results[grid_uuid], name_results[grid_uuid])
         assert_dicts_identical(self.bills.bills_results["grid"], name_results[grid_uuid])
         assert_dicts_identical(self.bills.current_raw_bills[grid_uuid],
-                               self.create_empty_results_with_children([house1_uuid, house2_uuid]))
+                               self._create_empty_results_with_children(
+                                   [house1_uuid, house2_uuid]))
 
         self.bills.restore_area_results_state(area_dict["children"][0],
                                               name_results[house1_uuid])
@@ -96,7 +98,7 @@ class TestBills(unittest.TestCase):
                                name_results[house1_uuid])
         assert_dicts_identical(self.bills.bills_results["house1"], name_results[house1_uuid])
         assert_dicts_identical(self.bills.current_raw_bills[house1_uuid],
-                               self.create_empty_results_with_children([pv_uuid, load_uuid]))
+                               self._create_empty_results_with_children([pv_uuid, load_uuid]))
 
         self.bills.restore_area_results_state(area_dict["children"][1]["children"][0],
                                               name_results[pv2_uuid])
@@ -119,12 +121,12 @@ class TestBills(unittest.TestCase):
             {"name": "house2", "uuid": house2_uuid, "parent_uuid": grid_uuid, "children": [
                 {"name": "pv2", "uuid": pv2_uuid, "parent_uuid": house2_uuid, "children": []},
             ]}
-            ]
-        }
+        ]
+                     }
         uuid_results = {
-            grid_uuid: self.create_empty_results_with_children(["house1", "house2"]),
-            house1_uuid: self.create_empty_results_with_children(["pv", "load"]),
-            house2_uuid: self.create_empty_results_with_children(["pv2"]),
+            grid_uuid: self._create_empty_results_with_children(["house1", "house2"]),
+            house1_uuid: self._create_empty_results_with_children(["pv", "load"]),
+            house2_uuid: self._create_empty_results_with_children(["pv2"]),
             pv_uuid: self._empty_bills,
             load_uuid: self._empty_bills,
             pv2_uuid: self._empty_bills,
@@ -139,9 +141,9 @@ class TestBills(unittest.TestCase):
 
     def test_round_results_for_ui(self):
         uuid_results = {
-            "1234": self.create_empty_results_with_children(["house1", "house2"]),
-            "2345": self.create_empty_results_with_children(["pv", "load"]),
-            "3456": self.create_empty_results_with_children(["pv2"]),
+            "1234": self._create_empty_results_with_children(["house1", "house2"]),
+            "2345": self._create_empty_results_with_children(["pv", "load"]),
+            "3456": self._create_empty_results_with_children(["pv2"]),
             "4567": self._empty_bills,
             "5678": self._empty_bills,
             "6789": self._empty_bills,
