@@ -344,7 +344,7 @@ def get_area_uuid_name_mapping(area_dict, results):
 
 def round_floats_for_ui(number):
     """Round the given number using the scale required by the UI."""
-    return round(number, 3)
+    return round(number, 5)
 
 
 def round_prices_to_cents(number):
