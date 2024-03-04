@@ -154,7 +154,7 @@ class TestBills(unittest.TestCase):
         uuid_results["2345"]["pv"]["sold"] = 0.987
         uuid_results["6789"]["earned"] = 12
         results = self.bills._round_results_for_ui(uuid_results)
-        assert results["1234"]["house1"]["bought"] == 0.12346
-        assert results["1234"]["house2"]["sold"] == 0.98765
+        assert results["1234"]["house1"]["bought"] == 0.1234567
+        assert results["1234"]["house2"]["sold"] == 0.9876541
         assert results["2345"]["pv"]["sold"] == 0.987
         assert results["6789"]["earned"] == 12
