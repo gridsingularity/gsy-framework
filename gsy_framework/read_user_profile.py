@@ -47,6 +47,13 @@ class InputProfileTypes(Enum):
     ENERGY_KWH = 4
 
 
+class LiveProfileTypes(Enum):
+    """Enum for type of live data profiles"""
+    NO_LIVE_DATA = 0
+    FORECAST = 1
+    MEASUREMENT = 2
+
+
 def _str_to_datetime(time_string, time_format) -> DateTime:
     """
     Converts time_string into a pendulum (DateTime) object that either takes the global start date
