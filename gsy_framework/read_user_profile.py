@@ -49,8 +49,9 @@ class InputProfileTypes(Enum):
 
 class LiveProfileTypes(Enum):
     """Enum for type of live data profiles"""
-    MEASUREMENT = 0
+    NO_LIVE_DATA = 0
     FORECAST = 1
+    MEASUREMENT = 2
 
 
 def _str_to_datetime(time_string, time_format) -> DateTime:
