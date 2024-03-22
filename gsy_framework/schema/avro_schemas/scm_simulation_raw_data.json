@@ -34,7 +34,9 @@
                 {"name": "energy_surplus_kWh", "type": "float"},
                 {"name": "feed_in_tariff", "type": "float"},
                 {"name": "fixed_monthly_fee", "type": "float"},
-                {"name": "grid_fees", "type": "float"},
+                {"name": "grid_import_fee_const", "type": "float"},
+                {"name": "grid_export_fee_const", "type": "float"},
+                {"name": "virtual_compensation", "type": "float"},
                 {"name": "home_name", "type": "string"},
                 {"name": "home_uuid", "type": "string"},
                 {"name": "market_maker_rate", "type": "float"},
@@ -116,6 +118,7 @@
                 {"name": "energy_surplus_kWh", "type": "float"},
                 {"name": "production_kWh", "type": "float"},
                 {"name": "self_consumed_energy_kWh", "type": "float"},
+                {"name": "virtual_compensation", "type": "float"},
                 {
                   "name": "trades",
                   "type": {
@@ -173,6 +176,7 @@
                 {"name": "self_consumed_savings", "type": "float"},
                 {"name": "sold_to_community", "type": "float"},
                 {"name": "sold_to_grid", "type": "float"},
+                {"name": "virtual_compensation", "type": "float"},
                 {"name": "spent_to_community", "type": "float"},
                 {"name": "spent_to_grid", "type": "float"},
                 {"name": "tax_surcharges", "type": "float"}

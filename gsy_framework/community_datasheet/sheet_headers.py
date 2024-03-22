@@ -54,7 +54,7 @@ class CommunityMembersSheetHeader(str, Enum):
     LOCATION = "Location/Address (optional)"
     UTILITY_PRICE = "Utility price"
     FEED_IN_TARIFF = "Feed-in Tariff"
-    GRID_FEE = "Grid fee"
+    GRID_IMPORT_FEE = "Grid import fee"
     COEFFICIENT = "Coefficient"
 
     @classmethod
@@ -71,6 +71,7 @@ class CommunityMembersSheetHeaderOptional(str, Enum):
     MARKETPLACE_FEE = "Marketplace fee"
     SERVICE_FEE = "Service fee"
     ASSISTANCE_FEE = "Assistance fee"
+    GRID_EXPORT_FEE = "Grid export fee"
 
     @classmethod
     def values(cls):

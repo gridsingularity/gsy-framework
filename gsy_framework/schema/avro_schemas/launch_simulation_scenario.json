@@ -19,6 +19,8 @@
     {"name": "fit_area_boundary", "type": ["null", "boolean"]},
     {"name": "fixed_monthly_fee", "type": ["null", "float"]},
     {"name": "grid_fee_constant", "type": ["null", "float"]},
+    {"name": "grid_import_fee_const", "type": ["float", "null"]},
+    {"name": "grid_export_fee_const", "type": ["float", "null"]},
     {"name": "market_maker_rate", "type": ["null", "float"]},
     {"name": "geo_tag_location", "type": [
       "null", {
