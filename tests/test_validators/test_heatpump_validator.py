@@ -118,18 +118,28 @@ class TestHeatpumpValidator:
                 "consumption_kWh_profile": None, "consumption_kWh_profile_uuid": None})
 
     @staticmethod
-    def test_virtual_heatpump_validator_checks_profile_params():
+    @pytest.mark.parametrize("wrong_profile_params", [
+        {"water_supply_temp_C_profile": None, "water_supply_temp_C_profile_uuid": None},
+        {"water_return_temp_C_profile": None, "water_return_temp_C_profile_uuid": None},
+        {"dh_water_flow_m3_profile": None, "dh_water_flow_m3_profile_uuid": None}
+    ])
+    def test_virtual_heatpump_validator_checks_profile_params(wrong_profile_params):
+        with pytest.raises(GSyDeviceException):
+            wrong_vhp_params = {**_virtual_hp_params}
+            wrong_vhp_params.update(wrong_profile_params)
+            VirtualHeatPumpValidator().validate(**wrong_vhp_params)
+
+    @staticmethod
+    def test_virtual_heatpump_validator_checks_calibration_coefficient():
         with pytest.raises(GSyDeviceException):
             VirtualHeatPumpValidator().validate(**{
-                **_hp_params,
-                "water_supply_temp_C_profile": None, "water_supply_temp_C_profile_uuid": None})
+                **_virtual_hp_params, "calibration_coefficient": -1})
 
         with pytest.raises(GSyDeviceException):
             VirtualHeatPumpValidator().validate(**{
-                **_hp_params,
-                "water_return_temp_C_profile": None, "water_return_temp_C_profile_uuid": None})
+                **_virtual_hp_params, "calibration_coefficient": 2})
 
-        with pytest.raises(GSyDeviceException):
-            VirtualHeatPumpValidator().validate(**{
-                **_hp_params,
-                "dh_water_flow_m3_profile": None, "dh_water_flow_m3_profile_uuid": None})
+        VirtualHeatPumpValidator().validate(**{
+            **_virtual_hp_params, "calibration_coefficient": 1})
+        VirtualHeatPumpValidator().validate(**{
+            **_virtual_hp_params, "calibration_coefficient": 0})
