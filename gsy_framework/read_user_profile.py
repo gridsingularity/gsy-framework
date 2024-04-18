@@ -332,7 +332,7 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
     :param current_timestamp:
     :return: a mapping from time to profile values
     """
-    if not input_profile:
+    if input_profile in [{}, None]:
         return {}
     profile = _read_from_different_sources_todict(input_profile,
                                                   current_timestamp=current_timestamp)
