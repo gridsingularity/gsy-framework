@@ -202,6 +202,8 @@ class ConstSettings:
         SOURCE_TYPE = HeatPumpSourceType.AIR.value
         BUYING_RATE_RANGE = RateRange(0, 30)
         PREFERRED_BUYING_RATE = 30
+        CALIBRATION_COEFFICIENT = 0.65
+        CALIBRATION_COEFFICIENT_RANGE = RangeLimit(0, 1)
 
     class MASettings:
         """Default settings for Market Agents."""

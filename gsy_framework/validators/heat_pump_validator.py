@@ -120,6 +120,19 @@ class VirtualHeatPumpValidator(HeatPumpValidator):
     """Validator class for VirtualHeatPump assets."""
 
     @classmethod
+    def validate(cls, **kwargs):
+        super().validate(**kwargs)
+        cls._check_calibration_coefficient(**kwargs)
+
+    @classmethod
+    def _check_calibration_coefficient(cls, **kwargs):
+        if kwargs.get("calibration_coefficient") is not None:
+            cls._check_range(
+                "calibration_coefficient", kwargs.get("calibration_coefficient"),
+                HeatPumpSettings.CALIBRATION_COEFFICIENT_RANGE.min,
+                HeatPumpSettings.CALIBRATION_COEFFICIENT_RANGE.max)
+
+    @classmethod
     def _validate_profiles(cls, **kwargs):
         """Validate profile arguments."""
         if (kwargs.get("water_supply_temp_C_profile") is None and
