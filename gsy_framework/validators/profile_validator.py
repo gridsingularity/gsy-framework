@@ -11,7 +11,7 @@ class ProfileValidator:
     def __init__(
             self, profile: Dict[DateTime, float], start_time: Optional[DateTime] = None,
             end_time: Optional[DateTime] = None, slot_length: Optional[timedelta] = None):
-        assert len(profile) > 0, "profile is empty"
+
         self.profile = OrderedDict(profile)
         self.start_time = start_time if start_time else self._profile_start_time
         self.end_time = end_time if end_time else self._profile_end_time
@@ -19,6 +19,8 @@ class ProfileValidator:
 
     def validate(self):
         """Validate if profile corresponds to the start_time, end_time and slot_length setting."""
+        if not self.profile:
+            return
         if self.slot_length:
             self._validate_slot_length()
         else:
