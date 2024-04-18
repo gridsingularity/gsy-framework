@@ -195,7 +195,13 @@ class TestReadUserProfile:
 
     @staticmethod
     def test_read_arbitrary_profile_returns_early_for_empty_profiles():
+        original_slot_length = GlobalConfig.slot_length
+        original_sim_duration = GlobalConfig.sim_duration
+        GlobalConfig.slot_length = duration(hours=1)
+        GlobalConfig.sim_duration = duration(hours=4)
         assert read_arbitrary_profile(InputProfileTypes.POWER_W, {}) == {}
         assert read_arbitrary_profile(InputProfileTypes.POWER_W, None) == {}
-        assert len(read_arbitrary_profile(InputProfileTypes.POWER_W, 0)) == 96
+        assert len(read_arbitrary_profile(InputProfileTypes.POWER_W, 0)) == 4
         assert set(read_arbitrary_profile(InputProfileTypes.POWER_W, 0).values()) == {0}
+        GlobalConfig.slot_length = original_slot_length
+        GlobalConfig.sim_duration = original_sim_duration
