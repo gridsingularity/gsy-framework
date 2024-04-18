@@ -192,3 +192,10 @@ class TestReadUserProfile:
                                                         duration(hours=4),
                                                         datetime(2021, 1, 25, 0, 0))
         assert result_profile == input_profile
+
+    @staticmethod
+    def test_read_arbitrary_profile_returns_early_for_empty_profiles():
+        assert read_arbitrary_profile(InputProfileTypes.POWER_W, {}) == {}
+        assert read_arbitrary_profile(InputProfileTypes.POWER_W, None) == {}
+        assert len(read_arbitrary_profile(InputProfileTypes.POWER_W, 0)) == 96
+        assert set(read_arbitrary_profile(InputProfileTypes.POWER_W, 0).values()) == {0}

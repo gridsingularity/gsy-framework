@@ -13,6 +13,8 @@ class ProfileValidator:
             end_time: Optional[DateTime] = None, slot_length: Optional[timedelta] = None):
 
         self.profile = OrderedDict(profile)
+        if not self.profile:
+            return
         self.start_time = start_time if start_time else self._profile_start_time
         self.end_time = end_time if end_time else self._profile_end_time
         self.slot_length: timedelta = slot_length
