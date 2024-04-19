@@ -55,6 +55,7 @@ class SCMBills(ResultsBaseClass):
         }
 
     def update(self, area_result_dict, core_stats, current_market_slot):
+        # print(area_result_dict, core_stats, current_market_slot)
         if not self._has_update_parameters(
                 area_result_dict, core_stats, current_market_slot):
             return
@@ -63,7 +64,8 @@ class SCMBills(ResultsBaseClass):
             if not area.get("children"):
                 continue
 
-            if "bills" not in core_stats[area["uuid"]]:
+            if "bills" not in core_stats[area["uuid"]] or not core_stats[area["uuid"]]["bills"]:
+                print("skipping", core_stats[area["uuid"]])
                 continue
 
             if area["uuid"] not in self.bills_redis_results:
