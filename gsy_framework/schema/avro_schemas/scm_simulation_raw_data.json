@@ -156,7 +156,6 @@
                 {"name": "earned_from_community", "type": "float"},
                 {"name": "earned_from_grid", "type": "float"},
                 {"name": "energy_benchmark", "type": ["float", "null"]},
-                {"name": "fixed_fee", "type": "float"},
                 {"name": "grid_fees", "type": "float"},
                 {"name": "gsy_energy_bill", "type": "float"},
                 {"name": "gsy_energy_bill_excl_revenue", "type": "float"},
@@ -166,8 +165,6 @@
                 {"name": "gsy_total_benefit", "type": "float"},
                 {"name": "home_balance", "type": "float"},
                 {"name": "home_balance_kWh", "type": "float"},
-                {"name": "marketplace_fee", "type": "float"},
-                {"name": "assistance_fee", "type": "float"},
                 {"name": "savings", "type": "float"},
                 {"name": "savings_percent", "type": "float"},
                 {"name": "self_consumed_savings", "type": "float"},
@@ -175,7 +172,7 @@
                 {"name": "sold_to_grid", "type": "float"},
                 {"name": "spent_to_community", "type": "float"},
                 {"name": "spent_to_grid", "type": "float"},
-                {"name": "tax_surcharges", "type": "float"}
+                {"name": "fees", "type": {"type": "map", "values": "float"}}
               ]
             }
           ]
