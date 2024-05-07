@@ -1,4 +1,5 @@
 from copy import copy
+from unittest.mock import Mock
 
 import pytest
 
@@ -8,6 +9,7 @@ from tests.test_validators.profile_data import (
 
 
 class TestProfileValidator:
+    # pylint: disable=protected-access
 
     @staticmethod
     @pytest.mark.parametrize("input_profile, end_time", [
@@ -87,3 +89,15 @@ class TestProfileValidator:
         del profile[gap_time]
         with pytest.raises(AssertionError):
             ProfileValidator(profile=profile).validate()
+
+    @staticmethod
+    def test_profile_validator_returns_early_if_empty_profile():
+        validator = ProfileValidator(profile={})
+        validator._validate_slot_length = Mock()
+        validator._get_and_validate_time_diffs = Mock()
+        validator._validate_start_end_date = Mock()
+        validator.slot_length = Mock()
+        assert validator.validate() is None
+        validator._validate_slot_length.assert_not_called()
+        validator._get_and_validate_time_diffs.assert_not_called()
+        validator._validate_start_end_date.assert_not_called()
