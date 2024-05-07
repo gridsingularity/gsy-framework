@@ -57,7 +57,7 @@ class SCMBills(ResultsBaseClass):
             if not area.get("children"):
                 continue
 
-            if "bills" not in core_stats[area["uuid"]]:
+            if "bills" not in core_stats[area["uuid"]] or not core_stats[area["uuid"]]["bills"]:
                 continue
 
             if area["uuid"] not in self.bills_redis_results:
