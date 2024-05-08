@@ -22,6 +22,7 @@ class SCMBills(ResultsBaseClass):
     @staticmethod
     def _empty_bills_dict() -> Dict:
         return {
+
             "base_energy_bill": 0.,
             "gsy_energy_bill": 0.,
             "bought_from_community": 0.,
@@ -41,17 +42,10 @@ class SCMBills(ResultsBaseClass):
             "gsy_energy_bill_excl_fees": 0.,
             "gsy_total_benefit": 0.,
             "savings": 0.,
-            "tax_surcharges": 0.,
             "grid_fees": 0.,
-            "fixed_fee": 0.,
-            "marketplace_fee": 0.,
-            "assistance_fee": 0.,
             "energy_cost_percent": 0.,
             "grid_fees_percent": 0.,
-            "tax_surcharges_percent": 0.,
-            "marketplace_fees_percent": 0.,
-            "assistance_fees_percent": 0.,
-            "fixed_fees_percent": 0.,
+            "fees": {},
         }
 
     def update(self, area_result_dict, core_stats, current_market_slot):
@@ -63,7 +57,7 @@ class SCMBills(ResultsBaseClass):
             if not area.get("children"):
                 continue
 
-            if "bills" not in core_stats[area["uuid"]]:
+            if "bills" not in core_stats[area["uuid"]] or not core_stats[area["uuid"]]["bills"]:
                 continue
 
             if area["uuid"] not in self.bills_redis_results:
@@ -71,7 +65,7 @@ class SCMBills(ResultsBaseClass):
 
             area_bills = {
                 k: (v or 0.) + (core_stats[area["uuid"]]["bills"].get(k, 0.) or 0.)
-                for k, v in self.bills_redis_results[area["uuid"]].items()
+                for k, v in self.bills_redis_results[area["uuid"]].items() if k != "fees"
             }
 
             area_bills["energy_benchmark"] = core_stats[area["uuid"]]["bills"].get(
@@ -88,30 +82,15 @@ class SCMBills(ResultsBaseClass):
             )
 
             if gsy_energy_bill_excl_revenue > FLOATING_POINT_TOLERANCE:
+
                 area_bills["energy_cost_percent"] = (
-                    (gsy_energy_bill_excl_revenue_without_fees /
-                     gsy_energy_bill_excl_revenue) * 100.
+                        (gsy_energy_bill_excl_revenue_without_fees /
+                         gsy_energy_bill_excl_revenue) * 100.
                 )
-
-                area_bills["grid_fees_percent"] = (
-                    (area_bills["grid_fees"] / gsy_energy_bill_excl_revenue) * 100.
-                )
-
-                area_bills["tax_surcharges_percent"] = (
-                    (area_bills["tax_surcharges"] / gsy_energy_bill_excl_revenue) * 100.
-                )
-
-                area_bills["fixed_fees_percent"] = (
-                        (area_bills["fixed_fee"] / gsy_energy_bill_excl_revenue) * 100.
-                )
-
-                area_bills["marketplace_fees_percent"] = (
-                        (area_bills["marketplace_fee"] / gsy_energy_bill_excl_revenue) * 100.
-                )
-
-                area_bills["assistance_fees_percent"] = (
-                        (area_bills.get("assistance_fee", 0.0) /
-                         gsy_energy_bill_excl_revenue) * 100.)
+                area_fees = core_stats[area["uuid"]]["bills"].get("fees", {})
+                for fee_name, fee_value in area_fees.items():
+                    area_bills[fee_name + "_percent"] = (
+                            fee_value / gsy_energy_bill_excl_revenue * 100.)
 
             self.bills_redis_results[area["uuid"]] = area_bills
             self.bills_results[area["name"]] = area_bills

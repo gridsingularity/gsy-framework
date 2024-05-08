@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import pytest
 from pendulum import datetime, duration, today
 
-from gsy_framework.constants_limits import PROFILE_EXPANSION_DAYS, TIME_ZONE, GlobalConfig
+from gsy_framework.constants_limits import TIME_ZONE, GlobalConfig
 from gsy_framework.enums import ConfigurationType
 from gsy_framework.read_user_profile import (
     InputProfileTypes, _fill_gaps_in_profile, _generate_slot_based_zero_values_dict_from_profile,
@@ -122,16 +122,8 @@ class TestReadUserProfile:
     def test_read_arbitrary_profile_returns_correct_profile_in_canary_network(
             set_is_canary_network):
         set_is_canary_network(True)
-        market_maker_rate = 30
-        GlobalConfig.sim_duration = duration(hours=3)
-        expected_last_time_slot = today(tz=TIME_ZONE).add(days=PROFILE_EXPANSION_DAYS - 1,
-                                                          hours=23, minutes=45)
-        mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
-        assert list(mmr.keys())[-1] == expected_last_time_slot
-        GlobalConfig.sim_duration = duration(hours=30)
-        expected_last_time_slot = today(tz=TIME_ZONE).add(days=PROFILE_EXPANSION_DAYS - 1,
-                                                          hours=23, minutes=45)
-        mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, market_maker_rate)
+        expected_last_time_slot = today(tz=TIME_ZONE)
+        mmr = read_arbitrary_profile(InputProfileTypes.IDENTITY, 30)
         assert list(mmr.keys())[-1] == expected_last_time_slot
 
     @staticmethod
@@ -192,3 +184,16 @@ class TestReadUserProfile:
                                                         duration(hours=4),
                                                         datetime(2021, 1, 25, 0, 0))
         assert result_profile == input_profile
+
+    @staticmethod
+    def test_read_arbitrary_profile_returns_early_for_empty_profiles():
+        original_slot_length = GlobalConfig.slot_length
+        original_sim_duration = GlobalConfig.sim_duration
+        GlobalConfig.slot_length = duration(hours=1)
+        GlobalConfig.sim_duration = duration(hours=4)
+        assert read_arbitrary_profile(InputProfileTypes.POWER_W, {}) == {}
+        assert read_arbitrary_profile(InputProfileTypes.POWER_W, None) == {}
+        assert len(read_arbitrary_profile(InputProfileTypes.POWER_W, 0)) == 4
+        assert set(read_arbitrary_profile(InputProfileTypes.POWER_W, 0).values()) == {0}
+        GlobalConfig.slot_length = original_slot_length
+        GlobalConfig.sim_duration = original_sim_duration
