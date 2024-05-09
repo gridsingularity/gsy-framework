@@ -262,6 +262,7 @@ class ConstSettings:
         INTRACOMMUNITY_BASE_RATE_EUR = None
         MARKET_ALGORITHM = CoefficientAlgorithm.STATIC.value
         MARKET_ALGORITHM_LIMIT = RangeLimit(1, 3)
+        HOURS_OF_DELAY = 72
 
 
 def is_no_community_self_consumption() -> bool:

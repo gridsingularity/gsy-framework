@@ -38,9 +38,10 @@ class TestSimulationSettingsValidator:
                 "name": "DEFAULT_STATIC",
                 "coefficient_algorithm": 2,
                 "grid_fees_reduction": 0.01,
-                "intracommunity_rate_base_eur": 0.5
+                "intracommunity_rate_base_eur": 0.5,
+                "hours_of_delay": 72,
             },
-            "type": 0
+            "type": 0,
         }
 
     @staticmethod
@@ -69,6 +70,7 @@ class TestSimulationSettingsValidator:
         assert settings["bid_offer_match_algo"] == 1
         assert settings["scm"]["name"] == "DEFAULT_STATIC"
         assert settings["scm"]["coefficient_algorithm"] == 2
+        assert settings["scm"]["hours_of_delay"] == 72
         assert isclose(settings["scm"]["grid_fees_reduction"], 0.01, rel_tol=0.0000001)
         assert isclose(settings["scm"]["intracommunity_rate_base_eur"], 0.5, rel_tol=0.0000001)
         assert settings["type"] == 0
@@ -81,16 +83,20 @@ class TestSimulationSettingsValidator:
         settings = reader.read(decoder)
         self._assert_all_settings_values(settings, False)
 
-    @pytest.mark.parametrize("settings_key, settings_value", [
-        ("type", "COLLABORATION"),
-        ("settlement_market_enabled", 0),
-        ("scm_coefficient_algorithm", 1.3),
-        ("bid_offer_match_algo", "payasclear"),
-        ("relative_std_from_forecast_percent", "ten percent"),
-        ("currency", "EUR"),
-        ("external_connection_enabled", "yes"),
-        ("grid_fee_type", "dynamic"),
-    ])
+    @pytest.mark.parametrize(
+        "settings_key, settings_value",
+        [
+            ("type", "COLLABORATION"),
+            ("settlement_market_enabled", 0),
+            ("scm_coefficient_algorithm", 1.3),
+            ("scm_cn_hours_of_delay", 72.1),
+            ("bid_offer_match_algo", "payasclear"),
+            ("relative_std_from_forecast_percent", "ten percent"),
+            ("currency", "EUR"),
+            ("external_connection_enabled", "yes"),
+            ("grid_fee_type", "dynamic"),
+        ],
+    )
     def test_simulation_settings_validator_rejects_incorrect_values(
             self, settings_key: str, settings_value: Any):
         incorrect_data = deepcopy(self._data)
