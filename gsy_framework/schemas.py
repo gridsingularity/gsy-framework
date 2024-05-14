@@ -66,6 +66,7 @@ class ScenarioSchemas:
                                 {"$ref": "#/definitions/scm_storage"},
                                 {"$ref": "#/definitions/wind_turbine"},
                                 {"$ref": "#/definitions/heat_pump"},
+                                {"$ref": "#/definitions/scm_heat_pump"},
                             ]}, "default": []
                         },
                         {"type": "null"}]}
@@ -268,6 +269,32 @@ class ScenarioSchemas:
                     "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                 }
             },
+            "scm_heat_pump": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "type": {"enum": ["ScmHeatPump"]},
+                    "uuid": {"type": "string"},
+                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "address": {"type": ["string", "null"]},
+                    "allow_external_connection": {"type": ["null", "boolean"]},
+                    "geo_tag_location": {},
+                    "consumption_kW": {
+                        "anyOf": [
+                            {"type": "object"},
+                            {"type": "array"},
+                            {"type": "null"},
+                            {"type": "string"}
+                        ]
+                    },
+                    "consumption_profile_uuid": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "initial_buying_rate": {"type": "number"},
+                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "preferred_buying_rate": {"type": "number"},
+                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                }
+            },
             "scm_storage": {
                 "type": "object",
                 "properties": {
@@ -310,6 +337,7 @@ class ScenarioSchemas:
             {"$ref": "#/definitions/scm_storage"},
             {"$ref": "#/definitions/wind_turbine"},
             {"$ref": "#/definitions/heat_pump"},
+            {"$ref": "#/definitions/scm_heat_pump"},
         ],
         "unevaluatedProperties": False
     }
