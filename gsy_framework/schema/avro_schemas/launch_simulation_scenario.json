@@ -163,7 +163,6 @@
                 {"name": "azimuth", "type": ["null", "float"]},
                 {"name": "panel_count", "type": ["null", "int"]},
                 {"name": "fit_to_limit", "type": ["null","boolean"]},
-                {"name": "cloud_coverage", "type": "int"},
                 {"name": "update_interval", "type": ["null", "int"]},
                 {"name": "target_device_kpi", "type": ["null", "int"]},
                 {"name": "final_selling_rate", "type": ["null", "float"]},

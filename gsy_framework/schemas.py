@@ -90,7 +90,6 @@ class ScenarioSchemas:
                     "energy_rate_decrease_per_update": {"anyOf": [{"type": "number"},
                                                                   {"type": "null"}]},
                     "capacity_kW": {"type": "number"},
-                    "cloud_coverage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "forecast_stream_id": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "power_profile": {
                         "anyOf": [

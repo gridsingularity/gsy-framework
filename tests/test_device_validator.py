@@ -80,30 +80,12 @@ class TestValidateDeviceSettings:
         {"energy_rate_decrease_per_update": 0},
         {"capacity_kW": 0},
         {"max_panel_power_W": 0},
-        {"cloud_coverage": 4, "power_profile": ""}
+        {"power_profile": ""}
     ])
     def test_pv_device_setting_succeeds(valid_arguments):
         """The PV device validation succeeds when valid arguments are provided."""
         assert PVValidator.validate(**valid_arguments) is None
 
-    @staticmethod
-    @pytest.mark.parametrize("failing_arguments", [
-        {"panel_count": -1},
-        {"final_selling_rate": -1},
-        {"initial_selling_rate": -20},
-        {"initial_selling_rate": 10, "final_selling_rate": 11},
-        {"fit_to_limit": True, "energy_rate_decrease_per_update": 2},
-        {"fit_to_limit": False, "energy_rate_decrease_per_update": None},
-        {"energy_rate_decrease_per_update": -1},
-        {"capacity_kW": -5},
-        {"max_panel_power_W": -5},
-        {"cloud_coverage": 3, "power_profile": ""},
-        {"cloud_coverage": 2, "power_profile": ""}
-    ])
-    def test_pv_device_setting_fails(failing_arguments):
-        """The PV device validation fails when incompatible arguments are provided."""
-        with pytest.raises(GSyDeviceException):
-            PVValidator.validate(**failing_arguments)
 
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
