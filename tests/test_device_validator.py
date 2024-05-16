@@ -86,7 +86,6 @@ class TestValidateDeviceSettings:
         """The PV device validation succeeds when valid arguments are provided."""
         assert PVValidator.validate(**valid_arguments) is None
 
-
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
         {"initial_soc": 10},

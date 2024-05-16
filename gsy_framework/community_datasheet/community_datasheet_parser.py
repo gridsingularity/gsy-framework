@@ -6,13 +6,11 @@ from enum import Enum
 from itertools import chain
 from typing import Dict, List
 
-from gsy_framework import NULL_VALUES
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheetReader
 from gsy_framework.community_datasheet.community_datasheet_validator import (
     CommunityDatasheetValidator)
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
-from gsy_framework.constants_limits import ConstSettings, FIELDS_REQUIRED_FOR_REBASE
-from gsy_framework.enums import CloudCoverage
+from gsy_framework.constants_limits import ConstSettings
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +41,6 @@ class CommunityDatasheetParser:
 
         self._parse_members()
         self._add_coordinates_to_assets()
-        self._parse_pvs()
         self._merge_profiles_into_assets()
         self._add_global_coordinates()
         self._datasheet.grid = self._create_grid()
@@ -66,13 +63,6 @@ class CommunityDatasheetParser:
         """Parse the members to add geographical coordinates."""
         for member_name, member_details in self._datasheet.members.items():
             member_details["asset_count"] = len(self._datasheet.assets_by_member[member_name])
-
-    def _parse_pvs(self):
-        pv_assets = (
-            pv_asset
-            for member_assets in self._datasheet.pvs.values()
-            for pv_asset in member_assets)
-
 
     def _merge_profiles_into_assets(self) -> None:
         """Merge (in-place) each energy profile into the representation of its own asset."""

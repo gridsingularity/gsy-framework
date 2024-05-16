@@ -62,7 +62,6 @@ class PVValidator(BaseValidator):
                                  kwargs["max_panel_power_W"],
                                  PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max, error_message)
 
-
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate rates of the device."""
