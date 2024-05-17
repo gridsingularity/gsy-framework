@@ -121,8 +121,10 @@ tomli==2.0.1
     #   tox
 tox==4.15.0
     # via -r requirements/base.ini
-urllib3==2.2.1
-    # via requests
+urllib3==1.26.18
+    # via
+    #   -r requirements/base.ini
+    #   requests
 virtualenv==20.26.2
     # via
     #   pre-commit
