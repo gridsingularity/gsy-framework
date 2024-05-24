@@ -47,6 +47,13 @@ class InputProfileTypes(Enum):
     ENERGY_KWH = 4
 
 
+class LiveProfileTypes(Enum):
+    """Enum for type of live data profiles"""
+    NO_LIVE_DATA = 0
+    FORECAST = 1
+    MEASUREMENT = 2
+
+
 def _str_to_datetime(time_string, time_format) -> DateTime:
     """
     Converts time_string into a pendulum (DateTime) object that either takes the global start date
@@ -325,6 +332,8 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
     :param current_timestamp:
     :return: a mapping from time to profile values
     """
+    if input_profile in [{}, None]:
+        return {}
     profile = _read_from_different_sources_todict(input_profile,
                                                   current_timestamp=current_timestamp)
     profile_time_list = list(profile.keys())

@@ -202,6 +202,8 @@ class ConstSettings:
         SOURCE_TYPE = HeatPumpSourceType.AIR.value
         BUYING_RATE_RANGE = RateRange(0, 30)
         PREFERRED_BUYING_RATE = 30
+        CALIBRATION_COEFFICIENT = 0.6
+        CALIBRATION_COEFFICIENT_RANGE = RangeLimit(0, 1)
 
     class MASettings:
         """Default settings for Market Agents."""
@@ -260,6 +262,7 @@ class ConstSettings:
         INTRACOMMUNITY_BASE_RATE_EUR = None
         MARKET_ALGORITHM = CoefficientAlgorithm.STATIC.value
         MARKET_ALGORITHM_LIMIT = RangeLimit(1, 3)
+        HOURS_OF_DELAY = 72
 
 
 def is_no_community_self_consumption() -> bool:

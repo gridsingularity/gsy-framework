@@ -27,6 +27,7 @@
     {"name": "bid_offer_match_algo", "type": "int"},
     {"name": "type", "type": ["null","int"], "default":  "undefined"},
     {"name": "scm_coefficient_algorithm", "type": ["null", "int"], "default":  "null"},
+    {"name": "scm_cn_hours_of_delay", "type": ["null", "int"],"default": "null"},
     {"name": "scm", "type": [
       "null",
       {"type": "map", "values" : ["float", "int", "string", "null"], "default": {}}
