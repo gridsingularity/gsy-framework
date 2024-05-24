@@ -24,8 +24,6 @@
               "name": "HomeAfterMeterData",
               "type": "record",
               "fields": [
-                {"name": "_self_production_for_community_kWh", "type": "float"},
-                {"name": "allocated_community_energy_kWh", "type": "float"},
                 {
                   "name": "_self_production_for_community_kWh",
                   "type": "float"
@@ -392,6 +390,10 @@
                 },
                 {
                   "name": "spent_to_grid",
+                  "type": "float"
+                },
+                {
+                  "name": "export_grid_fees",
                   "type": "float"
                 },
                 {

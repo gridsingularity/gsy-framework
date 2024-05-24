@@ -49,7 +49,7 @@ class SCMBills(ResultsBaseClass):
             "marketplace_fees_percent": 0.,
             "assistance_fees_percent": 0.,
             "fixed_fees_percent": 0.,
-            "virtual_compensation": 0.,
+            "export_grid_fees": 0.,
             "fees": {},
         }
 
