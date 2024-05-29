@@ -27,7 +27,7 @@ from gsy_framework.constants_limits import (
     DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, TIME_FORMAT, TIME_ZONE, GlobalConfig)
 from gsy_framework.exceptions import GSyReadProfileException
 from gsy_framework.utils import (
-    convert_kW_to_kWh, find_object_of_same_weekday_and_time, generate_market_slot_list,
+    convert_kW_to_kWh, get_from_profile_same_weekday_and_time, generate_market_slot_list,
     return_ordered_dict, convert_kWh_to_W)
 
 DATE_TIME_FORMAT_SPACED = "YYYY-MM-DD HH:mm:ss"
@@ -225,8 +225,8 @@ def _fill_gaps_in_profile(input_profile: Dict = None, out_profile: Dict = None) 
 
     for time in out_profile.keys():
         if time not in input_profile:
-            temp_val = find_object_of_same_weekday_and_time(input_profile, time,
-                                                            ignore_not_found=True)
+            temp_val = get_from_profile_same_weekday_and_time(input_profile, time,
+                                                              ignore_not_found=True)
             if temp_val is not None:
                 current_val = temp_val
         else:
