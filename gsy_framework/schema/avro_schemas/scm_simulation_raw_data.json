@@ -393,6 +393,10 @@
                   "type": "float"
                 },
                 {
+                  "name": "export_grid_fees",
+                  "type": "float"
+                },
+                {
                   "name": "fees",
                   "type": [
                     "null",

@@ -45,6 +45,11 @@ class SCMBills(ResultsBaseClass):
             "grid_fees": 0.,
             "energy_cost_percent": 0.,
             "grid_fees_percent": 0.,
+            "tax_surcharges_percent": 0.,
+            "marketplace_fees_percent": 0.,
+            "assistance_fees_percent": 0.,
+            "fixed_fees_percent": 0.,
+            "export_grid_fees": 0.,
             "fees": {},
         }
 

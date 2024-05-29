@@ -108,5 +108,6 @@ SCM_FEE_TYPE_MAPPING = {
     "fixed_monthly_fee": SCMFeeType.MONTHLY_FEES,
     "marketplace_monthly_fee": SCMFeeType.MONTHLY_FEES,
     "assistance_monthly_fee": SCMFeeType.MONTHLY_FEES,
-    "grid_fee_constant": SCMFeeType.GRID_FEES
+    "grid_import_fee_const": SCMFeeType.GRID_FEES,
+    "grid_export_fee_const": SCMFeeType.GRID_FEES,
 }
