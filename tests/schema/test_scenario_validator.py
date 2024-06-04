@@ -180,7 +180,6 @@ class TestScenarioValidator:
                   "uuid": "cd3a108a-4eac-4f58-8d3a-e4f395a0aea4",
                   "address": None,
                   "avg_power_W": 100,
-                  "capacity_kW": None,
                   "libraryUUID": None,
                   "fit_to_limit": True,
                   "update_interval": 1,
@@ -192,7 +191,6 @@ class TestScenarioValidator:
                   "target_device_kpi": 0,
                   "initial_buying_rate": 0.0,
                   "use_market_maker_rate": True,
-                  "forecast_stream_enabled": None,
                   "allow_external_connection": False,
                   "energy_rate_increase_per_update": None,
                   "display_type": "Load"
@@ -209,7 +207,6 @@ class TestScenarioValidator:
                       "uuid": "1bb73f37-1ea9-4e6e-95bf-f053cd66dd45",
                       "address": None,
                       "avg_power_W": 100,
-                      "capacity_kW": None,
                       "libraryUUID": None,
                       "fit_to_limit": True,
                       "update_interval": 1,
@@ -221,7 +218,6 @@ class TestScenarioValidator:
                       "target_device_kpi": 0,
                       "initial_buying_rate": 0.0,
                       "use_market_maker_rate": True,
-                      "forecast_stream_enabled": None,
                       "allow_external_connection": False,
                       "energy_rate_increase_per_update": None,
                       "display_type": "Load"
