@@ -258,12 +258,10 @@
                   }
                 ]},
                 {"name": "avg_power_W", "type": ["null", "float"]},
-                {"name": "capacity_kW", "type": ["null", "float"]},
                 {"name": "final_buying_rate", "type": ["null", "float"]},
                 {"name": "initial_buying_rate", "type": ["null", "float"]},
                 {"name": "target_device_kpi", "type": ["null", "int"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
-                {"name": "forecast_stream_enabled", "type": ["null", "boolean"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name": "energy_rate_increase_per_update", "type": ["null", "float"]},
                 {"name":  "display_type", "type":  "string"}
