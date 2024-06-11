@@ -98,7 +98,7 @@ def generate_market_slot_list(start_timestamp=None):
     No input arguments, required input is only handled by a preconfigured GlobalConfig
     @return: List with market slot datetimes
     """
-    time_span = (duration(days=PROFILE_EXPANSION_DAYS)
+    time_span = (GlobalConfig.slot_length
                  if GlobalConfig.is_canary_network()
                  else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS)))
     time_span += duration(hours=ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS)
@@ -113,8 +113,8 @@ def generate_market_slot_list(start_timestamp=None):
     return market_slot_list
 
 
-def find_object_of_same_weekday_and_time(indict: Dict, time_slot: DateTime,
-                                         ignore_not_found: bool = False):
+def get_from_profile_same_weekday_and_time(indict: Dict, time_slot: DateTime,
+                                           ignore_not_found: bool = False):
     """
     Based on a profile with datetimes that span in one week as keys and some values, finds the
     corresponding value of the same weekday and time. This method is mainly useful for Canary
@@ -344,7 +344,7 @@ def get_area_uuid_name_mapping(area_dict, results):
 
 def round_floats_for_ui(number):
     """Round the given number using the scale required by the UI."""
-    return round(number, 3)
+    return round(number, 7)
 
 
 def round_prices_to_cents(number):

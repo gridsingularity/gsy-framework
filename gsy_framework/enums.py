@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List
 
 from pendulum import duration
 
@@ -87,3 +88,26 @@ class HeatPumpSourceType(Enum):
 
     AIR = 0
     GROUND = 1
+
+
+class SCMFeeType(Enum):
+    """Enum for SCM fee types"""
+
+    PER_KWH_FEES = 0
+    MONTHLY_FEES = 1
+    GRID_FEES = 2
+
+    @classmethod
+    def member_names(cls) -> List:
+        """Return list of member names."""
+        return [e.name for e in cls]
+
+
+SCM_FEE_TYPE_MAPPING = {
+    "taxes_surcharges": SCMFeeType.PER_KWH_FEES,
+    "fixed_monthly_fee": SCMFeeType.MONTHLY_FEES,
+    "marketplace_monthly_fee": SCMFeeType.MONTHLY_FEES,
+    "assistance_monthly_fee": SCMFeeType.MONTHLY_FEES,
+    "grid_import_fee_const": SCMFeeType.GRID_FEES,
+    "grid_export_fee_const": SCMFeeType.GRID_FEES,
+}

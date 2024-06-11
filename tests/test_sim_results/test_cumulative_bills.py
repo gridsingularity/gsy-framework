@@ -59,9 +59,9 @@ class TestCumulativeBills:
         # Equals to penalty_energy * PV_PENALTY_RATE / 100.0
         assert self._bills.cumulative_bills[seller_uuid]["penalties"] == 0.12 * 0.5
         # Equals to the trade price since the PV is the seller
-        assert self._bills.cumulative_bills[seller_uuid]["earned"] == 0.002
+        assert self._bills.cumulative_bills[seller_uuid]["earned"] == 0.0019
         # Equals to penalties - earned
-        assert isclose(self._bills.cumulative_bills[seller_uuid]["total"], 0.06-0.002)
+        assert isclose(self._bills.cumulative_bills[seller_uuid]["total"], 0.06 - 0.0019)
 
         assert self._bills.cumulative_bills[buyer_uuid]["name"] == buyer_name
         # Equal to the energy_requirement_kWh (consumption not bought)
@@ -69,6 +69,6 @@ class TestCumulativeBills:
         # Equals to penalty_energy * LOAD_PENALTY_RATE / 100.0
         assert self._bills.cumulative_bills[buyer_uuid]["penalties"] == 0.05 * 0.5
         # Equals to the trade price since the Load is the buyer
-        assert self._bills.cumulative_bills[buyer_uuid]["spent_total"] == 0.002
+        assert self._bills.cumulative_bills[buyer_uuid]["spent_total"] == 0.0021
         # Equals to penalties + spent
-        assert isclose(self._bills.cumulative_bills[buyer_uuid]["total"], 0.027)
+        assert isclose(self._bills.cumulative_bills[buyer_uuid]["total"], 0.0271)
