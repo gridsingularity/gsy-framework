@@ -147,10 +147,15 @@ class ForwardResultsHandler:  # pylint: disable=too-many-instance-attributes
 
         asset_uuid = current_asset_stats.device_uuid
         if asset_uuid not in self.asset_volume_time_series:
+            # We assume that for EB, slot length is 1 hour, hence no need for conversion between
+            # power and energy
+            asset_peak_kwh = (
+                asset_info["capacity_kW"] if "capacity_kW" in asset_info
+                else asset_info["avg_power_W"] * 1000.0)
             self.asset_volume_time_series[asset_uuid] = {
                 resolution: AssetVolumeTimeSeries(
                     asset_uuid=asset_uuid,
-                    asset_peak_kWh=asset_info["capacity_kW"],
+                    asset_peak_kWh=asset_peak_kwh,
                     resolution=resolution,
                     get_asset_volume_time_series_db=self.get_asset_volume_time_series_db,
                 ) for resolution in list(AggregationResolution)}
