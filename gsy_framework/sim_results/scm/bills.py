@@ -54,6 +54,7 @@ class SCMBills(ResultsBaseClass):
         }
 
     def update(self, area_result_dict, core_stats, current_market_slot):
+        """SCM bills are not accumulative"""
         if not self._has_update_parameters(
                 area_result_dict, core_stats, current_market_slot):
             return
@@ -68,10 +69,7 @@ class SCMBills(ResultsBaseClass):
             if area["uuid"] not in self.bills_redis_results:
                 self.bills_redis_results[area["uuid"]] = self._empty_bills_dict()
 
-            area_bills = {
-                k: (v or 0.) + (core_stats[area["uuid"]]["bills"].get(k, 0.) or 0.)
-                for k, v in self.bills_redis_results[area["uuid"]].items() if k != "fees"
-            }
+            area_bills = self.bills_redis_results[area["uuid"]]
 
             area_bills["energy_benchmark"] = core_stats[area["uuid"]]["bills"].get(
                 "energy_benchmark", 0.)
@@ -87,15 +85,16 @@ class SCMBills(ResultsBaseClass):
             )
 
             if gsy_energy_bill_excl_revenue > FLOATING_POINT_TOLERANCE:
-
                 area_bills["energy_cost_percent"] = (
                         (gsy_energy_bill_excl_revenue_without_fees /
                          gsy_energy_bill_excl_revenue) * 100.
                 )
-                area_fees = core_stats[area["uuid"]]["bills"].get("fees", {})
-                for fee_name, fee_value in area_fees.items():
-                    area_bills[fee_name + "_percent"] = (
+                percent_area_fees = {}
+                for fee_name, fee_value in core_stats[area["uuid"]]["bills"].get(
+                        "fees", {}).items():
+                    percent_area_fees[fee_name + "_percent"] = (
                             fee_value / gsy_energy_bill_excl_revenue * 100.)
+                area_bills["fees"] = percent_area_fees
 
             self.bills_redis_results[area["uuid"]] = area_bills
             self.bills_results[area["name"]] = area_bills
