@@ -24,9 +24,8 @@ from gsy_framework.sim_results.simulation_assets_info import (
 class ResultsHandler:
     """Calculate all results for each market slot."""
 
-    def __init__(self, should_export_plots: bool = False, is_scm: bool = False):
+    def __init__(self, should_export_plots: bool = False):
         self.forward_market_enabled = False
-        self._is_scm = is_scm
         self.should_export_plots = should_export_plots
         self.bids_offers_trades = {}
         self.results_mapping = {
@@ -38,15 +37,10 @@ class ResultsHandler:
             "device_statistics": DeviceStatistics(should_export_plots),
             "trade_profile": EnergyTradeProfile(should_export_plots),
             "area_throughput": AreaThroughputStats(),
-            "assets_info": SimulationAssetsInfo()
+            "assets_info": SimulationAssetsInfo(),
+            "bills": MarketEnergyBills(should_export_plots),
+            "market_summary": MarketSummaryInfo(should_export_plots)
         }
-
-        if is_scm:
-            self.results_mapping["bills"] = SCMBills()
-            self.results_mapping["kpi"] = SCMKPI()
-        else:
-            self.results_mapping["bills"] = MarketEnergyBills(should_export_plots)
-            self.results_mapping["market_summary"] = MarketSummaryInfo(should_export_plots)
 
         self._total_memory_utilization_kb = 0.0
 
@@ -80,6 +74,7 @@ class ResultsHandler:
         for result_object in self.results_mapping.values():
             try:
                 result_object.update(area_dict, core_stats, current_market_slot)
+            # pylint: disable=broad-except
             except Exception as ex:
                 logging.error(
                     "Result calculation failed on market slot %s with error %s, %s",
@@ -138,11 +133,8 @@ class ResultsHandler:
             for k, v in self.results_mapping.items()
         }
         results["bids_offers_trades"] = self.bids_offers_trades
-        if not self._is_scm:
-            results["cumulative_market_fees"] = \
-                self.results_mapping["bills"].cumulative_fee_all_markets_whole_sim
-        else:
-            results["cumulative_market_fees"] = 0.
+        results["cumulative_market_fees"] = \
+            self.results_mapping["bills"].cumulative_fee_all_markets_whole_sim
         return results
 
     @property
@@ -154,3 +146,25 @@ class ResultsHandler:
     def total_memory_utilization_kb(self):
         """Get the total memory allocated by the results."""
         return self._total_memory_utilization_kb
+
+
+class SCMResultsHandler(ResultsHandler):
+    """Calculate all results for each market slot for SCM simulations"""
+
+    def __init__(self):
+        super().__init__()
+        self.results_mapping = {
+            "cumulative_net_energy_flow": CumulativeNetEnergyFlow(),
+            "bills": SCMBills(),
+            "kpi": SCMKPI()}
+
+    @property
+    def all_db_results(self) -> Dict:
+        """Get dict with all the results in format that can be saved to the DB."""
+        results = {
+            self._results_name_to_db_name_mapping[k]: v.ui_formatted_results
+            for k, v in self.results_mapping.items()
+        }
+        results["bids_offers_trades"] = self.bids_offers_trades
+        results["cumulative_market_fees"] = 0.0
+        return results
