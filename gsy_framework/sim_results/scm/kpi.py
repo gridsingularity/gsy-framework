@@ -55,7 +55,7 @@ class SCMKPIState:
             "self_sufficiency": self.self_sufficiency,
             "self_consumption": self.self_consumption,
             "saving_absolute": self.saving_absolute,
-            "saving_precentage": self.saving_percentage
+            "saving_percentage": self.saving_percentage
         })
         return output_dict
 
