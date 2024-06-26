@@ -16,6 +16,8 @@ attrs==23.2.0
     #   referencing
 avro==1.11.3
     # via -r requirements/base.txt
+black==24.4.2
+    # via -r requirements/tests.ini
 cachetools==5.3.3
     # via
     #   -r requirements/base.txt
@@ -39,6 +41,7 @@ charset-normalizer==3.3.2
 click==8.1.7
     # via
     #   -r requirements/base.txt
+    #   black
     #   geocoder
 colorama==0.4.6
     # via
@@ -105,6 +108,8 @@ mccabe==0.6.1
     # via
     #   flake8
     #   pylint
+mypy-extensions==1.0.0
+    # via black
 nodeenv==1.8.0
     # via
     #   -r requirements/base.txt
@@ -116,6 +121,7 @@ ordered-set==4.1.0
 packaging==24.0
     # via
     #   -r requirements/base.txt
+    #   black
     #   pyproject-api
     #   pytest
     #   tox
@@ -123,11 +129,14 @@ parameterized==0.9.0
     # via -r requirements/tests.ini
 parso==0.8.4
     # via jedi
+pathspec==0.12.1
+    # via black
 pendulum==2.1.2
     # via -r requirements/base.txt
 platformdirs==4.2.2
     # via
     #   -r requirements/base.txt
+    #   black
     #   pylint
     #   tox
     #   virtualenv
