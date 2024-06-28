@@ -146,35 +146,55 @@
               "name": "PV",
               "type": "record",
               "fields": [
-                {"name": "name", "type": "string"},
-                {"name": "type", "type": "string"},
-                {"name": "uuid", "type": "string"},
-                {"name": "libraryUUID", "type": ["null", "string"]},
-                {"name": "address", "type": ["null", "string"]},
-                {"name": "geo_tag_location", "type": [
-                  "null", {
-                    "type": "array",
-                    "items":  "float"
-                  }
-                ]},
-                {"name": "power_profile", "type": ["null", "string"]},
-                {"name": "power_profile_uuid", "type": ["null", "string"]},
-                {"name": "power_measurement_uuid", "type": ["null", "string"]},
-                {"name": "capacity_kW", "type": ["null", "float"]},
-                {"name": "tilt", "type": ["null", "float"]},
-                {"name": "azimuth", "type": ["null", "float"]},
-                {"name": "panel_count", "type": ["null", "int"]},
-                {"name": "fit_to_limit", "type": ["null","boolean"]},
-                {"name": "update_interval", "type": ["null", "int"]},
-                {"name": "target_device_kpi", "type": ["null", "int"]},
-                {"name": "final_selling_rate", "type": ["null", "float"]},
-                {"name": "initial_selling_rate", "type": ["null", "float"]},
-                {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
-                {"name": "forecast_stream_enabled", "type": ["null", "boolean"]},
-                {"name": "forecast_stream_id", "type": ["null", "string"]},
-                {"name": "allow_external_connection", "type": ["null", "boolean"]},
-                {"name": "energy_rate_decrease_per_update", "type": ["null", "float"]},
-                {"name":  "display_type", "type":  "string"}
+                { "name": "name", "type": "string" },
+                { "name": "type", "type": "string" },
+                { "name": "uuid", "type": "string" },
+                { "name": "libraryUUID", "type": ["null", "string"] },
+                { "name": "address", "type": ["null", "string"] },
+                {
+                  "name": "geo_tag_location",
+                  "type": [
+                    "null",
+                    {
+                      "type": "array",
+                      "items": "float"
+                    }
+                  ]
+                },
+                { "name": "power_profile", "type": ["null", "string"] },
+                { "name": "power_profile_uuid", "type": ["null", "string"] },
+                {
+                  "name": "power_measurement_uuid",
+                  "type": ["null", "string"]
+                },
+                { "name": "capacity_kW", "type": ["null", "float"] },
+                { "name": "tilt", "type": ["null", "float"] },
+                { "name": "azimuth", "type": ["null", "float"] },
+                { "name": "panel_count", "type": ["null", "int"] },
+                { "name": "fit_to_limit", "type": ["null", "boolean"] },
+                { "name": "cloud_coverage", "type": "int" },
+                { "name": "update_interval", "type": ["null", "int"] },
+                { "name": "target_device_kpi", "type": ["null", "int"] },
+                { "name": "final_selling_rate", "type": ["null", "float"] },
+                { "name": "initial_selling_rate", "type": ["null", "float"] },
+                {
+                  "name": "use_market_maker_rate",
+                  "type": ["null", "boolean"]
+                },
+                {
+                  "name": "forecast_stream_enabled",
+                  "type": ["null", "boolean"]
+                },
+                { "name": "forecast_stream_id", "type": ["null", "string"] },
+                {
+                  "name": "allow_external_connection",
+                  "type": ["null", "boolean"]
+                },
+                {
+                  "name": "energy_rate_decrease_per_update",
+                  "type": ["null", "float"]
+                },
+                { "name": "display_type", "type": "string" }
               ]
             },
             {

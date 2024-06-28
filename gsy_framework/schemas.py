@@ -39,14 +39,24 @@ class ScenarioSchemas:
                     "assistance_monthly_fee": {"type": ["number", "null"]},
                     "market_maker_rate": {"type": ["number", "null"]},
                     "target_market_kpi": {"type": ["number", "null"]},
-                    "grid_fee_constant": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "grid_import_fee_const": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "grid_export_fee_const": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "grid_fee_percentage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "baseline_peak_energy_import_kWh":
-                        {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "baseline_peak_energy_export_kWh":
-                        {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "grid_fee_constant": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "grid_import_fee_const": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "grid_export_fee_const": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "grid_fee_percentage": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "baseline_peak_energy_import_kWh": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "baseline_peak_energy_export_kWh": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "import_capacity_kVA": {"type": ["number", "null"]},
                     "export_capacity_kVA": {"type": ["number", "null"]},
                     "fit_area_boundary": {"type": ["boolean", "null"]},
@@ -54,26 +64,32 @@ class ScenarioSchemas:
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "tags": {"anyOf": [{"type": "array"}, {"type": "null"}]},
                     "geo_tag_location": {},
-                    "children": {"anyOf": [
-                        {
-                            "type": "array",
-                            "items": {"anyOf": [
-                                {"$ref": "#/definitions/area"},
-                                {"$ref": "#/definitions/pv"},
-                                {"$ref": "#/definitions/load"},
-                                {"$ref": "#/definitions/smart_meter"},
-                                {"$ref": "#/definitions/infinite_power_plant"},
-                                {"$ref": "#/definitions/finite_power_plant"},
-                                {"$ref": "#/definitions/storage"},
-                                {"$ref": "#/definitions/scm_storage"},
-                                {"$ref": "#/definitions/wind_turbine"},
-                                {"$ref": "#/definitions/heat_pump"},
-                                {"$ref": "#/definitions/scm_heat_pump"},
-                            ]}, "default": []
-                        },
-                        {"type": "null"}]}
+                    "children": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {"$ref": "#/definitions/area"},
+                                        {"$ref": "#/definitions/pv"},
+                                        {"$ref": "#/definitions/load"},
+                                        {"$ref": "#/definitions/smart_meter"},
+                                        {"$ref": "#/definitions/infinite_power_plant"},
+                                        {"$ref": "#/definitions/finite_power_plant"},
+                                        {"$ref": "#/definitions/storage"},
+                                        {"$ref": "#/definitions/scm_storage"},
+                                        {"$ref": "#/definitions/wind_turbine"},
+                                        {"$ref": "#/definitions/heat_pump"},
+                                        {"$ref": "#/definitions/scm_heat_pump"},
+                                    ]
+                                },
+                                "default": [],
+                            },
+                            {"type": "null"},
+                        ]
+                    },
                 },
-                "required": ["name"]
+                "required": ["name"],
             },
             "pv": {
                 "type": "object",
@@ -86,24 +102,34 @@ class ScenarioSchemas:
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
                     "panel_count": {"type": "number"},
-                    "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "initial_selling_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "final_selling_rate": {"type": "number"},
                     "fit_to_limit": {"type": "boolean"},
-                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "energy_rate_decrease_per_update": {"anyOf": [{"type": "number"},
-                                                                  {"type": "null"}]},
+                    "update_interval": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "energy_rate_decrease_per_update": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "capacity_kW": {"type": "number"},
-                    "forecast_stream_id": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "cloud_coverage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "forecast_stream_id": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "power_profile": {
                         "anyOf": [
                             {"type": "object"},
                             {"type": "number"},
                             {"type": "null"},
                             {"type": "array"},
-                            {"type": "string"}]},
+                            {"type": "string"},
+                        ]
+                    },
                     "use_market_maker_rate": {"type": "boolean"},
-                    "powerProfileUUID": {"type": "string"}
-                }
+                    "powerProfileUUID": {"type": "string"},
+                },
             },
             "wind_turbine": {
                 "type": "object",
@@ -115,23 +141,30 @@ class ScenarioSchemas:
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
-                    "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "initial_selling_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "final_selling_rate": {"type": "number"},
                     "fit_to_limit": {"type": "boolean"},
-                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "energy_rate_decrease_per_update": {"anyOf": [{"type": "number"},
-                                                                  {"type": "null"}]},
+                    "update_interval": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "energy_rate_decrease_per_update": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "power_profile": {
                         "anyOf": [
                             {"type": "object"},
                             {"type": "number"},
                             {"type": "null"},
                             {"type": "array"},
-                            {"type": "string"}]},
+                            {"type": "string"},
+                        ]
+                    },
                     "use_market_maker_rate": {"type": "boolean"},
                     "powerProfileUUID": {"type": "string"},
                     "capacity_kW": {"type": "number"},
-                }
+                },
             },
             "storage": {
                 "type": "object",
@@ -148,17 +181,23 @@ class ScenarioSchemas:
                     "battery_capacity_kWh": {"type": "number"},
                     "max_abs_battery_power_kW": {"type": "number"},
                     "cap_price_strategy": {"type": "boolean"},
-                    "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "initial_selling_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "final_selling_rate": {"type": "number"},
                     "initial_buying_rate": {"type": "number"},
                     "final_buying_rate": {"type": "number"},
                     "fit_to_limit": {"type": "boolean"},
-                    "energy_rate_increase_per_update":  {"anyOf": [{"type": "number"},
-                                                                   {"type": "null"}]},
-                    "energy_rate_decrease_per_update":  {"anyOf": [{"type": "number"},
-                                                                   {"type": "null"}]},
-                    "update_interval":  {"anyOf": [{"type": "number"}, {"type": "null"}]}
-                }
+                    "energy_rate_increase_per_update": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "energy_rate_decrease_per_update": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "update_interval": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                },
             },
             "load": {
                 "type": "object",
@@ -170,26 +209,37 @@ class ScenarioSchemas:
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
-                    "avg_power_W":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "initial_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "avg_power_W": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "initial_buying_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "final_buying_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "fit_to_limit": {"type": ["boolean", "null"]},
-                    "update_interval":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "update_interval": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "grid_connected": {"type": ["boolean", "null"]},
-                    "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
-                                                                  {"type": "null"}]},
-                    "forecast_stream_id": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "daily_load_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "energy_rate_increase_per_update": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "forecast_stream_id": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "daily_load_profile_uuid": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}]
+                    },
                     "use_market_maker_rate": {"type": ["boolean", "null"]},
                     "daily_load_profile": {
                         "anyOf": [
                             {"type": "object"},
                             {"type": "array"},
                             {"type": "null"},
-                            {"type": "string"}
+                            {"type": "string"},
                         ]
-                    }
-                }
+                    },
+                },
             },
             "smart_meter": {
                 "type": "object",
@@ -201,32 +251,44 @@ class ScenarioSchemas:
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
-                    "initial_selling_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "initial_selling_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "final_selling_rate": {"type": "number"},
                     "initial_buying_rate": {"type": "number"},
-                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "final_buying_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "fit_to_limit": {"type": "boolean"},
-                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "energy_rate_decrease_per_update": {"anyOf": [{"type": "number"},
-                                                                  {"type": "null"}]},
-                    "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
-                                                                  {"type": "null"}]},
-                    "use_market_maker_rate": {"type": "boolean"}
-                }
+                    "update_interval": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "energy_rate_decrease_per_update": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "energy_rate_increase_per_update": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "use_market_maker_rate": {"type": "boolean"},
+                },
             },
             "infinite_power_plant": {
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "type": {"enum": ["CommercialProducer", "InfiniteBus", "MarketMaker"]},
+                    "type": {
+                        "enum": ["CommercialProducer", "InfiniteBus", "MarketMaker"]
+                    },
                     "uuid": {"type": "string"},
                     "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
-                    "energy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "energy_buy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                }
+                    "energy_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_buy_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                },
             },
             "finite_power_plant": {
                 "type": "object",
@@ -238,9 +300,11 @@ class ScenarioSchemas:
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
-                    "energy_rate":  {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "max_available_power_kW":  {"anyOf": [{"type": "number"}, {"type": "null"}]}
-                }
+                    "energy_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "max_available_power_kW": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                },
             },
             "heat_pump": {
                 "type": "object",
@@ -256,19 +320,32 @@ class ScenarioSchemas:
                     "min_temp_C": {"type": "number"},
                     "max_temp_C": {"type": "number"},
                     "initial_temp_C": {"type": "number"},
-                    "external_temp_C": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "external_temp_C": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "external_temp_profile_uuid": {
-                        "anyOf": [{"type": "string"}, {"type": "null"}]},
+                        "anyOf": [{"type": "string"}, {"type": "null"}]
+                    },
                     "tank_volume_l": {"type": "number"},
                     "consumption_kW": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "consumption_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                    "consumption_profile_uuid": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}]
+                    },
                     "source_type": {
-                        "enum": [HeatPumpSourceType.AIR.value, HeatPumpSourceType.GROUND.value]},
+                        "enum": [
+                            HeatPumpSourceType.AIR.value,
+                            HeatPumpSourceType.GROUND.value,
+                        ]
+                    },
                     "initial_buying_rate": {"type": "number"},
-                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "final_buying_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "preferred_buying_rate": {"type": "number"},
-                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                }
+                    "update_interval": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                },
             },
             "scm_heat_pump": {
                 "type": "object",
@@ -285,16 +362,21 @@ class ScenarioSchemas:
                             {"type": "object"},
                             {"type": "array"},
                             {"type": "null"},
-                            {"type": "string"}
+                            {"type": "string"},
                         ]
                     },
                     "consumption_profile_uuid": {
-                        "anyOf": [{"type": "string"}, {"type": "null"}]},
+                        "anyOf": [{"type": "string"}, {"type": "null"}]
+                    },
                     "initial_buying_rate": {"type": "number"},
-                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "final_buying_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "preferred_buying_rate": {"type": "number"},
-                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                }
+                    "update_interval": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                },
             },
             "scm_storage": {
                 "type": "object",
@@ -307,24 +389,32 @@ class ScenarioSchemas:
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
                     "initial_buying_rate": {"type": "number"},
-                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "final_buying_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "fit_to_limit": {"type": "boolean"},
-                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "energy_rate_increase_per_update": {"anyOf": [{"type": "number"},
-                                                                  {"type": "null"}]},
+                    "update_interval": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
+                    "energy_rate_increase_per_update": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "use_market_maker_rate": {"type": "boolean"},
-                    "forecast_stream_id": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "forecast_stream_id": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}]
+                    },
                     "prosumption_kWh_profile_uuid": {
-                        "anyOf": [{"type": "string"}, {"type": "null"}]},
+                        "anyOf": [{"type": "string"}, {"type": "null"}]
+                    },
                     "prosumption_kWh_profile": {
                         "anyOf": [
                             {"type": "object"},
                             {"type": "array"},
                             {"type": "null"},
-                            {"type": "string"}
+                            {"type": "string"},
                         ]
-                    }
-                }
+                    },
+                },
             },
         },
         "anyOf": [
@@ -340,7 +430,7 @@ class ScenarioSchemas:
             {"$ref": "#/definitions/heat_pump"},
             {"$ref": "#/definitions/scm_heat_pump"},
         ],
-        "unevaluatedProperties": False
+        "unevaluatedProperties": False,
     }
 
 
