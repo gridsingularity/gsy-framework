@@ -113,8 +113,8 @@ def generate_market_slot_list(start_timestamp=None):
     return market_slot_list
 
 
-def find_object_of_same_weekday_and_time(indict: Dict, time_slot: DateTime,
-                                         ignore_not_found: bool = False):
+def get_from_profile_same_weekday_and_time(indict: Dict, time_slot: DateTime,
+                                           ignore_not_found: bool = False):
     """
     Based on a profile with datetimes that span in one week as keys and some values, finds the
     corresponding value of the same weekday and time. This method is mainly useful for Canary
