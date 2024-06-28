@@ -27,7 +27,7 @@ from functools import lru_cache, wraps
 from pkgutil import walk_packages
 from statistics import mean
 from threading import Timer
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Union, Optional
 from uuid import UUID
 
 from pendulum import DateTime, datetime, duration, from_format, instance
@@ -186,17 +186,23 @@ def key_in_dict_and_not_none_and_negative(dictionary, key):
     return key in dictionary and dictionary[key] is not None and dictionary[key] < 0
 
 
-def str_to_pendulum_datetime(input_str: str) -> DateTime:
-    """Convert a string to pendulum datetime format."""
+def str_to_pendulum_datetime(input_str: str, date: Optional[DateTime] = None) -> DateTime:
+    """
+    Convert a string to pendulum datetime format.
+    If input_str does not contain date information, set the date if provided
+    """
     if input_str is None:
         return None
 
-    supported_formats = [TIME_FORMAT, DATE_TIME_FORMAT, TIME_FORMAT_HOURS,
-                         DATE_TIME_FORMAT_SECONDS, TIME_FORMAT_SECONDS, DATE_TIME_FORMAT_HOURS]
-
+    date_formats = [DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_FORMAT_HOURS]
+    time_formats = [TIME_FORMAT, TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS]
+    supported_formats = [*date_formats, *time_formats]
     for datetime_format in supported_formats:
         try:
-            return from_format(input_str, datetime_format)
+            timestamp = from_format(input_str, datetime_format)
+            if datetime_format in time_formats and date:
+                timestamp = timestamp.set(year=date.year, month=date.month, day=date.day)
+            return timestamp
         except ValueError:
             continue
     raise Exception(f"Format of {input_str} is not one of {supported_formats}")
