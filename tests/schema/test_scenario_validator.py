@@ -47,6 +47,7 @@ class TestScenarioValidator:
                       "panel_count": 1,
                       "fit_to_limit": True,
                       "power_profile": "{\"filename\": \"Berlin_pv_1m.csv\"}",
+                      "cloud_coverage": 4,
                       "update_interval": 1,
                       "geo_tag_location": [
                         21.817164413489536,
@@ -118,6 +119,7 @@ class TestScenarioValidator:
                       "panel_count": 1,
                       "fit_to_limit": True,
                       "power_profile": "{\"filename\": \"Berlin_pv_1m.csv\"}",
+                      "cloud_coverage": 4,
                       "update_interval": 1,
                       "geo_tag_location": [
                         21.819383035040943,

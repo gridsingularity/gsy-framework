@@ -6,11 +6,13 @@ from enum import Enum
 from itertools import chain
 from typing import Dict, List
 
+from gsy_framework import NULL_VALUES
 from gsy_framework.community_datasheet.community_datasheet_reader import CommunityDatasheetReader
 from gsy_framework.community_datasheet.community_datasheet_validator import (
     CommunityDatasheetValidator)
+from gsy_framework.constants_limits import ConstSettings, FIELDS_REQUIRED_FOR_REBASE
+from gsy_framework.enums import CloudCoverage
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
-from gsy_framework.constants_limits import ConstSettings
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +43,7 @@ class CommunityDatasheetParser:
 
         self._parse_members()
         self._add_coordinates_to_assets()
+        self._parse_pvs()
         self._merge_profiles_into_assets()
         self._add_global_coordinates()
         self._datasheet.grid = self._create_grid()
@@ -48,6 +51,37 @@ class CommunityDatasheetParser:
         CommunityDatasheetValidator().validate(self._datasheet)
 
         return self._datasheet
+
+    def _parse_pvs(self):
+        pv_assets = (
+            pv_asset
+            for member_assets in self._datasheet.pvs.values()
+            for pv_asset in member_assets
+        )
+        for pv_asset in pv_assets:
+            pv_asset["cloud_coverage"] = self._infer_pv_cloud_coverage(pv_asset)
+
+    def _infer_pv_cloud_coverage(self, pv_asset: Dict) -> int:
+        """Infer which type of profile generation should be used."""
+        asset_name = pv_asset["name"]
+        # The user explicitly provided a profile for the PV
+        if asset_name in self._datasheet.profiles:
+            return CloudCoverage.UPLOAD_PROFILE.value
+
+        # Each PV without profile must provide the parameters needed to call the Rebase API
+        missing_attributes = [
+            field
+            for field in FIELDS_REQUIRED_FOR_REBASE
+            if pv_asset.get(field) in NULL_VALUES
+        ]
+
+        if missing_attributes:
+            raise CommunityDatasheetException(
+                f'The asset "{asset_name}" does not define the following attributes: '
+                f"{missing_attributes}. Either add a profile or provide all the missing fields."
+            )
+
+        return CloudCoverage.LOCAL_GENERATION_PROFILE.value
 
     def _add_coordinates_to_assets(self):
         for member_name, assets in self._datasheet.assets_by_member.items():

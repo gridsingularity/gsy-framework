@@ -62,6 +62,12 @@ class PVValidator(BaseValidator):
                                  kwargs["max_panel_power_W"],
                                  PvSettings.MAX_PANEL_OUTPUT_W_LIMIT.max, error_message)
 
+        if kwargs.get("cloud_coverage") is not None:
+            if kwargs["cloud_coverage"] not in [4, 5] and kwargs.get("power_profile") is not None:
+                raise GSyDeviceException(
+                    {"misconfiguration": [
+                        "cloud_coverage (if values 0-3) & power_profile can't be set together."]})
+
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate rates of the device."""
