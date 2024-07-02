@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 from unittest.mock import patch, MagicMock
@@ -24,9 +25,13 @@ from pendulum import datetime, today, duration
 
 from gsy_framework.constants_limits import GlobalConfig
 from gsy_framework.utils import (
-    HomeRepresentationUtils, convert_datetime_to_ui_str_format, execute_function_util,
-    scenario_representation_traversal, sort_list_of_dicts_by_attribute, str_to_pendulum_datetime,
-    is_time_slot_in_simulation_duration
+    HomeRepresentationUtils,
+    convert_datetime_to_ui_str_format,
+    execute_function_util,
+    scenario_representation_traversal,
+    sort_list_of_dicts_by_attribute,
+    str_to_pendulum_datetime,
+    is_time_slot_in_simulation_duration,
 )
 
 
@@ -35,16 +40,22 @@ def scenario_repr_fixture():
     return {
         "name": "grid",
         "children": [
-            {"name": "S1 House", "children": [
-                {"name": "Load", "type": "Load"},
-                {"name": "Home Battery", "type": "Storage"}
-            ]},
-            {"name": "S2 House", "children": [
-                {"name": "Load", "type": "Load"},
-                {"name": "Home Battery", "type": "Storage"},
-                {"name": "Home PV", "type": "PV"}
-            ]}
-        ]
+            {
+                "name": "S1 House",
+                "children": [
+                    {"name": "Load", "type": "Load"},
+                    {"name": "Home Battery", "type": "Storage"},
+                ],
+            },
+            {
+                "name": "S2 House",
+                "children": [
+                    {"name": "Load", "type": "Load"},
+                    {"name": "Home Battery", "type": "Storage"},
+                    {"name": "Home PV", "type": "PV"},
+                ],
+            },
+        ],
     }
 
 
@@ -58,8 +69,9 @@ class TestUtils:
 
     @staticmethod
     def test_calculate_home_area_stats_from_repr_dict(scenario_repr):
-        home_count, avg_devices_per_home = \
+        home_count, avg_devices_per_home = (
             HomeRepresentationUtils.calculate_home_area_stats_from_repr_dict(scenario_repr)
+        )
         assert home_count == 2
         assert avg_devices_per_home == 2.5
 
@@ -87,6 +99,13 @@ class TestUtils:
         datetime_obj = datetime(year=2021, month=4, day=5, hour=12, minute=30)
         assert str_to_pendulum_datetime("2021-04-05T12:30") == datetime_obj
         assert str_to_pendulum_datetime("2021-04-05T12:30:00") == datetime_obj
+        # if no date in string, use the provided one
+        assert str_to_pendulum_datetime("23:00", datetime_obj) == datetime(2021, 4, 5, 23)
+        # even if date parameter is set, the date should not be changed if date is in string:
+        assert (
+            str_to_pendulum_datetime("2021-04-05T12:30:00", datetime(2000, 1, 1)) == datetime_obj
+        )
+
         datetime_obj = today(tz="UTC")
         datetime_obj = datetime_obj.set(hour=12, minute=30)
         assert str_to_pendulum_datetime("12:30") == datetime_obj
@@ -105,7 +124,8 @@ class TestUtils:
         execute_function_util(function_mock, function_name="function_mock_name")
 
         logging_mock.exception.assert_called_once_with(
-            "%s raised exception: %s.", "function_mock_name", raised_exception)
+            "%s raised exception: %s.", "function_mock_name", raised_exception
+        )
 
     @staticmethod
     def test_is_time_slot_in_simulation_duration():
