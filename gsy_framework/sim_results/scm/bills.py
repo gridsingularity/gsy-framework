@@ -1,8 +1,5 @@
 from typing import Dict
 
-from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
-from gsy_framework.sim_results.kpi_calculation_helper import (
-    KPICalculationHelper)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import scenario_representation_traversal
 
@@ -22,7 +19,6 @@ class SCMBills(ResultsBaseClass):
     @staticmethod
     def _empty_bills_dict() -> Dict:
         return {
-
             "base_energy_bill": 0.,
             "gsy_energy_bill": 0.,
             "bought_from_community": 0.,
@@ -43,12 +39,7 @@ class SCMBills(ResultsBaseClass):
             "gsy_total_benefit": 0.,
             "savings": 0.,
             "grid_fees": 0.,
-            "energy_cost_percent": 0.,
             "grid_fees_percent": 0.,
-            "tax_surcharges_percent": 0.,
-            "marketplace_fees_percent": 0.,
-            "assistance_fees_percent": 0.,
-            "fixed_fees_percent": 0.,
             "export_grid_fees": 0.,
             "fees": {},
         }
@@ -69,35 +60,8 @@ class SCMBills(ResultsBaseClass):
             if area["uuid"] not in self.bills_redis_results:
                 self.bills_redis_results[area["uuid"]] = self._empty_bills_dict()
 
-            area_bills = self.bills_redis_results[area["uuid"]]
-
-            area_bills["energy_benchmark"] = core_stats[area["uuid"]]["bills"].get(
-                "energy_benchmark", 0.)
-
-            base_energy_bill_excl_revenue = area_bills.get("base_energy_bill_excl_revenue", 0.)
-            gsy_energy_bill_excl_revenue = (
-                area_bills.get("gsy_energy_bill_excl_revenue", 0.))
-            gsy_energy_bill_excl_revenue_without_fees = area_bills.get(
-                "gsy_energy_bill_excl_revenue_without_fees", 0.)
-
-            area_bills["savings_percent"] = KPICalculationHelper().saving_percentage(
-                area_bills["savings"], base_energy_bill_excl_revenue
-            )
-
-            if gsy_energy_bill_excl_revenue > FLOATING_POINT_TOLERANCE:
-                area_bills["energy_cost_percent"] = (
-                        (gsy_energy_bill_excl_revenue_without_fees /
-                         gsy_energy_bill_excl_revenue) * 100.
-                )
-                percent_area_fees = {}
-                for fee_name, fee_value in core_stats[area["uuid"]]["bills"].get(
-                        "fees", {}).items():
-                    percent_area_fees[fee_name + "_percent"] = (
-                            fee_value / gsy_energy_bill_excl_revenue * 100.)
-                area_bills["fees"] = percent_area_fees
-
-            self.bills_redis_results[area["uuid"]] = area_bills
-            self.bills_results[area["name"]] = area_bills
+            self.bills_redis_results[area["uuid"]] = core_stats[area["uuid"]]["bills"]
+            self.bills_results[area["name"]] = core_stats[area["uuid"]]["bills"]
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         self.bills_redis_results[area_dict["uuid"]] = last_known_state_data
