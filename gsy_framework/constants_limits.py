@@ -280,7 +280,6 @@ class GlobalConfig:
     TICK_LENGTH_S = 15
     DURATION_D = 1
     MARKET_COUNT = 1
-    CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     POWER_FLOW = False
@@ -294,7 +293,6 @@ class GlobalConfig:
     tick_length = duration(seconds=TICK_LENGTH_S)
     ticks_per_slot = int(slot_length / tick_length)
     total_ticks = int(sim_duration / tick_length)
-    cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     grid_fee_type = ConstSettings.MASettings.GRID_FEE_TYPE
     # Allow orders to contain additional requirements and attributes
