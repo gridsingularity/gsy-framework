@@ -44,7 +44,9 @@ class ResultsHandler:
         else:
             self.results_mapping["bills"] = MarketEnergyBills(should_export_plots)
             self.results_mapping["market_summary"] = MarketSummaryInfo(should_export_plots)
-            self.results_mapping["imported_exported_energy"] = ImportedExportedEnergyHandler()
+            self.results_mapping["imported_exported_energy"] = ImportedExportedEnergyHandler(
+                should_export_plots
+            )
 
         self._total_memory_utilization_kb = 0.0
 
