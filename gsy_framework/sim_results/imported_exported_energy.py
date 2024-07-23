@@ -8,12 +8,12 @@ from gsy_framework.utils import add_or_create_key
 class ImportedExportedEnergyHandler(ResultsBaseClass):
     """Class that calculates imported and exported energy results"""
 
-    def __init__(self):
+    def __init__(self, should_export_plots: bool):
         self.imported_exported_energy: Dict[str, Dict[str, float]] = defaultdict(dict)
+        self.should_export_plots = should_export_plots
 
     # pylint: disable=arguments-renamed
     def update(self, area_dict: Dict, core_stats: Dict, _current_market_slot):
-
         for child_dict in area_dict["children"]:
             # loop over all communities
             if not child_dict.get("children"):
@@ -49,18 +49,19 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
     def _accumulate_imported_exported_energy(self, community_dict: Dict, core_stats: Dict):
         community_trades = core_stats.get(community_dict["uuid"], {}).get("trades", [])
         community_member_uuids = self._get_community_member_uuids(community_dict)
+        key_str = "name" if self.should_export_plots else "uuid"
         for trade in community_trades:
             if (
                 trade["buyer"]["uuid"] in community_member_uuids
                 and trade["seller"]["uuid"] in community_member_uuids
             ):
                 add_or_create_key(
-                    self.imported_exported_energy[trade["buyer"]["uuid"]],
+                    self.imported_exported_energy[trade["buyer"][key_str]],
                     "imported_from_community",
                     trade["energy"],
                 )
                 add_or_create_key(
-                    self.imported_exported_energy[trade["seller"]["uuid"]],
+                    self.imported_exported_energy[trade["seller"][key_str]],
                     "exported_to_community",
                     trade["energy"],
                 )
@@ -69,7 +70,7 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
                 and trade["seller"]["uuid"] not in community_member_uuids
             ):
                 add_or_create_key(
-                    self.imported_exported_energy[trade["buyer"]["uuid"]],
+                    self.imported_exported_energy[trade["buyer"][key_str]],
                     "imported_from_grid",
                     trade["energy"],
                 )
@@ -78,9 +79,7 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
                 and trade["buyer"]["uuid"] not in community_member_uuids
             ):
                 add_or_create_key(
-                    self.imported_exported_energy[trade["seller"]["uuid"]],
+                    self.imported_exported_energy[trade["seller"][key_str]],
                     "exported_to_grid",
                     trade["energy"],
                 )
-            else:
-                raise AssertionError("Should never reach this point")
