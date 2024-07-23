@@ -36,7 +36,6 @@ class ResultsHandler:
             "trade_profile": EnergyTradeProfile(should_export_plots),
             "area_throughput": AreaThroughputStats(),
             "assets_info": SimulationAssetsInfo(),
-            "imported_exported_energy": ImportedExportedEnergyHandler(),
         }
 
         if is_scm:
@@ -45,6 +44,7 @@ class ResultsHandler:
         else:
             self.results_mapping["bills"] = MarketEnergyBills(should_export_plots)
             self.results_mapping["market_summary"] = MarketSummaryInfo(should_export_plots)
+            self.results_mapping["imported_exported_energy"] = ImportedExportedEnergyHandler()
 
         self._total_memory_utilization_kb = 0.0
 
