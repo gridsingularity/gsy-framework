@@ -4,16 +4,27 @@ from typing import Dict
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import add_or_create_key
 
+ENERGY_STAT_FIELDS = {
+    "imported_from_community",
+    "imported_from_grid",
+    "exported_to_community",
+    "exported_to_grid",
+}
+
 
 class ImportedExportedEnergyHandler(ResultsBaseClass):
     """Class that calculates imported and exported energy results"""
 
     def __init__(self, should_export_plots: bool):
-        self.imported_exported_energy: Dict[str, Dict[str, float]] = defaultdict(dict)
+        self._init_results_dict()
         self.should_export_plots = should_export_plots
+        self.key_str = "name" if self.should_export_plots else "uuid"
 
     # pylint: disable=arguments-renamed
     def update(self, area_dict: Dict, core_stats: Dict, _current_market_slot):
+        if not self.should_export_plots:
+            # do not accumulate over timestamps for the gsy-web path
+            self._init_results_dict()
         for child_dict in area_dict["children"]:
             # loop over all communities
             if not child_dict.get("children"):
@@ -37,18 +48,34 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
         """No need for this as no state is needed"""
 
+    def _init_results_dict(self):
+        self.imported_exported_energy: Dict[str, Dict[str, float]] = defaultdict(dict)
+
     @staticmethod
-    def _get_community_member_uuids(community_dict: Dict):
-        community_member_uuids = []
+    def _get_member_uuid_name_mapping(community_dict: Dict) -> Dict:
+        member_uuid_names = {}
         for child_dict in community_dict["children"]:
             if not child_dict.get("children"):
                 continue
-            community_member_uuids.append(child_dict["uuid"])
-        return community_member_uuids
+            member_uuid_names[child_dict["uuid"]] = child_dict["name"]
+        return member_uuid_names
+
+    def _prepopulate_results_dict_with_zeros(self, member_uuid_name_mapping: Dict):
+        members = (
+            member_uuid_name_mapping.values()
+            if self.should_export_plots
+            else member_uuid_name_mapping.keys()
+        )
+        for member_key in members:
+            for stat_key in ENERGY_STAT_FIELDS:
+                if stat_key not in self.imported_exported_energy[member_key]:
+                    self.imported_exported_energy[member_key][stat_key] = 0
 
     def _accumulate_imported_exported_energy(self, community_dict: Dict, core_stats: Dict):
         community_trades = core_stats.get(community_dict["uuid"], {}).get("trades", [])
-        community_member_uuids = self._get_community_member_uuids(community_dict)
+        member_uuid_name_mapping = self._get_member_uuid_name_mapping(community_dict)
+        self._prepopulate_results_dict_with_zeros(member_uuid_name_mapping)
+        community_member_uuids = member_uuid_name_mapping.keys()
         key_str = "name" if self.should_export_plots else "uuid"
         for trade in community_trades:
             if (

@@ -83,11 +83,13 @@ class TestImportedExportedEnergyHandler:
                 "exported_to_community": 0.4,
                 "imported_from_community": 0.3,
                 "imported_from_grid": 0.5,
+                "exported_to_grid": 0,
             },
             self.house1_uuid: {
                 "exported_to_community": 0.3,
                 "exported_to_grid": 0.6,
                 "imported_from_community": 0.4,
+                "imported_from_grid": 0,
             },
         }
 
@@ -100,10 +102,12 @@ class TestImportedExportedEnergyHandler:
                 "exported_to_community": 0.4,
                 "imported_from_community": 0.3,
                 "imported_from_grid": 0.5,
+                "exported_to_grid": 0,
             },
             self.house1_name: {
                 "exported_to_community": 0.3,
                 "exported_to_grid": 0.6,
                 "imported_from_community": 0.4,
+                "imported_from_grid": 0,
             },
         }
