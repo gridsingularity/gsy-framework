@@ -10,9 +10,8 @@ class TestImportedExportedEnergyHandler:
 
     def setup_method(self):
         grid_uuid = str(uuid.uuid4())
-        mm_name = "Infinite Bus"
-        mm_uuid = str(uuid.uuid4())
         self.community_uuid = str(uuid.uuid4())
+        self.community_name = "Community"
         self.house1_name = "House 1"
         self.house1_uuid = str(uuid.uuid4())
         self.house2_name = "House 2"
@@ -23,7 +22,7 @@ class TestImportedExportedEnergyHandler:
             "uuid": grid_uuid,
             "type": "Area",
             "children": [
-                {"name": "InfiniteBus", "type": mm_name, "uuid": mm_uuid},
+                {"name": "InfiniteBus", "type": "Infinite Bus", "uuid": str(uuid.uuid4())},
                 {
                     "name": "Community",
                     "type": "Area",
@@ -61,13 +60,13 @@ class TestImportedExportedEnergyHandler:
                         "energy": 0.4,
                     },
                     {
-                        "seller": {"name": mm_name, "uuid": mm_uuid},
+                        "seller": {"name": self.community_name, "uuid": self.community_uuid},
                         "buyer": {"name": self.house2_name, "uuid": self.house2_uuid},
                         "energy": 0.5,
                     },
                     {
                         "seller": {"name": self.house1_name, "uuid": self.house1_uuid},
-                        "buyer": {"name": mm_name, "uuid": mm_uuid},
+                        "buyer": {"name": self.community_name, "uuid": self.community_uuid},
                         "energy": 0.6,
                     },
                 ],

@@ -63,7 +63,8 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
                     self.imported_exported_energy[member_key][stat_key] = 0
 
     def _accumulate_imported_exported_energy(self, community_dict: Dict, core_stats: Dict):
-        community_trades = core_stats.get(community_dict["uuid"], {}).get("trades", [])
+        community_uuid = community_dict["uuid"]
+        community_trades = core_stats.get(community_uuid, {}).get("trades", [])
         member_uuid_name_mapping = HomeRepresentationUtils.get_member_uuid_name_mapping(
             community_dict
         )
@@ -87,7 +88,7 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
                 )
             elif (
                 trade["buyer"]["uuid"] in community_member_uuids
-                and trade["seller"]["uuid"] not in community_member_uuids
+                and trade["seller"]["uuid"] == community_uuid
             ):
                 add_or_create_key(
                     self.imported_exported_energy[trade["buyer"][key_str]],
@@ -96,7 +97,7 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
                 )
             elif (
                 trade["seller"]["uuid"] in community_member_uuids
-                and trade["buyer"]["uuid"] not in community_member_uuids
+                and trade["buyer"]["uuid"] == community_uuid
             ):
                 add_or_create_key(
                     self.imported_exported_energy[trade["seller"][key_str]],
