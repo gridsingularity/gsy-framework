@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import Dict
 
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
-from gsy_framework.utils import add_or_create_key
+from gsy_framework.utils import add_or_create_key, HomeRepresentationUtils
 
 ENERGY_STAT_FIELDS = {
     "imported_from_community",
@@ -51,15 +51,6 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
     def _init_results_dict(self):
         self.imported_exported_energy: Dict[str, Dict[str, float]] = defaultdict(dict)
 
-    @staticmethod
-    def _get_member_uuid_name_mapping(community_dict: Dict) -> Dict:
-        member_uuid_names = {}
-        for child_dict in community_dict["children"]:
-            if not child_dict.get("children"):
-                continue
-            member_uuid_names[child_dict["uuid"]] = child_dict["name"]
-        return member_uuid_names
-
     def _prepopulate_results_dict_with_zeros(self, member_uuid_name_mapping: Dict):
         members = (
             member_uuid_name_mapping.values()
@@ -73,7 +64,9 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
 
     def _accumulate_imported_exported_energy(self, community_dict: Dict, core_stats: Dict):
         community_trades = core_stats.get(community_dict["uuid"], {}).get("trades", [])
-        member_uuid_name_mapping = self._get_member_uuid_name_mapping(community_dict)
+        member_uuid_name_mapping = HomeRepresentationUtils.get_member_uuid_name_mapping(
+            community_dict
+        )
         self._prepopulate_results_dict_with_zeros(member_uuid_name_mapping)
         community_member_uuids = member_uuid_name_mapping.keys()
         key_str = "name" if self.should_export_plots else "uuid"
