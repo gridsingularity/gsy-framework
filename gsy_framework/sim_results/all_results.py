@@ -5,20 +5,17 @@ from typing import Dict
 
 from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
 from gsy_framework.sim_results.bills import CumulativeBills, MarketEnergyBills
-from gsy_framework.sim_results.cumulative_grid_trades import (
-    CumulativeGridTrades)
-from gsy_framework.sim_results.cumulative_net_energy_flow import (
-    CumulativeNetEnergyFlow)
+from gsy_framework.sim_results.cumulative_grid_trades import CumulativeGridTrades
+from gsy_framework.sim_results.cumulative_net_energy_flow import CumulativeNetEnergyFlow
 from gsy_framework.sim_results.device_statistics import DeviceStatistics
 from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
 from gsy_framework.sim_results.kpi import KPI
-from gsy_framework.sim_results.market_price_energy_day import (
-    MarketPriceEnergyDay)
+from gsy_framework.sim_results.market_price_energy_day import MarketPriceEnergyDay
 from gsy_framework.sim_results.market_summary_info import MarketSummaryInfo
 from gsy_framework.sim_results.scm.bills import SCMBills
 from gsy_framework.sim_results.scm.kpi import SCMKPI
-from gsy_framework.sim_results.simulation_assets_info import (
-    SimulationAssetsInfo)
+from gsy_framework.sim_results.simulation_assets_info import SimulationAssetsInfo
+from gsy_framework.sim_results.imported_exported_energy import ImportedExportedEnergyHandler
 
 
 class ResultsHandler:
@@ -38,7 +35,7 @@ class ResultsHandler:
             "device_statistics": DeviceStatistics(should_export_plots),
             "trade_profile": EnergyTradeProfile(should_export_plots),
             "area_throughput": AreaThroughputStats(),
-            "assets_info": SimulationAssetsInfo()
+            "assets_info": SimulationAssetsInfo(),
         }
 
         if is_scm:
@@ -47,43 +44,52 @@ class ResultsHandler:
         else:
             self.results_mapping["bills"] = MarketEnergyBills(should_export_plots)
             self.results_mapping["market_summary"] = MarketSummaryInfo(should_export_plots)
+            self.results_mapping["imported_exported_energy"] = ImportedExportedEnergyHandler(
+                should_export_plots
+            )
 
         self._total_memory_utilization_kb = 0.0
 
     @property
     def _results_name_to_db_name_mapping(self):
-        mapping = {
-            k: k for k in self.results_mapping
-        }
-        mapping.update({
-            "bills": "price_energy_area_balance",
-            "trade_profile": "energy_trade_profile",
-            "area_throughput_stats": "area_throughput",
-        })
+        mapping = {k: k for k in self.results_mapping}
+        mapping.update(
+            {
+                "bills": "price_energy_area_balance",
+                "trade_profile": "energy_trade_profile",
+                "area_throughput_stats": "area_throughput",
+            }
+        )
         return mapping
 
     def _update_memory_utilization(self):
         start_time = time()
-        self._total_memory_utilization_kb = sum([
-            v.memory_allocation_size_kb()
-            for k, v in self.results_mapping.items()
-        ])
+        self._total_memory_utilization_kb = sum(
+            [v.memory_allocation_size_kb() for k, v in self.results_mapping.items()]
+        )
         end_time = time()
-        logging.info("Memory allocation calculation lasted %s. Total allocated memory %s",
-                     end_time - start_time, self._total_memory_utilization_kb)
+        logging.info(
+            "Memory allocation calculation lasted %s. Total allocated memory %s",
+            end_time - start_time,
+            self._total_memory_utilization_kb,
+        )
 
     def update(self, area_dict: Dict, core_stats: Dict, current_market_slot: str):
         """Update all simulation results. Should be called after every market cycle."""
         for area_uuid, area_result in core_stats.items():
-            self.bids_offers_trades[area_uuid] = \
-                {k: area_result.get(k, []) for k in ("offers", "bids", "trades")}
+            self.bids_offers_trades[area_uuid] = {
+                k: area_result.get(k, []) for k in ("offers", "bids", "trades")
+            }
         for result_object in self.results_mapping.values():
             try:
                 result_object.update(area_dict, core_stats, current_market_slot)
-            except Exception as ex:
+            except Exception as ex:  # pylint: disable=broad-except
                 logging.error(
                     "Result calculation failed on market slot %s with error %s, %s",
-                    current_market_slot, str(ex), traceback.format_exc())
+                    current_market_slot,
+                    str(ex),
+                    traceback.format_exc(),
+                )
 
         self._update_memory_utilization()
 
@@ -94,8 +100,9 @@ class ResultsHandler:
         for result_object in self.results_mapping.values():
             result_object.update_from_repr(area_representation)
 
-    def restore_area_results_state(self, config_tree, area_results_map,
-                                   cumulative_grid_fees=None, assets_info=None):
+    def restore_area_results_state(
+        self, config_tree, area_results_map, cumulative_grid_fees=None, assets_info=None
+    ):
         """Restore all area results from the state persisted to the DB."""
         if cumulative_grid_fees is not None:
             self.results_mapping["bills"].restore_cumulative_fees_whole_sim(cumulative_grid_fees)
@@ -107,9 +114,7 @@ class ResultsHandler:
                 db_field_name = self._results_name_to_db_name_mapping[k]
                 if db_field_name not in area_results:
                     continue
-                result_object.restore_area_results_state(
-                    config_tree, area_results[db_field_name]
-                )
+                result_object.restore_area_results_state(config_tree, area_results[db_field_name])
 
         for child in config_tree["children"]:
             self.restore_area_results_state(child, area_results_map)
@@ -117,18 +122,12 @@ class ResultsHandler:
     @property
     def all_raw_results(self) -> Dict:
         """Get all results in raw format."""
-        return {
-            k: v.raw_results
-            for k, v in self.results_mapping.items()
-        }
+        return {k: v.raw_results for k, v in self.results_mapping.items()}
 
     @property
     def all_ui_results(self) -> Dict:
         """Get all results in format to be consumed by the UI."""
-        return {
-            k: v.ui_formatted_results
-            for k, v in self.results_mapping.items()
-        }
+        return {k: v.ui_formatted_results for k, v in self.results_mapping.items()}
 
     @property
     def all_db_results(self) -> Dict:
@@ -139,10 +138,11 @@ class ResultsHandler:
         }
         results["bids_offers_trades"] = self.bids_offers_trades
         if not self._is_scm:
-            results["cumulative_market_fees"] = \
-                self.results_mapping["bills"].cumulative_fee_all_markets_whole_sim
+            results["cumulative_market_fees"] = self.results_mapping[
+                "bills"
+            ].cumulative_fee_all_markets_whole_sim
         else:
-            results["cumulative_market_fees"] = 0.
+            results["cumulative_market_fees"] = 0.0
         return results
 
     @property

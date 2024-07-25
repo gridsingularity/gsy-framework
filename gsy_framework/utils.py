@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import gc
 import json
 import logging
@@ -35,9 +36,19 @@ from redis.exceptions import ConnectionError  # pylint: disable=redefined-builti
 
 from gsy_framework import NULL_VALUES
 from gsy_framework.constants_limits import (
-    DATE_TIME_FORMAT, DATE_TIME_FORMAT_HOURS, DATE_TIME_FORMAT_SECONDS, DATE_TIME_UI_FORMAT,
-    DEFAULT_PRECISION, PROFILE_EXPANSION_DAYS, TIME_FORMAT, TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS,
-    TIME_ZONE, GlobalConfig, ConstSettings)
+    DATE_TIME_FORMAT,
+    DATE_TIME_FORMAT_HOURS,
+    DATE_TIME_FORMAT_SECONDS,
+    DATE_TIME_UI_FORMAT,
+    DEFAULT_PRECISION,
+    PROFILE_EXPANSION_DAYS,
+    TIME_FORMAT,
+    TIME_FORMAT_HOURS,
+    TIME_FORMAT_SECONDS,
+    TIME_ZONE,
+    GlobalConfig,
+    ConstSettings,
+)
 
 
 def execute_function_util(function: callable, function_name: str):
@@ -69,8 +80,12 @@ def convert_datetime_to_str_in_list(in_list: List, ui_format: bool = False):
     return out_list
 
 
-def generate_market_slot_list_from_config(sim_duration: duration, start_timestamp: DateTime,
-                                          slot_length: duration, ignore_duration_check=False):
+def generate_market_slot_list_from_config(
+    sim_duration: duration,
+    start_timestamp: DateTime,
+    slot_length: duration,
+    ignore_duration_check=False,
+):
     """
     Returns a list of all slot times in Datetime format.
 
@@ -85,11 +100,13 @@ def generate_market_slot_list_from_config(sim_duration: duration, start_timestam
     Returns: List with market slot datetimes
     """
     return [
-        start_timestamp + (slot_length * i) for i in range(
-            (sim_duration + slot_length) //
-            slot_length - 1)
-        if (ignore_duration_check or
-            is_time_slot_in_simulation_duration(start_timestamp + (slot_length * i)))]
+        start_timestamp + (slot_length * i)
+        for i in range((sim_duration + slot_length) // slot_length - 1)
+        if (
+            ignore_duration_check
+            or is_time_slot_in_simulation_duration(start_timestamp + (slot_length * i))
+        )
+    ]
 
 
 def generate_market_slot_list(start_timestamp=None):
@@ -98,23 +115,26 @@ def generate_market_slot_list(start_timestamp=None):
     No input arguments, required input is only handled by a preconfigured GlobalConfig
     @return: List with market slot datetimes
     """
-    time_span = (GlobalConfig.slot_length
-                 if GlobalConfig.is_canary_network()
-                 else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS)))
+    time_span = (
+        GlobalConfig.slot_length
+        if GlobalConfig.is_canary_network()
+        else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
+    )
     time_span += duration(hours=ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS)
-    market_slot_list = \
-        generate_market_slot_list_from_config(sim_duration=time_span,
-                                              start_timestamp=start_timestamp
-                                              if start_timestamp else GlobalConfig.start_date,
-                                              slot_length=GlobalConfig.slot_length)
+    market_slot_list = generate_market_slot_list_from_config(
+        sim_duration=time_span,
+        start_timestamp=start_timestamp if start_timestamp else GlobalConfig.start_date,
+        slot_length=GlobalConfig.slot_length,
+    )
 
     if not getattr(GlobalConfig, "market_slot_list", []):
         GlobalConfig.market_slot_list = market_slot_list
     return market_slot_list
 
 
-def get_from_profile_same_weekday_and_time(indict: Dict, time_slot: DateTime,
-                                           ignore_not_found: bool = False):
+def get_from_profile_same_weekday_and_time(
+    indict: Dict, time_slot: DateTime, ignore_not_found: bool = False
+):
     """
     Based on a profile with datetimes that span in one week as keys and some values, finds the
     corresponding value of the same weekday and time. This method is mainly useful for Canary
@@ -135,8 +155,13 @@ def get_from_profile_same_weekday_and_time(indict: Dict, time_slot: DateTime,
     if add_days < 0:
         add_days += 7
     timestamp_key = datetime(
-        year=start_time.year, month=start_time.month, day=start_time.day, hour=time_slot.hour,
-        minute=time_slot.minute, tz=TIME_ZONE).add(days=add_days)
+        year=start_time.year,
+        month=start_time.month,
+        day=start_time.day,
+        hour=time_slot.hour,
+        minute=time_slot.minute,
+        tz=TIME_ZONE,
+    ).add(days=add_days)
 
     if timestamp_key in indict:
         return indict[timestamp_key]
@@ -258,8 +283,10 @@ def convert_pendulum_to_str_in_dict(indict, outdict=None, ui_format=False, unix_
         elif isinstance(value, DateTime):
             outdict[key] = format_datetime(value, ui_format, unix_time)
         elif isinstance(value, list):
-            outdict[key] = [convert_pendulum_to_str_in_dict(element, {}, ui_format, unix_time)
-                            for element in indict[key]]
+            outdict[key] = [
+                convert_pendulum_to_str_in_dict(element, {}, ui_format, unix_time)
+                for element in indict[key]
+            ]
         elif isinstance(value, dict):
             outdict[key] = {}
             convert_pendulum_to_str_in_dict(indict[key], outdict[key], ui_format, unix_time)
@@ -328,8 +355,9 @@ def check_redis_health(redis_db):
 # pylint: disable=dangerous-default-value
 def get_area_name_uuid_mapping(serialized_scenario, mapping={}):
     """Return the mapping between area names and their UUIDs."""
-    if key_in_dict_and_not_none(serialized_scenario, "name") and \
-            key_in_dict_and_not_none(serialized_scenario, "uuid"):
+    if key_in_dict_and_not_none(serialized_scenario, "name") and key_in_dict_and_not_none(
+        serialized_scenario, "uuid"
+    ):
         mapping.update({serialized_scenario["name"]: serialized_scenario["uuid"]})
     if key_in_dict_and_not_none(serialized_scenario, "children"):
         for child in serialized_scenario["children"]:
@@ -434,7 +462,7 @@ def utf8len(string: str) -> int:
 
 def get_json_dict_memory_allocation_size(json_dict: Dict):
     """Return the memory allocation of the provided dictionary."""
-    return utf8len(json.dumps(json_dict)) / 1024.
+    return utf8len(json.dumps(json_dict)) / 1024.0
 
 
 def area_name_from_area_or_ma_name(name: str) -> str:
@@ -448,15 +476,17 @@ def area_name_from_area_or_ma_name(name: str) -> str:
 def area_bought_from_child(trade: dict, area_name: str, child_names: list):
     """Check if the area with the given name bought energy from one of its children."""
     return (
-            area_name_from_area_or_ma_name(trade["buyer"]["name"]) == area_name
-            and area_name_from_area_or_ma_name(trade["seller"]["name"]) in child_names)
+        area_name_from_area_or_ma_name(trade["buyer"]["name"]) == area_name
+        and area_name_from_area_or_ma_name(trade["seller"]["name"]) in child_names
+    )
 
 
 def area_sells_to_child(trade: dict, area_name: str, child_names: list):
     """Check if the area with the given name sold energy to one of its children."""
     return (
-            area_name_from_area_or_ma_name(trade["seller"]["name"]) == area_name
-            and area_name_from_area_or_ma_name(trade["buyer"]["name"]) in child_names)
+        area_name_from_area_or_ma_name(trade["seller"]["name"]) == area_name
+        and area_name_from_area_or_ma_name(trade["buyer"]["name"]) in child_names
+    )
 
 
 # pylint: disable=invalid-name
@@ -513,21 +543,29 @@ class HomeRepresentationUtils:
 
     @staticmethod
     def _is_home(representation):
-        home_devices = ["PV", "Storage", "Load", "MarketMaker", "HeatPump", "WindTurbine",
-                        "SmartMeter"]
-        return all("type" in c and c["type"] in home_devices
-                   for c in representation["children"])
+        home_devices = [
+            "PV",
+            "Storage",
+            "Load",
+            "MarketMaker",
+            "HeatPump",
+            "WindTurbine",
+            "SmartMeter",
+        ]
+        return all("type" in c and c["type"] in home_devices for c in representation["children"])
 
     @classmethod
     def is_home_area(cls, representation: Dict) -> bool:
         """Check if the representation is a market."""
         is_market_area = (
-                not key_in_dict_and_not_none(representation, "type")
-                or representation["type"] == "Area")
+            not key_in_dict_and_not_none(representation, "type")
+            or representation["type"] == "Area"
+        )
         has_home_assets = (
-                key_in_dict_and_not_none(representation, "children")
-                and representation["children"]
-                and cls._is_home(representation))
+            key_in_dict_and_not_none(representation, "children")
+            and representation["children"]
+            and cls._is_home(representation)
+        )
 
         return is_market_area and has_home_assets
 
@@ -540,6 +578,15 @@ class HomeRepresentationUtils:
             if cls.is_home_area(area)
         ]
         return len(devices_per_home), mean(devices_per_home) if devices_per_home else None
+
+    @staticmethod
+    def get_member_uuid_name_mapping(community_dict: Dict) -> Dict:
+        member_uuid_names = {}
+        for child_dict in community_dict["children"]:
+            if not child_dict.get("children"):
+                continue
+            member_uuid_names[child_dict["uuid"]] = child_dict["name"]
+        return member_uuid_names
 
 
 def sort_list_of_dicts_by_attribute(input_list: List[Dict], attribute: str, reverse_order=False):
@@ -555,9 +602,7 @@ def sort_list_of_dicts_by_attribute(input_list: List[Dict], attribute: str, reve
     """
     if reverse_order:
         # Sorted bids in descending order
-        return list(
-            reversed(
-                sorted(input_list, key=lambda obj: obj.get(attribute))))
+        return list(reversed(sorted(input_list, key=lambda obj: obj.get(attribute))))
 
     # Sorted bids in ascending order
     return sorted(input_list, key=lambda obj: obj.get(attribute))
@@ -569,7 +614,8 @@ def convert_datetime_to_ui_str_format(data_time):
 
 
 def is_time_slot_in_simulation_duration(
-        time_slot: DateTime, config: "GlobalConfig" = None) -> bool:
+    time_slot: DateTime, config: "GlobalConfig" = None
+) -> bool:
     """
         Check whether a specific timeslot is inside the range of the simulation duration.
 
@@ -599,7 +645,8 @@ def is_valid_uuid(uuid: str) -> bool:
     return True
 
 
-def use_default_if_null(input_value: Union[int, str, float], default_value: Union[int, str, float]
-                        ) -> Union[int, str, float]:
+def use_default_if_null(
+    input_value: Union[int, str, float], default_value: Union[int, str, float]
+) -> Union[int, str, float]:
     """Return input_value if not null, else return provided default_value"""
     return input_value if input_value not in NULL_VALUES else default_value
