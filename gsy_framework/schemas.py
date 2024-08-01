@@ -259,8 +259,12 @@ class ScenarioSchemas:
                     "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
-                    "energy_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "max_available_power_kW": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "energy_rate": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}, {"type": "array"}]
+                    },
+                    "max_available_power_kW": {
+                        "anyOf": [{"type": "number"}, {"type": "null"}, {"type": "array"}]
+                    },
                 },
             },
             "heat_pump": {
