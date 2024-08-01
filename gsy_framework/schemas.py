@@ -281,7 +281,7 @@ class ScenarioSchemas:
                     "min_temp_C": {"type": "number"},
                     "max_temp_C": {"type": "number"},
                     "initial_temp_C": {"type": "number"},
-                    "external_temp_C": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+                    "source_temp_C": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "external_temp_profile_uuid": {
                         "anyOf": [{"type": "string"}, {"type": "null"}]
                     },
