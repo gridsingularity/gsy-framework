@@ -55,7 +55,7 @@ class ResultsHandler:
         mapping = {k: k for k in self.results_mapping}
         mapping.update(
             {
-                "bills": "price_energy_area_balance",
+                # "bills": "price_energy_area_balance",
                 "trade_profile": "energy_trade_profile",
                 "area_throughput_stats": "area_throughput",
             }
