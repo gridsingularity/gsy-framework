@@ -50,18 +50,6 @@ class ResultsHandler:
 
         self._total_memory_utilization_kb = 0.0
 
-    @property
-    def _results_name_to_db_name_mapping(self):
-        mapping = {k: k for k in self.results_mapping}
-        mapping.update(
-            {
-                "bills": "price_energy_area_balance",
-                "trade_profile": "energy_trade_profile",
-                "area_throughput_stats": "area_throughput",
-            }
-        )
-        return mapping
-
     def _update_memory_utilization(self):
         start_time = time()
         self._total_memory_utilization_kb = sum(
@@ -110,8 +98,7 @@ class ResultsHandler:
             self.results_mapping["assets_info"].restore_assets_info(assets_info)
         if area_results_map.get(config_tree["uuid"], {}):
             area_results = area_results_map[config_tree["uuid"]]
-            for k, result_object in self.results_mapping.items():
-                db_field_name = self._results_name_to_db_name_mapping[k]
+            for db_field_name, result_object in self.results_mapping.items():
                 if db_field_name not in area_results:
                     continue
                 result_object.restore_area_results_state(config_tree, area_results[db_field_name])
@@ -132,10 +119,7 @@ class ResultsHandler:
     @property
     def all_db_results(self) -> Dict:
         """Get dict with all the results in format that can be saved to the DB."""
-        results = {
-            self._results_name_to_db_name_mapping[k]: v.ui_formatted_results
-            for k, v in self.results_mapping.items()
-        }
+        results = {k: v.ui_formatted_results for k, v in self.results_mapping.items()}
         results["bids_offers_trades"] = self.bids_offers_trades
         if not self._is_scm:
             results["cumulative_market_fees"] = self.results_mapping[
