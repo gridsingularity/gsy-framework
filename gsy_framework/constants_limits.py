@@ -202,6 +202,8 @@ class ConstSettings:
         SOURCE_TYPE = HeatPumpSourceType.AIR.value
         BUYING_RATE_RANGE = RateRange(0, 30)
         PREFERRED_BUYING_RATE = 30
+        CALIBRATION_COEFFICIENT = 0.6
+        CALIBRATION_COEFFICIENT_RANGE = RangeLimit(0, 1)
 
     class MASettings:
         """Default settings for Market Agents."""
@@ -257,8 +259,10 @@ class ConstSettings:
     class SCMSettings:
         """Default settings for the community manager."""
         GRID_FEES_REDUCTION = 0.28
+        INTRACOMMUNITY_BASE_RATE_EUR = None
         MARKET_ALGORITHM = CoefficientAlgorithm.STATIC.value
         MARKET_ALGORITHM_LIMIT = RangeLimit(1, 3)
+        HOURS_OF_DELAY = 72
 
 
 def is_no_community_self_consumption() -> bool:
@@ -276,7 +280,6 @@ class GlobalConfig:
     TICK_LENGTH_S = 15
     DURATION_D = 1
     MARKET_COUNT = 1
-    CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     POWER_FLOW = False
@@ -290,7 +293,6 @@ class GlobalConfig:
     tick_length = duration(seconds=TICK_LENGTH_S)
     ticks_per_slot = int(slot_length / tick_length)
     total_ticks = int(sim_duration / tick_length)
-    cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     grid_fee_type = ConstSettings.MASettings.GRID_FEE_TYPE
     # Allow orders to contain additional requirements and attributes
@@ -322,6 +324,7 @@ PROFILE_EXPANSION_DAYS = 7
 JWT_TOKEN_EXPIRY_IN_SECS = 48 * 3600
 
 DEFAULT_PRECISION = 8
+ENERGY_RATE_PRECISION = 5
 FLOATING_POINT_TOLERANCE = 0.00001
 
 FIELDS_REQUIRED_FOR_REBASE = ("capacity_kW", "tilt", "azimuth", "geo_tag_location")

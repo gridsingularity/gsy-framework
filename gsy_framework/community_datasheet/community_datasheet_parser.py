@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 PROFILE_KEYS_BY_TYPE = {
     "Load": "daily_load_profile",
     "PV": "power_profile",
-    "SmartMeter": "smart_meter_profile"
+    "SmartMeter": "smart_meter_profile",
+    "ScmStorage": "prosumption_kWh_profile"
 }
 
 
@@ -150,13 +151,8 @@ class CommunityDatasheetParser:
             "uuid": member_info["uuid"],
             "geo_tag_location": member_info["geo_tag_location"],
             "address": member_info["address"],
-            "grid_fee_constant": member_info["grid_fee_constant"],
             "children": assets,
             "market_maker_rate": member_info["market_maker_rate"],
             "feed_in_tariff": member_info["feed_in_tariff"],
-            "taxes_surcharges": member_info["taxes_surcharges"],
-            "fixed_monthly_fee": member_info["fixed_monthly_fee"],
-            "marketplace_monthly_fee": member_info["marketplace_monthly_fee"],
-            "assistance_monthly_fee": member_info["assistance_monthly_fee"],
             "coefficient_percentage": member_info["coefficient_percentage"],
         }

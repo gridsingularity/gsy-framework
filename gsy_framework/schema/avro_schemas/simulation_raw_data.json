@@ -15,6 +15,8 @@
         {"name": "const_fee_rate", "type": ["float", "null"]},
         {"name": "feed_in_tariff", "type": ["float", "null"]},
         {"name": "grid_fee_constant", "type": ["float", "null"]},
+        {"name": "grid_import_fee_const", "type": ["float", "null"]},
+        {"name": "grid_export_fee_const", "type": ["float", "null"]},
         {"name": "market_fee", "type": "float"},
         {"name": "market_maker_rate", "type": ["float", "null"]},
         {

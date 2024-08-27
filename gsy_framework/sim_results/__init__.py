@@ -69,6 +69,7 @@ def is_buffer_node_type(area):
 
 
 def get_unified_area_type(area):
+    # pylint: disable=too-many-return-statements
     """Return the string that identifies the type of the given area."""
     if is_pv_node_type(area):
         return "PV"
@@ -80,6 +81,8 @@ def get_unified_area_type(area):
         return "MarketMaker"
     if is_finite_power_plant_node_type(area):
         return "FinitePowerPlant"
+    if is_heatpump_node_type(area):
+        return "HeatPump"
 
     return "Area"
 

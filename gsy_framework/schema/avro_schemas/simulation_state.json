@@ -148,6 +148,56 @@
           ]
         },
         {
+          "name": "MarketMakerStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_rate",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            }
+          ]
+        },
+        {
+          "name": "FinitePowerPlantStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_rate",
+              "type": [
+                "null",
+                {
+                  "type": "map",
+                  "values": "float"
+                }
+              ]
+            },
+            {
+              "name": "max_available_power_kW",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            }
+          ]
+        },
+        {
           "name": "InfiniteBusStats",
           "type": "record",
           "fields": [
@@ -259,13 +309,6 @@
               "type": "float"
             },
             {
-              "name": "used_history",
-              "type": {
-                "type": "map",
-                "values": "string"
-              }
-            },
-            {
               "name": "charge_history",
               "type": {
                 "type": "map",
@@ -283,7 +326,10 @@
               "name": "offered_history",
               "type": {
                 "type": "map",
-                "values": "float"
+                "values": [
+                  "string",
+                  "float"
+                ]
               }
             },
             {
@@ -413,10 +459,15 @@
             },
             {
               "name": "total_traded_energy_kWh",
-              "type": {
-                "type": "map",
-                "values": "float"
-              }
+              "type": "float"
+            },
+            {
+              "name": "slot_length",
+              "type": "float"
+            },
+            {
+              "name": "min_storage_temp_C",
+              "type": "float"
             }
           ]
         }

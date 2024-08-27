@@ -84,9 +84,10 @@ class TestSolarAPIClientActive:
     @patch("gsy_framework.solar_api_clients.solar_api_client_active.today",
            lambda: datetime(2023, 1, 1))
     @pytest.mark.parametrize("requested_year, api_output_year", [
-        (2024, 2020),
+        (2028, 2020),
         (2023, 2019),
-        (2020, 2020)
+        (2020, 2020),
+        (2021, 2021),
     ])
     def test_get_solar_power_profile_returns_correct_years(
             requests_mock, default_request_parameters, requested_year, api_output_year):
@@ -135,13 +136,16 @@ class TestSolarAPIClientActive:
     def test_get_solar_power_profile_api_returns_wrong_years(requests_mock,
                                                              default_request_parameters):
         """Test if exception is raised if active solar Api returns wrong time stamps."""
+        request_start_year = 2027
+        request_end_year = 2028
         requests_mock.get(
             url=mock_api_url(datetime(2019, 12, 31, 0),
                              datetime(2020, 1, 1, 23)),
-            json=mock_api_ret_val_data(datetime(1998, 12, 31, 0),
-                                       datetime(1999, 1, 1, 23)))
+            json=mock_api_ret_val_data(datetime(request_start_year, 12, 31, 0),
+                                       datetime(request_end_year, 1, 1, 23)))
         with pytest.raises(SolarAPIClientActiveException):
-            SolarAPIClientActive(API_URL).get_solar_energy_profile(default_request_parameters,
-                                                                   datetime(2019, 12, 31),
-                                                                   datetime(2020, 1, 1),
-                                                                   duration(minutes=15))
+            SolarAPIClientActive(API_URL).get_solar_energy_profile(
+                default_request_parameters,
+                datetime(request_start_year, 12, 31),
+                datetime(request_end_year, 1, 1),
+                duration(minutes=15))

@@ -31,7 +31,8 @@ class TestCommunityDatasheetParser:
                 "address": "Am Werth 94, Wolffburg, Schleswig-Holstein, Germany",
                 "market_maker_rate": 1,
                 "feed_in_tariff": 7,
-                "grid_fee_constant": 0.3,
+                "grid_import_fee_const": 0.3,
+                "grid_export_fee_const": 0.0,
                 "taxes_surcharges": 0.5,
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
@@ -46,7 +47,8 @@ class TestCommunityDatasheetParser:
                 "address": "Heisterbachstr. 8, Ost Colin, Hamburg, Germany",
                 "market_maker_rate": 1,
                 "feed_in_tariff": 7,
-                "grid_fee_constant": 0.3,
+                "grid_import_fee_const": 0.3,
+                "grid_export_fee_const": 0.0,
                 "taxes_surcharges": 0.5,
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
@@ -125,6 +127,12 @@ class TestCommunityDatasheetParser:
             ],
         }
 
+        expected_member_dict = deepcopy(members_with_coordinates)
+        for member_name in ["Member 1", "Member 2"]:
+            expected_member_dict[member_name]["grid_export_fee_const"] = 0.
+            expected_member_dict[member_name]["name"] = ""
+        assert datasheet.members == expected_member_dict
+
         assert datasheet.grid == {
             "name": DefaultCommunityAreaNames.GRID.value,
             "allow_external_connection": False,
@@ -152,7 +160,6 @@ class TestCommunityDatasheetParser:
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
                             "address": "Am Werth 94, Wolffburg, Schleswig-Holstein, Germany",
-                            "grid_fee_constant": 0.3,
                             "children": [
                                 {
                                     "name": "Load 1",
@@ -212,21 +219,14 @@ class TestCommunityDatasheetParser:
                                 },
                                 {
                                     "name": "Battery 1",
-                                    "type": "Storage",
+                                    "type": "ScmStorage",
                                     "uuid": "mocked-uuid",
-                                    "battery_capacity_kWh": 0.7,
-                                    "min_allowed_soc": 10,
-                                    "initial_soc": 10,
-                                    "max_abs_battery_power_kW": 0.005,
+                                    "forecast_stream_id": None,
                                     "geo_tag_location": (4.137182, 48.058159),
                                 },
                             ],
                             "market_maker_rate": 1,
                             "feed_in_tariff": 7,
-                            "taxes_surcharges": 0.5,
-                            "fixed_monthly_fee": 0.5,
-                            "marketplace_monthly_fee": 0.5,
-                            "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
                             "coefficient_percentage": 0.5,
                         },
                         {
@@ -236,7 +236,6 @@ class TestCommunityDatasheetParser:
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
                             "address": "Heisterbachstr. 8, Ost Colin, Hamburg, Germany",
-                            "grid_fee_constant": 0.3,
                             "children": [
                                 {
                                     "name": "PV 3",
@@ -251,21 +250,14 @@ class TestCommunityDatasheetParser:
                                 },
                                 {
                                     "name": "Battery 2",
-                                    "type": "Storage",
+                                    "type": "ScmStorage",
                                     "uuid": "mocked-uuid",
-                                    "battery_capacity_kWh": 0.5,
-                                    "min_allowed_soc": 10,
-                                    "initial_soc": 10,
-                                    "max_abs_battery_power_kW": 0.005,
+                                    "forecast_stream_id": None,
                                     "geo_tag_location": (4.137182, 48.058159),
                                 },
                             ],
                             "market_maker_rate": 1,
                             "feed_in_tariff": 7,
-                            "taxes_surcharges": 0.5,
-                            "fixed_monthly_fee": 0.5,
-                            "marketplace_monthly_fee": 0.5,
-                            "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
                             "coefficient_percentage": 0.5,
                         },
                     ],
@@ -290,7 +282,7 @@ class TestAssetCoordinatesBuilder:
             "address": "10210 La Loge-Pomblin, France",
             "market_maker_rate": 1,
             "feed_in_tariff": 7,
-            "grid_fee_constant": None,
+            "grid_import_fee_const": None,
             "taxes": None,
             "fixed_fee": None,
             "marketplace_fee": None,

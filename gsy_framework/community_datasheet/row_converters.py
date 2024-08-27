@@ -16,6 +16,7 @@ from gsy_framework.community_datasheet.sheet_headers import (
     LoadSheetHeader, PVSheetHeader, StorageSheetHeader)
 from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.utils import use_default_if_null
+
 logger = logging.getLogger(__name__)
 
 
@@ -85,11 +86,12 @@ class MembersRowConverter:
     @classmethod
     def create_member_dict(
             cls, email: str, member_uuid: str, zip_code: str, address: str,
-            market_maker_rate: float, feed_in_tariff: float, grid_fee_constant: float,
-            taxes_surcharges: float, fixed_monthly_fee: float, marketplace_monthly_fee: float,
-            assistance_monthly_fee: float, coefficient_percentage: float,
-            geo_tag_location: List = None, asset_count: int = 0, member_name: str = None):
-        # pylint: disable=too-many-arguments
+            market_maker_rate: float, feed_in_tariff: float, grid_import_fee_const: float,
+            grid_export_fee_const: float, taxes_surcharges: float, fixed_monthly_fee: float,
+            marketplace_monthly_fee: float, assistance_monthly_fee: float,
+            coefficient_percentage: float, geo_tag_location: List = None,
+            asset_count: int = 0, member_name: str = None):
+        # pylint: disable=too-many-arguments, too-many-locals
         """Create a community member dict from individual member information."""
         zip_code = cls._parse_zip_code(zip_code)
         if not geo_tag_location:
@@ -104,7 +106,8 @@ class MembersRowConverter:
             "address": address,
             "market_maker_rate": market_maker_rate,
             "feed_in_tariff": feed_in_tariff,
-            "grid_fee_constant": grid_fee_constant,
+            "grid_import_fee_const": grid_import_fee_const,
+            "grid_export_fee_const": grid_export_fee_const,
             "taxes_surcharges": taxes_surcharges,
             "fixed_monthly_fee": fixed_monthly_fee,
             "marketplace_monthly_fee": marketplace_monthly_fee,
@@ -122,12 +125,12 @@ class MembersRowConverter:
 
         fixed_fee = row["Service fee"] if "Service fee" in row else row["Fixed fee"]
         assistance_fee = row["Assistance fee"] if "Assistance fee" in row else 0.0
-
         return cls.create_member_dict(
             row["Email"], str(uuid.uuid4()), cls._parse_zip_code(row["ZIP code"]),
             row["Location/Address (optional)"], row["Utility price"],
-            row["Feed-in Tariff"], row["Grid fee"], row["Taxes and surcharges"],
-            fixed_fee, row["Marketplace fee"], assistance_fee, row["Coefficient"])
+            row["Feed-in Tariff"], row["Grid import fee"], row["Grid export fee"],
+            row["Taxes and surcharges"], fixed_fee, row["Marketplace fee"],
+            assistance_fee, row["Coefficient"])
 
     @staticmethod
     def _parse_zip_code(zip_code: str) -> str:
@@ -153,7 +156,7 @@ class MembersRowConverter:
 
 class LoadRowConverter:
     """Convert from the excel row to a grid representation of a Load asset."""
-    OPTIONAL_FIELDS = (LoadSheetHeader.DATASTREAM_ID, )
+    OPTIONAL_FIELDS = (LoadSheetHeader.DATASTREAM_ID,)
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
@@ -201,7 +204,7 @@ class PVRowConverter:
                 row[PVSheetHeader.CAPACITY_KW], ConstSettings.PVSettings.DEFAULT_CAPACITY_KW),
             "tilt": row[PVSheetHeader.TILT],
             "azimuth": row[PVSheetHeader.AZIMUTH],
-            "forecast_stream_id": row.get(LoadSheetHeader.DATASTREAM_ID)
+            "forecast_stream_id": row.get(PVSheetHeader.DATASTREAM_ID)
         }
 
     @classmethod
@@ -218,6 +221,7 @@ class PVRowConverter:
 
 class StorageRowConverter:
     """Convert from the excel row to a grid representation of a Storage asset."""
+    OPTIONAL_FIELDS = (StorageSheetHeader.DATASTREAM_ID,)
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
@@ -226,29 +230,17 @@ class StorageRowConverter:
         """
         cls._validate_row(row)
 
-        min_allowed_soc = use_default_if_null(row[StorageSheetHeader.MINIMUM_ALLOWED_SOC],
-                                              ConstSettings.StorageSettings.MIN_ALLOWED_SOC)
-        # The community datasheet doesn't allow setting the initial SOC, so we intentionally set it
-        # to be equal to the min_allowed_soc specified by the user.
-        initial_soc = min_allowed_soc
-
         return {
             "name": row[StorageSheetHeader.BATTERY_NAME],
-            "type": "Storage",
+            "type": "ScmStorage",
             "uuid": str(uuid.uuid4()),
-            "battery_capacity_kWh": use_default_if_null(
-                row[StorageSheetHeader.CAPACITY_KWH],
-                ConstSettings.StorageSettings.CAPACITY),
-            "min_allowed_soc": min_allowed_soc,
-            "initial_soc": initial_soc,
-            "max_abs_battery_power_kW": use_default_if_null(
-                row[StorageSheetHeader.MAXIMUM_POWER_KW],
-                ConstSettings.StorageSettings.MAX_ABS_POWER)
+            "forecast_stream_id": row.get(StorageSheetHeader.DATASTREAM_ID)
         }
 
     @classmethod
     def _validate_row(cls, row: Dict):
-        missing_fields = [field for field, value in row.items() if value in NULL_VALUES]
+        missing_fields = [field for field, value in row.items()
+                          if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES]
 
         if missing_fields:
             raise CommunityDatasheetException((
