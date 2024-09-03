@@ -329,7 +329,7 @@
                   ]
                 },
                 {
-                  "name": "grid_fees",
+                  "name": "import_grid_fees",
                   "type": "float"
                 },
                 {

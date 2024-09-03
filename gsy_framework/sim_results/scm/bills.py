@@ -10,44 +10,44 @@ class SCMBills(ResultsBaseClass):
     def __init__(self):
         self.bills_results = {}
         self.bills_redis_results = {}
-        self._cumulative_fee_all_markets_whole_sim = 0.
+        self._cumulative_fee_all_markets_whole_sim = 0.0
 
     def memory_allocation_size_kb(self):
-        return self._calculate_memory_allocated_by_objects([
-            self.bills_results, self.bills_redis_results])
+        return self._calculate_memory_allocated_by_objects(
+            [self.bills_results, self.bills_redis_results]
+        )
 
     @staticmethod
     def _empty_bills_dict() -> Dict:
         return {
-            "base_energy_bill": 0.,
-            "gsy_energy_bill": 0.,
-            "bought_from_community": 0.,
-            "spent_to_community": 0.,
-            "bought_from_grid": 0.,
-            "spent_to_grid": 0.,
-            "sold_to_grid": 0.,
-            "sold_to_community": 0.,
-            "earned_from_grid": 0.,
-            "earned_from_community": 0.,
-            "home_balance_kWh": 0.,
-            "home_balance": 0.,
-            "base_energy_bill_excl_revenue": 0.,
-            "gsy_energy_bill_excl_revenue": 0.,
-            "gsy_energy_bill_excl_revenue_without_fees": 0.,
-            "gsy_energy_bill_revenue": 0.,
-            "gsy_energy_bill_excl_fees": 0.,
-            "gsy_total_benefit": 0.,
-            "savings": 0.,
-            "grid_fees": 0.,
-            "grid_fees_percent": 0.,
-            "export_grid_fees": 0.,
+            "base_energy_bill": 0.0,
+            "gsy_energy_bill": 0.0,
+            "bought_from_community": 0.0,
+            "spent_to_community": 0.0,
+            "bought_from_grid": 0.0,
+            "spent_to_grid": 0.0,
+            "sold_to_grid": 0.0,
+            "sold_to_community": 0.0,
+            "earned_from_grid": 0.0,
+            "earned_from_community": 0.0,
+            "home_balance_kWh": 0.0,
+            "home_balance": 0.0,
+            "base_energy_bill_excl_revenue": 0.0,
+            "gsy_energy_bill_excl_revenue": 0.0,
+            "gsy_energy_bill_excl_revenue_without_fees": 0.0,
+            "gsy_energy_bill_revenue": 0.0,
+            "gsy_energy_bill_excl_fees": 0.0,
+            "gsy_total_benefit": 0.0,
+            "savings": 0.0,
+            "grid_fees": 0.0,
+            "grid_fees_percent": 0.0,
+            "export_grid_fees": 0.0,
             "fees": {},
         }
 
     def update(self, area_result_dict, core_stats, current_market_slot):
         """SCM bills are not accumulative"""
-        if not self._has_update_parameters(
-                area_result_dict, core_stats, current_market_slot):
+        if not self._has_update_parameters(area_result_dict, core_stats, current_market_slot):
             return
 
         for area, _ in scenario_representation_traversal(area_result_dict):
@@ -75,7 +75,8 @@ class SCMBills(ResultsBaseClass):
     @staticmethod
     def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
         raise NotImplementedError(
-            "Bills endpoint supports only global results, merge not supported.")
+            "Bills endpoint supports only global results, merge not supported."
+        )
 
     @property
     def raw_results(self):

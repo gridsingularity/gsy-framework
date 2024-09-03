@@ -168,6 +168,36 @@
           ]
         },
         {
+          "name": "FinitePowerPlantStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_rate",
+              "type": [
+                "null",
+                {
+                  "type": "map",
+                  "values": "float"
+                }
+              ]
+            },
+            {
+              "name": "max_available_power_kW",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            }
+          ]
+        },
+        {
           "name": "InfiniteBusStats",
           "type": "record",
           "fields": [
@@ -296,7 +326,10 @@
               "name": "offered_history",
               "type": {
                 "type": "map",
-                "values": ["string", "float"]
+                "values": [
+                  "string",
+                  "float"
+                ]
               }
             },
             {

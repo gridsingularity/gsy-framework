@@ -17,43 +17,52 @@ class HeatPumpValidator(BaseValidator):
         cls._validate_profiles(**kwargs)
 
         cls._check_range(
-            name="tank_volume_l", value=kwargs["tank_volume_l"],
+            name="tank_volume_l",
+            value=kwargs["tank_volume_l"],
             min_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.min,
-            max_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.max)
+            max_value=HeatPumpSettings.TANK_VOLUME_L_LIMIT.max,
+        )
 
     @classmethod
     def _validate_profiles(cls, **kwargs):
         """Validate profile arguments."""
-        if (kwargs.get("consumption_kWh_profile") is None and
-                kwargs.get("consumption_kWh_profile_uuid") is None):
+        if (
+            kwargs.get("consumption_kWh_profile") is None
+            and kwargs.get("consumption_kWh_profile_uuid") is None
+        ):
             raise GSyDeviceException(
-                {"misconfiguration": [
-                    "consumption_kWh_profile should be provided."]})
+                {"misconfiguration": ["consumption_kWh_profile should be provided."]}
+            )
 
-        if (kwargs.get("external_temp_C_profile") is None and
-                kwargs.get("external_temp_C_profile_uuid") is None):
+        if (
+            kwargs.get("source_temp_C_profile") is None
+            and kwargs.get("source_temp_C_profile_uuid") is None
+        ):
             raise GSyDeviceException(
-                {"misconfiguration": [
-                    "external_temp_C_profile should be provided."]})
+                {"misconfiguration": ["source_temp_C_profile should be provided."]}
+            )
 
     @classmethod
     def _validate_energy(cls, **kwargs):
         """Validate energy related arguments."""
         cls._check_range(
-            name="maximum_power_rating_kW", value=kwargs["maximum_power_rating_kW"],
+            name="maximum_power_rating_kW",
+            value=kwargs["maximum_power_rating_kW"],
             min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
-            max_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max)
+            max_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max,
+        )
 
     @classmethod
     def _validate_temp(cls, **kwargs):
         """Validate temperature related arguments."""
-        temperature_arg_names = [
-            "min_temp_C", "max_temp_C", "initial_temp_C"]
+        temperature_arg_names = ["min_temp_C", "max_temp_C", "initial_temp_C"]
         for temperature_arg_name in temperature_arg_names:
             cls._check_range(
-                name=temperature_arg_name, value=kwargs[temperature_arg_name],
+                name=temperature_arg_name,
+                value=kwargs[temperature_arg_name],
                 min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
-                max_value=HeatPumpSettings.TEMP_C_LIMIT.max)
+                max_value=HeatPumpSettings.TEMP_C_LIMIT.max,
+            )
 
         min_temp_c = kwargs["min_temp_C"]
         max_temp_c = kwargs["max_temp_C"]
@@ -61,59 +70,78 @@ class HeatPumpValidator(BaseValidator):
 
         if not min_temp_c <= initial_temp_c <= max_temp_c:
             raise GSyDeviceException(
-                {"misconfiguration": [
-                    "Requirement 'min_temp_C <= initial_temp_C <= max_temp_C' is not met."]})
+                {
+                    "misconfiguration": [
+                        "Requirement 'min_temp_C <= initial_temp_C <= max_temp_C' is not met."
+                    ]
+                }
+            )
 
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate energy rate related arguments."""
-        if (kwargs.get("initial_buying_rate") is None
-                and kwargs.get("final_buying_rate") is None
-                and kwargs.get("update_interval") is None):
+        if (
+            kwargs.get("initial_buying_rate") is None
+            and kwargs.get("final_buying_rate") is None
+            and kwargs.get("update_interval") is None
+        ):
             return
 
-        if (kwargs.get("initial_buying_rate") is None
-                or kwargs.get("update_interval") is None):
+        if kwargs.get("initial_buying_rate") is None or kwargs.get("update_interval") is None:
             raise GSyDeviceException(
-                {"misconfiguration": [
-                    "All pricing parameters of heat pump should be provided: "
-                    "initial_buying_rate, update_interval"]})
+                {
+                    "misconfiguration": [
+                        "All pricing parameters of heat pump should be provided: "
+                        "initial_buying_rate, update_interval"
+                    ]
+                }
+            )
 
         if kwargs.get("update_interval") == 0:
-            raise GSyDeviceException(
-                {"misconfiguration": ["update_interval should not be zero"]})
+            raise GSyDeviceException({"misconfiguration": ["update_interval should not be zero"]})
 
-        buying_rate_arg_names = [
-            "initial_buying_rate", "preferred_buying_rate"]
+        buying_rate_arg_names = ["initial_buying_rate", "preferred_buying_rate"]
         for buying_rate_arg_name in buying_rate_arg_names:
             cls._check_range(
-                name=buying_rate_arg_name, value=kwargs[buying_rate_arg_name],
+                name=buying_rate_arg_name,
+                value=kwargs[buying_rate_arg_name],
                 min_value=HeatPumpSettings.BUYING_RATE_LIMIT.initial,
-                max_value=HeatPumpSettings.BUYING_RATE_LIMIT.final)
+                max_value=HeatPumpSettings.BUYING_RATE_LIMIT.final,
+            )
 
         initial_buying_rate = kwargs["initial_buying_rate"]
         preferred_buying_rate = kwargs["preferred_buying_rate"]
         final_buying_rate = (
-            GlobalConfig.MARKET_MAKER_RATE if kwargs.get("use_market_maker_rate") is True
-            else kwargs.get("final_buying_rate"))
+            GlobalConfig.MARKET_MAKER_RATE
+            if kwargs.get("use_market_maker_rate") is True
+            else kwargs.get("final_buying_rate")
+        )
 
         validate_range_limit(
-            initial_buying_rate, preferred_buying_rate, final_buying_rate,
-            {"misconfiguration": [
-                "Requirement "
-                "'initial_buying_rate <= preferred_buying_rate <= final_buying_rate' is not met."
-            ]})
+            initial_buying_rate,
+            preferred_buying_rate,
+            final_buying_rate,
+            {
+                "misconfiguration": [
+                    "Requirement 'initial_buying_rate <= preferred_buying_rate <= "
+                    "final_buying_rate' is not met."
+                ]
+            },
+        )
 
     @classmethod
     def _check_range(cls, name, value, min_value, max_value):
         if value is None:
             raise GSyDeviceException(
-                {"misconfiguration": [
-                    f"Value of {name} should not be None."]})
+                {"misconfiguration": [f"Value of {name} should not be None."]}
+            )
 
         validate_range_limit(
-            min_value, value, max_value,
-            {"misconfiguration": [f"{name} should be between {min_value} & {max_value}."]})
+            min_value,
+            value,
+            max_value,
+            {"misconfiguration": [f"{name} should be between {min_value} & {max_value}."]},
+        )
 
 
 class VirtualHeatPumpValidator(HeatPumpValidator):
@@ -128,25 +156,33 @@ class VirtualHeatPumpValidator(HeatPumpValidator):
     def _check_calibration_coefficient(cls, **kwargs):
         if kwargs.get("calibration_coefficient") is not None:
             cls._check_range(
-                "calibration_coefficient", kwargs.get("calibration_coefficient"),
+                "calibration_coefficient",
+                kwargs.get("calibration_coefficient"),
                 HeatPumpSettings.CALIBRATION_COEFFICIENT_RANGE.min,
-                HeatPumpSettings.CALIBRATION_COEFFICIENT_RANGE.max)
+                HeatPumpSettings.CALIBRATION_COEFFICIENT_RANGE.max,
+            )
 
     @classmethod
     def _validate_profiles(cls, **kwargs):
         """Validate profile arguments."""
-        if (kwargs.get("water_supply_temp_C_profile") is None and
-                kwargs.get("water_supply_temp_C_profile_uuid") is None):
+        if (
+            kwargs.get("water_supply_temp_C_profile") is None
+            and kwargs.get("water_supply_temp_C_profile_uuid") is None
+        ):
             raise GSyDeviceException(
-                {"misconfiguration": [
-                    "water_supply_temp_C_profile should be provided."]})
-        if (kwargs.get("water_return_temp_C_profile") is None and
-                kwargs.get("water_return_temp_C_profile_uuid") is None):
+                {"misconfiguration": ["water_supply_temp_C_profile should be provided."]}
+            )
+        if (
+            kwargs.get("water_return_temp_C_profile") is None
+            and kwargs.get("water_return_temp_C_profile_uuid") is None
+        ):
             raise GSyDeviceException(
-                {"misconfiguration": [
-                    "water_return_temp_C_profile should be provided."]})
-        if (kwargs.get("dh_water_flow_m3_profile") is None and
-                kwargs.get("dh_water_flow_m3_profile_uuid") is None):
+                {"misconfiguration": ["water_return_temp_C_profile should be provided."]}
+            )
+        if (
+            kwargs.get("dh_water_flow_m3_profile") is None
+            and kwargs.get("dh_water_flow_m3_profile_uuid") is None
+        ):
             raise GSyDeviceException(
-                {"misconfiguration": [
-                    "dh_water_flow_m3_profile should be provided."]})
+                {"misconfiguration": ["dh_water_flow_m3_profile should be provided."]}
+            )
