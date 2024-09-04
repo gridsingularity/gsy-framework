@@ -75,7 +75,7 @@ class KPIState:
                 self.total_energy_demanded_wh += child_stats.get("total_energy_demanded_wh", 0)
             if is_heatpump_node_type(child):
                 self.total_energy_demanded_wh += (
-                    child_stats.get("total_traded_energy_kWh", 0) * 1000.0
+                    child_stats.get("energy_consumption_kWh", 0) * 1000.0
                 )
             if child["children"]:
                 self._accumulate_total_energy_demanded(child, core_stats)
