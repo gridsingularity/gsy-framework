@@ -12,8 +12,7 @@ from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
 from gsy_framework.sim_results.kpi import KPI
 from gsy_framework.sim_results.market_price_energy_day import MarketPriceEnergyDay
 from gsy_framework.sim_results.market_summary_info import MarketSummaryInfo
-from gsy_framework.sim_results.scm.bills import SCMBills
-from gsy_framework.sim_results.scm.kpi import SCMKPI
+from gsy_framework.sim_results.scm.results import SCMResults
 from gsy_framework.sim_results.simulation_assets_info import SimulationAssetsInfo
 from gsy_framework.sim_results.imported_exported_energy import ImportedExportedEnergyHandler
 
@@ -135,18 +134,10 @@ class SCMResultsHandler(ResultsHandler):
     def __init__(self):
         super().__init__()
         self.results_mapping = {
-            "cumulative_net_energy_flow": CumulativeNetEnergyFlow(),
-            "bills": SCMBills(),
-            "kpi": SCMKPI(),
+            "results": SCMResults(),
         }
 
     @property
     def all_db_results(self) -> Dict:
         """Get dict with all the results in format that can be saved to the DB."""
-        results = {
-            self._results_name_to_db_name_mapping[k]: v.ui_formatted_results
-            for k, v in self.results_mapping.items()
-        }
-        results["bids_offers_trades"] = self.bids_offers_trades
-        results["cumulative_market_fees"] = 0.0
-        return results
+        return {k: v.ui_formatted_results for k, v in self.results_mapping.items()}
