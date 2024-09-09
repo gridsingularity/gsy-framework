@@ -27,7 +27,7 @@ from gsy_framework.sim_results.market_summary_info import MarketSummaryInfo
 REQUESTED_FIELDS_LIST = [
     "price_energy_day",
     "device_statistics",
-    "energy_trade_profile",
+    "trade_profile",
     "area_throughput",
     "market_summary",
 ]
@@ -36,7 +36,7 @@ REQUESTED_FIELDS_LIST = [
 REQUESTED_FIELDS_CLASS_MAP = {
     "price_energy_day": MarketPriceEnergyDay,
     "device_statistics": DeviceStatistics,
-    "energy_trade_profile": EnergyTradeProfile,
+    "trade_profile": EnergyTradeProfile,
     "area_throughput": AreaThroughputStats,
     "market_summary": MarketSummaryInfo,
 }
