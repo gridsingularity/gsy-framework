@@ -12,8 +12,7 @@ from gsy_framework.sim_results.energy_trade_profile import EnergyTradeProfile
 from gsy_framework.sim_results.kpi import KPI
 from gsy_framework.sim_results.market_price_energy_day import MarketPriceEnergyDay
 from gsy_framework.sim_results.market_summary_info import MarketSummaryInfo
-from gsy_framework.sim_results.scm.bills import SCMBills
-from gsy_framework.sim_results.scm.kpi import SCMKPI
+from gsy_framework.sim_results.scm.results import SCMResults
 from gsy_framework.sim_results.simulation_assets_info import SimulationAssetsInfo
 from gsy_framework.sim_results.imported_exported_energy import ImportedExportedEnergyHandler
 
@@ -21,9 +20,8 @@ from gsy_framework.sim_results.imported_exported_energy import ImportedExportedE
 class ResultsHandler:
     """Calculate all results for each market slot."""
 
-    def __init__(self, should_export_plots: bool = False, is_scm: bool = False):
+    def __init__(self, should_export_plots: bool = False):
         self.forward_market_enabled = False
-        self._is_scm = is_scm
         self.should_export_plots = should_export_plots
         self.bids_offers_trades = {}
         self.results_mapping = {
@@ -36,17 +34,10 @@ class ResultsHandler:
             "trade_profile": EnergyTradeProfile(should_export_plots),
             "area_throughput": AreaThroughputStats(),
             "assets_info": SimulationAssetsInfo(),
+            "imported_exported_energy": ImportedExportedEnergyHandler(should_export_plots),
+            "bills": MarketEnergyBills(should_export_plots),
+            "market_summary": MarketSummaryInfo(should_export_plots),
         }
-
-        if is_scm:
-            self.results_mapping["bills"] = SCMBills()
-            self.results_mapping["kpi"] = SCMKPI()
-        else:
-            self.results_mapping["bills"] = MarketEnergyBills(should_export_plots)
-            self.results_mapping["market_summary"] = MarketSummaryInfo(should_export_plots)
-            self.results_mapping["imported_exported_energy"] = ImportedExportedEnergyHandler(
-                should_export_plots
-            )
 
         self._total_memory_utilization_kb = 0.0
 
@@ -121,12 +112,9 @@ class ResultsHandler:
         """Get dict with all the results in format that can be saved to the DB."""
         results = {k: v.ui_formatted_results for k, v in self.results_mapping.items()}
         results["bids_offers_trades"] = self.bids_offers_trades
-        if not self._is_scm:
-            results["cumulative_market_fees"] = self.results_mapping[
-                "bills"
-            ].cumulative_fee_all_markets_whole_sim
-        else:
-            results["cumulative_market_fees"] = 0.0
+        results["cumulative_market_fees"] = self.results_mapping[
+            "bills"
+        ].cumulative_fee_all_markets_whole_sim
         return results
 
     @property
@@ -138,3 +126,18 @@ class ResultsHandler:
     def total_memory_utilization_kb(self):
         """Get the total memory allocated by the results."""
         return self._total_memory_utilization_kb
+
+
+class SCMResultsHandler(ResultsHandler):
+    """Calculate all results for each market slot for SCM simulations"""
+
+    def __init__(self):
+        super().__init__()
+        self.results_mapping = {
+            "results": SCMResults(),
+        }
+
+    @property
+    def all_db_results(self) -> Dict:
+        """Get dict with all the results in format that can be saved to the DB."""
+        return {k: v.ui_formatted_results for k, v in self.results_mapping.items()}
