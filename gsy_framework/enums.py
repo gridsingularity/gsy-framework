@@ -6,6 +6,7 @@ from pendulum import duration
 
 class BidOfferMatchAlgoEnum(Enum):
     """Matching algorithms supported by the GSY exchange."""
+
     PAY_AS_BID = 1
     PAY_AS_CLEAR = 2
     EXTERNAL = 3
@@ -70,7 +71,7 @@ class AggregationResolution(Enum):
             self.RES_1_HOUR: duration(hours=1),
             self.RES_1_WEEK: duration(weeks=1),
             self.RES_1_MONTH: duration(months=1),
-            self.RES_1_YEAR: duration(years=1)
+            self.RES_1_YEAR: duration(years=1),
         }[self]
 
 
@@ -90,12 +91,13 @@ class HeatPumpSourceType(Enum):
     GROUND = 1
 
 
-class SCMFeeType(Enum):
+class SCMPropertyType(Enum):
     """Enum for SCM fee types"""
 
     PER_KWH_FEES = 0
     MONTHLY_FEES = 1
     GRID_FEES = 2
+    AREA_PROPERTIES = 3
 
     @classmethod
     def member_names(cls) -> List:
@@ -103,11 +105,14 @@ class SCMFeeType(Enum):
         return [e.name for e in cls]
 
 
-SCM_FEE_TYPE_MAPPING = {
-    "taxes_surcharges": SCMFeeType.PER_KWH_FEES,
-    "fixed_monthly_fee": SCMFeeType.MONTHLY_FEES,
-    "marketplace_monthly_fee": SCMFeeType.MONTHLY_FEES,
-    "assistance_monthly_fee": SCMFeeType.MONTHLY_FEES,
-    "grid_import_fee_const": SCMFeeType.GRID_FEES,
-    "grid_export_fee_const": SCMFeeType.GRID_FEES,
+SCM_PROPERTY_TYPE_MAPPING = {
+    "taxes_surcharges": SCMPropertyType.PER_KWH_FEES,
+    "fixed_monthly_fee": SCMPropertyType.MONTHLY_FEES,
+    "marketplace_monthly_fee": SCMPropertyType.MONTHLY_FEES,
+    "assistance_monthly_fee": SCMPropertyType.MONTHLY_FEES,
+    "grid_import_fee_const": SCMPropertyType.GRID_FEES,
+    "grid_export_fee_const": SCMPropertyType.GRID_FEES,
+    "coefficient_percentage": SCMPropertyType.AREA_PROPERTIES,
+    "market_maker_rate": SCMPropertyType.AREA_PROPERTIES,
+    "feed_in_tariff": SCMPropertyType.AREA_PROPERTIES,
 }

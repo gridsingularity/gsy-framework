@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from datetime import date, timedelta  # NOQA
 from typing import Dict, List
 
 from gsy_framework.sim_results.area_throughput_stats import AreaThroughputStats
@@ -56,7 +55,6 @@ def merge_last_market_results_to_global(
 
     if requested_fields is None:
         requested_fields = REQUESTED_FIELDS_LIST
-
     for field in requested_fields:
         global_results[field] = REQUESTED_FIELDS_CLASS_MAP[field].merge_results_to_global(
             market_results[field], global_results[field], slot_list_ui_format
