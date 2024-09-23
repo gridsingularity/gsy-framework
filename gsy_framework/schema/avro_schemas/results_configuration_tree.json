@@ -3,11 +3,40 @@
   "name": "Area",
   "default": "undefined",
   "fields": [
-    {"name": "name", "type": "string"},
-    {"name": "parent_uuid", "type": "string"},
-    {"name": "uuid", "type": "string"},
-    {"name": "type", "type": ["string", "null"]},
-    {"name": "capacity_kW", "type": ["float", "null"], "default": "undefined"},
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "parent_uuid",
+      "type": "string"
+    },
+    {
+      "name": "uuid",
+      "type": "string"
+    },
+    {
+      "name": "type",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    {
+      "name": "capacity_kW",
+      "type": [
+        "float",
+        "null"
+      ],
+      "default": "undefined"
+    },
+    {
+      "name": "non_p2p",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     {
       "name": "children",
       "type": [
