@@ -163,7 +163,7 @@ class KPIState:
             self.total_self_consumption_wh += trade["energy"] * 1000
             self.demanded_buffer_wh += trade["energy"] * 1000
 
-    def _accumulate_energy_trace(self, core_stats):
+    def _accumulate_energy_trace(self, core_stats, p2p=True):
         for target_area_uuid in self.areas_to_trace_list:
             target_core_stats = core_stats.get(target_area_uuid, {})
             for trade in target_core_stats.get("trades", []):
@@ -171,15 +171,17 @@ class KPIState:
                 self._accumulate_self_production(trade)
                 self._accumulate_self_consumption_buffer(trade)
                 self._dissipate_self_consumption_buffer(trade)
-                self._accumulate_infinite_consumption(trade)
-                self._dissipate_infinite_consumption(trade)
+
+                if p2p:
+                    self._accumulate_infinite_consumption(trade)
+                    self._dissipate_infinite_consumption(trade)
 
     def update_area_kpi(self, area_dict: Dict, core_stats: Dict):
         """Update kpi after every market cycle"""
         self.total_energy_demanded_wh = 0
 
         self._accumulate_total_energy_demanded(area_dict, core_stats)
-        self._accumulate_energy_trace(core_stats)
+        self._accumulate_energy_trace(core_stats, "P2P" in area_dict["name"])
 
 
 class SavingsKPI:
