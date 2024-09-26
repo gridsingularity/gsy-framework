@@ -39,7 +39,6 @@ class ScenarioSchemas:
                     "marketplace_monthly_fee": {"type": ["number", "null"]},
                     "assistance_monthly_fee": {"type": ["number", "null"]},
                     "market_maker_rate": {"type": ["number", "null"]},
-                    "target_market_kpi": {"type": ["number", "null"]},
                     "grid_fee_constant": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "grid_import_fee_const": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "grid_export_fee_const": {"anyOf": [{"type": "number"}, {"type": "null"}]},
