@@ -20,7 +20,7 @@ from copy import copy
 from typing import Dict, List
 
 from gsy_framework.sim_results import (
-    is_buffer_node_type,
+    is_infinite_bus_node_type,
     is_load_node_type,
     is_producer_node_type,
     is_prosumer_node_type,
@@ -45,15 +45,15 @@ class KPIState:
         self.consumer_list: List = []
         self.areas_to_trace_list: List = []
         self.ess_list: List = []
-        self.buffer_list: List = []
+        self.infinite_bus_list: List = []
         self.total_energy_demanded_wh: float = 0.0
-        self.demanded_buffer_wh: float = 0.0
+        self.infinite_bus_consumption: float = 0.0
         self.total_energy_produced_wh: float = 0.0
         self.total_self_consumption_wh: float = 0.0
-        self.self_consumption_buffer_wh: float = 0.0
+        self.self_consumption_ess_wh: float = 0.0
 
-    def accumulate_devices(self, area_dict: Dict):
-        """Accumulate all child devices with respective types"""
+    def get_device_lists(self, area_dict: Dict):
+        """Create list of all device types in the area."""
         for child in area_dict["children"]:
             if is_producer_node_type(child):
                 if_not_in_list_append(self.producer_list, child["uuid"])
@@ -63,10 +63,10 @@ class KPIState:
                 if_not_in_list_append(self.areas_to_trace_list, child["parent_uuid"])
             elif is_prosumer_node_type(child):
                 if_not_in_list_append(self.ess_list, child["uuid"])
-            elif is_buffer_node_type(child):
-                if_not_in_list_append(self.buffer_list, child["uuid"])
+            elif is_infinite_bus_node_type(child):
+                if_not_in_list_append(self.infinite_bus_list, child["uuid"])
             if child["children"]:
-                self.accumulate_devices(child)
+                self.get_device_lists(child)
 
     def _accumulate_total_energy_demanded(self, area_dict: Dict, core_stats: Dict):
         for child in area_dict["children"]:
@@ -98,88 +98,90 @@ class KPIState:
         ):
             self.total_self_consumption_wh += trade["energy"] * 1000
 
-    def _accumulate_self_consumption_buffer(self, trade: Dict):
+    def _accumulate_self_consumption_ess(self, trade: Dict):
         if (
             trade["seller"]["origin_uuid"] in self.producer_list
             and trade["buyer"]["origin_uuid"] in self.ess_list
         ):
-            self.self_consumption_buffer_wh += trade["energy"] * 1000
+            self.self_consumption_ess_wh += trade["energy"] * 1000
 
-    def _dissipate_self_consumption_buffer(self, trade: Dict):
+    def _dissipate_self_consumption_ess(self, trade: Dict):
         if trade["seller"]["origin_uuid"] in self.ess_list:
             # self_consumption_buffer needs to be exhausted to total_self_consumption
             # if sold to internal consumer
             if (
                 trade["buyer"]["origin_uuid"] in self.consumer_list
                 and _is_trader_origin(trade["buyer"])
-                and self.self_consumption_buffer_wh > 0
+                and self.self_consumption_ess_wh > 0
             ):
-                if (self.self_consumption_buffer_wh - trade["energy"] * 1000) > 0:
-                    self.self_consumption_buffer_wh -= trade["energy"] * 1000
+                if (self.self_consumption_ess_wh - trade["energy"] * 1000) > 0:
+                    self.self_consumption_ess_wh -= trade["energy"] * 1000
                     self.total_self_consumption_wh += trade["energy"] * 1000
                 else:
-                    self.total_self_consumption_wh += self.self_consumption_buffer_wh
-                    self.self_consumption_buffer_wh = 0
+                    self.total_self_consumption_wh += self.self_consumption_ess_wh
+                    self.self_consumption_ess_wh = 0
             # self_consumption_buffer needs to be exhausted if sold to any external agent
             elif (
                 trade["buyer"]["origin_uuid"] not in [*self.ess_list, *self.consumer_list]
                 and _is_trader_origin(trade["buyer"])
-                and self.self_consumption_buffer_wh > 0
+                and self.self_consumption_ess_wh > 0
             ):
-                if (self.self_consumption_buffer_wh - trade["energy"] * 1000) > 0:
-                    self.self_consumption_buffer_wh -= trade["energy"] * 1000
+                if (self.self_consumption_ess_wh - trade["energy"] * 1000) > 0:
+                    self.self_consumption_ess_wh -= trade["energy"] * 1000
                 else:
-                    self.self_consumption_buffer_wh = 0
+                    self.self_consumption_ess_wh = 0
 
-    def _accumulate_infinite_consumption(self, trade: Dict):
+    def _accumulate_infinite_bus_production(self, trade: Dict):
         """
         If the InfiniteBus is a seller_id of the trade when below the referenced area and bought
         by any of child devices.
-        * total_self_consumption_wh needs to accumulated.
-        * total_energy_produced_wh also needs to accumulated accounting of what
-        the InfiniteBus has produced.
+        * total_self_consumption_wh is accumulated.
+        * total_energy_produced_wh is accumulated accounting of what the InfiniteBus has produced.
         """
         if (
-            trade["seller"]["origin_uuid"] in self.buffer_list
+            trade["seller"]["origin_uuid"] in self.infinite_bus_list
             and trade["buyer"]["origin_uuid"] in self.consumer_list
             and _is_trader_origin(trade["buyer"])
         ):
             self.total_self_consumption_wh += trade["energy"] * 1000
             self.total_energy_produced_wh += trade["energy"] * 1000
 
-    def _dissipate_infinite_consumption(self, trade: Dict):
+    def _accumulate_infinite_bus_consumption(self, trade: Dict):
         """
         If the InfiniteBus is a buyer_id of the trade when below the referenced area
         and sold by any of child devices.
-        total_self_consumption_wh needs to accumulated.
-        demanded_buffer_wh also needs to accumulated accounting of what
-        the InfiniteBus has consumed/demanded.
+        * total_self_consumption_wh is accumulated.
+        * demanded_buffer_wh is accumulated accounting of what the InfiniteBus has
+        consumed/demanded.
         """
         if (
-            trade["buyer"]["origin_uuid"] in self.buffer_list
+            trade["buyer"]["origin_uuid"] in self.infinite_bus_list
             and trade["seller"]["origin_uuid"] in self.producer_list
             and _is_trader_origin(trade["seller"])
         ):
             self.total_self_consumption_wh += trade["energy"] * 1000
-            self.demanded_buffer_wh += trade["energy"] * 1000
+            self.infinite_bus_consumption += trade["energy"] * 1000
 
-    def _accumulate_energy_trace(self, core_stats):
+    def _accumulate_self_production_consumption(self, core_stats: Dict, p2p: bool):
         for target_area_uuid in self.areas_to_trace_list:
             target_core_stats = core_stats.get(target_area_uuid, {})
             for trade in target_core_stats.get("trades", []):
                 self._accumulate_self_consumption(trade)
                 self._accumulate_self_production(trade)
-                self._accumulate_self_consumption_buffer(trade)
-                self._dissipate_self_consumption_buffer(trade)
-                self._accumulate_infinite_consumption(trade)
-                self._dissipate_infinite_consumption(trade)
+                self._accumulate_self_consumption_ess(trade)
+                self._dissipate_self_consumption_ess(trade)
+                if p2p:
+                    self._accumulate_infinite_bus_production(trade)
+                    self._accumulate_infinite_bus_consumption(trade)
 
     def update_area_kpi(self, area_dict: Dict, core_stats: Dict):
         """Update kpi after every market cycle"""
         self.total_energy_demanded_wh = 0
 
         self._accumulate_total_energy_demanded(area_dict, core_stats)
-        self._accumulate_energy_trace(core_stats)
+        self._accumulate_self_production_consumption(
+            core_stats, area_dict.get("non_p2p", False) is False
+        )
 
 
 class SavingsKPI:
@@ -305,12 +307,12 @@ class KPI(ResultsBaseClass):
 
         self._init_states(area_dict)
 
-        self.state[area_dict["uuid"]].accumulate_devices(area_dict)
+        self.state[area_dict["uuid"]].get_device_lists(area_dict)
 
         self.state[area_dict["uuid"]].update_area_kpi(area_dict, core_stats)
         total_energy_demanded_wh = (
             self.state[area_dict["uuid"]].total_energy_demanded_wh
-            + self.state[area_dict["uuid"]].demanded_buffer_wh
+            + self.state[area_dict["uuid"]].infinite_bus_consumption
         )
 
         self_sufficiency = KPICalculationHelper.self_sufficiency(
@@ -327,8 +329,8 @@ class KPI(ResultsBaseClass):
             "self_sufficiency": self_sufficiency,
             "self_consumption": self_consumption,
             "total_energy_demanded_wh": total_energy_demanded_wh,
-            "demanded_buffer_wh": self.state[area_dict["uuid"]].demanded_buffer_wh,
-            "self_consumption_buffer_wh": self.state[area_dict["uuid"]].self_consumption_buffer_wh,
+            "demanded_buffer_wh": self.state[area_dict["uuid"]].infinite_bus_consumption,
+            "self_consumption_buffer_wh": self.state[area_dict["uuid"]].self_consumption_ess_wh,
             "total_energy_produced_wh": self.state[area_dict["uuid"]].total_energy_produced_wh,
             "total_self_consumption_wh": self.state[area_dict["uuid"]].total_self_consumption_wh,
         }
@@ -431,7 +433,7 @@ class KPI(ResultsBaseClass):
             return
         if area_dict["uuid"] not in self.state:
             self.state[area_dict["uuid"]] = KPIState()
-            self.state[area_dict["uuid"]].demanded_buffer_wh = last_known_state_data[
+            self.state[area_dict["uuid"]].infinite_bus_consumption = last_known_state_data[
                 "demanded_buffer_wh"
             ]
             self.state[area_dict["uuid"]].total_energy_demanded_wh = last_known_state_data[
@@ -443,7 +445,7 @@ class KPI(ResultsBaseClass):
             self.state[area_dict["uuid"]].total_self_consumption_wh = last_known_state_data[
                 "total_self_consumption_wh"
             ]
-            self.state[area_dict["uuid"]].self_consumption_buffer_wh = last_known_state_data[
+            self.state[area_dict["uuid"]].self_consumption_ess_wh = last_known_state_data[
                 "self_consumption_buffer_wh"
             ]
         if area_dict["uuid"] not in self.savings_state:
