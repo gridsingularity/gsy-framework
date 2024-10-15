@@ -134,7 +134,8 @@ class TestCommunityDatasheetParser:
 
         expected_member_dict = deepcopy(members_with_coordinates)
         for member_name in ["Member 1", "Member 2"]:
-            expected_member_dict[member_name]["grid_export_fee_const"] = 0.0
+            expected_member_dict[member_name]["grid_export_fee_const"] = 0
+            expected_member_dict[member_name]["forecast_stream_id"] = None
             expected_member_dict[member_name]["name"] = ""
         assert datasheet.members == expected_member_dict
 
@@ -164,6 +165,7 @@ class TestCommunityDatasheetParser:
                             "type": "Area",
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
+                            "forecast_stream_id": None,
                             "address": "Am Werth 94, Wolffburg, Schleswig-Holstein, Germany",
                             "children": [
                                 {
@@ -237,6 +239,7 @@ class TestCommunityDatasheetParser:
                             "type": "Area",
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
+                            "forecast_stream_id": None,
                             "address": "Heisterbachstr. 8, Ost Colin, Hamburg, Germany",
                             "children": [
                                 {
