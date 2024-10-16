@@ -57,20 +57,12 @@
                   "type": "float"
                 },
                 {
-                  "name": "feed_in_tariff",
-                  "type": "float"
-                },
-                {
                   "name": "home_name",
                   "type": "string"
                 },
                 {
                   "name": "home_uuid",
                   "type": "string"
-                },
-                {
-                  "name": "market_maker_rate",
-                  "type": "float"
                 },
                 {
                   "name": "production_kWh",
@@ -81,11 +73,7 @@
                   "type": "float"
                 },
                 {
-                  "name": "sharing_coefficient_percent",
-                  "type": "float"
-                },
-                {
-                  "name": "fee_properties",
+                  "name": "area_properties",
                   "type": {
                     "type": "map",
                     "values": {
@@ -329,7 +317,7 @@
                   ]
                 },
                 {
-                  "name": "grid_fees",
+                  "name": "import_grid_fees",
                   "type": "float"
                 },
                 {

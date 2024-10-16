@@ -6,7 +6,9 @@ from unittest.mock import MagicMock, call, patch
 import pytest
 
 from gsy_framework.community_datasheet.community_datasheet_parser import (
-    CommunityDatasheetParser, DefaultCommunityAreaNames)
+    CommunityDatasheetParser,
+    DefaultCommunityAreaNames,
+)
 from gsy_framework.community_datasheet.location_converter import LocationConverterException
 from gsy_framework.community_datasheet.row_converters import AssetCoordinatesBuilder
 
@@ -19,9 +21,11 @@ class TestCommunityDatasheetParser:
     @staticmethod
     @patch(f"{BASE_MODULE}.AssetCoordinatesBuilder", spec=True)
     @patch(
-        "gsy_framework.community_datasheet.row_converters.uuid.uuid4", return_value="mocked-uuid")
-    @pytest.mark.parametrize("cds_file", ["community_datasheet.xlsx",
-                                          "community_datasheet_alt.xlsx"])
+        "gsy_framework.community_datasheet.row_converters.uuid.uuid4", return_value="mocked-uuid"
+    )
+    @pytest.mark.parametrize(
+        "cds_file", ["community_datasheet.xlsx", "community_datasheet_alt.xlsx"]
+    )
     def test_parse(_uuid_mock, asset_coordinates_builder_cls_mock, cds_file):
         filename = FIXTURES_PATH / cds_file
         members_information = {
@@ -39,7 +43,7 @@ class TestCommunityDatasheetParser:
                 "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
                 "coefficient_percentage": 0.5,
                 "uuid": "mocked-uuid",
-                "asset_count": 3
+                "asset_count": 3,
             },
             "Member 2": {
                 "email": "some-email-2@some-email.com",
@@ -55,7 +59,7 @@ class TestCommunityDatasheetParser:
                 "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
                 "coefficient_percentage": 0.5,
                 "uuid": "mocked-uuid",
-                "asset_count": 2
+                "asset_count": 2,
             },
         }
 
@@ -77,8 +81,9 @@ class TestCommunityDatasheetParser:
             "address": members_with_coordinates["Member 2"]["address"],
             "zip_code": members_with_coordinates["Member 2"]["zip_code"],
         }
-        asset_coordinates_builder_mock.get_member_coordinates.assert_has_calls([
-            call(address_dict_1), call(address_dict_2)])
+        asset_coordinates_builder_mock.get_member_coordinates.assert_has_calls(
+            [call(address_dict_1), call(address_dict_2)]
+        )
         assert datasheet.pvs == {
             "Member 1": [
                 {
@@ -127,6 +132,16 @@ class TestCommunityDatasheetParser:
             ],
         }
 
+        expected_member_dict = deepcopy(members_with_coordinates)
+        for member_name in ["Member 1", "Member 2"]:
+            expected_member_dict[member_name]["grid_export_fee_const"] = 0
+            expected_member_dict[member_name]["forecast_stream_id"] = None
+            expected_member_dict[member_name]["name"] = ""
+            expected_member_dict[member_name]["contracted_power_monthly_fee"] = 0
+            expected_member_dict[member_name]["contracted_power_cargo_monthly_fee"] = 0
+            expected_member_dict[member_name]["energy_cargo_fee"] = 0
+        assert datasheet.members == expected_member_dict
+
         assert datasheet.grid == {
             "name": DefaultCommunityAreaNames.GRID.value,
             "allow_external_connection": False,
@@ -153,9 +168,8 @@ class TestCommunityDatasheetParser:
                             "type": "Area",
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
+                            "forecast_stream_id": None,
                             "address": "Am Werth 94, Wolffburg, Schleswig-Holstein, Germany",
-                            "grid_import_fee_const": 0.3,
-                            "grid_export_fee_const": 0.0,
                             "children": [
                                 {
                                     "name": "Load 1",
@@ -221,13 +235,6 @@ class TestCommunityDatasheetParser:
                                     "geo_tag_location": (4.137182, 48.058159),
                                 },
                             ],
-                            "market_maker_rate": 1,
-                            "feed_in_tariff": 7,
-                            "taxes_surcharges": 0.5,
-                            "fixed_monthly_fee": 0.5,
-                            "marketplace_monthly_fee": 0.5,
-                            "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
-                            "coefficient_percentage": 0.5,
                         },
                         {
                             "name": "Member 2",
@@ -235,9 +242,8 @@ class TestCommunityDatasheetParser:
                             "type": "Area",
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
+                            "forecast_stream_id": None,
                             "address": "Heisterbachstr. 8, Ost Colin, Hamburg, Germany",
-                            "grid_import_fee_const": 0.3,
-                            "grid_export_fee_const": 0.0,
                             "children": [
                                 {
                                     "name": "PV 3",
@@ -258,13 +264,6 @@ class TestCommunityDatasheetParser:
                                     "geo_tag_location": (4.137182, 48.058159),
                                 },
                             ],
-                            "market_maker_rate": 1,
-                            "feed_in_tariff": 7,
-                            "taxes_surcharges": 0.5,
-                            "fixed_monthly_fee": 0.5,
-                            "marketplace_monthly_fee": 0.5,
-                            "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
-                            "coefficient_percentage": 0.5,
                         },
                     ],
                 },
@@ -299,7 +298,8 @@ class TestAssetCoordinatesBuilder:
         results = coordinates_builder.get_member_coordinates(member_information)
 
         location_converter_instance.convert.assert_called_with(
-            "10210 La Loge-Pomblin, France 1234")
+            "10210 La Loge-Pomblin, France 1234"
+        )
         assert results == (12, 10)
 
     @staticmethod

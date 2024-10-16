@@ -72,6 +72,10 @@ class CommunityMembersSheetHeaderOptional(str, Enum):
     SERVICE_FEE = "Service fee"
     ASSISTANCE_FEE = "Assistance fee"
     GRID_EXPORT_FEE = "Grid export fee"
+    CONTRACTED_POWER_FEE = "Contracted Power Fee"
+    CONTRACTED_POWER_CARGO_FEE = "Contracted Power Cargo Fee"
+    ENERGY_CARGO_FEE = "Energy Cargo Fee"
+    DATASTREAM_ID = "Datastream_ID"
 
     @classmethod
     def values(cls):

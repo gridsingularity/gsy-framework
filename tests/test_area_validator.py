@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import unittest
 
 from gsy_framework.exceptions import GSyDeviceException, GSyAreaException
@@ -25,16 +26,9 @@ class TestValidateAreaSettings(unittest.TestCase):
 
     def test_area_setting(self):
         self.assertIsNone(validate_area())
-        self.assertIsNone(validate_area(grid_fee_percentage=None))
-        self.assertIsNone(validate_area(grid_fee_percentage=1))
-        self.assertIsNone(validate_area(grid_fee_percentage=1,
-                                        grid_fee_constant=0))
-        self.assertIsNone(validate_area(grid_fee_percentage=0,
-                                        grid_fee_constant=1))
+        self.assertIsNone(validate_area(grid_fee_constant=0))
         with self.assertRaises(GSyDeviceException):
-            validate_area(grid_fee_percentage=-1)
-        with self.assertRaises(GSyDeviceException):
-            validate_area(grid_fee_percentage=101)
+            validate_area(grid_fee_constant=-1)
         with self.assertRaises(GSyAreaException):
             validate_area(baseline_peak_energy_import_kWh=-1.0)
         with self.assertRaises(GSyAreaException):
