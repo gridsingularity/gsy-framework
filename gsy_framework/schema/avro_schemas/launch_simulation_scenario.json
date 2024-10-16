@@ -38,6 +38,8 @@
     {"name": "allow_external_connection", "type": ["null", "boolean"]},
     {"name": "baseline_peak_energy_export_kWh", "type": ["null", "float"]},
     {"name": "baseline_peak_energy_import_kWh", "type": ["null", "float"]},
+    {"name": "forecast_stream_enabled", "type": ["null", "boolean"]},
+    {"name": "forecast_stream_id", "type": ["null", "string"]},
     {"name": "children", "type": [
         "null",
         {

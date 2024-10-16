@@ -162,7 +162,7 @@ class MembersRowConverter:
         contracted_power_fee = row.get("Contracted Power Fee", 0.0)
         contracted_power_cargo_fee = row.get("Contracted Power Cargo Fee", 0.0)
         energy_cargo_fee = row.get("Energy Cargo Fee", 0.0)
-        datastream_id = row.get("Datastream_ID")
+        datastream_id = row.get("Datastream ID")
         return cls.create_member_dict(
             row["Email"],
             str(uuid.uuid4()),

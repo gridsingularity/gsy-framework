@@ -474,7 +474,7 @@ COMMUNITY_DATASHEET_SCHEMA = {
                     "enum": ["USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CNY", "CHF"],
                 },
                 "coefficient_type": {"type": "string", "enum": ["constant", "dynamic"]},
-                "group_settings": {"type": "string", "enum": ["constant", "dynamic"]},
+                "group_settings": {"type": "string"},
             },
             "required": ["start_date", "end_date", "slot_length", "currency"],
         },
