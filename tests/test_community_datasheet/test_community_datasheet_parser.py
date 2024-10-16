@@ -137,6 +137,9 @@ class TestCommunityDatasheetParser:
             expected_member_dict[member_name]["grid_export_fee_const"] = 0
             expected_member_dict[member_name]["forecast_stream_id"] = None
             expected_member_dict[member_name]["name"] = ""
+            expected_member_dict[member_name]["contracted_power_monthly_fee"] = 0
+            expected_member_dict[member_name]["contracted_power_cargo_monthly_fee"] = 0
+            expected_member_dict[member_name]["energy_cargo_fee"] = 0
         assert datasheet.members == expected_member_dict
 
         assert datasheet.grid == {

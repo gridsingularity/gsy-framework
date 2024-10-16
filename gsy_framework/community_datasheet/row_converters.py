@@ -91,6 +91,9 @@ class MembersRowConverter:
 
     OPTIONAL_FIELDS = (
         "Location/Address (optional)",
+        CommunityMembersSheetHeaderOptional.CONTRACTED_POWER_FEE,
+        CommunityMembersSheetHeaderOptional.CONTRACTED_POWER_CARGO_FEE,
+        CommunityMembersSheetHeaderOptional.ENERGY_CARGO_FEE,
         CommunityMembersSheetHeaderOptional.DATASTREAM_ID,
     )
 
@@ -113,6 +116,9 @@ class MembersRowConverter:
         geo_tag_location: List = None,
         asset_count: int = 0,
         member_name: str = None,
+        contracted_power_monthly_fee: float = 0.0,
+        contracted_power_cargo_monthly_fee: float = 0.0,
+        energy_cargo_fee: float = 0.0,
         datastream_id: str = None,
     ):
         # pylint: disable=too-many-arguments, too-many-locals
@@ -139,6 +145,9 @@ class MembersRowConverter:
             "coefficient_percentage": coefficient_percentage,
             "geo_tag_location": geo_tag_location,
             "asset_count": asset_count,
+            "contracted_power_monthly_fee": contracted_power_monthly_fee,
+            "contracted_power_cargo_monthly_fee": contracted_power_cargo_monthly_fee,
+            "energy_cargo_fee": energy_cargo_fee,
             "forecast_stream_id": datastream_id,
         }
 
@@ -150,6 +159,9 @@ class MembersRowConverter:
 
         fixed_fee = row["Service fee"] if "Service fee" in row else row["Fixed fee"]
         assistance_fee = row["Assistance fee"] if "Assistance fee" in row else 0.0
+        contracted_power_fee = row.get("Contracted Power Fee", 0.0)
+        contracted_power_cargo_fee = row.get("Contracted Power Cargo Fee", 0.0)
+        energy_cargo_fee = row.get("Energy Cargo Fee", 0.0)
         datastream_id = row.get("Datastream_ID")
         return cls.create_member_dict(
             row["Email"],
@@ -165,6 +177,9 @@ class MembersRowConverter:
             row["Marketplace fee"],
             assistance_fee,
             row["Coefficient"],
+            contracted_power_monthly_fee=contracted_power_fee,
+            contracted_power_cargo_monthly_fee=contracted_power_cargo_fee,
+            energy_cargo_fee=energy_cargo_fee,
             datastream_id=datastream_id,
         )
 
