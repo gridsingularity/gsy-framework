@@ -113,6 +113,7 @@ class MembersRowConverter:
         marketplace_monthly_fee: float,
         assistance_monthly_fee: float,
         coefficient_percentage: float,
+        service_monthly_fee: float = 0.0,
         geo_tag_location: List = None,
         asset_count: int = 0,
         member_name: str = None,
@@ -142,6 +143,7 @@ class MembersRowConverter:
             "fixed_monthly_fee": fixed_monthly_fee,
             "marketplace_monthly_fee": marketplace_monthly_fee,
             "assistance_monthly_fee": assistance_monthly_fee,
+            "service_monthly_fee": service_monthly_fee,
             "coefficient_percentage": coefficient_percentage,
             "geo_tag_location": geo_tag_location,
             "asset_count": asset_count,
@@ -159,6 +161,7 @@ class MembersRowConverter:
 
         fixed_fee = row["Service fee"] if "Service fee" in row else row["Fixed fee"]
         assistance_fee = row["Assistance fee"] if "Assistance fee" in row else 0.0
+        service_fee = row["Service fee"] if "Service fee" in row else 0.0
         contracted_power_fee = row.get("Contracted Power Fee", 0.0)
         contracted_power_cargo_fee = row.get("Contracted Power Cargo Fee", 0.0)
         energy_cargo_fee = row.get("Energy Cargo Fee", 0.0)
@@ -177,6 +180,7 @@ class MembersRowConverter:
             row["Marketplace fee"],
             assistance_fee,
             row["Coefficient"],
+            service_monthly_fee=service_fee,
             contracted_power_monthly_fee=contracted_power_fee,
             contracted_power_cargo_monthly_fee=contracted_power_cargo_fee,
             energy_cargo_fee=energy_cargo_fee,
