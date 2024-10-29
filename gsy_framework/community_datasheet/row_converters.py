@@ -24,8 +24,15 @@ from gsy_framework.community_datasheet.sheet_headers import (
 )
 from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.utils import use_default_if_null
+from gsy_framework.enums import CoefficientAlgorithm
 
 logger = logging.getLogger(__name__)
+
+# this is in order to expose better naming to the user
+ADVANCED_SETTINGS_FIELD_MAPPING = {
+    "intracommunity_rate": "intracommunity_rate_base_eur",
+    "operational_hours_of_delay": "scm_cn_hours_of_delay",
+}
 
 
 class StringToTimedeltaParser:
@@ -76,7 +83,48 @@ class GeneralSettingsRowConverter:
                     f"Field can't be parsed ({field_name}). {ex}"
                 ) from ex
 
-        return {field_name.strip().lower(): value}
+        return {field_name: value}
+
+    @classmethod
+    def _validate_row(cls, row: Tuple):
+        if row[0] != "Advanced Settings" and row[2] in NULL_VALUES:
+            raise CommunityDatasheetException(
+                ("Missing value for required field. " f"Row: {row}. Required field: {row[0]}.")
+            )
+
+
+class AdvancedSettingsRowConverter:
+    """Convert from the excel row to advanced settings of the community."""
+
+    @classmethod
+    def convert(cls, row: Dict) -> Dict:
+        """Convert the row using just the field name and value.
+
+        The field name is converted to snake case.
+        """
+        cls._validate_row(row)
+
+        field_name, value = row[0], row[2]  # Each row is a tuple (setting-name, legend, value)
+        field_name = field_name.strip().lower().replace(" ", "_")
+        field_name = (
+            ADVANCED_SETTINGS_FIELD_MAPPING[field_name]
+            if field_name in ADVANCED_SETTINGS_FIELD_MAPPING
+            else field_name
+        )
+        if field_name == "coefficient_algorithm":
+            return {field_name: cls._get_coefficient_algorithm_enum(value).value}
+        if field_name.startswith("enable_"):
+            field_name = field_name.replace("enable_", "")
+        return {field_name: value}
+
+    @staticmethod
+    def _get_coefficient_algorithm_enum(setting: str) -> CoefficientAlgorithm:
+        try:
+            return [p for p in CoefficientAlgorithm if p.name == setting.upper()][0]
+        except IndexError as exc:
+            raise CommunityDatasheetException(
+                (f"The coefficient type '{setting}' is not supported")
+            ) from exc
 
     @classmethod
     def _validate_row(cls, row: Tuple):

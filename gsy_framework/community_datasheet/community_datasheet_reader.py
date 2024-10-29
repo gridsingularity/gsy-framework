@@ -13,8 +13,14 @@ from openpyxl.utils.exceptions import InvalidFileException
 
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.community_datasheet.sheet_parsers import (
-    CommunityMembersSheetParser, GeneralSettingsSheetParser, LoadSheetParser, ProfileSheetParser,
-    PVSheetParser, StorageSheetParser)
+    CommunityMembersSheetParser,
+    GeneralSettingsSheetParser,
+    LoadSheetParser,
+    ProfileSheetParser,
+    PVSheetParser,
+    StorageSheetParser,
+    AdvancedSettingsSheetParser,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +30,7 @@ class CommunityDatasheet:
     """Dataclass for the parsed contents of the Community Datasheet."""
 
     settings: Dict
+    advanced_settings: Dict
     members: Dict
     loads: Dict[str, List]  # Map member names to their loads
     pvs: Dict[str, List]  # Map member names to their pvs
@@ -42,29 +49,17 @@ class CommunityDatasheet:
     @property
     def load_assets(self) -> List:
         """Return a list of the load assets defined in the datasheet."""
-        return [
-            asset
-            for member_assets in self.loads.values()
-            for asset in member_assets
-        ]
+        return [asset for member_assets in self.loads.values() for asset in member_assets]
 
     @property
     def pv_assets(self) -> List:
         """Return a list of the PV assets defined in the datasheet."""
-        return [
-            asset
-            for member_assets in self.pvs.values()
-            for asset in member_assets
-        ]
+        return [asset for member_assets in self.pvs.values() for asset in member_assets]
 
     @property
     def storage_assets(self) -> List:
         """Return a list of the storage assets defined in the datasheet."""
-        return [
-            asset
-            for member_assets in self.storages.values()
-            for asset in member_assets
-        ]
+        return [asset for member_assets in self.storages.values() for asset in member_assets]
 
     @property
     def all_assets(self) -> List:
@@ -72,7 +67,8 @@ class CommunityDatasheet:
         return [
             asset
             for assets_group in (self.load_assets, self.pv_assets, self.storage_assets)
-            for asset in assets_group]
+            for asset in assets_group
+        ]
 
     @property
     def assets_by_member(self) -> Dict:
@@ -95,7 +91,8 @@ class CommunityDatasheet:
         if any((missing := member) not in self.members for member in assets_by_member):
             raise CommunityDatasheetException(
                 f'Member "{missing}" was defined in one of the asset sheets'  # noqa: F821
-                'but not in the "Community Members" sheet.')
+                'but not in the "Community Members" sheet.'
+            )
 
         return assets_by_member
 
@@ -103,7 +100,15 @@ class CommunityDatasheet:
 class CommunityDatasheetReader:
     """Reader for Community Datasheet files."""
 
-    SHEETNAMES = {"General settings", "Community Members", "Load", "PV", "Storage", "Profiles"}
+    SHEETNAMES = {
+        "General settings",
+        "Advanced settings",
+        "Community Members",
+        "Load",
+        "PV",
+        "Storage",
+        "Profiles",
+    }
 
     @classmethod
     def read(cls, filename: Union[str, pathlib.Path, IO]) -> Dict:
@@ -129,7 +134,8 @@ class CommunityDatasheetReader:
             logger.debug("Error while parsing community datasheet: %s", ex)
             raise CommunityDatasheetException(
                 "Community Datasheet format not supported. "
-                "Please make sure to use a proper Excel .xlsx file.") from ex
+                "Please make sure to use a proper Excel .xlsx file."
+            ) from ex
 
     @classmethod
     def _validate_sheetnames(cls, workbook) -> None:
@@ -137,15 +143,17 @@ class CommunityDatasheetReader:
         if not current_sheetnames == cls.SHEETNAMES:
             raise CommunityDatasheetException(
                 f"The datasheet should contain the following sheets: {cls.SHEETNAMES}."
-                f"Found: {current_sheetnames}.")
+                f"Found: {current_sheetnames}."
+            )
 
     @staticmethod
     def _parse_sheets(workbook) -> CommunityDatasheet:
         return CommunityDatasheet(
             settings=GeneralSettingsSheetParser(workbook["General settings"]).parse(),
+            advanced_settings=AdvancedSettingsSheetParser(workbook["Advanced settings"]).parse(),
             members=CommunityMembersSheetParser(workbook["Community Members"]).parse(),
             loads=LoadSheetParser(workbook["Load"]).parse(),
             pvs=PVSheetParser(workbook["PV"]).parse(),
             storages=StorageSheetParser(workbook["Storage"]).parse(),
-            profiles=ProfileSheetParser(workbook["Profiles"]).parse()
+            profiles=ProfileSheetParser(workbook["Profiles"]).parse(),
         )
