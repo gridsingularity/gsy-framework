@@ -120,3 +120,11 @@ SCM_PROPERTY_TYPE_MAPPING = {
     "market_maker_rate": SCMPropertyType.AREA_PROPERTIES,
     "feed_in_tariff": SCMPropertyType.AREA_PROPERTIES,
 }
+
+
+class SCMSelfConsumptionType(Enum):
+    """Self consumption type for SCM algorithm."""
+
+    SIMPLIFIED_COLLECTIVE_SELF_CONSUMPTION_41 = 0
+    COLLECTIVE_SELF_CONSUMPTION_SURPLUS_42 = 1
+    NO_SELF_CONSUMPTION = 2
