@@ -162,7 +162,7 @@ class MembersRowConverter:
         cls._validate_row(row)
 
         electricity_tax = row["Electricity tax"] if "Electricity tax" in row else 0.0
-        fixed_fee = row["Service fee"] if "Service fee" in row else row["Fixed fee"]
+        fixed_fee = row["Fixed fee"] if "Fixed fee" in row else row["Fixed fee"]
         assistance_fee = row["Assistance fee"] if "Assistance fee" in row else 0.0
         service_fee = row["Service fee"] if "Service fee" in row else 0.0
         contracted_power_fee = row.get("Contracted Power Fee", 0.0)
