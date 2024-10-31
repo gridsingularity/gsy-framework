@@ -41,6 +41,7 @@ class TestCommunityDatasheetParser:
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
                 "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
+                "service_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
                 "coefficient_percentage": 0.5,
                 "uuid": "mocked-uuid",
                 "asset_count": 3,
@@ -57,6 +58,7 @@ class TestCommunityDatasheetParser:
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
                 "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
+                "service_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
                 "coefficient_percentage": 0.5,
                 "uuid": "mocked-uuid",
                 "asset_count": 2,
@@ -137,6 +139,7 @@ class TestCommunityDatasheetParser:
             expected_member_dict[member_name]["grid_export_fee_const"] = 0
             expected_member_dict[member_name]["forecast_stream_id"] = None
             expected_member_dict[member_name]["name"] = ""
+            expected_member_dict[member_name]["service_monthly_fee"] = 0
             expected_member_dict[member_name]["contracted_power_monthly_fee"] = 0
             expected_member_dict[member_name]["contracted_power_cargo_monthly_fee"] = 0
             expected_member_dict[member_name]["energy_cargo_fee"] = 0

@@ -110,6 +110,7 @@ SCM_PROPERTY_TYPE_MAPPING = {
     "fixed_monthly_fee": SCMPropertyType.MONTHLY_FEES,
     "marketplace_monthly_fee": SCMPropertyType.MONTHLY_FEES,
     "assistance_monthly_fee": SCMPropertyType.MONTHLY_FEES,
+    "service_monthly_fee": SCMPropertyType.MONTHLY_FEES,
     "contracted_power_monthly_fee": SCMPropertyType.MONTHLY_FEES,
     "contracted_power_cargo_monthly_fee": SCMPropertyType.MONTHLY_FEES,
     "energy_cargo_fee": SCMPropertyType.PER_KWH_FEES,
@@ -119,3 +120,11 @@ SCM_PROPERTY_TYPE_MAPPING = {
     "market_maker_rate": SCMPropertyType.AREA_PROPERTIES,
     "feed_in_tariff": SCMPropertyType.AREA_PROPERTIES,
 }
+
+
+class SCMSelfConsumptionType(Enum):
+    """Self consumption type for SCM algorithm."""
+
+    SIMPLIFIED_COLLECTIVE_SELF_CONSUMPTION_41 = 0
+    COLLECTIVE_SELF_CONSUMPTION_SURPLUS_42 = 1
+    NO_SELF_CONSUMPTION = 2
