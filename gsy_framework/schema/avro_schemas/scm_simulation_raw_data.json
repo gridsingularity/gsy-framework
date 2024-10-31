@@ -83,13 +83,6 @@
                   }
                 },
                 {
-                  "name": "asset_energy_requirements_kWh",
-                  "type": {
-                    "type": "map",
-                    "values": "float"
-                  }
-                },
-                {
                   "name": "trades",
                   "type": {
                     "name": "Trades",
