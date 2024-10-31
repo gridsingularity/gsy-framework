@@ -109,6 +109,7 @@ class MembersRowConverter:
         grid_import_fee_const: float,
         grid_export_fee_const: float,
         taxes_surcharges: float,
+        electricity_tax: float,
         fixed_monthly_fee: float,
         marketplace_monthly_fee: float,
         assistance_monthly_fee: float,
@@ -140,6 +141,7 @@ class MembersRowConverter:
             "grid_import_fee_const": grid_import_fee_const,
             "grid_export_fee_const": grid_export_fee_const,
             "taxes_surcharges": taxes_surcharges,
+            "electricity_tax": electricity_tax,
             "fixed_monthly_fee": fixed_monthly_fee,
             "marketplace_monthly_fee": marketplace_monthly_fee,
             "assistance_monthly_fee": assistance_monthly_fee,
@@ -159,7 +161,8 @@ class MembersRowConverter:
 
         cls._validate_row(row)
 
-        fixed_fee = row["Service fee"] if "Service fee" in row else row["Fixed fee"]
+        electricity_tax = row["Electricity tax"] if "Electricity tax" in row else 0.0
+        fixed_fee = row["Fixed fee"] if "Fixed fee" in row else row["Fixed fee"]
         assistance_fee = row["Assistance fee"] if "Assistance fee" in row else 0.0
         service_fee = row["Service fee"] if "Service fee" in row else 0.0
         contracted_power_fee = row.get("Contracted Power Fee", 0.0)
@@ -176,6 +179,7 @@ class MembersRowConverter:
             row["Grid import fee"],
             row["Grid export fee"],
             row["Taxes and surcharges"],
+            electricity_tax,
             fixed_fee,
             row["Marketplace fee"],
             assistance_fee,
