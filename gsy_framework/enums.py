@@ -98,6 +98,7 @@ class SCMPropertyType(Enum):
     MONTHLY_FEES = 1
     GRID_FEES = 2
     AREA_PROPERTIES = 3
+    PERCENTAGE_FEES = 4
 
     @classmethod
     def member_names(cls) -> List:
@@ -107,6 +108,7 @@ class SCMPropertyType(Enum):
 
 SCM_PROPERTY_TYPE_MAPPING = {
     "taxes_surcharges": SCMPropertyType.PER_KWH_FEES,
+    "electricity_tax": SCMPropertyType.PERCENTAGE_FEES,
     "fixed_monthly_fee": SCMPropertyType.MONTHLY_FEES,
     "marketplace_monthly_fee": SCMPropertyType.MONTHLY_FEES,
     "assistance_monthly_fee": SCMPropertyType.MONTHLY_FEES,
@@ -120,3 +122,11 @@ SCM_PROPERTY_TYPE_MAPPING = {
     "market_maker_rate": SCMPropertyType.AREA_PROPERTIES,
     "feed_in_tariff": SCMPropertyType.AREA_PROPERTIES,
 }
+
+
+class SCMSelfConsumptionType(Enum):
+    """Self consumption type for SCM algorithm."""
+
+    SIMPLIFIED_COLLECTIVE_SELF_CONSUMPTION_41 = 0
+    COLLECTIVE_SELF_CONSUMPTION_SURPLUS_42 = 1
+    NO_SELF_CONSUMPTION = 2

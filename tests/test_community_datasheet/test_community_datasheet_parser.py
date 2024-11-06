@@ -37,6 +37,7 @@ class TestCommunityDatasheetParser:
                 "grid_import_fee_const": 0.3,
                 "grid_export_fee_const": 0.0,
                 "taxes_surcharges": 0.5,
+                "electricity_tax": 0.0,
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
                 "assistance_monthly_fee": 0.0,
@@ -54,6 +55,7 @@ class TestCommunityDatasheetParser:
                 "grid_import_fee_const": 0.3,
                 "grid_export_fee_const": 0.0,
                 "taxes_surcharges": 0.5,
+                "electricity_tax": 0.0,
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
                 "assistance_monthly_fee": 0.0,
@@ -142,6 +144,8 @@ class TestCommunityDatasheetParser:
             expected_member_dict[member_name]["contracted_power_monthly_fee"] = 0
             expected_member_dict[member_name]["contracted_power_cargo_monthly_fee"] = 0
             expected_member_dict[member_name]["energy_cargo_fee"] = 0
+
+        print("datasheet.members", datasheet.members)
         assert datasheet.members == expected_member_dict
 
         assert datasheet.grid == {
