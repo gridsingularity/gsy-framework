@@ -23,7 +23,7 @@ from gsy_framework.community_datasheet.sheet_headers import (
     CommunityMembersSheetHeaderOptional,
 )
 from gsy_framework.constants_limits import ConstSettings
-from gsy_framework.utils import use_default_if_null
+from gsy_framework.utils import use_default_if_null, convert_string_to_boolean
 from gsy_framework.enums import CoefficientAlgorithm
 
 logger = logging.getLogger(__name__)
@@ -115,6 +115,7 @@ class AdvancedSettingsRowConverter:
             return {field_name: cls._get_coefficient_algorithm_enum(value).value}
         if field_name.startswith("enable_"):
             field_name = field_name.replace("enable_", "")
+            return {field_name: convert_string_to_boolean(value)}
         return {field_name: value}
 
     @staticmethod

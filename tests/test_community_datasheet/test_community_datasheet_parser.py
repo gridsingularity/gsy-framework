@@ -145,7 +145,6 @@ class TestCommunityDatasheetParser:
             expected_member_dict[member_name]["contracted_power_cargo_monthly_fee"] = 0
             expected_member_dict[member_name]["energy_cargo_fee"] = 0
 
-        print("datasheet.members", datasheet.members)
         assert datasheet.members == expected_member_dict
 
         assert datasheet.grid == {
@@ -290,7 +289,7 @@ class TestCommunityDatasheetParser:
             "intracommunity_rate_base_eur": 0.3,
             "scm_cn_hours_of_delay": 72,
             "vat_percentage": 10,
-            "self_consumption_scheme": 0,
+            "self_consumption_type": 0,
             "assistance_monthly_fee": False,
             "contracted_power_cargo_monthly_fee": False,
             "contracted_power_monthly_fee": False,
