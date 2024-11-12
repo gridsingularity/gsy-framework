@@ -6,14 +6,22 @@ import pendulum
 from openpyxl.workbook.workbook import Worksheet
 from pendulum.datetime import DateTime
 
-from gsy_framework.community_datasheet.exceptions import (
-    CommunityDatasheetException)
+from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.community_datasheet.row_converters import (
-    GeneralSettingsRowConverter, LoadRowConverter, MembersRowConverter,
-    PVRowConverter, StorageRowConverter)
+    GeneralSettingsRowConverter,
+    LoadRowConverter,
+    MembersRowConverter,
+    PVRowConverter,
+    StorageRowConverter,
+    AdvancedSettingsRowConverter,
+)
 from gsy_framework.community_datasheet.sheet_headers import (
-    CommunityMembersSheetHeader, CommunityMembersSheetHeaderOptional, LoadSheetHeader,
-    PVSheetHeader, StorageSheetHeader)
+    CommunityMembersSheetHeader,
+    CommunityMembersSheetHeaderOptional,
+    LoadSheetHeader,
+    PVSheetHeader,
+    StorageSheetHeader,
+)
 from gsy_framework.constants_limits import DATE_TIME_FORMAT
 
 
@@ -84,6 +92,27 @@ class GeneralSettingsSheetParser(SheetParserInterface):
         """This sheet does not have a header."""
 
 
+class AdvancedSettingsSheetParser(SheetParserInterface):
+    """Parser for the "Advanced settings" sheet of the Community Datasheet."""
+
+    ROW_CONVERTER_CLASS = AdvancedSettingsRowConverter
+
+    def _parse_rows(self) -> Dict:
+        output = {}
+        for row in self.rows:
+            try:
+                parsed_row = self._parse_row(row)
+            except CommunityDatasheetException as ex:
+                raise ex
+
+            output.update(parsed_row)
+
+        return output
+
+    def _parse_header(self):
+        """This sheet does not have a header."""
+
+
 class MembersSheetParser(SheetParserInterface):
     """Base class to parse sheets whose rows represent member names."""
 
@@ -98,8 +127,11 @@ class MembersSheetParser(SheetParserInterface):
     @property
     def _mandatory_column_names(self) -> Tuple[str]:
         """Return only mandatory column names, omitting the optional columns."""
-        return tuple(column_name for column_name in self.EXPECTED_HEADER
-                     if column_name not in self.OPTIONAL_COLUMN_NAMES)
+        return tuple(
+            column_name
+            for column_name in self.EXPECTED_HEADER
+            if column_name not in self.OPTIONAL_COLUMN_NAMES
+        )
 
     def _parse_rows(self) -> Dict:
         output = {}
@@ -109,7 +141,8 @@ class MembersSheetParser(SheetParserInterface):
             member_name = row_dict.pop(self.EXPECTED_HEADER[0])
             if not member_name:
                 raise CommunityDatasheetException(
-                    f'member name cannot be None. Check sheet "{self._worksheet.title}".')
+                    f'member name cannot be None. Check sheet "{self._worksheet.title}".'
+                )
 
             member_name = member_name.strip()
             if member_name not in output:
@@ -126,11 +159,13 @@ class MembersSheetParser(SheetParserInterface):
     def _parse_header(self):
         """Use the first row as header and skip it."""
         self._header = tuple(field for field in next(self.rows) if field)
-        mandatory_headers = tuple(column for column in self._header
-                                  if column not in self.OPTIONAL_COLUMN_NAMES)
+        mandatory_headers = tuple(
+            column for column in self._header if column not in self.OPTIONAL_COLUMN_NAMES
+        )
         if mandatory_headers != self._mandatory_column_names:
             raise CommunityDatasheetException(
-                f"Could not find expected headers: {self.EXPECTED_HEADER}. Found: {self._header}.")
+                f"Could not find expected headers: {self.EXPECTED_HEADER}. Found: {self._header}."
+            )
 
 
 class CommunityMembersSheetParser(MembersSheetParser):
@@ -138,7 +173,8 @@ class CommunityMembersSheetParser(MembersSheetParser):
 
     EXPECTED_HEADER = [
         *CommunityMembersSheetHeader.values(),
-        *CommunityMembersSheetHeaderOptional.values()]
+        *CommunityMembersSheetHeaderOptional.values(),
+    ]
     OPTIONAL_COLUMN_NAMES = CommunityMembersSheetHeaderOptional.values()
 
     def _parse_header(self):
@@ -155,17 +191,18 @@ class CommunityMembersSheetParser(MembersSheetParser):
             member_name = row_dict.pop(self.EXPECTED_HEADER[0], "").strip()
             if not member_name:
                 raise CommunityDatasheetException(
-                    f'member name cannot be None. Check sheet "{self._worksheet.title}".')
+                    f'member name cannot be None. Check sheet "{self._worksheet.title}".'
+                )
 
             if member_name in output:
                 raise CommunityDatasheetException(
-                    f'Member names must be unique. Found duplicate name: "{member_name}".')
+                    f'Member names must be unique. Found duplicate name: "{member_name}".'
+                )
 
             parsed_row = self._parse_row(row_dict)
 
             if "@" not in parseaddr(parsed_row["email"])[1]:
-                raise CommunityDatasheetException(
-                    f'Invalid member email {parsed_row["email]"]}.')
+                raise CommunityDatasheetException(f'Invalid member email {parsed_row["email]"]}.')
 
             output[member_name] = parsed_row
 
@@ -199,7 +236,7 @@ class StorageSheetParser(MembersSheetParser):
 class ProfileSheetParser(MembersSheetParser):
     """Parser for the "Profiles" sheet of the Community Datasheet."""
 
-    EXPECTED_HEADER = ("Datetime", )
+    EXPECTED_HEADER = ("Datetime",)
 
     def _parse_rows(self) -> Dict:
         """Parse a worksheet."""
@@ -212,7 +249,8 @@ class ProfileSheetParser(MembersSheetParser):
             if date_time in already_parsed_date_times:
                 raise CommunityDatasheetException(
                     "Profiles cannot have multiple values for the same datetime."
-                    f'Check sheet "{self._worksheet.title}".')
+                    f'Check sheet "{self._worksheet.title}".'
+                )
 
             for asset_name, energy_value in row_dict.items():
                 if asset_name not in output:
