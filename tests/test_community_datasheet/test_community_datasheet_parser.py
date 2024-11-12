@@ -99,7 +99,6 @@ class TestCommunityDatasheetParser:
                     "azimuth": None,
                     "geo_tag_location": (4.137182, 48.058159),
                     "cloud_coverage": 4,
-                    "forecast_stream_id": None,
                     "power_profile": {
                         "2021-08-02T00:00": 11.5,
                         "2021-08-02T01:00": 11.5,
@@ -131,7 +130,6 @@ class TestCommunityDatasheetParser:
                     "azimuth": 123,
                     "geo_tag_location": (4.137182, 48.058159),
                     "cloud_coverage": 5,
-                    "forecast_stream_id": None,
                 }
             ],
         }
@@ -139,7 +137,6 @@ class TestCommunityDatasheetParser:
         expected_member_dict = deepcopy(members_with_coordinates)
         for member_name in ["Member 1", "Member 2"]:
             expected_member_dict[member_name]["grid_export_fee_const"] = 0
-            expected_member_dict[member_name]["forecast_stream_id"] = None
             expected_member_dict[member_name]["name"] = ""
             expected_member_dict[member_name]["service_monthly_fee"] = 0
             expected_member_dict[member_name]["contracted_power_monthly_fee"] = 0
@@ -175,7 +172,6 @@ class TestCommunityDatasheetParser:
                             "type": "Area",
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
-                            "forecast_stream_id": None,
                             "address": "Am Werth 94, Wolffburg, Schleswig-Holstein, Germany",
                             "children": [
                                 {
@@ -183,7 +179,6 @@ class TestCommunityDatasheetParser:
                                     "type": "Load",
                                     "uuid": "mocked-uuid",
                                     "geo_tag_location": (4.137182, 48.058159),
-                                    "forecast_stream_id": None,
                                     "daily_load_profile": {
                                         "2021-08-02T00:00": 22.32,
                                         "2021-08-02T01:00": 20.72,
@@ -213,7 +208,6 @@ class TestCommunityDatasheetParser:
                                     "azimuth": None,
                                     "geo_tag_location": (4.137182, 48.058159),
                                     "cloud_coverage": 4,
-                                    "forecast_stream_id": None,
                                     "power_profile": {
                                         "2021-08-02T00:00": 11.5,
                                         "2021-08-02T01:00": 11.5,
@@ -238,7 +232,6 @@ class TestCommunityDatasheetParser:
                                     "name": "Battery 1",
                                     "type": "ScmStorage",
                                     "uuid": "mocked-uuid",
-                                    "forecast_stream_id": None,
                                     "geo_tag_location": (4.137182, 48.058159),
                                 },
                             ],
@@ -249,7 +242,6 @@ class TestCommunityDatasheetParser:
                             "type": "Area",
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
-                            "forecast_stream_id": None,
                             "address": "Heisterbachstr. 8, Ost Colin, Hamburg, Germany",
                             "children": [
                                 {
@@ -261,13 +253,11 @@ class TestCommunityDatasheetParser:
                                     "azimuth": 123,
                                     "geo_tag_location": (4.137182, 48.058159),
                                     "cloud_coverage": 5,
-                                    "forecast_stream_id": None,
                                 },
                                 {
                                     "name": "Battery 2",
                                     "type": "ScmStorage",
                                     "uuid": "mocked-uuid",
-                                    "forecast_stream_id": None,
                                     "geo_tag_location": (4.137182, 48.058159),
                                 },
                             ],
