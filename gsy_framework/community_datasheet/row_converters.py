@@ -30,8 +30,21 @@ logger = logging.getLogger(__name__)
 
 # this is in order to expose better naming to the user
 ADVANCED_SETTINGS_FIELD_MAPPING = {
-    "intracommunity_rate": "intracommunity_rate_base_eur",
-    "operational_hours_of_delay": "scm_cn_hours_of_delay",
+    "Coefficient algorithm": "coefficient_algorithm",
+    "Grid fees reduction": "grid_fees_reduction",
+    "Intracommunity rate": "intracommunity_rate_base_eur",
+    "Operational hours of delay": "scm_cn_hours_of_delay",
+    "VAT percentage": "vat_percentage",
+    "Self consumption type": "self_consumption_type",
+    "Enable grid import fee": "enable_grid_import_fee_const",
+    "Enable grid export fee": "enable_grid_export_fee_const",
+    "Enable taxes surcharges": "enable_taxes_surcharges",
+    "Enable marketplace monthly fee": "enable_marketplace_monthly_fee",
+    "Enable assistance monthly fee": "enable_assistance_monthly_fee",
+    "Enable service monthly fee": "enable_service_monthly_fee",
+    "Enable contracted power monthly fee": "enable_contracted_power_monthly_fee",
+    "Enable contracted power cargo monthly fee": "enable_contracted_power_cargo_monthly_fee",
+    "Enable energy cargo fee": "enable_energy_cargo_fee",
 }
 
 
@@ -105,7 +118,6 @@ class AdvancedSettingsRowConverter:
         cls._validate_row(row)
 
         field_name, value = row[0], row[2]  # Each row is a tuple (setting-name, legend, value)
-        field_name = field_name.strip().lower().replace(" ", "_")
         field_name = (
             ADVANCED_SETTINGS_FIELD_MAPPING[field_name]
             if field_name in ADVANCED_SETTINGS_FIELD_MAPPING
@@ -114,7 +126,6 @@ class AdvancedSettingsRowConverter:
         if field_name == "coefficient_algorithm":
             return {field_name: cls._get_coefficient_algorithm_enum(value).value}
         if field_name.startswith("enable_"):
-            field_name = field_name.replace("enable_", "")
             return {field_name: convert_string_to_boolean(value)}
         return {field_name: value}
 
