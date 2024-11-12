@@ -1,6 +1,7 @@
 import os
 import pathlib
 from copy import deepcopy
+from datetime import timedelta
 from unittest.mock import MagicMock, call, patch
 
 import pytest
@@ -11,6 +12,7 @@ from gsy_framework.community_datasheet.community_datasheet_parser import (
 )
 from gsy_framework.community_datasheet.location_converter import LocationConverterException
 from gsy_framework.community_datasheet.row_converters import AssetCoordinatesBuilder
+from gsy_framework.constants_limits import DATE_TIME_FORMAT
 
 FIXTURES_PATH = pathlib.Path(os.path.dirname(__file__)).parent / "fixtures"
 BASE_MODULE = "gsy_framework.community_datasheet.row_converters"
@@ -23,11 +25,8 @@ class TestCommunityDatasheetParser:
     @patch(
         "gsy_framework.community_datasheet.row_converters.uuid.uuid4", return_value="mocked-uuid"
     )
-    @pytest.mark.parametrize(
-        "cds_file", ["community_datasheet.xlsx", "community_datasheet_alt.xlsx"]
-    )
-    def test_parse(_uuid_mock, asset_coordinates_builder_cls_mock, cds_file):
-        filename = FIXTURES_PATH / cds_file
+    def test_parse(_uuid_mock, asset_coordinates_builder_cls_mock):
+        filename = FIXTURES_PATH / "community_datasheet.xlsx"
         members_information = {
             "Member 1": {
                 "email": "some-email-1@some-email.com",
@@ -41,8 +40,8 @@ class TestCommunityDatasheetParser:
                 "electricity_tax": 0.0,
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
-                "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
-                "service_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
+                "assistance_monthly_fee": 0.0,
+                "service_monthly_fee": 0.0,
                 "coefficient_percentage": 0.5,
                 "uuid": "mocked-uuid",
                 "asset_count": 3,
@@ -59,8 +58,8 @@ class TestCommunityDatasheetParser:
                 "electricity_tax": 0.0,
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
-                "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
-                "service_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
+                "assistance_monthly_fee": 0.0,
+                "service_monthly_fee": 0.0,
                 "coefficient_percentage": 0.5,
                 "uuid": "mocked-uuid",
                 "asset_count": 2,
@@ -146,7 +145,6 @@ class TestCommunityDatasheetParser:
             expected_member_dict[member_name]["contracted_power_cargo_monthly_fee"] = 0
             expected_member_dict[member_name]["energy_cargo_fee"] = 0
 
-        print("datasheet.members", datasheet.members)
         assert datasheet.members == expected_member_dict
 
         assert datasheet.grid == {
@@ -278,6 +276,30 @@ class TestCommunityDatasheetParser:
         }
 
         assert datasheet.global_coordinates == (4.137182, 48.058159)
+        assert datasheet.settings.pop("start_date").format(DATE_TIME_FORMAT) == "2022-01-25T00:00"
+        assert datasheet.settings.pop("end_date").format(DATE_TIME_FORMAT) == "2022-02-25T00:00"
+        assert datasheet.settings == {
+            "slot_length": timedelta(seconds=1800),
+            "currency": "EUR",
+        }
+
+        assert datasheet.advanced_settings == {
+            "coefficient_algorithm": 1,
+            "grid_fees_reduction": 0,
+            "intracommunity_rate_base_eur": 0.3,
+            "scm_cn_hours_of_delay": 72,
+            "vat_percentage": 10,
+            "self_consumption_type": 0,
+            "enable_assistance_monthly_fee": False,
+            "enable_contracted_power_cargo_monthly_fee": False,
+            "enable_contracted_power_monthly_fee": False,
+            "enable_energy_cargo_fee": False,
+            "enable_grid_export_fee_const": False,
+            "enable_grid_import_fee_const": False,
+            "enable_marketplace_monthly_fee": False,
+            "enable_service_monthly_fee": False,
+            "enable_taxes_surcharges": False,
+        }
 
 
 class TestAssetCoordinatesBuilder:

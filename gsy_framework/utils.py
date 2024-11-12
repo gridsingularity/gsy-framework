@@ -650,3 +650,11 @@ def use_default_if_null(
 ) -> Union[int, str, float]:
     """Return input_value if not null, else return provided default_value"""
     return input_value if input_value not in NULL_VALUES else default_value
+
+
+def convert_string_to_boolean(input_object: Union[str, bool]) -> bool:
+    if isinstance(input_object, bool):
+        return input_object
+    if "false" in input_object.lower():
+        return False
+    return True
