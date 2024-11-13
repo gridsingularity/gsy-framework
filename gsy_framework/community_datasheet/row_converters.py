@@ -181,7 +181,6 @@ class MembersRowConverter:
         contracted_power_monthly_fee: float = 0.0,
         contracted_power_cargo_monthly_fee: float = 0.0,
         energy_cargo_fee: float = 0.0,
-        datastream_id: str = None,
     ):
         # pylint: disable=too-many-arguments, too-many-locals
         """Create a community member dict from individual member information."""
@@ -212,7 +211,6 @@ class MembersRowConverter:
             "contracted_power_monthly_fee": contracted_power_monthly_fee,
             "contracted_power_cargo_monthly_fee": contracted_power_cargo_monthly_fee,
             "energy_cargo_fee": energy_cargo_fee,
-            "forecast_stream_id": datastream_id,
         }
 
     @classmethod
@@ -228,7 +226,6 @@ class MembersRowConverter:
         contracted_power_fee = row.get("Contracted Power Fee", 0.0)
         contracted_power_cargo_fee = row.get("Contracted Power Cargo Fee", 0.0)
         energy_cargo_fee = row.get("Energy Cargo Fee", 0.0)
-        datastream_id = row.get("Datastream ID")
         return cls.create_member_dict(
             row["Email"],
             str(uuid.uuid4()),
@@ -248,7 +245,6 @@ class MembersRowConverter:
             contracted_power_monthly_fee=contracted_power_fee,
             contracted_power_cargo_monthly_fee=contracted_power_cargo_fee,
             energy_cargo_fee=energy_cargo_fee,
-            datastream_id=datastream_id,
         )
 
     @staticmethod
@@ -294,7 +290,6 @@ class LoadRowConverter:
             "name": row[LoadSheetHeader.LOAD_NAME],
             "type": "Load",
             "uuid": str(uuid.uuid4()),
-            "forecast_stream_id": row.get(LoadSheetHeader.DATASTREAM_ID),
         }
 
     @classmethod
@@ -340,7 +335,6 @@ class PVRowConverter:
             ),
             "tilt": row[PVSheetHeader.TILT],
             "azimuth": row[PVSheetHeader.AZIMUTH],
-            "forecast_stream_id": row.get(PVSheetHeader.DATASTREAM_ID),
         }
 
     @classmethod
@@ -376,7 +370,6 @@ class StorageRowConverter:
             "name": row[StorageSheetHeader.BATTERY_NAME],
             "type": "ScmStorage",
             "uuid": str(uuid.uuid4()),
-            "forecast_stream_id": row.get(StorageSheetHeader.DATASTREAM_ID),
         }
 
     @classmethod

@@ -158,6 +158,5 @@ class CommunityDatasheetParser:
             "uuid": member_info["uuid"],
             "geo_tag_location": member_info["geo_tag_location"],
             "address": member_info["address"],
-            "forecast_stream_id": member_info.get("datastream_id", None),
             "children": assets,
         }
