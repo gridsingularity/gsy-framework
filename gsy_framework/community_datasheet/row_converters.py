@@ -23,9 +23,29 @@ from gsy_framework.community_datasheet.sheet_headers import (
     CommunityMembersSheetHeaderOptional,
 )
 from gsy_framework.constants_limits import ConstSettings
-from gsy_framework.utils import use_default_if_null
+from gsy_framework.utils import use_default_if_null, convert_string_to_boolean
+from gsy_framework.enums import CoefficientAlgorithm
 
 logger = logging.getLogger(__name__)
+
+# this is in order to expose better naming to the user
+ADVANCED_SETTINGS_FIELD_MAPPING = {
+    "Coefficient algorithm": "coefficient_algorithm",
+    "Grid fees reduction": "grid_fees_reduction",
+    "Intracommunity rate": "intracommunity_rate_base_eur",
+    "Operational hours of delay": "scm_cn_hours_of_delay",
+    "VAT percentage": "vat_percentage",
+    "Self consumption type": "self_consumption_type",
+    "Enable grid import fee": "enable_grid_import_fee_const",
+    "Enable grid export fee": "enable_grid_export_fee_const",
+    "Enable taxes surcharges": "enable_taxes_surcharges",
+    "Enable marketplace monthly fee": "enable_marketplace_monthly_fee",
+    "Enable assistance monthly fee": "enable_assistance_monthly_fee",
+    "Enable service monthly fee": "enable_service_monthly_fee",
+    "Enable contracted power monthly fee": "enable_contracted_power_monthly_fee",
+    "Enable contracted power cargo monthly fee": "enable_contracted_power_cargo_monthly_fee",
+    "Enable energy cargo fee": "enable_energy_cargo_fee",
+}
 
 
 class StringToTimedeltaParser:
@@ -76,7 +96,47 @@ class GeneralSettingsRowConverter:
                     f"Field can't be parsed ({field_name}). {ex}"
                 ) from ex
 
-        return {field_name.strip().lower(): value}
+        return {field_name: value}
+
+    @classmethod
+    def _validate_row(cls, row: Tuple):
+        if row[0] != "Advanced Settings" and row[2] in NULL_VALUES:
+            raise CommunityDatasheetException(
+                ("Missing value for required field. " f"Row: {row}. Required field: {row[0]}.")
+            )
+
+
+class AdvancedSettingsRowConverter:
+    """Convert from the excel row to advanced settings of the community."""
+
+    @classmethod
+    def convert(cls, row: Dict) -> Dict:
+        """Convert the row using just the field name and value.
+
+        The field name is converted to snake case.
+        """
+        cls._validate_row(row)
+
+        field_name, value = row[0], row[2]  # Each row is a tuple (setting-name, legend, value)
+        field_name = (
+            ADVANCED_SETTINGS_FIELD_MAPPING[field_name]
+            if field_name in ADVANCED_SETTINGS_FIELD_MAPPING
+            else field_name
+        )
+        if field_name == "coefficient_algorithm":
+            return {field_name: cls._get_coefficient_algorithm_enum(value).value}
+        if field_name.startswith("enable_"):
+            return {field_name: convert_string_to_boolean(value)}
+        return {field_name: value}
+
+    @staticmethod
+    def _get_coefficient_algorithm_enum(setting: str) -> CoefficientAlgorithm:
+        try:
+            return [p for p in CoefficientAlgorithm if p.name == setting.upper()][0]
+        except IndexError as exc:
+            raise CommunityDatasheetException(
+                (f"The coefficient type '{setting}' is not supported")
+            ) from exc
 
     @classmethod
     def _validate_row(cls, row: Tuple):
@@ -121,7 +181,6 @@ class MembersRowConverter:
         contracted_power_monthly_fee: float = 0.0,
         contracted_power_cargo_monthly_fee: float = 0.0,
         energy_cargo_fee: float = 0.0,
-        datastream_id: str = None,
     ):
         # pylint: disable=too-many-arguments, too-many-locals
         """Create a community member dict from individual member information."""
@@ -152,7 +211,6 @@ class MembersRowConverter:
             "contracted_power_monthly_fee": contracted_power_monthly_fee,
             "contracted_power_cargo_monthly_fee": contracted_power_cargo_monthly_fee,
             "energy_cargo_fee": energy_cargo_fee,
-            "forecast_stream_id": datastream_id,
         }
 
     @classmethod
@@ -168,7 +226,6 @@ class MembersRowConverter:
         contracted_power_fee = row.get("Contracted Power Fee", 0.0)
         contracted_power_cargo_fee = row.get("Contracted Power Cargo Fee", 0.0)
         energy_cargo_fee = row.get("Energy Cargo Fee", 0.0)
-        datastream_id = row.get("Datastream ID")
         return cls.create_member_dict(
             row["Email"],
             str(uuid.uuid4()),
@@ -188,7 +245,6 @@ class MembersRowConverter:
             contracted_power_monthly_fee=contracted_power_fee,
             contracted_power_cargo_monthly_fee=contracted_power_cargo_fee,
             energy_cargo_fee=energy_cargo_fee,
-            datastream_id=datastream_id,
         )
 
     @staticmethod
@@ -234,7 +290,6 @@ class LoadRowConverter:
             "name": row[LoadSheetHeader.LOAD_NAME],
             "type": "Load",
             "uuid": str(uuid.uuid4()),
-            "forecast_stream_id": row.get(LoadSheetHeader.DATASTREAM_ID),
         }
 
     @classmethod
@@ -280,7 +335,6 @@ class PVRowConverter:
             ),
             "tilt": row[PVSheetHeader.TILT],
             "azimuth": row[PVSheetHeader.AZIMUTH],
-            "forecast_stream_id": row.get(PVSheetHeader.DATASTREAM_ID),
         }
 
     @classmethod
@@ -316,7 +370,6 @@ class StorageRowConverter:
             "name": row[StorageSheetHeader.BATTERY_NAME],
             "type": "ScmStorage",
             "uuid": str(uuid.uuid4()),
-            "forecast_stream_id": row.get(StorageSheetHeader.DATASTREAM_ID),
         }
 
     @classmethod

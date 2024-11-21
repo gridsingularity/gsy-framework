@@ -40,7 +40,6 @@ class ScenarioSchemas:
                     "assistance_monthly_fee": {"type": ["number", "null"]},
                     "market_maker_rate": {"type": ["number", "null"]},
                     "target_market_kpi": {"type": ["number", "null"]},
-                    "forecast_stream_id": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "forecast_stream_enabled": {"type": ["boolean", "null"]},
                     "grid_fee_constant": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                     "grid_import_fee_const": {"anyOf": [{"type": "number"}, {"type": "null"}]},
@@ -106,7 +105,6 @@ class ScenarioSchemas:
                     },
                     "capacity_kW": {"type": "number"},
                     "cloud_coverage": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "forecast_stream_id": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "forecast_stream_enabled": {"type": ["boolean", "null"]},
                     "power_profile": {
                         "anyOf": [
@@ -200,7 +198,6 @@ class ScenarioSchemas:
                     "energy_rate_increase_per_update": {
                         "anyOf": [{"type": "number"}, {"type": "null"}]
                     },
-                    "forecast_stream_id": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "forecast_stream_enabled": {"type": ["boolean", "null"]},
                     "daily_load_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "use_market_maker_rate": {"type": ["boolean", "null"]},
@@ -345,7 +342,6 @@ class ScenarioSchemas:
                         "anyOf": [{"type": "number"}, {"type": "null"}]
                     },
                     "use_market_maker_rate": {"type": "boolean"},
-                    "forecast_stream_id": {"anyOf": [{"type": "string"}, {"type": "null"}]},
                     "forecast_stream_enabled": {"type": ["boolean", "null"]},
                     "prosumption_kWh_profile_uuid": {
                         "anyOf": [{"type": "string"}, {"type": "null"}]

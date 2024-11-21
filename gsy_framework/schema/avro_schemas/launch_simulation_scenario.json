@@ -39,7 +39,6 @@
     {"name": "baseline_peak_energy_export_kWh", "type": ["null", "float"]},
     {"name": "baseline_peak_energy_import_kWh", "type": ["null", "float"]},
     {"name": "forecast_stream_enabled", "type": ["null", "boolean"]},
-    {"name": "forecast_stream_id", "type": ["null", "string"]},
     {"name": "children", "type": [
         "null",
         {
@@ -174,7 +173,6 @@
                 {"name": "initial_selling_rate", "type": ["null", "float"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "forecast_stream_enabled", "type": ["null", "boolean"]},
-                {"name": "forecast_stream_id", "type": ["null", "string"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name": "energy_rate_decrease_per_update", "type": ["null", "float"]},
                 {"name":  "display_type", "type":  "string"}
@@ -206,7 +204,6 @@
                 {"name": "capacity_kW", "type": ["null", "float"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "forecast_stream_enabled", "type": ["null", "boolean"]},
-                {"name": "forecast_stream_id", "type": ["null", "string"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name":  "display_type", "type":  "string"}
               ]
@@ -236,7 +233,6 @@
                 {"name": "daily_load_measurement_uuid", "type": ["null", "string"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "forecast_stream_enabled", "type": ["null", "boolean"]},
-                {"name": "forecast_stream_id", "type": ["null", "string"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name": "energy_rate_increase_per_update", "type": ["null", "float"]},
                 {"name":  "display_type", "type":  "string"}
@@ -323,8 +319,7 @@
                 {"name": "prosumption_kWh_measurement_uuid", "type": ["null", "string"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
-                {"name":  "display_type", "type":  "string"},
-                {"name": "forecast_stream_id", "type": ["null", "string"]}
+                {"name":  "display_type", "type":  "string"}
               ]
             },
             {
@@ -347,8 +342,7 @@
                 {"name": "consumption_kWh_measurement_uuid", "type": ["null", "string"]},
                 {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
-                {"name":  "display_type", "type":  "string"},
-                {"name": "forecast_stream_id", "type": ["null", "string"]}
+                {"name":  "display_type", "type":  "string"}
               ]
             },
             {
