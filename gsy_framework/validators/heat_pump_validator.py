@@ -29,9 +29,14 @@ class HeatPumpValidator(BaseValidator):
         if (
             kwargs.get("consumption_kWh_profile") is None
             and kwargs.get("consumption_kWh_profile_uuid") is None
+            and kwargs.get("heat_demand_Q_profile") is None
         ):
             raise GSyDeviceException(
-                {"misconfiguration": ["consumption_kWh_profile should be provided."]}
+                {
+                    "misconfiguration": [
+                        "consumption_kWh_profile or heat_demand_Q_profile should be provided."
+                    ]
+                }
             )
 
         if (
