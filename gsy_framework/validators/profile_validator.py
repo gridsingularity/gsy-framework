@@ -11,14 +11,18 @@ class ProfileValidator:
     def __init__(
             self, profile: Dict[DateTime, float], start_time: Optional[DateTime] = None,
             end_time: Optional[DateTime] = None, slot_length: Optional[timedelta] = None):
-        assert len(profile) > 0, "profile is empty"
+
         self.profile = OrderedDict(profile)
+        if not self.profile:
+            return
         self.start_time = start_time if start_time else self._profile_start_time
         self.end_time = end_time if end_time else self._profile_end_time
         self.slot_length: timedelta = slot_length
 
     def validate(self):
         """Validate if profile corresponds to the start_time, end_time and slot_length setting."""
+        if not self.profile:
+            return
         if self.slot_length:
             self._validate_slot_length()
         else:
@@ -35,14 +39,16 @@ class ProfileValidator:
 
     def _validate_start_end_date(self):
         assert self._profile_start_time <= self.start_time, (
-            f"start_time is not valid {self._profile_start_time}, should be <= {self.start_time}")
+            f"Profile start time {self._profile_start_time} is not consistent with the simulation "
+            f"start time {self.start_time}.")
         if (self._profile_end_time -
                 self._profile_start_time == duration(days=1) - self.slot_length):
             # if the profile is only one day long, it will be copied to other days and
             # consequently, the end_date does not have to be validated
             return
         assert self._profile_end_time >= self.end_time, (
-            f"end_time is not valid {self._profile_end_time}, should be >= {self.end_time}")
+            f"Profile end time {self._profile_end_time} is not consistent with the simulation "
+            f"end time {self.end_time}.")
 
     def _validate_slot_length(self):
         first_time = self._profile_start_time

@@ -9,14 +9,43 @@ import pendulum
 
 from gsy_framework import NULL_VALUES
 from gsy_framework.community_datasheet.exceptions import (
-    CommunityDatasheetException, StringToTimedeltaConversionException)
+    CommunityDatasheetException,
+    StringToTimedeltaConversionException,
+)
 from gsy_framework.community_datasheet.location_converter import (
-    LocationConverter, LocationConverterException)
+    LocationConverter,
+    LocationConverterException,
+)
 from gsy_framework.community_datasheet.sheet_headers import (
-    LoadSheetHeader, PVSheetHeader, StorageSheetHeader)
+    LoadSheetHeader,
+    PVSheetHeader,
+    StorageSheetHeader,
+    CommunityMembersSheetHeaderOptional,
+)
 from gsy_framework.constants_limits import ConstSettings
-from gsy_framework.utils import use_default_if_null
+from gsy_framework.utils import use_default_if_null, convert_string_to_boolean
+from gsy_framework.enums import CoefficientAlgorithm
+
 logger = logging.getLogger(__name__)
+
+# this is in order to expose better naming to the user
+ADVANCED_SETTINGS_FIELD_MAPPING = {
+    "Coefficient algorithm": "coefficient_algorithm",
+    "Grid fees reduction": "grid_fees_reduction",
+    "Intracommunity rate": "intracommunity_rate_base_eur",
+    "Operational hours of delay": "scm_cn_hours_of_delay",
+    "VAT percentage": "vat_percentage",
+    "Self consumption type": "self_consumption_type",
+    "Enable grid import fee": "enable_grid_import_fee_const",
+    "Enable grid export fee": "enable_grid_export_fee_const",
+    "Enable taxes surcharges": "enable_taxes_surcharges",
+    "Enable marketplace monthly fee": "enable_marketplace_monthly_fee",
+    "Enable assistance monthly fee": "enable_assistance_monthly_fee",
+    "Enable service monthly fee": "enable_service_monthly_fee",
+    "Enable contracted power monthly fee": "enable_contracted_power_monthly_fee",
+    "Enable contracted power cargo monthly fee": "enable_contracted_power_cargo_monthly_fee",
+    "Enable energy cargo fee": "enable_energy_cargo_fee",
+}
 
 
 class StringToTimedeltaParser:
@@ -36,13 +65,12 @@ class StringToTimedeltaParser:
         if not parts:
             raise StringToTimedeltaConversionException(
                 f'Value "{time_string}" does not use the supported format. '
-                'Please use [h]:mm (e.g. "1h30m").')
+                'Please use [h]:mm (e.g. "1h30m").'
+            )
 
         parts = parts.groupdict(default=0)
 
-        return timedelta(
-            hours=int(parts["hours"]),
-            minutes=int(parts["minutes"]))
+        return timedelta(hours=int(parts["hours"]), minutes=int(parts["minutes"]))
 
 
 class GeneralSettingsRowConverter:
@@ -65,37 +93,102 @@ class GeneralSettingsRowConverter:
                 value = StringToTimedeltaParser.parse(value)
             except StringToTimedeltaConversionException as ex:
                 raise CommunityDatasheetException(
-                    f"Field can't be parsed ({field_name}). {ex}") from ex
+                    f"Field can't be parsed ({field_name}). {ex}"
+                ) from ex
 
-        return {field_name.strip().lower(): value}
+        return {field_name: value}
+
+    @classmethod
+    def _validate_row(cls, row: Tuple):
+        if row[0] != "Advanced Settings" and row[2] in NULL_VALUES:
+            raise CommunityDatasheetException(
+                ("Missing value for required field. " f"Row: {row}. Required field: {row[0]}.")
+            )
+
+
+class AdvancedSettingsRowConverter:
+    """Convert from the excel row to advanced settings of the community."""
+
+    @classmethod
+    def convert(cls, row: Dict) -> Dict:
+        """Convert the row using just the field name and value.
+
+        The field name is converted to snake case.
+        """
+        cls._validate_row(row)
+
+        field_name, value = row[0], row[2]  # Each row is a tuple (setting-name, legend, value)
+        field_name = (
+            ADVANCED_SETTINGS_FIELD_MAPPING[field_name]
+            if field_name in ADVANCED_SETTINGS_FIELD_MAPPING
+            else field_name
+        )
+        if field_name == "coefficient_algorithm":
+            return {field_name: cls._get_coefficient_algorithm_enum(value).value}
+        if field_name.startswith("enable_"):
+            return {field_name: convert_string_to_boolean(value)}
+        return {field_name: value}
+
+    @staticmethod
+    def _get_coefficient_algorithm_enum(setting: str) -> CoefficientAlgorithm:
+        try:
+            return [p for p in CoefficientAlgorithm if p.name == setting.upper()][0]
+        except IndexError as exc:
+            raise CommunityDatasheetException(
+                (f"The coefficient type '{setting}' is not supported")
+            ) from exc
 
     @classmethod
     def _validate_row(cls, row: Tuple):
         if row[2] in NULL_VALUES:
-            raise CommunityDatasheetException((
-                "Missing value for required field. "
-                f"Row: {row}. Required field: {row[0]}."))
+            raise CommunityDatasheetException(
+                ("Missing value for required field. " f"Row: {row}. Required field: {row[0]}.")
+            )
 
 
 class MembersRowConverter:
     """Convert from the excel row to a dictionary representing member information."""
 
-    OPTIONAL_FIELDS = ("Location/Address (optional)",)
+    OPTIONAL_FIELDS = (
+        "Location/Address (optional)",
+        CommunityMembersSheetHeaderOptional.CONTRACTED_POWER_FEE,
+        CommunityMembersSheetHeaderOptional.CONTRACTED_POWER_CARGO_FEE,
+        CommunityMembersSheetHeaderOptional.ENERGY_CARGO_FEE,
+        CommunityMembersSheetHeaderOptional.DATASTREAM_ID,
+    )
 
     @classmethod
     def create_member_dict(
-            cls, email: str, member_uuid: str, zip_code: str, address: str,
-            market_maker_rate: float, feed_in_tariff: float, grid_fee_constant: float,
-            taxes_surcharges: float, fixed_monthly_fee: float, marketplace_monthly_fee: float,
-            assistance_monthly_fee: float, coefficient_percentage: float,
-            geo_tag_location: List = None, asset_count: int = 0, member_name: str = None):
-        # pylint: disable=too-many-arguments
+        cls,
+        email: str,
+        member_uuid: str,
+        zip_code: str,
+        address: str,
+        market_maker_rate: float,
+        feed_in_tariff: float,
+        grid_import_fee_const: float,
+        grid_export_fee_const: float,
+        taxes_surcharges: float,
+        electricity_tax: float,
+        fixed_monthly_fee: float,
+        marketplace_monthly_fee: float,
+        assistance_monthly_fee: float,
+        coefficient_percentage: float,
+        service_monthly_fee: float = 0.0,
+        geo_tag_location: List = None,
+        asset_count: int = 0,
+        member_name: str = None,
+        contracted_power_monthly_fee: float = 0.0,
+        contracted_power_cargo_monthly_fee: float = 0.0,
+        energy_cargo_fee: float = 0.0,
+    ):
+        # pylint: disable=too-many-arguments, too-many-locals
         """Create a community member dict from individual member information."""
         zip_code = cls._parse_zip_code(zip_code)
         if not geo_tag_location:
-            geo_tag_location = AssetCoordinatesBuilder().get_member_coordinates({
-                "address": address, "zip_code": zip_code
-            })
+            geo_tag_location = AssetCoordinatesBuilder().get_member_coordinates(
+                {"address": address, "zip_code": zip_code}
+            )
         return {
             "email": email,
             "uuid": member_uuid,
@@ -104,14 +197,20 @@ class MembersRowConverter:
             "address": address,
             "market_maker_rate": market_maker_rate,
             "feed_in_tariff": feed_in_tariff,
-            "grid_fee_constant": grid_fee_constant,
+            "grid_import_fee_const": grid_import_fee_const,
+            "grid_export_fee_const": grid_export_fee_const,
             "taxes_surcharges": taxes_surcharges,
+            "electricity_tax": electricity_tax,
             "fixed_monthly_fee": fixed_monthly_fee,
             "marketplace_monthly_fee": marketplace_monthly_fee,
             "assistance_monthly_fee": assistance_monthly_fee,
+            "service_monthly_fee": service_monthly_fee,
             "coefficient_percentage": coefficient_percentage,
             "geo_tag_location": geo_tag_location,
-            "asset_count": asset_count
+            "asset_count": asset_count,
+            "contracted_power_monthly_fee": contracted_power_monthly_fee,
+            "contracted_power_cargo_monthly_fee": contracted_power_cargo_monthly_fee,
+            "energy_cargo_fee": energy_cargo_fee,
         }
 
     @classmethod
@@ -120,14 +219,33 @@ class MembersRowConverter:
 
         cls._validate_row(row)
 
-        fixed_fee = row["Service fee"] if "Service fee" in row else row["Fixed fee"]
+        electricity_tax = row["Electricity tax"] if "Electricity tax" in row else 0.0
+        fixed_fee = row["Fixed fee"] if "Fixed fee" in row else row["Fixed fee"]
         assistance_fee = row["Assistance fee"] if "Assistance fee" in row else 0.0
-
+        service_fee = row["Service fee"] if "Service fee" in row else 0.0
+        contracted_power_fee = row.get("Contracted Power Fee", 0.0)
+        contracted_power_cargo_fee = row.get("Contracted Power Cargo Fee", 0.0)
+        energy_cargo_fee = row.get("Energy Cargo Fee", 0.0)
         return cls.create_member_dict(
-            row["Email"], str(uuid.uuid4()), cls._parse_zip_code(row["ZIP code"]),
-            row["Location/Address (optional)"], row["Utility price"],
-            row["Feed-in Tariff"], row["Grid fee"], row["Taxes and surcharges"],
-            fixed_fee, row["Marketplace fee"], assistance_fee, row["Coefficient"])
+            row["Email"],
+            str(uuid.uuid4()),
+            cls._parse_zip_code(row["ZIP code"]),
+            row["Location/Address (optional)"],
+            row["Utility price"],
+            row["Feed-in Tariff"],
+            row["Grid import fee"],
+            row["Grid export fee"],
+            row["Taxes and surcharges"],
+            electricity_tax,
+            fixed_fee,
+            row["Marketplace fee"],
+            assistance_fee,
+            row["Coefficient"],
+            service_monthly_fee=service_fee,
+            contracted_power_monthly_fee=contracted_power_fee,
+            contracted_power_cargo_monthly_fee=contracted_power_cargo_fee,
+            energy_cargo_fee=energy_cargo_fee,
+        )
 
     @staticmethod
     def _parse_zip_code(zip_code: str) -> str:
@@ -142,18 +260,24 @@ class MembersRowConverter:
     @classmethod
     def _validate_row(cls, row: Dict):
         missing_fields = [
-            field for field, value in row.items()
-            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES]
+            field
+            for field, value in row.items()
+            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES
+        ]
 
         if missing_fields:
-            raise CommunityDatasheetException((
-                "Missing values for required fields. "
-                f"Row: {row}. Required fields: {missing_fields}."))
+            raise CommunityDatasheetException(
+                (
+                    "Missing values for required fields. "
+                    f"Row: {row}. Required fields: {missing_fields}."
+                )
+            )
 
 
 class LoadRowConverter:
     """Convert from the excel row to a grid representation of a Load asset."""
-    OPTIONAL_FIELDS = (LoadSheetHeader.DATASTREAM_ID, )
+
+    OPTIONAL_FIELDS = (LoadSheetHeader.DATASTREAM_ID,)
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
@@ -166,26 +290,35 @@ class LoadRowConverter:
             "name": row[LoadSheetHeader.LOAD_NAME],
             "type": "Load",
             "uuid": str(uuid.uuid4()),
-            "forecast_stream_id": row.get(LoadSheetHeader.DATASTREAM_ID)
         }
 
     @classmethod
     def _validate_row(cls, row: Dict):
-        missing_fields = [field for field, value in row.items()
-                          if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES]
+        missing_fields = [
+            field
+            for field, value in row.items()
+            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES
+        ]
 
         if missing_fields:
-            raise CommunityDatasheetException((
-                "Missing values for required fields. "
-                f"Row: {row}. Required fields: {missing_fields}."))
+            raise CommunityDatasheetException(
+                (
+                    "Missing values for required fields. "
+                    f"Row: {row}. Required fields: {missing_fields}."
+                )
+            )
 
 
 class PVRowConverter:
     """Convert from the excel row to a grid representation of a PV asset."""
 
     # These fields are optional because they can be ignored if a PV profile is explicitly provided
-    OPTIONAL_FIELDS = (PVSheetHeader.CAPACITY_KW, PVSheetHeader.TILT, PVSheetHeader.AZIMUTH,
-                       PVSheetHeader.DATASTREAM_ID)
+    OPTIONAL_FIELDS = (
+        PVSheetHeader.CAPACITY_KW,
+        PVSheetHeader.TILT,
+        PVSheetHeader.AZIMUTH,
+        PVSheetHeader.DATASTREAM_ID,
+    )
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
@@ -198,26 +331,33 @@ class PVRowConverter:
             "type": "PV",
             "uuid": str(uuid.uuid4()),
             "capacity_kW": use_default_if_null(
-                row[PVSheetHeader.CAPACITY_KW], ConstSettings.PVSettings.DEFAULT_CAPACITY_KW),
+                row[PVSheetHeader.CAPACITY_KW], ConstSettings.PVSettings.DEFAULT_CAPACITY_KW
+            ),
             "tilt": row[PVSheetHeader.TILT],
             "azimuth": row[PVSheetHeader.AZIMUTH],
-            "forecast_stream_id": row.get(LoadSheetHeader.DATASTREAM_ID)
         }
 
     @classmethod
     def _validate_row(cls, row: Dict):
         missing_fields = [
-            field for field, value in row.items()
-            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES]
+            field
+            for field, value in row.items()
+            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES
+        ]
 
         if missing_fields:
-            raise CommunityDatasheetException((
-                "Missing values for required fields. "
-                f"Row: {row}. Required fields: {missing_fields}."))
+            raise CommunityDatasheetException(
+                (
+                    "Missing values for required fields. "
+                    f"Row: {row}. Required fields: {missing_fields}."
+                )
+            )
 
 
 class StorageRowConverter:
     """Convert from the excel row to a grid representation of a Storage asset."""
+
+    OPTIONAL_FIELDS = (StorageSheetHeader.DATASTREAM_ID,)
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
@@ -226,34 +366,27 @@ class StorageRowConverter:
         """
         cls._validate_row(row)
 
-        min_allowed_soc = use_default_if_null(row[StorageSheetHeader.MINIMUM_ALLOWED_SOC],
-                                              ConstSettings.StorageSettings.MIN_ALLOWED_SOC)
-        # The community datasheet doesn't allow setting the initial SOC, so we intentionally set it
-        # to be equal to the min_allowed_soc specified by the user.
-        initial_soc = min_allowed_soc
-
         return {
             "name": row[StorageSheetHeader.BATTERY_NAME],
-            "type": "Storage",
+            "type": "ScmStorage",
             "uuid": str(uuid.uuid4()),
-            "battery_capacity_kWh": use_default_if_null(
-                row[StorageSheetHeader.CAPACITY_KWH],
-                ConstSettings.StorageSettings.CAPACITY),
-            "min_allowed_soc": min_allowed_soc,
-            "initial_soc": initial_soc,
-            "max_abs_battery_power_kW": use_default_if_null(
-                row[StorageSheetHeader.MAXIMUM_POWER_KW],
-                ConstSettings.StorageSettings.MAX_ABS_POWER)
         }
 
     @classmethod
     def _validate_row(cls, row: Dict):
-        missing_fields = [field for field, value in row.items() if value in NULL_VALUES]
+        missing_fields = [
+            field
+            for field, value in row.items()
+            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES
+        ]
 
         if missing_fields:
-            raise CommunityDatasheetException((
-                "Missing values for required fields. "
-                f"Row: {row}. Required fields: {missing_fields}."))
+            raise CommunityDatasheetException(
+                (
+                    "Missing values for required fields. "
+                    f"Row: {row}. Required fields: {missing_fields}."
+                )
+            )
 
 
 class AssetCoordinatesBuilder:

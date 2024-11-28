@@ -8,7 +8,7 @@ class LoadSheetHeader(str, Enum):
 
     MEMBER_NAME = "Member_name"
     LOAD_NAME = "Load_name"
-    DATASTREAM_ID = "Datastream_ID"
+    DATASTREAM_ID = "Datastream ID"
 
     @classmethod
     def values(cls):
@@ -24,7 +24,7 @@ class PVSheetHeader(str, Enum):
     CAPACITY_KW = "Capacity [kW]"
     TILT = "Tilt [°]"
     AZIMUTH = "Azimuth [°]"
-    DATASTREAM_ID = "Datastream_ID"
+    DATASTREAM_ID = "Datastream ID"
 
     @classmethod
     def values(cls):
@@ -37,9 +37,7 @@ class StorageSheetHeader(str, Enum):
 
     MEMBER_NAME = "Member_name"
     BATTERY_NAME = "Battery_name"
-    CAPACITY_KWH = "Capacity [kWh]"
-    MINIMUM_ALLOWED_SOC = "Minimum allowed SoC [-]"
-    MAXIMUM_POWER_KW = "Maximum power [kW]"
+    DATASTREAM_ID = "Datastream ID"
 
     @classmethod
     def values(cls):
@@ -56,7 +54,6 @@ class CommunityMembersSheetHeader(str, Enum):
     LOCATION = "Location/Address (optional)"
     UTILITY_PRICE = "Utility price"
     FEED_IN_TARIFF = "Feed-in Tariff"
-    GRID_FEE = "Grid fee"
     COEFFICIENT = "Coefficient"
 
     @classmethod
@@ -73,6 +70,13 @@ class CommunityMembersSheetHeaderOptional(str, Enum):
     MARKETPLACE_FEE = "Marketplace fee"
     SERVICE_FEE = "Service fee"
     ASSISTANCE_FEE = "Assistance fee"
+    ELECTRICITY_TAX = "Electricity tax"
+    GRID_IMPORT_FEE = "Grid import fee"
+    GRID_EXPORT_FEE = "Grid export fee"
+    CONTRACTED_POWER_FEE = "Contracted Power Fee"
+    CONTRACTED_POWER_CARGO_FEE = "Contracted Power Cargo Fee"
+    ENERGY_CARGO_FEE = "Energy Cargo Fee"
+    DATASTREAM_ID = "Datastream ID"
 
     @classmethod
     def values(cls):

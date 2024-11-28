@@ -1,14 +1,18 @@
 import os
 import pathlib
 from copy import deepcopy
+from datetime import timedelta
 from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from gsy_framework.community_datasheet.community_datasheet_parser import (
-    CommunityDatasheetParser, DefaultCommunityAreaNames)
+    CommunityDatasheetParser,
+    DefaultCommunityAreaNames,
+)
 from gsy_framework.community_datasheet.location_converter import LocationConverterException
 from gsy_framework.community_datasheet.row_converters import AssetCoordinatesBuilder
+from gsy_framework.constants_limits import DATE_TIME_FORMAT
 
 FIXTURES_PATH = pathlib.Path(os.path.dirname(__file__)).parent / "fixtures"
 BASE_MODULE = "gsy_framework.community_datasheet.row_converters"
@@ -19,11 +23,10 @@ class TestCommunityDatasheetParser:
     @staticmethod
     @patch(f"{BASE_MODULE}.AssetCoordinatesBuilder", spec=True)
     @patch(
-        "gsy_framework.community_datasheet.row_converters.uuid.uuid4", return_value="mocked-uuid")
-    @pytest.mark.parametrize("cds_file", ["community_datasheet.xlsx",
-                                          "community_datasheet_alt.xlsx"])
-    def test_parse(_uuid_mock, asset_coordinates_builder_cls_mock, cds_file):
-        filename = FIXTURES_PATH / cds_file
+        "gsy_framework.community_datasheet.row_converters.uuid.uuid4", return_value="mocked-uuid"
+    )
+    def test_parse(_uuid_mock, asset_coordinates_builder_cls_mock):
+        filename = FIXTURES_PATH / "community_datasheet.xlsx"
         members_information = {
             "Member 1": {
                 "email": "some-email-1@some-email.com",
@@ -31,14 +34,17 @@ class TestCommunityDatasheetParser:
                 "address": "Am Werth 94, Wolffburg, Schleswig-Holstein, Germany",
                 "market_maker_rate": 1,
                 "feed_in_tariff": 7,
-                "grid_fee_constant": 0.3,
+                "grid_import_fee_const": 0.3,
+                "grid_export_fee_const": 0.0,
                 "taxes_surcharges": 0.5,
+                "electricity_tax": 0.0,
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
-                "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
+                "assistance_monthly_fee": 0.0,
+                "service_monthly_fee": 0.0,
                 "coefficient_percentage": 0.5,
                 "uuid": "mocked-uuid",
-                "asset_count": 3
+                "asset_count": 3,
             },
             "Member 2": {
                 "email": "some-email-2@some-email.com",
@@ -46,14 +52,17 @@ class TestCommunityDatasheetParser:
                 "address": "Heisterbachstr. 8, Ost Colin, Hamburg, Germany",
                 "market_maker_rate": 1,
                 "feed_in_tariff": 7,
-                "grid_fee_constant": 0.3,
+                "grid_import_fee_const": 0.3,
+                "grid_export_fee_const": 0.0,
                 "taxes_surcharges": 0.5,
+                "electricity_tax": 0.0,
                 "fixed_monthly_fee": 0.5,
                 "marketplace_monthly_fee": 0.5,
-                "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
+                "assistance_monthly_fee": 0.0,
+                "service_monthly_fee": 0.0,
                 "coefficient_percentage": 0.5,
                 "uuid": "mocked-uuid",
-                "asset_count": 2
+                "asset_count": 2,
             },
         }
 
@@ -75,8 +84,9 @@ class TestCommunityDatasheetParser:
             "address": members_with_coordinates["Member 2"]["address"],
             "zip_code": members_with_coordinates["Member 2"]["zip_code"],
         }
-        asset_coordinates_builder_mock.get_member_coordinates.assert_has_calls([
-            call(address_dict_1), call(address_dict_2)])
+        asset_coordinates_builder_mock.get_member_coordinates.assert_has_calls(
+            [call(address_dict_1), call(address_dict_2)]
+        )
         assert datasheet.pvs == {
             "Member 1": [
                 {
@@ -88,7 +98,6 @@ class TestCommunityDatasheetParser:
                     "azimuth": None,
                     "geo_tag_location": (4.137182, 48.058159),
                     "cloud_coverage": 4,
-                    "forecast_stream_id": None,
                     "power_profile": {
                         "2021-08-02T00:00": 11.5,
                         "2021-08-02T01:00": 11.5,
@@ -120,10 +129,20 @@ class TestCommunityDatasheetParser:
                     "azimuth": 123,
                     "geo_tag_location": (4.137182, 48.058159),
                     "cloud_coverage": 5,
-                    "forecast_stream_id": None,
                 }
             ],
         }
+
+        expected_member_dict = deepcopy(members_with_coordinates)
+        for member_name in ["Member 1", "Member 2"]:
+            expected_member_dict[member_name]["grid_export_fee_const"] = 0
+            expected_member_dict[member_name]["name"] = ""
+            expected_member_dict[member_name]["service_monthly_fee"] = 0
+            expected_member_dict[member_name]["contracted_power_monthly_fee"] = 0
+            expected_member_dict[member_name]["contracted_power_cargo_monthly_fee"] = 0
+            expected_member_dict[member_name]["energy_cargo_fee"] = 0
+
+        assert datasheet.members == expected_member_dict
 
         assert datasheet.grid == {
             "name": DefaultCommunityAreaNames.GRID.value,
@@ -152,14 +171,12 @@ class TestCommunityDatasheetParser:
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
                             "address": "Am Werth 94, Wolffburg, Schleswig-Holstein, Germany",
-                            "grid_fee_constant": 0.3,
                             "children": [
                                 {
                                     "name": "Load 1",
                                     "type": "Load",
                                     "uuid": "mocked-uuid",
                                     "geo_tag_location": (4.137182, 48.058159),
-                                    "forecast_stream_id": None,
                                     "daily_load_profile": {
                                         "2021-08-02T00:00": 22.32,
                                         "2021-08-02T01:00": 20.72,
@@ -189,7 +206,6 @@ class TestCommunityDatasheetParser:
                                     "azimuth": None,
                                     "geo_tag_location": (4.137182, 48.058159),
                                     "cloud_coverage": 4,
-                                    "forecast_stream_id": None,
                                     "power_profile": {
                                         "2021-08-02T00:00": 11.5,
                                         "2021-08-02T01:00": 11.5,
@@ -212,22 +228,11 @@ class TestCommunityDatasheetParser:
                                 },
                                 {
                                     "name": "Battery 1",
-                                    "type": "Storage",
+                                    "type": "ScmStorage",
                                     "uuid": "mocked-uuid",
-                                    "battery_capacity_kWh": 0.7,
-                                    "min_allowed_soc": 10,
-                                    "initial_soc": 10,
-                                    "max_abs_battery_power_kW": 0.005,
                                     "geo_tag_location": (4.137182, 48.058159),
                                 },
                             ],
-                            "market_maker_rate": 1,
-                            "feed_in_tariff": 7,
-                            "taxes_surcharges": 0.5,
-                            "fixed_monthly_fee": 0.5,
-                            "marketplace_monthly_fee": 0.5,
-                            "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
-                            "coefficient_percentage": 0.5,
                         },
                         {
                             "name": "Member 2",
@@ -236,7 +241,6 @@ class TestCommunityDatasheetParser:
                             "uuid": "mocked-uuid",
                             "geo_tag_location": (4.137182, 48.058159),
                             "address": "Heisterbachstr. 8, Ost Colin, Hamburg, Germany",
-                            "grid_fee_constant": 0.3,
                             "children": [
                                 {
                                     "name": "PV 3",
@@ -247,26 +251,14 @@ class TestCommunityDatasheetParser:
                                     "azimuth": 123,
                                     "geo_tag_location": (4.137182, 48.058159),
                                     "cloud_coverage": 5,
-                                    "forecast_stream_id": None,
                                 },
                                 {
                                     "name": "Battery 2",
-                                    "type": "Storage",
+                                    "type": "ScmStorage",
                                     "uuid": "mocked-uuid",
-                                    "battery_capacity_kWh": 0.5,
-                                    "min_allowed_soc": 10,
-                                    "initial_soc": 10,
-                                    "max_abs_battery_power_kW": 0.005,
                                     "geo_tag_location": (4.137182, 48.058159),
                                 },
                             ],
-                            "market_maker_rate": 1,
-                            "feed_in_tariff": 7,
-                            "taxes_surcharges": 0.5,
-                            "fixed_monthly_fee": 0.5,
-                            "marketplace_monthly_fee": 0.5,
-                            "assistance_monthly_fee": 0.5 if "_alt" in cds_file else 0.0,
-                            "coefficient_percentage": 0.5,
                         },
                     ],
                 },
@@ -274,6 +266,30 @@ class TestCommunityDatasheetParser:
         }
 
         assert datasheet.global_coordinates == (4.137182, 48.058159)
+        assert datasheet.settings.pop("start_date").format(DATE_TIME_FORMAT) == "2022-01-25T00:00"
+        assert datasheet.settings.pop("end_date").format(DATE_TIME_FORMAT) == "2022-02-25T00:00"
+        assert datasheet.settings == {
+            "slot_length": timedelta(seconds=1800),
+            "currency": "EUR",
+        }
+
+        assert datasheet.advanced_settings == {
+            "coefficient_algorithm": 1,
+            "grid_fees_reduction": 0,
+            "intracommunity_rate_base_eur": 0.3,
+            "scm_cn_hours_of_delay": 72,
+            "vat_percentage": 10,
+            "self_consumption_type": 0,
+            "enable_assistance_monthly_fee": False,
+            "enable_contracted_power_cargo_monthly_fee": False,
+            "enable_contracted_power_monthly_fee": False,
+            "enable_energy_cargo_fee": False,
+            "enable_grid_export_fee_const": False,
+            "enable_grid_import_fee_const": False,
+            "enable_marketplace_monthly_fee": False,
+            "enable_service_monthly_fee": False,
+            "enable_taxes_surcharges": False,
+        }
 
 
 class TestAssetCoordinatesBuilder:
@@ -290,7 +306,7 @@ class TestAssetCoordinatesBuilder:
             "address": "10210 La Loge-Pomblin, France",
             "market_maker_rate": 1,
             "feed_in_tariff": 7,
-            "grid_fee_constant": None,
+            "grid_import_fee_const": None,
             "taxes": None,
             "fixed_fee": None,
             "marketplace_fee": None,
@@ -301,7 +317,8 @@ class TestAssetCoordinatesBuilder:
         results = coordinates_builder.get_member_coordinates(member_information)
 
         location_converter_instance.convert.assert_called_with(
-            "10210 La Loge-Pomblin, France 1234")
+            "10210 La Loge-Pomblin, France 1234"
+        )
         assert results == (12, 10)
 
     @staticmethod

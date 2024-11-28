@@ -15,16 +15,27 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import ast
 from typing import Dict
 
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
 from gsy_framework.sim_results import (
-    is_load_node_type, is_producer_node_type, is_prosumer_node_type, is_buffer_node_type,
-    is_heatpump_node_type, area_sells_to_child, child_buys_from_area)
+    is_load_node_type,
+    is_producer_node_type,
+    is_prosumer_node_type,
+    is_infinite_bus_node_type,
+    is_heatpump_node_type,
+    area_sells_to_child,
+    child_buys_from_area,
+)
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import (
-    add_or_create_key, area_name_from_area_or_ma_name, subtract_or_create_key, round_floats_for_ui)
+    add_or_create_key,
+    area_name_from_area_or_ma_name,
+    subtract_or_create_key,
+    round_floats_for_ui,
+)
 
 
 class CumulativeGridTrades(ResultsBaseClass):
@@ -38,19 +49,20 @@ class CumulativeGridTrades(ResultsBaseClass):
         self._restored = False
 
     def memory_allocation_size_kb(self):
-        return self._calculate_memory_allocated_by_objects([
-            self.current_trades, self.current_balancing_trades, self.accumulated_trades,
-            self.accumulated_balancing_trades
-        ])
+        return self._calculate_memory_allocated_by_objects(
+            [
+                self.current_trades,
+                self.current_balancing_trades,
+                self.accumulated_trades,
+                self.accumulated_balancing_trades,
+            ]
+        )
 
     def update(self, area_dict, core_stats, current_market_slot):
         # pylint: disable=arguments-renamed
-        if not self._has_update_parameters(
-                area_dict, core_stats, current_market_slot):
+        if not self._has_update_parameters(area_dict, core_stats, current_market_slot):
             return
-        self._export_cumulative_grid_trades(
-            area_dict, core_stats, self.accumulated_trades
-        )
+        self._export_cumulative_grid_trades(area_dict, core_stats, self.accumulated_trades)
         self._restored = False
 
     def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
@@ -58,46 +70,61 @@ class CumulativeGridTrades(ResultsBaseClass):
         if area_dict["uuid"] not in self.accumulated_trades:
             self.accumulated_trades[area_dict["uuid"]] = last_known_state_data
 
-    def _export_cumulative_grid_trades(self, area_dict, flattened_area_core_stats_dict,
-                                       accumulated_trades_redis):
+    def _export_cumulative_grid_trades(
+        self, area_dict, flattened_area_core_stats_dict, accumulated_trades_redis
+    ):
         self.accumulated_trades = self._accumulate_grid_trades_all_devices(
             area_dict, flattened_area_core_stats_dict, accumulated_trades_redis
         )
 
-    def _accumulate_grid_trades_all_devices(self, area_dict, flattened_area_core_stats_dict,
-                                            accumulated_trades):
+    def _accumulate_grid_trades_all_devices(
+        self, area_dict, flattened_area_core_stats_dict, accumulated_trades
+    ):
         for child_dict in area_dict["children"]:
             if is_load_node_type(child_dict):
                 accumulated_trades = self._accumulate_load_trades(
-                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades,
-                    is_heatpump=False)
+                    child_dict,
+                    area_dict,
+                    flattened_area_core_stats_dict,
+                    accumulated_trades,
+                    is_heatpump=False,
+                )
             elif is_heatpump_node_type(child_dict):
                 accumulated_trades = self._accumulate_load_trades(
-                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades,
-                    is_heatpump=True)
+                    child_dict,
+                    area_dict,
+                    flattened_area_core_stats_dict,
+                    accumulated_trades,
+                    is_heatpump=True,
+                )
             if is_producer_node_type(child_dict):
                 accumulated_trades = self._accumulate_producer_trades(
                     child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
                 )
-            elif is_prosumer_node_type(child_dict) or is_buffer_node_type(child_dict):
-                accumulated_trades = (self._accumulate_storage_trade(
-                        child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades))
+            elif is_prosumer_node_type(child_dict) or is_infinite_bus_node_type(child_dict):
+                accumulated_trades = self._accumulate_storage_trade(
+                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
+                )
             elif not child_dict["children"]:
                 # Leaf node, no need for calculating cumulative trades, continue iteration
                 continue
             else:
                 accumulated_trades = self._accumulate_grid_trades_all_devices(
-                    child_dict, flattened_area_core_stats_dict, accumulated_trades)
+                    child_dict, flattened_area_core_stats_dict, accumulated_trades
+                )
                 accumulated_trades = self._accumulate_area_trades(
-                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades)
+                    child_dict, area_dict, flattened_area_core_stats_dict, accumulated_trades
+                )
         if area_dict["parent_uuid"] == "":
             accumulated_trades = self._accumulate_area_trades(
-                area_dict, {}, flattened_area_core_stats_dict, accumulated_trades)
+                area_dict, {}, flattened_area_core_stats_dict, accumulated_trades
+            )
         return accumulated_trades
 
     @staticmethod
     def _accumulate_load_trades(
-            load, grid, flattened_area_core_stats_dict, accumulated_trades, is_heatpump=False):
+        load, grid, flattened_area_core_stats_dict, accumulated_trades, is_heatpump=False
+    ):
         if load["uuid"] not in accumulated_trades:
             accumulated_trades[load["uuid"]] = {
                 "name": load["name"],
@@ -107,8 +134,10 @@ class CumulativeGridTrades(ResultsBaseClass):
                 "consumedFrom": {},
                 "spentTo": {},
                 "parent_uuid": load["parent_uuid"],
-                "children": [{"name": child["name"], "uuid": child["uuid"]}
-                             for child in load.get("children", [])]
+                "children": [
+                    {"name": child["name"], "uuid": child["uuid"]}
+                    for child in load.get("children", [])
+                ],
             }
 
         area_trades = flattened_area_core_stats_dict.get(grid["uuid"], {}).get("trades", [])
@@ -116,16 +145,19 @@ class CumulativeGridTrades(ResultsBaseClass):
             if trade["buyer"]["name"] == load["name"]:
                 sell_id = area_name_from_area_or_ma_name(trade["seller"]["name"])
                 accumulated_trades[load["uuid"]]["consumedFrom"] = add_or_create_key(
-                    accumulated_trades[load["uuid"]]["consumedFrom"], sell_id,
-                    trade["energy"])
+                    accumulated_trades[load["uuid"]]["consumedFrom"], sell_id, trade["energy"]
+                )
                 accumulated_trades[load["uuid"]]["spentTo"] = add_or_create_key(
-                    accumulated_trades[load["uuid"]]["spentTo"], sell_id,
-                    (trade["energy"] * trade["energy_rate"]))
+                    accumulated_trades[load["uuid"]]["spentTo"],
+                    sell_id,
+                    (trade["energy"] * trade["energy_rate"]),
+                )
         return accumulated_trades
 
     @staticmethod
-    def _accumulate_producer_trades(producer, grid, flattened_area_core_stats_dict,
-                                    accumulated_trades):
+    def _accumulate_producer_trades(
+        producer, grid, flattened_area_core_stats_dict, accumulated_trades
+    ):
         if producer["uuid"] not in accumulated_trades:
             accumulated_trades[producer["uuid"]] = {
                 "name": producer["name"],
@@ -134,22 +166,27 @@ class CumulativeGridTrades(ResultsBaseClass):
                 "consumedFrom": {},
                 "spentTo": {},
                 "parent_uuid": producer["parent_uuid"],
-                "children": [{"name": child["name"], "uuid": child["uuid"]}
-                             for child in producer.get("children", [])]
+                "children": [
+                    {"name": child["name"], "uuid": child["uuid"]}
+                    for child in producer.get("children", [])
+                ],
             }
 
         area_trades = CumulativeGridTrades._get_trades_from_core_stats(
-            flattened_area_core_stats_dict, grid["uuid"])
+            flattened_area_core_stats_dict, grid["uuid"]
+        )
         for trade in area_trades:
             if trade["seller"]["name"] == producer["name"]:
                 accumulated_trades[producer["uuid"]]["produced"] -= trade["energy"]
                 accumulated_trades[producer["uuid"]]["earned"] += (
-                        trade["energy_rate"] * trade["energy"])
+                    trade["energy_rate"] * trade["energy"]
+                )
         return accumulated_trades
 
     @staticmethod
-    def _accumulate_storage_trade(storage, area, flattened_area_core_stats_dict,
-                                  accumulated_trades):
+    def _accumulate_storage_trade(
+        storage, area, flattened_area_core_stats_dict, accumulated_trades
+    ):
         if storage["uuid"] not in accumulated_trades:
             accumulated_trades[storage["uuid"]] = {
                 "type": "Storage" if area["type"] == "StorageStrategy" else "InfiniteBus",
@@ -159,32 +196,39 @@ class CumulativeGridTrades(ResultsBaseClass):
                 "consumedFrom": {},
                 "spentTo": {},
                 "parent_uuid": storage["parent_uuid"],
-                "children": [{"name": child["name"], "uuid": child["uuid"]}
-                             for child in storage.get("children", [])]
+                "children": [
+                    {"name": child["name"], "uuid": child["uuid"]}
+                    for child in storage.get("children", [])
+                ],
             }
 
         area_trades = CumulativeGridTrades._get_trades_from_core_stats(
-            flattened_area_core_stats_dict, area["uuid"])
+            flattened_area_core_stats_dict, area["uuid"]
+        )
         for trade in area_trades:
             if trade["buyer"]["name"] == storage["name"]:
                 sell_id = area_name_from_area_or_ma_name(trade["seller"]["name"])
                 accumulated_trades[storage["uuid"]]["consumedFrom"] = add_or_create_key(
-                    accumulated_trades[storage["uuid"]]["consumedFrom"],
-                    sell_id, trade["energy"])
+                    accumulated_trades[storage["uuid"]]["consumedFrom"], sell_id, trade["energy"]
+                )
                 accumulated_trades[storage["uuid"]]["spentTo"] = add_or_create_key(
-                    accumulated_trades[storage["uuid"]]["spentTo"], sell_id,
-                    (trade["energy_rate"] * trade["energy"]))
+                    accumulated_trades[storage["uuid"]]["spentTo"],
+                    sell_id,
+                    (trade["energy_rate"] * trade["energy"]),
+                )
             elif trade["seller"]["name"] == storage["name"]:
                 accumulated_trades[storage["uuid"]]["produced"] -= trade["energy"]
                 accumulated_trades[storage["uuid"]]["earned"] += (
-                        trade["energy_rate"] * trade["energy"])
+                    trade["energy_rate"] * trade["energy"]
+                )
         return accumulated_trades
 
     @staticmethod
     def _generate_accumulated_trades_child_dict(accumulated_trades, child):
         return {
-            "name": child["name"], "uuid": child["uuid"],
-            "accumulated_trades": accumulated_trades.get(child["uuid"], {})
+            "name": child["name"],
+            "uuid": child["uuid"],
+            "accumulated_trades": accumulated_trades.get(child["uuid"], {}),
         }
 
     def _update_area_children_in_accumulated_trades_dict(self, accumulated_trades, area):
@@ -202,25 +246,25 @@ class CumulativeGridTrades(ResultsBaseClass):
             child["uuid"] for child in accumulated_trades[area["uuid"]].get("children") or []
         ]
         for child in area.get("children", []):
-            if child["uuid"] not in current_child_uuids and \
-                    "children" in accumulated_trades[area["uuid"]]:
+            if (
+                child["uuid"] not in current_child_uuids
+                and "children" in accumulated_trades[area["uuid"]]
+            ):
                 accumulated_trades[area["uuid"]]["children"].append(
-                    self._generate_accumulated_trades_child_dict(
-                        accumulated_trades, child
-                    )
+                    self._generate_accumulated_trades_child_dict(accumulated_trades, child)
                 )
             if self._restored:
                 try:
                     child_index = current_child_uuids.index(child["uuid"])
                     accumulated_trades[area["uuid"]]["children"][child_index] = (
-                        self._generate_accumulated_trades_child_dict(
-                            accumulated_trades, child
-                        ))
+                        self._generate_accumulated_trades_child_dict(accumulated_trades, child)
+                    )
                 except ValueError:
                     pass
 
-    def _accumulate_area_trades(self, area, parent, flattened_area_core_stats_dict,
-                                accumulated_trades):
+    def _accumulate_area_trades(
+        self, area, parent, flattened_area_core_stats_dict, accumulated_trades
+    ):
         if area["uuid"] not in accumulated_trades:
             accumulated_trades[area["uuid"]] = {
                 "name": area["name"],
@@ -235,11 +279,9 @@ class CumulativeGridTrades(ResultsBaseClass):
                 "spentToExternal": {},
                 "parent_uuid": area["parent_uuid"],
                 "children": [
-                    self._generate_accumulated_trades_child_dict(
-                        accumulated_trades, child
-                    )
+                    self._generate_accumulated_trades_child_dict(accumulated_trades, child)
                     for child in area.get("children", [])
-                ]
+                ],
             }
 
         self._update_area_children_in_accumulated_trades_dict(accumulated_trades, area)
@@ -248,41 +290,46 @@ class CumulativeGridTrades(ResultsBaseClass):
         area_trades = flattened_area_core_stats_dict.get(area["uuid"], {}).get("trades", [])
 
         for trade in area_trades:
-            if (area_name_from_area_or_ma_name(trade["seller"]["name"]) in child_names and
-                    area_name_from_area_or_ma_name(trade["buyer"]["name"]) in child_names):
+            if (
+                area_name_from_area_or_ma_name(trade["seller"]["name"]) in child_names
+                and area_name_from_area_or_ma_name(trade["buyer"]["name"]) in child_names
+            ):
                 # House self-consumption trade
                 accumulated_trades[area["uuid"]]["produced"] -= trade["energy"]
                 accumulated_trades[area["uuid"]]["earned"] += trade["price"]
-                accumulated_trades[area["uuid"]]["consumedFrom"] = (
-                    add_or_create_key(accumulated_trades[area["uuid"]]["consumedFrom"],
-                                      area["name"], trade["energy"]))
-                accumulated_trades[area["uuid"]]["spentTo"] = (
-                    add_or_create_key(accumulated_trades[area["uuid"]]["spentTo"],
-                                      area["name"], trade["price"]))
+                accumulated_trades[area["uuid"]]["consumedFrom"] = add_or_create_key(
+                    accumulated_trades[area["uuid"]]["consumedFrom"], area["name"], trade["energy"]
+                )
+                accumulated_trades[area["uuid"]]["spentTo"] = add_or_create_key(
+                    accumulated_trades[area["uuid"]]["spentTo"], area["name"], trade["price"]
+                )
             elif trade["buyer"]["name"] == area["name"]:
                 accumulated_trades[area["uuid"]]["earned"] += trade["price"]
                 accumulated_trades[area["uuid"]]["produced"] -= trade["energy"]
         # for market in area_markets:
         for trade in area_trades:
             if area_sells_to_child(trade, area["name"], child_names):
-                accumulated_trades[area["uuid"]]["consumedFromExternal"] = (
-                    subtract_or_create_key(accumulated_trades[area["uuid"]]
-                                           ["consumedFromExternal"],
-                                           area_name_from_area_or_ma_name(trade["buyer"]["name"]),
-                                           trade["energy"]))
-                accumulated_trades[area["uuid"]]["spentToExternal"] = (
-                    add_or_create_key(accumulated_trades[area["uuid"]]["spentToExternal"],
-                                      area_name_from_area_or_ma_name(trade["buyer"]["name"]),
-                                      trade["price"]))
+                accumulated_trades[area["uuid"]]["consumedFromExternal"] = subtract_or_create_key(
+                    accumulated_trades[area["uuid"]]["consumedFromExternal"],
+                    area_name_from_area_or_ma_name(trade["buyer"]["name"]),
+                    trade["energy"],
+                )
+                accumulated_trades[area["uuid"]]["spentToExternal"] = add_or_create_key(
+                    accumulated_trades[area["uuid"]]["spentToExternal"],
+                    area_name_from_area_or_ma_name(trade["buyer"]["name"]),
+                    trade["price"],
+                )
             elif child_buys_from_area(trade, area["name"], child_names):
-                accumulated_trades[area["uuid"]]["producedForExternal"] = (
-                    add_or_create_key(accumulated_trades[area["uuid"]]["producedForExternal"],
-                                      area_name_from_area_or_ma_name(trade["seller"]["name"]),
-                                      trade["energy"]))
-                accumulated_trades[area["uuid"]]["earnedFromExternal"] = (
-                    add_or_create_key(accumulated_trades[area["uuid"]]["earnedFromExternal"],
-                                      area_name_from_area_or_ma_name(trade["seller"]["name"]),
-                                      trade["price"]))
+                accumulated_trades[area["uuid"]]["producedForExternal"] = add_or_create_key(
+                    accumulated_trades[area["uuid"]]["producedForExternal"],
+                    area_name_from_area_or_ma_name(trade["seller"]["name"]),
+                    trade["energy"],
+                )
+                accumulated_trades[area["uuid"]]["earnedFromExternal"] = add_or_create_key(
+                    accumulated_trades[area["uuid"]]["earnedFromExternal"],
+                    area_name_from_area_or_ma_name(trade["seller"]["name"]),
+                    trade["price"],
+                )
 
         accumulated_trades = self._area_trade_from_parent(
             area, parent, flattened_area_core_stats_dict, accumulated_trades
@@ -291,8 +338,7 @@ class CumulativeGridTrades(ResultsBaseClass):
         return accumulated_trades
 
     @staticmethod
-    def _area_trade_from_parent(area, parent, flattened_area_core_stats_dict,
-                                accumulated_trades):
+    def _area_trade_from_parent(area, parent, flattened_area_core_stats_dict, accumulated_trades):
         if not parent:
             return accumulated_trades
         parent_trades = flattened_area_core_stats_dict.get(parent["uuid"], {}).get("trades", [])
@@ -300,12 +346,12 @@ class CumulativeGridTrades(ResultsBaseClass):
         for trade in parent_trades:
             if trade["buyer"]["name"] == area["name"]:
                 seller_id = area_name_from_area_or_ma_name(trade["seller"]["name"])
-                accumulated_trades[area["uuid"]]["consumedFrom"] = (
-                    add_or_create_key(accumulated_trades[area["uuid"]]["consumedFrom"],
-                                      seller_id, trade["energy"]))
-                accumulated_trades[area["uuid"]]["spentTo"] = (
-                    add_or_create_key(accumulated_trades[area["uuid"]]["spentTo"],
-                                      seller_id, trade["price"]))
+                accumulated_trades[area["uuid"]]["consumedFrom"] = add_or_create_key(
+                    accumulated_trades[area["uuid"]]["consumedFrom"], seller_id, trade["energy"]
+                )
+                accumulated_trades[area["uuid"]]["spentTo"] = add_or_create_key(
+                    accumulated_trades[area["uuid"]]["spentTo"], seller_id, trade["price"]
+                )
 
         return accumulated_trades
 
@@ -322,10 +368,7 @@ class CumulativeGridTrades(ResultsBaseClass):
 
         # Consumer entries
         for producer, energy in area_data["consumedFrom"].items():
-            results["bars"].append({
-                "energy": round_floats_for_ui(energy),
-                "targetArea": producer
-            })
+            results["bars"].append({"energy": round_floats_for_ui(energy), "targetArea": producer})
 
         return results
 
@@ -342,17 +385,13 @@ class CumulativeGridTrades(ResultsBaseClass):
             for area_name, consumed_energy in area_data["consumedFromExternal"].items():
                 incoming_energy += round_floats_for_ui(consumed_energy)
                 spent += round_floats_for_ui(area_data["spentToExternal"][area_name])
-                results["bars"].append({
-                    "energy": incoming_energy,
-                    "targetArea": area_data["name"]
-                })
+                results["bars"].append(
+                    {"energy": incoming_energy, "targetArea": area_data["name"]}
+                )
         if "producedForExternal" in area_data:
             for area_name, produced_energy in area_data["producedForExternal"].items():
                 outgoing_energy = round_floats_for_ui(produced_energy)
-                results["bars"].append({
-                    "energy": outgoing_energy,
-                    "targetArea": area_name
-                })
+                results["bars"].append({"energy": outgoing_energy, "targetArea": area_name})
         return results
 
     @classmethod
@@ -377,21 +416,19 @@ class CumulativeGridTrades(ResultsBaseClass):
             if child["accumulated_trades"] != {}:
                 accumulated_trades[child["uuid"]] = child["accumulated_trades"]
                 results[area_uuid].append(
-                    cls._generate_area_cumulative_trade_redis(
-                        child, accumulated_trades
-                    ))
+                    cls._generate_area_cumulative_trade_redis(child, accumulated_trades)
+                )
 
         if area_detail.get("parent_uuid", None) is not None:
-            results[area_uuid].append(cls._external_trade_entries(
-                area_uuid, accumulated_trades))
+            results[area_uuid].append(cls._external_trade_entries(area_uuid, accumulated_trades))
         return results
 
     @staticmethod
     def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
         # pylint: disable=arguments-differ
         raise NotImplementedError(
-            "Cumulative grid trades endpoint supports only global results,"
-            " merge not supported.")
+            "Cumulative grid trades endpoint supports only global results," " merge not supported."
+        )
 
     @property
     def raw_results(self):

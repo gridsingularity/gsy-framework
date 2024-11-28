@@ -27,9 +27,8 @@ from gsy_framework.constants_limits import (
     DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, TIME_FORMAT, TIME_ZONE, GlobalConfig)
 from gsy_framework.exceptions import GSyReadProfileException
 from gsy_framework.utils import (
-    convert_kW_to_kWh, find_object_of_same_weekday_and_time, generate_market_slot_list,
-    return_ordered_dict)
-
+    convert_kW_to_kWh, get_from_profile_same_weekday_and_time, generate_market_slot_list,
+    return_ordered_dict, convert_kWh_to_W)
 
 DATE_TIME_FORMAT_SPACED = "YYYY-MM-DD HH:mm:ss"
 
@@ -46,6 +45,13 @@ class InputProfileTypes(Enum):
     REBASE_W = 3  # Profile power values in W from REBASE API
     # (deprecated; only kept for old profiles in DB)
     ENERGY_KWH = 4
+
+
+class LiveProfileTypes(Enum):
+    """Enum for type of live data profiles"""
+    NO_LIVE_DATA = 0
+    FORECAST = 1
+    MEASUREMENT = 2
 
 
 def _str_to_datetime(time_string, time_format) -> DateTime:
@@ -219,8 +225,8 @@ def _fill_gaps_in_profile(input_profile: Dict = None, out_profile: Dict = None) 
 
     for time in out_profile.keys():
         if time not in input_profile:
-            temp_val = find_object_of_same_weekday_and_time(input_profile, time,
-                                                            ignore_not_found=True)
+            temp_val = get_from_profile_same_weekday_and_time(input_profile, time,
+                                                              ignore_not_found=True)
             if temp_val is not None:
                 current_val = temp_val
         else:
@@ -297,11 +303,12 @@ def _hour_time_str(hour: float, minute: float) -> str:
     return f"{hour:02}:{minute:02}"
 
 
-def _copy_profile_to_multiple_days(in_profile):
+def _copy_profile_to_multiple_days(
+        in_profile: Dict, current_timestamp: Optional[datetime] = None) -> Dict:
     daytime_dict = dict(
         (_hour_time_str(time.hour, time.minute), time) for time in in_profile.keys())
     out_profile = {}
-    for slot_time in generate_market_slot_list():
+    for slot_time in generate_market_slot_list(start_timestamp=current_timestamp):
         if slot_time not in out_profile.keys():
             time_key = _hour_time_str(slot_time.hour, slot_time.minute)
             if time_key in daytime_dict:
@@ -325,22 +332,27 @@ def read_arbitrary_profile(profile_type: InputProfileTypes,
     :param current_timestamp:
     :return: a mapping from time to profile values
     """
+    if input_profile in [{}, None]:
+        return {}
     profile = _read_from_different_sources_todict(input_profile,
                                                   current_timestamp=current_timestamp)
     profile_time_list = list(profile.keys())
     profile_duration = profile_time_list[-1] - profile_time_list[0]
-    if (GlobalConfig.sim_duration > duration(days=1) >= profile_duration or
+    if ((GlobalConfig.sim_duration > duration(days=1) >= profile_duration) or
             GlobalConfig.is_canary_network()):
-        profile = _copy_profile_to_multiple_days(profile)
+        profile = _copy_profile_to_multiple_days(profile, current_timestamp=current_timestamp)
+
     if profile is not None:
-        if profile_type is not InputProfileTypes.ENERGY_KWH:
-            zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
-            filled_profile = _fill_gaps_in_profile(profile, zero_value_slot_profile)
-            if profile_type in [InputProfileTypes.POWER_W, InputProfileTypes.REBASE_W]:
-                return _calculate_energy_from_power_profile(
-                    filled_profile, GlobalConfig.slot_length)
-            return filled_profile
-        return profile
+        if profile_type is InputProfileTypes.ENERGY_KWH:
+            profile = {ts: convert_kWh_to_W(energy, GlobalConfig.slot_length)
+                       for ts, energy in profile.items()}
+        zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
+        filled_profile = _fill_gaps_in_profile(profile, zero_value_slot_profile)
+        if profile_type in [InputProfileTypes.POWER_W, InputProfileTypes.REBASE_W,
+                            InputProfileTypes.ENERGY_KWH]:
+            return _calculate_energy_from_power_profile(
+                filled_profile, GlobalConfig.slot_length)
+        return filled_profile
     return None
 
 

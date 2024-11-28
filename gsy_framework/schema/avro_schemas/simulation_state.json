@@ -148,6 +148,56 @@
           ]
         },
         {
+          "name": "MarketMakerStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_rate",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            }
+          ]
+        },
+        {
+          "name": "FinitePowerPlantStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_rate",
+              "type": [
+                "null",
+                {
+                  "type": "map",
+                  "values": "float"
+                }
+              ]
+            },
+            {
+              "name": "max_available_power_kW",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            }
+          ]
+        },
+        {
           "name": "InfiniteBusStats",
           "type": "record",
           "fields": [
@@ -202,6 +252,44 @@
           ]
         },
         {
+          "name": "SmartMeterAreaStats",
+          "type": "record",
+          "fields": [
+            {
+              "name": "current_tick",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "energy_production_forecast_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "available_energy_kWh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "desired_energy_Wh",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "total_energy_demanded_Wh",
+              "type": "float"
+            }
+          ]
+        },
+        {
           "name": "StorageAreaStats",
           "type": "record",
           "fields": [
@@ -221,13 +309,6 @@
               "type": "float"
             },
             {
-              "name": "used_history",
-              "type": {
-                "type": "map",
-                "values": "string"
-              }
-            },
-            {
               "name": "charge_history",
               "type": {
                 "type": "map",
@@ -245,7 +326,10 @@
               "name": "offered_history",
               "type": {
                 "type": "map",
-                "values": "float"
+                "values": [
+                  "string",
+                  "float"
+                ]
               }
             },
             {
@@ -346,6 +430,20 @@
               }
             },
             {
+              "name": "condenser_temp_C",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
+              "name": "heat_demand_J",
+              "type": {
+                "type": "map",
+                "values": "float"
+              }
+            },
+            {
               "name": "unmatched_demand_kWh",
               "type": {
                 "type": "map",
@@ -358,6 +456,18 @@
                 "type": "map",
                 "values": "float"
               }
+            },
+            {
+              "name": "total_traded_energy_kWh",
+              "type": "float"
+            },
+            {
+              "name": "slot_length",
+              "type": "float"
+            },
+            {
+              "name": "min_storage_temp_C",
+              "type": "float"
             }
           ]
         }

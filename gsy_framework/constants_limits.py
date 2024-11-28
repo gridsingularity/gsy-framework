@@ -22,9 +22,15 @@ from datetime import date, datetime
 
 from pendulum import duration, instance
 
-from gsy_framework.enums import (AvailableMarketTypes, BidOfferMatchAlgoEnum,
-                                 CoefficientAlgorithm, HeatPumpSourceType,
-                                 SpotMarketTypeEnum, ConfigurationType)
+from gsy_framework.enums import (
+    AvailableMarketTypes,
+    BidOfferMatchAlgoEnum,
+    CoefficientAlgorithm,
+    HeatPumpSourceType,
+    SpotMarketTypeEnum,
+    ConfigurationType,
+    SCMSelfConsumptionType,
+)
 
 RangeLimit = namedtuple("RangeLimit", ("min", "max"))
 RateRange = namedtuple("RateRange", ("initial", "final"))
@@ -89,6 +95,7 @@ class ConstSettings:
 
     class ForwardMarketSettings:
         """Default settings for forward markets"""
+
         ENABLE_FORWARD_MARKETS = False
         FULLY_AUTO_TRADING = True
 
@@ -185,6 +192,7 @@ class ConstSettings:
 
     class HeatPumpSettings:
         """Default values for the heat pump."""
+
         # range limits
         MAX_POWER_RATING_KW_LIMIT = RangeLimit(0, sys.maxsize)
         TEMP_C_LIMIT = RangeLimit(0.0, 200.0)
@@ -202,6 +210,8 @@ class ConstSettings:
         SOURCE_TYPE = HeatPumpSourceType.AIR.value
         BUYING_RATE_RANGE = RateRange(0, 30)
         PREFERRED_BUYING_RATE = 30
+        CALIBRATION_COEFFICIENT = 0.6
+        CALIBRATION_COEFFICIENT_RANGE = RangeLimit(0, 1)
 
     class MASettings:
         """Default settings for Market Agents."""
@@ -256,9 +266,21 @@ class ConstSettings:
 
     class SCMSettings:
         """Default settings for the community manager."""
+
         GRID_FEES_REDUCTION = 0.28
+        INTRACOMMUNITY_BASE_RATE_EUR = None
         MARKET_ALGORITHM = CoefficientAlgorithm.STATIC.value
-        MARKET_ALGORITHM_LIMIT = RangeLimit(1, 2)
+        MARKET_ALGORITHM_LIMIT = RangeLimit(1, 3)
+        HOURS_OF_DELAY = 72
+        SELF_CONSUMPTION_TYPE = SCMSelfConsumptionType.COLLECTIVE_SELF_CONSUMPTION_SURPLUS_42.value
+
+
+def is_no_community_self_consumption() -> bool:
+    """Check whether the SCM mode is set to no-community-self-consumption."""
+    return (
+        ConstSettings.SCMSettings.MARKET_ALGORITHM
+        == CoefficientAlgorithm.NO_COMMUNITY_SELF_CONSUMPTION.value
+    )
 
 
 class GlobalConfig:
@@ -270,7 +292,6 @@ class GlobalConfig:
     TICK_LENGTH_S = 15
     DURATION_D = 1
     MARKET_COUNT = 1
-    CLOUD_COVERAGE = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     RANDOM_SEED = 0
     MARKET_MAKER_RATE = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     POWER_FLOW = False
@@ -284,7 +305,6 @@ class GlobalConfig:
     tick_length = duration(seconds=TICK_LENGTH_S)
     ticks_per_slot = int(slot_length / tick_length)
     total_ticks = int(sim_duration / tick_length)
-    cloud_coverage = ConstSettings.PVSettings.DEFAULT_POWER_PROFILE
     market_maker_rate = ConstSettings.GeneralSettings.DEFAULT_MARKET_MAKER_RATE
     grid_fee_type = ConstSettings.MASettings.GRID_FEE_TYPE
     # Allow orders to contain additional requirements and attributes
@@ -298,6 +318,7 @@ class GlobalConfig:
 
 class HeartBeat:
     """Default settings for heartbeat functionalities (to check the liveness of simulations)."""
+
     RATE = 5  # in secs
     TOLERANCE = 16  # in secs
 
@@ -316,6 +337,7 @@ PROFILE_EXPANSION_DAYS = 7
 JWT_TOKEN_EXPIRY_IN_SECS = 48 * 3600
 
 DEFAULT_PRECISION = 8
+ENERGY_RATE_PRECISION = 5
 FLOATING_POINT_TOLERANCE = 0.00001
 
 FIELDS_REQUIRED_FOR_REBASE = ("capacity_kW", "tilt", "azimuth", "geo_tag_location")
@@ -325,5 +347,5 @@ ALL_FORWARD_MARKET_TYPES = [
     AvailableMarketTypes.DAY_FORWARD,
     AvailableMarketTypes.WEEK_FORWARD,
     AvailableMarketTypes.MONTH_FORWARD,
-    AvailableMarketTypes.YEAR_FORWARD
+    AvailableMarketTypes.YEAR_FORWARD,
 ]

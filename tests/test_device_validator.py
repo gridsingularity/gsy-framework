@@ -41,13 +41,9 @@ class TestValidateDeviceSettings:
     @staticmethod
     @pytest.mark.parametrize("valid_arguments", [
         {"avg_power_W": 100},
-        {"hrs_per_day": 0},
-        {"hrs_per_day": 24},
         {"final_buying_rate": 0},
         {"initial_buying_rate": 0},
         {"initial_buying_rate": 5, "final_buying_rate": 10},
-        {"hrs_of_day": [0, 3, 20, 21, 22, 23, 24]},
-        {"hrs_of_day": [1, 2, 3, 5, 6, 10], "hrs_per_day": 6},
         {"energy_rate_increase_per_update": 0},
         {"fit_to_limit": False, "energy_rate_increase_per_update": 2},
         {"fit_to_limit": True, "energy_rate_increase_per_update": None},
@@ -60,16 +56,11 @@ class TestValidateDeviceSettings:
     @staticmethod
     @pytest.mark.parametrize("failing_arguments", [
         {"avg_power_W": -1},
-        {"hrs_per_day": 25},
         {"final_buying_rate": -10},
         {"initial_buying_rate": -2},
         {"initial_buying_rate": 10, "final_buying_rate": 5},
-        {"hrs_of_day": [20, 21, 22, 23, 24, 25, 26]},
-        {"hrs_of_day": [1, 2, 3, 4, 5, 6], "hrs_per_day": 10},
         {"energy_rate_increase_per_update": -1},
         {"avg_power_W": 100, "daily_load_profile": VALID_LOAD_PROFILE},
-        {"hrs_per_day": 1, "daily_load_profile": VALID_LOAD_PROFILE},
-        {"hrs_of_day": [1, 2, 3, 4, 5, 6], "daily_load_profile": VALID_LOAD_PROFILE},
         {"fit_to_limit": True, "energy_rate_increase_per_update": 2},
         {"fit_to_limit": False, "energy_rate_increase_per_update": None},
     ])

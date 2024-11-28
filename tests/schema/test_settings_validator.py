@@ -21,8 +21,6 @@ class TestSimulationSettingsValidator:
             "slot_length": timedelta(seconds=900),
             "tick_length": timedelta(seconds=15),
             "market_count": 1,
-            "cloud_coverage": 0,
-            "pv_user_profile": None,
             "market_maker_rate": 30,
             "slot_length_realtime": timedelta(0),
             "start_date": date(2022, 10, 17),
@@ -36,8 +34,14 @@ class TestSimulationSettingsValidator:
             "settlement_market_enabled": False,
             "relative_std_from_forecast_percent": 10.0,
             "bid_offer_match_algo": 1,
-            "scm_coefficient_algorithm": 1,
-            "type": 0
+            "scm": {
+                "name": "DEFAULT_STATIC",
+                "coefficient_algorithm": 2,
+                "grid_fees_reduction": 0.01,
+                "intracommunity_rate_base_eur": 0.5,
+                "hours_of_delay": 72,
+            },
+            "type": 0,
         }
 
     @staticmethod
@@ -53,8 +57,6 @@ class TestSimulationSettingsValidator:
             assert isclose(settings["tick_length"], timedelta(seconds=15).total_seconds())
             assert isclose(settings["slot_length_realtime"], timedelta(seconds=0).total_seconds())
         assert settings["market_count"] == 1
-        assert settings["cloud_coverage"] == 0
-        assert settings["pv_user_profile"] is None
         assert settings["market_maker_rate"] == 30
         assert settings["start_date"] == date(2022, 10, 17)
         assert settings["spot_market_type"] == 2
@@ -66,7 +68,11 @@ class TestSimulationSettingsValidator:
         assert not settings["settlement_market_enabled"]
         assert settings["relative_std_from_forecast_percent"] == 10.0
         assert settings["bid_offer_match_algo"] == 1
-        assert settings["scm_coefficient_algorithm"] == 1
+        assert settings["scm"]["name"] == "DEFAULT_STATIC"
+        assert settings["scm"]["coefficient_algorithm"] == 2
+        assert settings["scm"]["hours_of_delay"] == 72
+        assert isclose(settings["scm"]["grid_fees_reduction"], 0.01, rel_tol=0.0000001)
+        assert isclose(settings["scm"]["intracommunity_rate_base_eur"], 0.5, rel_tol=0.0000001)
         assert settings["type"] == 0
 
     def test_simulation_settings_validator_works(self):
@@ -77,16 +83,20 @@ class TestSimulationSettingsValidator:
         settings = reader.read(decoder)
         self._assert_all_settings_values(settings, False)
 
-    @pytest.mark.parametrize("settings_key, settings_value", [
-        ("type", "COLLABORATION"),
-        ("settlement_market_enabled", 0),
-        ("scm_coefficient_algorithm", 1.3),
-        ("bid_offer_match_algo", "payasclear"),
-        ("relative_std_from_forecast_percent", "ten percent"),
-        ("currency", "EUR"),
-        ("external_connection_enabled", "yes"),
-        ("grid_fee_type", "dynamic"),
-    ])
+    @pytest.mark.parametrize(
+        "settings_key, settings_value",
+        [
+            ("type", "COLLABORATION"),
+            ("settlement_market_enabled", 0),
+            ("scm_coefficient_algorithm", 1.3),
+            ("scm_cn_hours_of_delay", 72.1),
+            ("bid_offer_match_algo", "payasclear"),
+            ("relative_std_from_forecast_percent", "ten percent"),
+            ("currency", "EUR"),
+            ("external_connection_enabled", "yes"),
+            ("grid_fee_type", "dynamic"),
+        ],
+    )
     def test_simulation_settings_validator_rejects_incorrect_values(
             self, settings_key: str, settings_value: Any):
         incorrect_data = deepcopy(self._data)
