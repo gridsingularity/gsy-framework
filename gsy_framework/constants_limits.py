@@ -338,7 +338,10 @@ JWT_TOKEN_EXPIRY_IN_SECS = 48 * 3600
 
 DEFAULT_PRECISION = 8
 ENERGY_RATE_PRECISION = 5
-FLOATING_POINT_TOLERANCE = 0.00001
+# In order to cover conversion and reverse-conversion to 5 decimal points, the tolerance has to be
+# 0.00002. That way off-by-one consecutive rounding errors would not be treated as errors, e.g.
+# when recalculating the original energy rate in trade chains.
+FLOATING_POINT_TOLERANCE = 0.00002
 
 FIELDS_REQUIRED_FOR_REBASE = ("capacity_kW", "tilt", "azimuth", "geo_tag_location")
 
