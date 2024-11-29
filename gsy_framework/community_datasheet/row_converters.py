@@ -20,6 +20,7 @@ from gsy_framework.community_datasheet.sheet_headers import (
     LoadSheetHeader,
     PVSheetHeader,
     StorageSheetHeader,
+    HeatPumpSheetHeader,
     CommunityMembersSheetHeaderOptional,
 )
 from gsy_framework.constants_limits import ConstSettings
@@ -274,26 +275,22 @@ class MembersRowConverter:
             )
 
 
-class LoadRowConverter:
-    """Convert from the excel row to a grid representation of a Load asset."""
+class AssetsRowConverter:
+    """Base class for assets row converters with shared functionality."""
 
-    OPTIONAL_FIELDS = (LoadSheetHeader.DATASTREAM_ID,)
+    OPTIONAL_FIELDS: Tuple[str, ...] = ()
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
         """
         Convert the row parsed from the Excel file to the asset representation used in scenarios.
+        This method must be overridden by subclasses.
         """
-        cls._validate_row(row)
-
-        return {
-            "name": row[LoadSheetHeader.LOAD_NAME],
-            "type": "Load",
-            "uuid": str(uuid.uuid4()),
-        }
+        raise NotImplementedError("Subclasses must implement the convert method.")
 
     @classmethod
     def _validate_row(cls, row: Dict):
+        """Validate that required fields are present and not null."""
         missing_fields = [
             field
             for field, value in row.items()
@@ -309,10 +306,24 @@ class LoadRowConverter:
             )
 
 
-class PVRowConverter:
+class LoadRowConverter(AssetsRowConverter):
+    """Convert from the excel row to a grid representation of a Load asset."""
+
+    OPTIONAL_FIELDS = (LoadSheetHeader.DATASTREAM_ID,)
+
+    @classmethod
+    def convert(cls, row: Dict) -> Dict:
+        cls._validate_row(row)
+        return {
+            "name": row[LoadSheetHeader.LOAD_NAME],
+            "type": "Load",
+            "uuid": str(uuid.uuid4()),
+        }
+
+
+class PVRowConverter(AssetsRowConverter):
     """Convert from the excel row to a grid representation of a PV asset."""
 
-    # These fields are optional because they can be ignored if a PV profile is explicitly provided
     OPTIONAL_FIELDS = (
         PVSheetHeader.CAPACITY_KW,
         PVSheetHeader.TILT,
@@ -322,9 +333,6 @@ class PVRowConverter:
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
-        """
-        Convert the row parsed from the Excel file to the asset representation used in scenarios.
-        """
         cls._validate_row(row)
         return {
             "name": row[PVSheetHeader.PV_NAME],
@@ -337,56 +345,35 @@ class PVRowConverter:
             "azimuth": row[PVSheetHeader.AZIMUTH],
         }
 
-    @classmethod
-    def _validate_row(cls, row: Dict):
-        missing_fields = [
-            field
-            for field, value in row.items()
-            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES
-        ]
 
-        if missing_fields:
-            raise CommunityDatasheetException(
-                (
-                    "Missing values for required fields. "
-                    f"Row: {row}. Required fields: {missing_fields}."
-                )
-            )
-
-
-class StorageRowConverter:
+class StorageRowConverter(AssetsRowConverter):
     """Convert from the excel row to a grid representation of a Storage asset."""
 
     OPTIONAL_FIELDS = (StorageSheetHeader.DATASTREAM_ID,)
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
-        """
-        Convert the row parsed from the Excel file to the asset representation used in scenarios.
-        """
         cls._validate_row(row)
-
         return {
             "name": row[StorageSheetHeader.BATTERY_NAME],
             "type": "ScmStorage",
             "uuid": str(uuid.uuid4()),
         }
 
-    @classmethod
-    def _validate_row(cls, row: Dict):
-        missing_fields = [
-            field
-            for field, value in row.items()
-            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES
-        ]
 
-        if missing_fields:
-            raise CommunityDatasheetException(
-                (
-                    "Missing values for required fields. "
-                    f"Row: {row}. Required fields: {missing_fields}."
-                )
-            )
+class HeatPumpRowConverter(AssetsRowConverter):
+    """Convert from the excel row to a grid representation of a HeatPump asset."""
+
+    OPTIONAL_FIELDS = (HeatPumpSheetHeader.DATASTREAM_ID,)
+
+    @classmethod
+    def convert(cls, row: Dict) -> Dict:
+        cls._validate_row(row)
+        return {
+            "name": row[HeatPumpSheetHeader.HEATPUMP_NAME],
+            "type": "ScmHeatPump",
+            "uuid": str(uuid.uuid4()),
+        }
 
 
 class AssetCoordinatesBuilder:
