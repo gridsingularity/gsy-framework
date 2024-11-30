@@ -45,6 +45,19 @@ class StorageSheetHeader(str, Enum):
         return tuple(item.value for item in cls)
 
 
+class HeatPumpSheetHeader(str, Enum):
+    """Class defining the header columns of the Storage Sheet."""
+
+    MEMBER_NAME = "Member_name"
+    HEATPUMP_NAME = "HeatPump_name"
+    DATASTREAM_ID = "Datastream ID"
+
+    @classmethod
+    def values(cls):
+        """Return all available values of the header."""
+        return tuple(item.value for item in cls)
+
+
 class CommunityMembersSheetHeader(str, Enum):
     """Class defining the header columns of the Storage Sheet."""
 
