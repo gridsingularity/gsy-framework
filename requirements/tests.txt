@@ -16,6 +16,10 @@ attrs==23.2.0
     #   referencing
 avro==1.11.3
     # via -r requirements/base.txt
+beautifulsoup4==4.12.3
+    # via
+    #   -r requirements/base.txt
+    #   entsoe-py
 black==24.4.2
     # via -r requirements/tests.ini
 cachetools==5.3.3
@@ -61,6 +65,8 @@ distlib==0.3.8
     # via
     #   -r requirements/base.txt
     #   virtualenv
+entsoe-py==0.6.2
+    # via -r requirements/base.txt
 et-xmlfile==1.1.0
     # via
     #   -r requirements/base.txt
@@ -114,6 +120,10 @@ nodeenv==1.8.0
     # via
     #   -r requirements/base.txt
     #   pre-commit
+numpy==2.1.3
+    # via
+    #   -r requirements/base.txt
+    #   pandas
 openpyxl==3.0.10
     # via -r requirements/base.txt
 ordered-set==4.1.0
@@ -125,6 +135,10 @@ packaging==24.0
     #   pyproject-api
     #   pytest
     #   tox
+pandas==1.4.2
+    # via
+    #   -r requirements/base.txt
+    #   entsoe-py
 parameterized==0.9.0
     # via -r requirements/tests.ini
 parso==0.8.4
@@ -168,7 +182,13 @@ pytest==8.2.0
 python-dateutil==2.9.0.post0
     # via
     #   -r requirements/base.txt
+    #   pandas
     #   pendulum
+pytz==2024.2
+    # via
+    #   -r requirements/base.txt
+    #   entsoe-py
+    #   pandas
 pytzdata==2020.1
     # via
     #   -r requirements/base.txt
@@ -191,6 +211,7 @@ referencing==0.35.1
 requests==2.31.0
     # via
     #   -r requirements/base.txt
+    #   entsoe-py
     #   geocoder
     #   requests-mock
 requests-mock==1.12.1
@@ -208,6 +229,10 @@ six==1.16.0
     #   python-dateutil
 sortedcontainers==2.4.0
     # via hypothesis
+soupsieve==2.6
+    # via
+    #   -r requirements/base.txt
+    #   beautifulsoup4
 tabulate==0.9.0
     # via -r requirements/base.txt
 tomlkit==0.12.5
