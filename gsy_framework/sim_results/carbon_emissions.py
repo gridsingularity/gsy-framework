@@ -6,10 +6,11 @@ from pendulum import duration
 from entsoe import EntsoePandasClient
 from entsoe.mappings import lookup_area, Area
 from entsoe.parsers import parse_generation
+from geopy.geocoders import Nominatim
 
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 
-URL = "https://web-api.tp.entsoe.eu/api"
+ENTSOE_URL = "https://web-api.tp.entsoe.eu/api"
 
 GENERATION_PLANT_TO_CARBON_EMISSIONS = {
     # source: https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf#page=7
@@ -20,6 +21,39 @@ GENERATION_PLANT_TO_CARBON_EMISSIONS = {
     "Hydro Pumped Storage": {"min": 1.0, "median": 24, "max": 2200},
     "Nuclear": {"min": 3.7, "median": 12, "max": 110},
     "Biomass": {"min": 620, "median": 740, "max": 890},
+}
+
+GEOPY_CONTRY_CODE_TO_ENTSOE_CODE = {
+    "BE": "BE",
+    "PT": "PT",
+    "ES": "ES",
+    "FR": "FR",
+    "DE": "DE",
+    "NL": "NL",
+    "IT": "IT",
+    "SE": "SE",
+    "NO": "NO",
+    "FI": "FI",
+    "DK": "DK",
+    "AT": "AT",
+    "CH": "CH",
+    "GB": "GB",
+    "IE": "IE",
+    "PL": "PL",
+    "CZ": "CZ",
+    "SK": "SK",
+    "HU": "HU",
+    "SI": "SI",
+    "HR": "HR",
+    "RO": "RO",
+    "BG": "BG",
+    "GR": "GR",
+    "EE": "EE",
+    "LV": "LV",
+    "LT": "LT",
+    "LU": "LU",
+    "MT": "MT",
+    "CY": "CY",
 }
 
 
@@ -34,6 +68,15 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
     def __init__(self, api_key: str = None):
         super().__init__(api_key=api_key)
 
+    def coordinates_to_country_code(self, lat: float, lon: float) -> str:
+        """Get the country code based on the coordinates"""
+        geolocator = Nominatim(user_agent="location_app")
+        location = geolocator.reverse((lat, lon), language="en")
+        if location and "country" in location.raw["address"]:
+            country_code = location.raw["address"]["country_code"].upper()
+            return GEOPY_CONTRY_CODE_TO_ENTSOE_CODE[country_code]
+        return "Country not found"
+
     def _base_request(
         self, params: Dict, start: pd.Timestamp, end: pd.Timestamp
     ) -> requests.Response:
@@ -46,7 +89,7 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
             "periodEnd": end_str,
         }
         params.update(base_params)
-        response = self.session.get(url=URL, params=params, proxies=None, timeout=None)
+        response = self.session.get(url=ENTSOE_URL, params=params, proxies=None, timeout=None)
         return response
 
     def _query_generation_per_plant(
@@ -61,7 +104,10 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
         }
         response = self._base_request(params=params, start=start, end=end)
         text = response.text
+        if "Unauthorized" in text:
+            raise ValueError("Invalid API key")
         df = parse_generation(text, per_plant=True, include_eic=False)
+
         df.columns = df.columns.set_levels(
             df.columns.levels[0].str.encode("latin-1").str.decode("utf-8"), level=0
         )
@@ -79,7 +125,7 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
         df = df.truncate(before=start, after=end)
         return df
 
-    def _calculate_total_carbon_generated(
+    def calculate_carbon_ratio(
         self, country_code: str, start: pd.Timestamp, end: pd.Timestamp, stat: str = "median"
     ) -> pd.DataFrame:
         """Calculate the total carbon generated based on the specified statistic
@@ -102,21 +148,55 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
         df_numeric.index = pd.to_datetime(df_numeric.index)
         df_numeric["Total Energy (kWh)"] = df_numeric.sum(axis=1) * 1000  # convert MWh to kWh
         df_numeric["Total Carbon (gCO2eq)"] = df_numeric.mul(emissions_map, axis=1).sum(axis=1)
-
-        generation_types = df.iloc[0]
-        emissions_map = generation_types.map(
-            lambda x: GENERATION_PLANT_TO_CARBON_EMISSIONS.get(x, {}).get(stat, 0)
+        df_numeric["Ratio (gCO2eq/kWh)"] = (
+            df_numeric["Total Carbon (gCO2eq)"] / df_numeric["Total Energy (kWh)"]
         )
-        return df_numeric[["Total Energy (kWh)", "Total Carbon (gCO2eq)"]]
+        return df_numeric[["Ratio (gCO2eq/kWh)"]]
+
+    def calculate_carbon_emissions_from_imported_energy(
+        self, df_carbon_ratio: pd.DataFrame, df_imported_energy: pd.DataFrame
+    ):
+        """Calculate the carbon emissions based on the imported/exported energy"""
+
+        df_carbon_ratio.index = pd.to_datetime(df_carbon_ratio.index)
+        df_imported_energy["simulation_time"] = pd.to_datetime(
+            df_imported_energy["simulation_time"]
+        )
+        df_combined = pd.merge(
+            df_imported_energy,
+            df_carbon_ratio,
+            left_on="simulation_time",
+            right_index=True,
+            how="left",
+        )
+        df_combined["carbon_generated_base_case"] = (
+            df_combined["imported_from_community"] + df_combined["imported_from_grid"]
+        ) * df_combined["Ratio (gCO2eq/kWh)"]
+        df_combined["carbon_generated_gsy"] = (
+            df_combined["imported_from_grid"] * df_combined["Ratio (gCO2eq/kWh)"]
+        )
+        df_combined["carbon_savings"] = (
+            df_combined["carbon_generated_base_case"] - df_combined["carbon_generated_gsy"]
+        )
+        df_combined = df_combined[
+            [
+                "simulation_time",
+                "imported_from_community",
+                "imported_from_grid",
+                "carbon_generated_base_case",
+                "carbon_generated_gsy",
+                "carbon_savings",
+            ]
+        ]
+        return df_combined
 
     def update(self, country_code: str, time_slot: duration, results_list: List[Dict]):
         """Update the results_dict with carbon generated and carbon savings"""
 
         start_date = pd.Timestamp(results_list[0]["current_market"].split("T")[0])
         end_date = pd.Timestamp(results_list[-1]["current_market"].split("T")[0])
-        df_total_carbon_and_energy = self._calculate_total_carbon_generated(
-            country_code, start_date, end_date
-        )
+        df_carbon_ratio = self.calculate_carbon_ratio(country_code, start_date, end_date)
+        df_carbon_ratio.to_csv("carbon_ratio.csv")
         for result in results_list:
             current_market = result["current_market"]
 
@@ -124,13 +204,14 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
                 area_result = result["results"][area_uuid]
                 target_timestamp = pd.Timestamp(current_market).tz_localize("UTC")
 
-                nearest_index = df_total_carbon_and_energy.index.get_indexer(
+                nearest_index = df_carbon_ratio.index.get_indexer(  # the closest timestamp to the target_timestamp
                     [target_timestamp], method="nearest"
-                )[0]
-                nearest_row = df_total_carbon_and_energy.iloc[nearest_index]
+                )[
+                    0
+                ]
+                nearest_row = df_carbon_ratio.iloc[nearest_index]
 
-                total_carbon_g = nearest_row["Total Carbon (gCO2eq)"]
-                total_energy_kWh = nearest_row["Total Energy (kWh)"]
+                carbon_ratio = nearest_row["Ratio (gCO2eq/kWh)"]
 
                 imported_energy_from_grid_kWh = area_result["bought_from_grid"]
                 imported_energy_from_community_kWh = area_result[
@@ -138,16 +219,12 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
                 ]
 
                 carbon_generated_base_case = (
-                    total_carbon_g
-                    * (imported_energy_from_grid_kWh + imported_energy_from_community_kWh)
-                    / total_energy_kWh
-                )
-                carbon_generated_with_trading = (
-                    total_carbon_g * imported_energy_from_grid_kWh / total_energy_kWh
-                )
-                carbon_savings = carbon_generated_base_case - carbon_generated_with_trading
+                    imported_energy_from_grid_kWh + imported_energy_from_community_kWh
+                ) * carbon_ratio
+                carbon_generated_gsy = imported_energy_from_grid_kWh * carbon_ratio
+                carbon_savings = carbon_generated_base_case - carbon_generated_gsy
 
-                area_result["carbon_generated_g"] = carbon_generated_with_trading
+                area_result["carbon_generated_g"] = carbon_generated_gsy
                 area_result["carbon_savings_g"] = carbon_savings
 
         return results_list
