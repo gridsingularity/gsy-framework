@@ -70,7 +70,7 @@
                 ]},
                 {"name": "buying_rate_profile_uuid", "type": ["null", "string"]},
                 {"name": "energy_rate_profile_uuid", "type": ["null", "string"]},
-                {"name": "allow_external_connection", "type": "boolean"},
+                {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name": "display_type", "type": "string"},
                 {"name": "energy_sell_rate", "type": "float"},
                 {"name": "energy_buy_rate", "type": "float"}
@@ -91,7 +91,7 @@
                     "items":  "float"
                   }
                 ]},
-                {"name": "allow_external_connection", "type": "boolean"},
+                {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name": "display_type", "type": "string"},
                 {"name": "energy_rate", "type": "float"}
               ]
@@ -111,7 +111,7 @@
                     "items":  "float"
                   }
                 ]},
-                {"name": "allow_external_connection", "type": "boolean"},
+                {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name": "display_type", "type": "string"},
                 {"name": "energy_rate", "type": "float"},
                 {"name": "max_available_power_kW", "type": "float"}
@@ -132,7 +132,7 @@
                     "items":  "float"
                   }
                 ]},
-                {"name": "allow_external_connection", "type": "boolean"},
+                {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name": "display_type", "type": "string"},
                 {"name": "energy_rate", "type": "float"},
                 {"name": "energy_rate_profile", "type": [
