@@ -114,14 +114,8 @@ class CommunityDatasheetParser:
                 ) from ex
             asset[profile_key] = self._datasheet.profiles[asset_name]
 
-    def _create_grid(self) -> Dict:
-        grid = []
-        for member_name, member_info in self._datasheet.members.items():
-            assets = self._datasheet.assets_by_member[member_name]
-            home_representation = self.create_home_representation(member_name, member_info, assets)
-            member_info["asset_count"] = len(assets)
-            grid.append(home_representation)
-
+    @classmethod
+    def _default_grid_root(cls, children: Dict = None) -> Dict:
         return {
             "name": DefaultCommunityAreaNames.GRID.value,
             "allow_external_connection": False,
@@ -141,10 +135,20 @@ class CommunityDatasheetParser:
                     "allow_external_connection": False,
                     "uuid": str(uuid.uuid4()),
                     "type": "Area",
-                    "children": grid,
+                    "children": None if children is None else children,
                 },
             ],
         }
+
+    def _create_grid(self) -> Dict:
+        grid = []
+        for member_name, member_info in self._datasheet.members.items():
+            assets = self._datasheet.assets_by_member[member_name]
+            home_representation = self.create_home_representation(member_name, member_info, assets)
+            member_info["asset_count"] = len(assets)
+            grid.append(home_representation)
+
+        return self._default_grid_root(children=grid)
 
     @staticmethod
     def create_home_representation(
