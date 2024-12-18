@@ -27,8 +27,7 @@ jobs:
         env:
           TOXENV: ci
           GITHUB_ACCESS_TOKEN: ${{ secrets.GSYDEV_TOKEN }}
-          TARGET_BRANCH: ${{ github.ref }}
-          INTEGRATION_TESTS_BRANCH: ${{ steps.validated_gsy_web_branch.outputs.GSY_WEB_BRANCH }}
+          TARGET_BRANCH: ${{ steps.validated_gsy_web_branch.outputs.GSY_WEB_BRANCH }}
         run: |
           pip install tox==3.24.4
           tox -e $TOXENV
