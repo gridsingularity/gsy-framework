@@ -15,13 +15,13 @@ jobs:
         env:
           prBody: ${{ steps.PR.outputs.pr_body }}
         run: |
-          echo "::set-output name=PARSED_GSY_WEB_BRANCH::$(echo -e $prBody | sed -n 's/.*\*\*GSY_WEB_BRANCH\*\*=\([^ ]*\).*/\1/p')"
+          echo "PARSED_GSY_WEB_BRANCH=$(echo -e $prBody | sed -n 's/.*\*\*GSY_WEB_BRANCH\*\*=\([^ ]*\).*/\1/p')"
         id: parse_gsy_web_branch
       - name: validate parsed gsy web tests branch
         env:
           PARSED_GSY_WEB_BRANCH: ${{ steps.parse_gsy_web_branch.outputs.PARSED_GSY_WEB_BRANCH }}
         run: |
-          echo "::set-output name=GSY_WEB_BRANCH::${PARSED_GSY_WEB_BRANCH:-master}"
+          echo "GSY_WEB_BRANCH=${PARSED_GSY_WEB_BRANCH:-master}"
         id: validated_gsy_web_branch
       - name: Install dependencies
         env:
