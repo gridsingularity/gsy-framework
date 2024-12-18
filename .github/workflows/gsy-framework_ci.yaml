@@ -6,23 +6,36 @@ jobs:
   test-build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      env:
-        TOXENV: ci
-        GITHUB_ACCESS_TOKEN: ${{ secrets.GSYDEV_TOKEN }}
-        TARGET_BRANCH: ${{ github.ref }}
-      run: |
-        pip install tox==3.24.4
-        tox -e $TOXENV
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Parse gsy-web branch
+        env:
+          prBody: ${{ steps.PR.outputs.pr_body }}
+        run: |
+          echo "::set-output name=PARSED_GSY_WEB_BRANCH::$(echo -e $prBody | sed -n 's/.*\*\*GSY_WEB_BRANCH\*\*=\([^ ]*\).*/\1/p')"
+        id: parse_gsy_web_branch
+      - name: validate parsed gsy web tests branch
+        env:
+          PARSED_GSY_WEB_BRANCH: ${{ steps.parse_gsy_web_branch.outputs.PARSED_GSY_WEB_BRANCH }}
+        run: |
+          echo "::set-output name=GSY_WEB_BRANCH::${PARSED_GSY_WEB_BRANCH:-master}"
+        id: validated_gsy_web_branch
+      - name: Install dependencies
+        env:
+          TOXENV: ci
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GSYDEV_TOKEN }}
+          TARGET_BRANCH: ${{ github.ref }}
+          INTEGRATION_TESTS_BRANCH: ${{ steps.validated_gsy_web_branch.outputs.GSY_WEB_BRANCH }}
+        run: |
+          pip install tox==3.24.4
+          tox -e $TOXENV
 
-    - name: Check coverage with Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        token: ${{ secrets.CODECOV_TOKEN_GSY_FRAMEWORK }}
-        fail_ci_if_error: true
-        verbose: true
+      - name: Check coverage with Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN_GSY_FRAMEWORK }}
+          fail_ci_if_error: true
+          verbose: true
