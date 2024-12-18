@@ -13,7 +13,7 @@ jobs:
           python-version: 3.8
       - name: Parse gsy-web branch
         run: |
-          echo "PARSED_GSY_WEB_BRANCH=$(echo -e ${{ steps.PR.outputs.pr_body }} | sed -n 's/.*\*\*GSY_WEB_BRANCH\*\*=\([^ ]*\).*/\1/p')"
+          echo "PARSED_GSY_WEB_BRANCH=$(echo -e ${{ github.event.pull_request.body }} | sed -n 's/.*\*\*GSY_WEB_BRANCH\*\*=\([^ ]*\).*/\1/p')"
         id: parse_gsy_web_branch
       - name: validate parsed gsy web tests branch
         env:
