@@ -1,3 +1,4 @@
+import re
 from abc import ABC, abstractmethod
 from email.utils import parseaddr
 from typing import Dict, Optional, Tuple
@@ -13,6 +14,7 @@ from gsy_framework.community_datasheet.row_converters import (
     MembersRowConverter,
     PVRowConverter,
     StorageRowConverter,
+    HeatPumpRowConverter,
     AdvancedSettingsRowConverter,
 )
 from gsy_framework.community_datasheet.sheet_headers import (
@@ -21,6 +23,7 @@ from gsy_framework.community_datasheet.sheet_headers import (
     LoadSheetHeader,
     PVSheetHeader,
     StorageSheetHeader,
+    HeatPumpSheetHeader,
 )
 from gsy_framework.constants_limits import DATE_TIME_FORMAT
 
@@ -113,12 +116,11 @@ class AdvancedSettingsSheetParser(SheetParserInterface):
         """This sheet does not have a header."""
 
 
-class MembersSheetParser(SheetParserInterface):
+class SheetParser(SheetParserInterface):
     """Base class to parse sheets whose rows represent member names."""
 
     EXPECTED_HEADER: Tuple[str]  # Fields of the header of the sheet
     ROW_CONVERTER_CLASS = MembersRowConverter
-    OPTIONAL_COLUMN_NAMES = []
 
     def __init__(self, worksheet: Worksheet) -> Dict:
         super().__init__(worksheet)
@@ -130,7 +132,7 @@ class MembersSheetParser(SheetParserInterface):
         return tuple(
             column_name
             for column_name in self.EXPECTED_HEADER
-            if column_name not in self.OPTIONAL_COLUMN_NAMES
+            if column_name not in self.ROW_CONVERTER_CLASS.OPTIONAL_FIELDS
         )
 
     def _parse_rows(self) -> Dict:
@@ -158,24 +160,30 @@ class MembersSheetParser(SheetParserInterface):
 
     def _parse_header(self):
         """Use the first row as header and skip it."""
-        self._header = tuple(field for field in next(self.rows) if field)
-        mandatory_headers = tuple(
-            column for column in self._header if column not in self.OPTIONAL_COLUMN_NAMES
+        self._header = tuple(
+            # Remove whitespaces, '(optional)', and '\n' from the column names
+            re.sub(r"\n|\(optional\)", "", field).strip().lower()
+            for field in next(self.rows)
+            if field
         )
-        if mandatory_headers != self._mandatory_column_names:
+        # Check if all mandatory columns are present
+        if not all(
+            mandatory_column_name in self._header
+            for mandatory_column_name in self._mandatory_column_names
+        ):
             raise CommunityDatasheetException(
-                f"Could not find expected headers: {self.EXPECTED_HEADER}. Found: {self._header}."
+                """Could not find expected headers: {self._mandatory_column_names}.
+                Found: {self._header}."""
             )
 
 
-class CommunityMembersSheetParser(MembersSheetParser):
+class CommunityMembersSheetParser(SheetParser):
     """Class to parse the "Community Members" sheets."""
 
     EXPECTED_HEADER = [
         *CommunityMembersSheetHeader.values(),
         *CommunityMembersSheetHeaderOptional.values(),
     ]
-    OPTIONAL_COLUMN_NAMES = CommunityMembersSheetHeaderOptional.values()
 
     def _parse_header(self):
         """Check the header and skip it to read the actual content."""
@@ -209,31 +217,35 @@ class CommunityMembersSheetParser(MembersSheetParser):
         return output
 
 
-class LoadSheetParser(MembersSheetParser):
+class LoadSheetParser(SheetParser):
     """Parser for the "Load" sheet of the Community Datasheet."""
 
     EXPECTED_HEADER = LoadSheetHeader.values()
     ROW_CONVERTER_CLASS = LoadRowConverter
-    OPTIONAL_COLUMN_NAMES = [LoadSheetHeader.DATASTREAM_ID]
 
 
-class PVSheetParser(MembersSheetParser):
+class PVSheetParser(SheetParser):
     """Parser for the "PV" sheet of the Community Datasheet."""
 
     EXPECTED_HEADER = PVSheetHeader.values()
     ROW_CONVERTER_CLASS = PVRowConverter
-    OPTIONAL_COLUMN_NAMES = [PVSheetHeader.DATASTREAM_ID]
 
 
-class StorageSheetParser(MembersSheetParser):
+class StorageSheetParser(SheetParser):
     """Parser for the "Storage" sheet of the Community Datasheet."""
 
     EXPECTED_HEADER = StorageSheetHeader.values()
     ROW_CONVERTER_CLASS = StorageRowConverter
-    OPTIONAL_COLUMN_NAMES = [StorageSheetHeader.DATASTREAM_ID]
 
 
-class ProfileSheetParser(MembersSheetParser):
+class HeatPumpSheetParser(SheetParser):
+    """Parser for the "Heat Pump" sheet of the Community Datasheet."""
+
+    EXPECTED_HEADER = HeatPumpSheetHeader.values()
+    ROW_CONVERTER_CLASS = HeatPumpRowConverter
+
+
+class ProfileSheetParser(SheetParser):
     """Parser for the "Profiles" sheet of the Community Datasheet."""
 
     EXPECTED_HEADER = ("Datetime",)
