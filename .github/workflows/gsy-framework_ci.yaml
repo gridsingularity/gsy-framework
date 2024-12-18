@@ -14,6 +14,8 @@ jobs:
     - name: Install dependencies
       env:
         TOXENV: ci
+        GITHUB_ACCESS_TOKEN: ${{ secrets.GSYDEV_TOKEN }}
+        TARGET_BRANCH: ${{ github.ref }}
       run: |
         pip install tox==3.24.4
         tox -e $TOXENV
