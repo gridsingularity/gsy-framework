@@ -15,7 +15,7 @@ jobs:
         env:
           prBody: ${{ github.event.pull_request.body }}
         run: |
-          echo "PARSED_GSY_WEB_BRANCH=$(echo -e $prBody | sed -n 's/.*\*\*GSY_WEB_BRANCH\*\*=\([^ ]*\).*/\1/p')"
+          echo "PARSED_GSY_WEB_BRANCH=$(echo -e $prBody | sed -n 's/.*\*\*GSY_WEB_BRANCH\*\*=\([^ ]*\).*/\1/p')" >> $GITHUB_OUTPUT
         id: parse_gsy_web_branch
       - name: validate parsed gsy web tests branch
         env:
