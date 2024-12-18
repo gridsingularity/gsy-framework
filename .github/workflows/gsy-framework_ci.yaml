@@ -21,7 +21,7 @@ jobs:
         env:
           PARSED_GSY_WEB_BRANCH: ${{ steps.parse_gsy_web_branch.outputs.PARSED_GSY_WEB_BRANCH }}
         run: |
-          echo "GSY_WEB_BRANCH=${PARSED_GSY_WEB_BRANCH:-master}"
+          echo "GSY_WEB_BRANCH=${PARSED_GSY_WEB_BRANCH:-master}" >> $GITHUB_OUTPUT
         id: validated_gsy_web_branch
       - name: Install dependencies
         env:
