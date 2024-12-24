@@ -223,7 +223,7 @@ class ConstSettings:
         VALID_FEE_TYPES = [1, 2]
         # Market type option
         MARKET_TYPE = SpotMarketTypeEnum.ONE_SIDED.value
-        MARKET_TYPE_LIMIT = RangeLimit(1, 3)
+        MARKET_TYPE_LIMIT = RangeLimit(0, 3)
 
         BID_OFFER_MATCH_TYPE = BidOfferMatchAlgoEnum.PAY_AS_BID.value
         BID_OFFER_MATCH_TYPE_LIMIT = RangeLimit(1, 4)
