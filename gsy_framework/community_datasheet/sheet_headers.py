@@ -3,68 +3,70 @@
 from enum import Enum
 
 
-class LoadSheetHeader(str, Enum):
-    """Class defining the header columns of the Load Sheet."""
+class SheetHeader(str, Enum):
+    """Class defining the header columns of the Community Datasheet."""
 
-    MEMBER_NAME = "Member_name"
-    LOAD_NAME = "Load_name"
-    DATASTREAM_ID = "Datastream ID"
+    @property
+    def value(self):
+        """Return the string representation of the header."""
+        return super().value.lower()
 
     @classmethod
     def values(cls):
         """Return all available values of the header."""
-        return tuple(item.value for item in cls)
+        return tuple(item.value.lower() for item in cls)
 
 
-class PVSheetHeader(str, Enum):
+class LoadSheetHeader(SheetHeader):
+    """Class defining the header columns of the Load Sheet."""
+
+    MEMBER_NAME = "Member name"
+    LOAD_NAME = "Load name"
+    DATASTREAM_ID = "Datastream ID"
+
+
+class PVSheetHeader(SheetHeader):
     """Class defining the header columns of the PV Sheet."""
 
-    MEMBER_NAME = "Member_name"
-    PV_NAME = "PV_name"
+    MEMBER_NAME = "Member name"
+    PV_NAME = "PV name"
     CAPACITY_KW = "Capacity [kW]"
     TILT = "Tilt [°]"
     AZIMUTH = "Azimuth [°]"
     DATASTREAM_ID = "Datastream ID"
 
-    @classmethod
-    def values(cls):
-        """Return all available values of the header."""
-        return tuple(item.value for item in cls)
 
-
-class StorageSheetHeader(str, Enum):
+class StorageSheetHeader(SheetHeader):
     """Class defining the header columns of the Storage Sheet."""
 
-    MEMBER_NAME = "Member_name"
-    BATTERY_NAME = "Battery_name"
+    MEMBER_NAME = "Member name"
+    BATTERY_NAME = "Battery name"
     DATASTREAM_ID = "Datastream ID"
 
-    @classmethod
-    def values(cls):
-        """Return all available values of the header."""
-        return tuple(item.value for item in cls)
 
-
-class CommunityMembersSheetHeader(str, Enum):
+class HeatPumpSheetHeader(SheetHeader):
     """Class defining the header columns of the Storage Sheet."""
 
-    MEMBER_NAME = "Member list name"
+    MEMBER_NAME = "Member name"
+    HEATPUMP_NAME = "Heat Pump name"
+    DATASTREAM_ID = "Datastream ID"
+
+
+class CommunityMembersSheetHeader(SheetHeader):
+    """Class defining the header columns of the Storage Sheet."""
+
+    MEMBER_NAME = "Member name"
     EMAIL = "Email"
     ZIP = "ZIP code"
-    LOCATION = "Location/Address (optional)"
     UTILITY_PRICE = "Utility price"
     FEED_IN_TARIFF = "Feed-in Tariff"
     COEFFICIENT = "Coefficient"
 
-    @classmethod
-    def values(cls):
-        """Return all available values of the header."""
-        return tuple(item.value for item in cls)
 
-
-class CommunityMembersSheetHeaderOptional(str, Enum):
+class CommunityMembersSheetHeaderOptional(SheetHeader):
     """Class defining the header columns of the Storage Sheet."""
 
+    LOCATION = "Location/Address"
     TAXES = "Taxes and surcharges"
     FIXED_FEE = "Fixed fee"
     MARKETPLACE_FEE = "Marketplace fee"
@@ -77,8 +79,3 @@ class CommunityMembersSheetHeaderOptional(str, Enum):
     CONTRACTED_POWER_CARGO_FEE = "Contracted Power Cargo Fee"
     ENERGY_CARGO_FEE = "Energy Cargo Fee"
     DATASTREAM_ID = "Datastream ID"
-
-    @classmethod
-    def values(cls):
-        """Return all available values of the header."""
-        return tuple(item.value for item in cls)

@@ -19,6 +19,7 @@ from gsy_framework.community_datasheet.sheet_parsers import (
     ProfileSheetParser,
     PVSheetParser,
     StorageSheetParser,
+    HeatPumpSheetParser,
     AdvancedSettingsSheetParser,
 )
 
@@ -35,6 +36,7 @@ class CommunityDatasheet:
     loads: Dict[str, List]  # Map member names to their loads
     pvs: Dict[str, List]  # Map member names to their pvs
     storages: Dict[str, List]  # Map member names to their storages
+    heatpumps: Dict[str, List]  # Map member names to their heat pumps
     profiles: Dict
     grid: Dict = field(default_factory=dict)
 
@@ -62,11 +64,21 @@ class CommunityDatasheet:
         return [asset for member_assets in self.storages.values() for asset in member_assets]
 
     @property
+    def heatpump_assets(self) -> List:
+        """Return a list of the storage assets defined in the datasheet."""
+        return [asset for member_assets in self.heatpumps.values() for asset in member_assets]
+
+    @property
     def all_assets(self) -> List:
         """Return a list of all assets defined in the datasheet."""
         return [
             asset
-            for assets_group in (self.load_assets, self.pv_assets, self.storage_assets)
+            for assets_group in (
+                self.load_assets,
+                self.pv_assets,
+                self.storage_assets,
+                self.heatpump_assets,
+            )
             for asset in assets_group
         ]
 
@@ -84,7 +96,9 @@ class CommunityDatasheet:
             }
         """
         assets_by_member = {member_name: [] for member_name in self.members}
-        asset_items = [assets.items() for assets in (self.loads, self.pvs, self.storages)]
+        asset_items = [
+            assets.items() for assets in (self.loads, self.pvs, self.storages, self.heatpumps)
+        ]
         for member_name, assets in chain.from_iterable(asset_items):
             assets_by_member[member_name].extend(assets)
 
@@ -107,6 +121,7 @@ class CommunityDatasheetReader:
         "Load",
         "PV",
         "Storage",
+        "Heat Pump",
         "Profiles",
     }
 
@@ -155,5 +170,6 @@ class CommunityDatasheetReader:
             loads=LoadSheetParser(workbook["Load"]).parse(),
             pvs=PVSheetParser(workbook["PV"]).parse(),
             storages=StorageSheetParser(workbook["Storage"]).parse(),
+            heatpumps=HeatPumpSheetParser(workbook["Heat Pump"]).parse(),
             profiles=ProfileSheetParser(workbook["Profiles"]).parse(),
         )
