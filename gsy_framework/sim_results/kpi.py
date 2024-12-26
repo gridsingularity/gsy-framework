@@ -107,7 +107,7 @@ class KPIState:
 
     def _dissipate_self_consumption_ess(self, trade: Dict):
         if trade["seller"]["origin_uuid"] in self.ess_list:
-            # self_consumption_buffer needs to be exhausted to total_self_consumption
+            # self_consumption_ess_wh needs to be exhausted to total_self_consumption
             # if sold to internal consumer
             if (
                 trade["buyer"]["origin_uuid"] in self.consumer_list
@@ -120,7 +120,7 @@ class KPIState:
                 else:
                     self.total_self_consumption_wh += self.self_consumption_ess_wh
                     self.self_consumption_ess_wh = 0
-            # self_consumption_buffer needs to be exhausted if sold to any external agent
+            # self_consumption_ess_wh needs to be exhausted if sold to any external agent
             elif (
                 trade["buyer"]["origin_uuid"] not in [*self.ess_list, *self.consumer_list]
                 and _is_trader_origin(trade["buyer"])
