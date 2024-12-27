@@ -537,6 +537,8 @@ class TestCommunityDatasheetParser:
             "enable_grid_export_fee_const": False,
             "enable_grid_import_fee_const": False,
             "enable_marketplace_monthly_fee": False,
+            "enable_electricity_tax": False,
+            "enable_fixed_monthly_fee": False,
             "enable_service_monthly_fee": False,
             "enable_taxes_surcharges": False,
         }

@@ -42,6 +42,8 @@ ADVANCED_SETTINGS_FIELD_MAPPING = {
     "Enable grid export fee": "enable_grid_export_fee_const",
     "Enable taxes surcharges": "enable_taxes_surcharges",
     "Enable marketplace monthly fee": "enable_marketplace_monthly_fee",
+    "Enable electricity tax": "enable_electricity_tax",
+    "Enable fixed monthly fee": "enable_fixed_monthly_fee",
     "Enable assistance monthly fee": "enable_assistance_monthly_fee",
     "Enable service monthly fee": "enable_service_monthly_fee",
     "Enable contracted power monthly fee": "enable_contracted_power_monthly_fee",
@@ -185,7 +187,7 @@ class MembersRowConverter:
             geo_tag_location = AssetCoordinatesBuilder().get_member_coordinates(
                 {"address": address, "zip_code": zip_code}
             )
-        print("electricity_tax", electricity_tax)
+
         return {
             "email": email,
             "uuid": member_uuid,
