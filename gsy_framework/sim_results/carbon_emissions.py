@@ -136,9 +136,11 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
         df = self._query_generation_per_plant(country_code, start, end)
 
         generation_types = df.iloc[0].iloc[1:]
-        carbon_emission_per_plant = lambda x: GENERATION_PLANT_TO_CARBON_EMISSIONS[x][
-            stat
-        ]  # noqa: E731 C3001
+        # fmt: off
+        carbon_emission_per_plant = lambda x: GENERATION_PLANT_TO_CARBON_EMISSIONS[  # noqa: E731
+            x
+        ][stat]
+        # fmt: on
         emissions_map = generation_types.map(carbon_emission_per_plant)
 
         df_numeric = df.iloc[2:].reset_index(drop=True)
@@ -204,11 +206,10 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
                 area_result = result["results"][area_uuid]
                 target_timestamp = pd.Timestamp(current_market).tz_localize("UTC")
 
-                nearest_index = df_carbon_ratio.index.get_indexer(  # the closest timestamp to the target_timestamp
+                # the closest timestamp to the target_timestamp
+                nearest_index = df_carbon_ratio.index.get_indexer(
                     [target_timestamp], method="nearest"
-                )[
-                    0
-                ]
+                )[0]
                 nearest_row = df_carbon_ratio.iloc[nearest_index]
 
                 carbon_ratio = nearest_row["Ratio (gCO2eq/kWh)"]
