@@ -522,14 +522,13 @@ class TestCommunityDatasheetParser:
             "slot_length": timedelta(seconds=900),
             "currency": "EUR",
         }
-
         assert datasheet.advanced_settings == {
             "coefficient_algorithm": 1,
             "grid_fees_reduction": 0,
-            "intracommunity_rate_base_eur": 0.3,
+            "intracommunity_rate_base_eur": 0.12,
             "scm_cn_hours_of_delay": 0,
             "vat_percentage": 10,
-            "self_consumption_type": 0,
+            "self_consumption_type": 1,
             "enable_assistance_monthly_fee": False,
             "enable_contracted_power_cargo_monthly_fee": False,
             "enable_contracted_power_monthly_fee": False,
