@@ -22,7 +22,7 @@ class TestCarbonEmissionsHandler:
         self.house2_uuid = "1521b3f4-c655-4ab8-b8b7-94f14f7279a0"
 
     @patch(
-        "gsy_framework.sim_results.carbon_emissions.CarbonEmissionsHandler._query_generation_per_plant",  # noqa: E501
+        "gsy_framework.sim_results.carbon_emissions.EntsoePandasClientAdapter._query_generation_per_plant",  # noqa: E501
         lambda *args: pd.read_csv("tests/static/generation_per_plant_entsoe_BE_20210801.csv"),
     )
     def test_update_calculates_carbon_emissions_correctly(self):

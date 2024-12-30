@@ -57,25 +57,9 @@ GEOPY_CONTRY_CODE_TO_ENTSOE_CODE = {
 }
 
 
-class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
-    """The most recent Enstsoe-y version (v0.6.16) is only compatible with python 3.9.
-    Therefore, I am using v0.4.4 whose URL does not work. So, I am overwriting some methods
-    from https://github.com/EnergieID/entsoe-py (branch v0.4.4) to make this work.
-    """
-
-    carbon_emissions = {}
-
+class EntsoePandasClientAdapter(EntsoePandasClient):
     def __init__(self, api_key: str = None):
         super().__init__(api_key=api_key)
-
-    def coordinates_to_country_code(self, lat: float, lon: float) -> str:
-        """Get the country code based on the coordinates"""
-        geolocator = Nominatim(user_agent="location_app")
-        location = geolocator.reverse((lat, lon), language="en")
-        if location and "country" in location.raw["address"]:
-            country_code = location.raw["address"]["country_code"].upper()
-            return GEOPY_CONTRY_CODE_TO_ENTSOE_CODE[country_code]
-        return "Country not found"
 
     def _base_request(
         self, params: Dict, start: pd.Timestamp, end: pd.Timestamp
@@ -106,24 +90,45 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
         text = response.text
         if "Unauthorized" in text:
             raise ValueError("Invalid API key")
-        df = parse_generation(text, per_plant=True, include_eic=False)
+        df_generation = parse_generation(text, per_plant=True, include_eic=False)
 
-        df.columns = df.columns.set_levels(
-            df.columns.levels[0].str.encode("latin-1").str.decode("utf-8"), level=0
+        df_generation.columns = df_generation.columns.set_levels(
+            df_generation.columns.levels[0].str.encode("latin-1").str.decode("utf-8"), level=0
         )
-        df = df.tz_convert(area.tz)
+        df_generation = df_generation.tz_convert(area.tz)
         # Truncation will fail if data is not sorted along the index in rare
         # cases. Ensure the dataframe is sorted:
-        df = df.sort_index(axis=0)
+        df_generation = df_generation.sort_index(axis=0)
 
-        if df.columns.nlevels == 2:
-            df = (
-                df.assign(newlevel="Actual Aggregated")
+        if df_generation.columns.nlevels == 2:
+            df_generation = (
+                df_generation.assign(newlevel="Actual Aggregated")
                 .set_index("newlevel", append=True)
                 .unstack("newlevel")
             )
-        df = df.truncate(before=start, after=end)
-        return df
+        df_generation = df_generation.truncate(before=start, after=end)
+        return df_generation
+
+
+class CarbonEmissionsHandler(ResultsBaseClass):
+    """The most recent Enstsoe-y version (v0.6.16) is only compatible with python 3.9.
+    Therefore, I am using v0.4.4 whose URL does not work. So, I am overwriting some methods
+    from https://github.com/EnergieID/entsoe-py (branch v0.4.4) to make this work.
+    """
+
+    carbon_emissions = {}
+
+    def __init__(self, api_key: str = None):
+        self.entsoe_client = EntsoePandasClientAdapter(api_key=api_key)
+
+    def coordinates_to_country_code(self, lat: float, lon: float) -> str:
+        """Get the country code based on the coordinates"""
+        geolocator = Nominatim(user_agent="location_app")
+        location = geolocator.reverse((lat, lon), language="en")
+        if location and "country" in location.raw["address"]:
+            country_code = location.raw["address"]["country_code"].upper()
+            return GEOPY_CONTRY_CODE_TO_ENTSOE_CODE[country_code]
+        return "Country not found"
 
     def calculate_carbon_ratio(
         self, country_code: str, start: pd.Timestamp, end: pd.Timestamp, stat: str = "median"
@@ -133,9 +138,11 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
         if stat not in ["min", "median", "max"]:
             raise ValueError("stat must be one of 'min', 'median', or 'max'")
 
-        df = self._query_generation_per_plant(country_code, start, end)
+        df_generation_per_plant = self.entsoe_client._query_generation_per_plant(
+            country_code, start, end
+        )
 
-        generation_types = df.iloc[0].iloc[1:]
+        generation_types = df_generation_per_plant.iloc[0].iloc[1:]
         # fmt: off
         carbon_emission_per_plant = lambda x: GENERATION_PLANT_TO_CARBON_EMISSIONS[  # noqa: E731
             x
@@ -143,7 +150,7 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
         # fmt: on
         emissions_map = generation_types.map(carbon_emission_per_plant)
 
-        df_numeric = df.iloc[2:].reset_index(drop=True)
+        df_numeric = df_generation_per_plant.iloc[2:].reset_index(drop=True)
         df_numeric = df_numeric.set_index("Unnamed: 0").apply(  # noqa: E501
             pd.to_numeric, errors="coerce"
         )
