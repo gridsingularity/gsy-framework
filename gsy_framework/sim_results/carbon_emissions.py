@@ -198,7 +198,7 @@ class CarbonEmissionsHandler(EntsoePandasClient, ResultsBaseClass):
         start_date = pd.Timestamp(results_list[0]["current_market"].split("T")[0])
         end_date = pd.Timestamp(results_list[-1]["current_market"].split("T")[0])
         df_carbon_ratio = self.calculate_carbon_ratio(country_code, start_date, end_date)
-        df_carbon_ratio.to_csv("carbon_ratio.csv")
+
         for result in results_list:
             current_market = result["current_market"]
 
