@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Cyprus,Cyprus,CY,792.55,1006.74,14.41,14.41,tsoc.org.cy
+2023-02-01 00:00:00,Cyprus,Cyprus,CY,779.49,990.33,15.82,15.82,tsoc.org.cy
+2023-03-01 00:00:00,Cyprus,Cyprus,CY,718.92,915.81,22.36,22.36,tsoc.org.cy
+2023-04-01 00:00:00,Cyprus,Cyprus,CY,701.32,894.25,24.26,24.26,tsoc.org.cy
+2023-05-01 00:00:00,Cyprus,Cyprus,CY,672.82,858.28,26.61,26.61,Electricity Maps Estimation; tsoc.org.cy
+2023-06-01 00:00:00,Cyprus,Cyprus,CY,705.74,899.27,23.78,23.78,tsoc.org.cy
+2023-07-01 00:00:00,Cyprus,Cyprus,CY,751.32,955.19,18.86,18.86,tsoc.org.cy
+2023-08-01 00:00:00,Cyprus,Cyprus,CY,816.33,1035.70,11.84,11.84,tsoc.org.cy
+2023-09-01 00:00:00,Cyprus,Cyprus,CY,729.73,929.99,21.19,21.19,tsoc.org.cy
+2023-10-01 00:00:00,Cyprus,Cyprus,CY,728.71,929.40,21.30,21.30,Electricity Maps Estimation; tsoc.org.cy
+2023-11-01 00:00:00,Cyprus,Cyprus,CY,726.35,926.56,21.56,21.56,tsoc.org.cy
+2023-12-01 00:00:00,Cyprus,Cyprus,CY,757.01,964.41,18.24,18.24,tsoc.org.cy

@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Iceland,Iceland,IS,0.00,27.08,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is
+2023-02-01 00:00:00,Iceland,Iceland,IS,0.00,27.16,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is
+2023-03-01 00:00:00,Iceland,Iceland,IS,0.00,27.22,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is
+2023-04-01 00:00:00,Iceland,Iceland,IS,0.00,27.37,100.00,100.00,amper.landsnet.is
+2023-05-01 00:00:00,Iceland,Iceland,IS,0.00,27.85,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is
+2023-06-01 00:00:00,Iceland,Iceland,IS,0.00,28.01,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is
+2023-07-01 00:00:00,Iceland,Iceland,IS,0.00,28.18,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is
+2023-08-01 00:00:00,Iceland,Iceland,IS,0.00,28.03,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is
+2023-09-01 00:00:00,Iceland,Iceland,IS,0.00,27.79,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is
+2023-10-01 00:00:00,Iceland,Iceland,IS,0.00,28.15,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is
+2023-11-01 00:00:00,Iceland,Iceland,IS,0.00,28.12,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is
+2023-12-01 00:00:00,Iceland,Iceland,IS,0.00,28.18,100.00,100.00,Electricity Maps Estimation; amper.landsnet.is

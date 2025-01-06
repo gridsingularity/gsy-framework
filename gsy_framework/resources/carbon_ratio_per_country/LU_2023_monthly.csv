@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Luxembourg,Luxembourg,LU,279.05,345.47,66.21,54.01,entsoe.eu
+2023-02-01 00:00:00,Luxembourg,Luxembourg,LU,306.63,377.07,62.75,52.10,entsoe.eu
+2023-03-01 00:00:00,Luxembourg,Luxembourg,LU,236.32,300.70,70.64,59.67,entsoe.eu
+2023-04-01 00:00:00,Luxembourg,Luxembourg,LU,214.38,279.17,72.54,60.82,entsoe.eu
+2023-05-01 00:00:00,Luxembourg,Luxembourg,LU,168.46,231.47,77.99,64.51,entsoe.eu
+2023-06-01 00:00:00,Luxembourg,Luxembourg,LU,197.15,262.76,74.44,61.76,entsoe.eu
+2023-07-01 00:00:00,Luxembourg,Luxembourg,LU,162.52,223.84,79.12,65.59,Electricity Maps Estimation; entsoe.eu
+2023-08-01 00:00:00,Luxembourg,Luxembourg,LU,211.91,280.23,73.89,61.00,Electricity Maps Estimation; entsoe.eu
+2023-09-01 00:00:00,Luxembourg,Luxembourg,LU,251.97,321.28,71.05,60.38,entsoe.eu
+2023-10-01 00:00:00,Luxembourg,Luxembourg,LU,243.22,305.92,72.66,64.49,entsoe.eu
+2023-11-01 00:00:00,Luxembourg,Luxembourg,LU,254.32,312.26,70.08,60.10,entsoe.eu
+2023-12-01 00:00:00,Luxembourg,Luxembourg,LU,241.37,299.93,70.41,62.50,entsoe.eu

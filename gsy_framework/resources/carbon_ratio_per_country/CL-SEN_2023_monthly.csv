@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,144.45,188.21,59.00,59.00,coordinador.cl
+2023-02-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,155.13,199.86,55.96,55.95,coordinador.cl
+2023-03-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,177.12,224.32,49.72,49.72,coordinador.cl
+2023-04-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,195.77,244.70,44.41,44.41,Electricity Maps Estimation; coordinador.cl
+2023-05-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,192.29,239.92,45.38,45.37,coordinador.cl
+2023-06-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,166.76,210.84,52.62,52.62,coordinador.cl
+2023-07-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,127.62,167.95,63.74,63.74,coordinador.cl
+2023-08-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,121.35,161.03,65.52,65.52,coordinador.cl
+2023-09-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,103.27,140.75,70.66,70.66,coordinador.cl
+2023-10-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,94.71,132.01,73.09,73.09,coordinador.cl
+2023-11-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,83.47,119.88,76.28,76.28,coordinador.cl
+2023-12-01 00:00:00,Chile,Sistema Eléctrico Nacional,CL-SEN,107.65,148.06,74.29,74.29,coordinador.cl

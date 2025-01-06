@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Japan,Japan,JP,422.61,501.92,22.97,18.10,
+2023-02-01 00:00:00,Japan,Japan,JP,412.80,491.57,24.87,19.76,
+2023-03-01 00:00:00,Japan,Japan,JP,395.34,472.99,27.92,22.05,
+2023-04-01 00:00:00,Japan,Japan,JP,383.60,459.81,30.06,23.42,
+2023-05-01 00:00:00,Japan,Japan,JP,379.38,454.87,30.84,23.91,
+2023-06-01 00:00:00,Japan,Japan,JP,397.79,474.31,27.51,21.60,
+2023-07-01 00:00:00,Japan,Japan,JP,401.95,479.92,26.73,21.10,
+2023-08-01 00:00:00,Japan,Japan,JP,401.61,480.03,26.77,20.78,
+2023-09-01 00:00:00,Japan,Japan,JP,403.67,481.70,26.41,20.11,
+2023-10-01 00:00:00,Japan,Japan,JP,387.63,463.11,29.35,22.08,
+2023-11-01 00:00:00,Japan,Japan,JP,404.46,481.37,26.29,20.27,
+2023-12-01 00:00:00,Japan,Japan,JP,410.09,488.12,25.24,18.61,

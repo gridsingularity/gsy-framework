@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Australia,New South Wales,AU-NSW,478.47,529.86,36.43,36.43,Electricity Maps Estimation; opennem.org.au
+2023-02-01 00:00:00,Australia,New South Wales,AU-NSW,500.96,552.68,33.85,33.85,Electricity Maps Estimation; opennem.org.au
+2023-03-01 00:00:00,Australia,New South Wales,AU-NSW,504.27,558.17,31.57,31.57,Electricity Maps Estimation; opennem.org.au
+2023-04-01 00:00:00,Australia,New South Wales,AU-NSW,511.55,565.17,30.86,30.86,opennem.org.au
+2023-05-01 00:00:00,Australia,New South Wales,AU-NSW,526.65,580.56,28.69,28.69,opennem.org.au
+2023-06-01 00:00:00,Australia,New South Wales,AU-NSW,540.02,592.14,27.90,27.90,Electricity Maps Estimation; opennem.org.au
+2023-07-01 00:00:00,Australia,New South Wales,AU-NSW,527.78,580.14,29.36,29.36,Electricity Maps Estimation; opennem.org.au
+2023-08-01 00:00:00,Australia,New South Wales,AU-NSW,504.85,558.46,32.06,32.06,opennem.org.au
+2023-09-01 00:00:00,Australia,New South Wales,AU-NSW,465.12,516.40,38.35,38.35,opennem.org.au
+2023-10-01 00:00:00,Australia,New South Wales,AU-NSW,442.20,492.01,41.69,41.69,opennem.org.au
+2023-11-01 00:00:00,Australia,New South Wales,AU-NSW,442.86,494.38,40.55,40.55,opennem.org.au
+2023-12-01 00:00:00,Australia,New South Wales,AU-NSW,455.39,506.90,39.44,39.44,Electricity Maps Estimation; opennem.org.au

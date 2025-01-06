@@ -1,14 +1,13 @@
-from typing import Union, Dict, List
+from typing import Union, Dict
+from datetime import datetime
 
 import requests
 import pandas as pd
-from pendulum import duration
 from entsoe import EntsoePandasClient
 from entsoe.mappings import lookup_area, Area
 from entsoe.parsers import parse_generation
 from geopy.geocoders import Nominatim
 
-from gsy_framework.sim_results.results_abc import ResultsBaseClass
 
 ENTSOE_URL = "https://web-api.tp.entsoe.eu/api"
 
@@ -23,38 +22,113 @@ GENERATION_PLANT_TO_CARBON_EMISSIONS = {
     "Biomass": {"min": 620, "median": 740, "max": 890},
 }
 
+
 GEOPY_CONTRY_CODE_TO_ENTSOE_CODE = {
+    "AL": "AL",
+    "AD": "AD",
+    "AT": "AT",
+    "BY": "BY",
     "BE": "BE",
-    "PT": "PT",
-    "ES": "ES",
+    "BA": "BA",
+    "BG": "BG",
+    "HR": "HR",
+    "CY": "CY",
+    "CZ": "CZ",
+    "DK": "DK",
+    "EE": "EE",
+    "FI": "FI",
     "FR": "FR",
     "DE": "DE",
-    "NL": "NL",
-    "IT": "IT",
-    "SE": "SE",
-    "NO": "NO",
-    "FI": "FI",
-    "DK": "DK",
-    "AT": "AT",
-    "CH": "CH",
-    "GB": "GB",
-    "IE": "IE",
-    "PL": "PL",
-    "CZ": "CZ",
-    "SK": "SK",
-    "HU": "HU",
-    "SI": "SI",
-    "HR": "HR",
-    "RO": "RO",
-    "BG": "BG",
     "GR": "GR",
-    "EE": "EE",
+    "HU": "HU",
+    "IS": "IS",
+    "IE": "IE",
+    "IT": "IT",
+    "XK": "XK",
     "LV": "LV",
+    "LI": "LI",
     "LT": "LT",
     "LU": "LU",
     "MT": "MT",
-    "CY": "CY",
+    "MD": "MD",
+    "MC": "MC",
+    "ME": "ME",
+    "NL": "NL",
+    "MK": "MK",
+    "NO": "NO",
+    "PL": "PL",
+    "PT": "PT",
+    "RO": "RO",
+    "SM": "SM",
+    "RS": "RS",
+    "SK": "SK",
+    "SI": "SI",
+    "ES": "ES",
+    "SE": "SE",
+    "CH": "CH",
+    "UA": "UA",
+    "GB": "GB",
+    "VA": "VA",
 }
+
+MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES = [
+    "ES",
+    "FI",
+    "IT",
+    "GR",
+    "PA",
+    "BR",
+    "LT",
+    "SK",
+    "PE",
+    "CA",
+    "GB",
+    "CY",
+    "FR",
+    "GB",
+    "ID",
+    "RO",
+    "NZ",
+    "CR",
+    "HK",
+    "IN",
+    "SE",
+    "PT",
+    "LU",
+    "JP",
+    "BG",
+    "CH",
+    "HU",
+    "NO",
+    "IE",
+    "LV",
+    "CL",
+    "HR",
+    "ZA",
+    "PH",
+    "EE",
+    "NL",
+    "PL",
+    "US",
+    "TW",
+    "DE",
+    "SI",
+    "AU",
+    "TR",
+    "BE",
+    "NI",
+    "DK",
+    "AT",
+    "SG",
+    "IS",
+    "KR",
+    "BA",
+    "UY",
+    "IL",
+    "CA",
+    "RS",
+    "CZ",
+]
 
 
 class EntsoePandasClientAdapter(EntsoePandasClient):
@@ -80,6 +154,8 @@ class EntsoePandasClientAdapter(EntsoePandasClient):
         self, country_code: Union[Area, str], start: pd.Timestamp, end: pd.Timestamp
     ):
         """Overwrites EntsoePandasClient query_generation_per_plant method"""
+        print("start", start)
+        print("end", end)
         area = lookup_area(country_code)
         params = {
             "documentType": "A73",
@@ -91,7 +167,10 @@ class EntsoePandasClientAdapter(EntsoePandasClient):
         if "Unauthorized" in text:
             raise ValueError("Invalid API key")
         df_generation = parse_generation(text, per_plant=True, include_eic=False)
-
+        print("df_generation", df_generation)
+        df_generation.to_csv("df_generation.csv")
+        if df_generation.empty:
+            raise ValueError("The Entsoe dataframe is empty. Please check the query parameters.")
         df_generation.columns = df_generation.columns.set_levels(
             df_generation.columns.levels[0].str.encode("latin-1").str.decode("utf-8"), level=0
         )
@@ -110,16 +189,14 @@ class EntsoePandasClientAdapter(EntsoePandasClient):
         return df_generation
 
 
-class CarbonEmissionsHandler(ResultsBaseClass):
+class CarbonEmissionsHandler:
     """The most recent Enstsoe-y version (v0.6.16) is only compatible with python 3.9.
     Therefore, I am using v0.4.4 whose URL does not work. So, I am overwriting some methods
     from https://github.com/EnergieID/entsoe-py (branch v0.4.4) to make this work.
     """
 
-    carbon_emissions = {}
-
-    def __init__(self, api_key: str = None):
-        self.entsoe_client = EntsoePandasClientAdapter(api_key=api_key)
+    def __init__(self, entsoe_api_key: str = None):
+        self.entsoe_api_key = entsoe_api_key
 
     def coordinates_to_country_code(self, lat: float, lon: float) -> str:
         """Get the country code based on the coordinates"""
@@ -138,16 +215,29 @@ class CarbonEmissionsHandler(ResultsBaseClass):
         if stat not in ["min", "median", "max"]:
             raise ValueError("stat must be one of 'min', 'median', or 'max'")
 
-        df_generation_per_plant = self.entsoe_client._query_generation_per_plant(
-            country_code, start, end
-        )
+        if (
+            country_code in GEOPY_CONTRY_CODE_TO_ENTSOE_CODE.values()
+        ):  # source: https://transparency.entsoe.eu/
+            entsoe_client = EntsoePandasClientAdapter(api_key=self.entsoe_api_key)
+            df_generation_per_plant = entsoe_client._query_generation_per_plant(
+                country_code, start, end
+            )
+        elif (
+            country_code in MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES
+        ):  # source: https://www.electricitymaps.com/data-portal
+            df_generation_per_plant = ...
+        else:  # source: https://ourworldindata.org/
+            df_generation_per_plant = ...
 
         generation_types = df_generation_per_plant.iloc[0].iloc[1:]
+        print("stat", stat)
         # fmt: off
         carbon_emission_per_plant = lambda x: GENERATION_PLANT_TO_CARBON_EMISSIONS[  # noqa: E731
             x
         ][stat]
         # fmt: on
+        print("carbon_emission_per_plant", carbon_emission_per_plant)
+        print("generation_types", generation_types)
         emissions_map = generation_types.map(carbon_emission_per_plant)
 
         df_numeric = df_generation_per_plant.iloc[2:].reset_index(drop=True)
@@ -199,56 +289,55 @@ class CarbonEmissionsHandler(ResultsBaseClass):
         ]
         return df_combined
 
-    def update(self, country_code: str, time_slot: duration, results_list: List[Dict]):
-        """Update the results_dict with carbon generated and carbon savings"""
+    def calculate_carbon_emissions_from_gsy_trade_profile(
+        self, country_code: str, trade_profile: Dict
+    ) -> Dict:
+        """Calculate the carbon emissions based on the gsy-e trade profile
+        (energy_bought, energy_sold)"""
 
-        start_date = pd.Timestamp(results_list[0]["current_market"].split("T")[0])
-        end_date = pd.Timestamp(results_list[-1]["current_market"].split("T")[0])
+        if "Grid" not in trade_profile:
+            raise ValueError("Grid area not found")
+        grid_area = trade_profile["Grid"]
+
+        # Find simulation days
+        for area in grid_area["sold_energy"].values():
+            trades = list(area.values())[0]
+            dates = sorted(
+                set(pd.to_datetime(list(trades.keys()), format="%B %d %Y, %H:%M h").date)
+            )
+        start_date = pd.Timestamp(datetime.combine(dates[0], datetime.min.time())).round("H")
+        end_date = pd.Timestamp(datetime.combine(dates[-1], datetime.max.time())).round("H")
+
+        # calculate carbon ratio
         df_carbon_ratio = self.calculate_carbon_ratio(country_code, start_date, end_date)
+        df_total_accumulated = pd.DataFrame()
+        for area in grid_area["sold_energy"].values():
+            # calculate carbon emissions
+            accummulated = area["accumulated"]
+            df_accumulated = pd.DataFrame(list(accummulated.items()), columns=["Time", "Value"])
+            df_accumulated["Time"] = pd.to_datetime(
+                df_accumulated["Time"], format="%B %d %Y, %H:%M h"
+            )
+            df_total_accumulated = (
+                pd.concat([df_total_accumulated, df_accumulated])
+                .groupby("Time", as_index=False)["Value"]
+                .sum()
+            )
+        df_total_accumulated = df_total_accumulated.sort_values(by="Time").reset_index(drop=True)
+        df_total_accumulated["Time"] = pd.to_datetime(
+            df_total_accumulated["Time"], format="%B %d %Y, %H:%M h", utc=True
+        )
+        df_carbon_emissions = pd.merge(
+            df_total_accumulated,
+            df_carbon_ratio,
+            left_on="Time",
+            right_index=True,
+            how="inner",
+        )
+        df_carbon_emissions["Carbon Generated (gCO2eq)"] = (
+            df_carbon_emissions["Value"] * df_carbon_emissions["Ratio (gCO2eq/kWh)"]
+        )
+        carbon_generated_g = df_carbon_emissions["Carbon Generated (gCO2eq)"].sum()
 
-        for result in results_list:
-            current_market = result["current_market"]
-
-            for area_uuid in result["results"].keys():
-                area_result = result["results"][area_uuid]
-                target_timestamp = pd.Timestamp(current_market).tz_localize("UTC")
-
-                # the closest timestamp to the target_timestamp
-                nearest_index = df_carbon_ratio.index.get_indexer(
-                    [target_timestamp], method="nearest"
-                )[0]
-                nearest_row = df_carbon_ratio.iloc[nearest_index]
-
-                carbon_ratio = nearest_row["Ratio (gCO2eq/kWh)"]
-
-                imported_energy_from_grid_kWh = area_result["bought_from_grid"]
-                imported_energy_from_community_kWh = area_result[
-                    "energy_bought_from_community_kWh"
-                ]
-
-                carbon_generated_base_case = (
-                    imported_energy_from_grid_kWh + imported_energy_from_community_kWh
-                ) * carbon_ratio
-                carbon_generated_gsy = imported_energy_from_grid_kWh * carbon_ratio
-                carbon_savings = carbon_generated_base_case - carbon_generated_gsy
-
-                area_result["carbon_generated_g"] = carbon_generated_gsy
-                area_result["carbon_savings_g"] = carbon_savings
-
-        return results_list
-
-    def memory_allocation_size_kb(self):
-        return self._calculate_memory_allocated_by_objects([self.carbon_emissions])
-
-    @staticmethod
-    def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
-        # pylint: disable=arguments-differ
-        raise NotImplementedError("Merge not supported.")
-
-    @property
-    def raw_results(self):
-        return self.carbon_emissions
-
-    def restore_area_results_state(self, area_dict: Dict, last_known_state_data: Dict):
-        """No need for this as no state is needed"""
-        pass
+        emissions = {"carbon_generated_g": carbon_generated_g}
+        return emissions

@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Taiwan,Taiwan,TW,428.28,513.33,18.70,7.64,taipower.com.tw; Electricity Maps Estimation
+2023-02-01 00:00:00,Taiwan,Taiwan,TW,406.57,490.89,21.51,10.40,taipower.com.tw; Electricity Maps Estimation
+2023-03-01 00:00:00,Taiwan,Taiwan,TW,392.02,471.59,26.36,14.93,taipower.com.tw; Electricity Maps Estimation
+2023-04-01 00:00:00,Taiwan,Taiwan,TW,489.66,573.30,13.66,9.87,taipower.com.tw; Electricity Maps Estimation
+2023-05-01 00:00:00,Taiwan,Taiwan,TW,478.90,562.43,14.97,9.50,taipower.com.tw; Electricity Maps Estimation
+2023-06-01 00:00:00,Taiwan,Taiwan,TW,487.08,570.01,14.93,8.82,taipower.com.tw; Electricity Maps Estimation
+2023-07-01 00:00:00,Taiwan,Taiwan,TW,477.88,562.33,15.16,9.29,taipower.com.tw; Electricity Maps Estimation
+2023-08-01 00:00:00,Taiwan,Taiwan,TW,466.41,550.64,16.24,10.30,taipower.com.tw; Electricity Maps Estimation
+2023-09-01 00:00:00,Taiwan,Taiwan,TW,466.73,550.33,16.49,10.40,taipower.com.tw; Electricity Maps Estimation
+2023-10-01 00:00:00,Taiwan,Taiwan,TW,438.67,522.67,18.86,12.47,taipower.com.tw; Electricity Maps Estimation
+2023-11-01 00:00:00,Taiwan,Taiwan,TW,429.23,514.30,19.10,12.06,taipower.com.tw; Electricity Maps Estimation
+2023-12-01 00:00:00,Taiwan,Taiwan,TW,421.68,509.64,18.03,10.78,taipower.com.tw; Electricity Maps Estimation

@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Bulgaria,Bulgaria,BG,477.86,499.03,49.14,13.84,Electricity Maps Estimation; eso.bg
+2023-02-01 00:00:00,Bulgaria,Bulgaria,BG,464.39,484.89,50.69,15.71,eso.bg
+2023-03-01 00:00:00,Bulgaria,Bulgaria,BG,376.85,398.70,58.30,15.23,eso.bg
+2023-04-01 00:00:00,Bulgaria,Bulgaria,BG,319.48,343.33,63.52,24.95,Electricity Maps Estimation; eso.bg
+2023-05-01 00:00:00,Bulgaria,Bulgaria,BG,331.28,355.48,62.98,34.25,eso.bg
+2023-06-01 00:00:00,Bulgaria,Bulgaria,BG,187.25,206.79,77.92,32.29,eso.bg
+2023-07-01 00:00:00,Bulgaria,Bulgaria,BG,253.85,273.85,71.64,27.09,Electricity Maps Estimation; eso.bg
+2023-08-01 00:00:00,Bulgaria,Bulgaria,BG,266.43,285.78,70.46,25.95,Electricity Maps Estimation; eso.bg
+2023-09-01 00:00:00,Bulgaria,Bulgaria,BG,314.55,334.23,65.76,22.24,eso.bg
+2023-10-01 00:00:00,Bulgaria,Bulgaria,BG,397.25,423.15,55.75,23.52,Electricity Maps Estimation; eso.bg
+2023-11-01 00:00:00,Bulgaria,Bulgaria,BG,392.67,418.20,55.81,22.36,Electricity Maps Estimation; eso.bg
+2023-12-01 00:00:00,Bulgaria,Bulgaria,BG,384.75,409.75,57.03,18.88,eso.bg
