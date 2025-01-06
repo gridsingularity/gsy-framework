@@ -20,6 +20,15 @@ GENERATION_PLANT_TO_CARBON_EMISSIONS = {
     "Hydro Pumped Storage": {"min": 1.0, "median": 24, "max": 2200},
     "Nuclear": {"min": 3.7, "median": 12, "max": 110},
     "Biomass": {"min": 620, "median": 740, "max": 890},
+    "Hydro Water Reservoir": {"min": 1.0, "median": 24, "max": 2200},  # (same as Hydro Pumped)
+    "Fossil Oil": {"min": 410, "median": 490, "max": 650},  # (same as Fossil Gas)
+    "Hydro Run-of-river and poundage": {
+        "min": 1.0,
+        "median": 24,
+        "max": 2200,
+    },  # (same as Hydro Pumped),
+    "Fossil Hard coal": {"min": 740, "median": 820, "max": 910},
+    "Other": {"min": 50, "median": 300, "max": 600},  # estimation
 }
 
 
@@ -154,8 +163,6 @@ class EntsoePandasClientAdapter(EntsoePandasClient):
         self, country_code: Union[Area, str], start: pd.Timestamp, end: pd.Timestamp
     ):
         """Overwrites EntsoePandasClient query_generation_per_plant method"""
-        print("start", start)
-        print("end", end)
         area = lookup_area(country_code)
         params = {
             "documentType": "A73",
@@ -166,9 +173,8 @@ class EntsoePandasClientAdapter(EntsoePandasClient):
         text = response.text
         if "Unauthorized" in text:
             raise ValueError("Invalid API key")
+
         df_generation = parse_generation(text, per_plant=True, include_eic=False)
-        print("df_generation", df_generation)
-        df_generation.to_csv("df_generation.csv")
         if df_generation.empty:
             raise ValueError("The Entsoe dataframe is empty. Please check the query parameters.")
         df_generation.columns = df_generation.columns.set_levels(
@@ -229,27 +235,26 @@ class CarbonEmissionsHandler:
         else:  # source: https://ourworldindata.org/
             df_generation_per_plant = ...
 
-        generation_types = df_generation_per_plant.iloc[0].iloc[1:]
-        print("stat", stat)
-        # fmt: off
-        carbon_emission_per_plant = lambda x: GENERATION_PLANT_TO_CARBON_EMISSIONS[  # noqa: E731
-            x
-        ][stat]
-        # fmt: on
-        print("carbon_emission_per_plant", carbon_emission_per_plant)
-        print("generation_types", generation_types)
-        emissions_map = generation_types.map(carbon_emission_per_plant)
-
-        df_numeric = df_generation_per_plant.iloc[2:].reset_index(drop=True)
-        df_numeric = df_numeric.set_index("Unnamed: 0").apply(  # noqa: E501
-            pd.to_numeric, errors="coerce"
+        # df_generation_per_plant is a MultiIndex DataFrame
+        generation_types = df_generation_per_plant.columns.get_level_values(1)
+        emissions_map = pd.Series(
+            [
+                GENERATION_PLANT_TO_CARBON_EMISSIONS[generation_type][stat]
+                for generation_type in generation_types
+            ],
+            index=df_generation_per_plant.columns,  # Map emissions to columns
         )
-        df_numeric.index = pd.to_datetime(df_numeric.index)
+
+        df_numeric = df_generation_per_plant.iloc[2:].apply(pd.to_numeric, errors="coerce")
+        df_numeric.index = pd.to_datetime(df_numeric.index, utc=True)
         df_numeric["Total Energy (kWh)"] = df_numeric.sum(axis=1) * 1000  # convert MWh to kWh
         df_numeric["Total Carbon (gCO2eq)"] = df_numeric.mul(emissions_map, axis=1).sum(axis=1)
         df_numeric["Ratio (gCO2eq/kWh)"] = (
             df_numeric["Total Carbon (gCO2eq)"] / df_numeric["Total Energy (kWh)"]
         )
+
+        # format columns to be only one level
+        df_numeric.columns = ["_".join(filter(None, map(str, col))) for col in df_numeric.columns]
         return df_numeric[["Ratio (gCO2eq/kWh)"]]
 
     def calculate_carbon_emissions_from_imported_energy(
