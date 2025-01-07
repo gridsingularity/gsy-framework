@@ -22,6 +22,7 @@ PROFILE_KEYS_BY_TYPE = {
     "PV": "power_profile",
     "SmartMeter": "smart_meter_profile",
     "ScmStorage": "prosumption_kWh_profile",
+    "ScmHeatPump": "consumption_kWh_profile",
 }
 
 

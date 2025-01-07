@@ -16,6 +16,7 @@ class BidOfferMatchAlgoEnum(Enum):
 class SpotMarketTypeEnum(Enum):
     """Types of markets supported by the GSY exchange."""
 
+    NO_MARKET = 0
     ONE_SIDED = 1
     TWO_SIDED = 2
     COEFFICIENTS = 3

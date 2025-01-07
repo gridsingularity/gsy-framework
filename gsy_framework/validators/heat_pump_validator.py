@@ -12,7 +12,6 @@ class HeatPumpValidator(BaseValidator):
 
     @classmethod
     def validate(cls, **kwargs):
-        cls._validate_energy(**kwargs)
         cls._validate_temp(**kwargs)
         cls.validate_rate(**kwargs)
         cls._validate_source_type(**kwargs)
@@ -26,9 +25,14 @@ class HeatPumpValidator(BaseValidator):
         if (
             kwargs.get("consumption_kWh_profile") is None
             and kwargs.get("consumption_kWh_profile_uuid") is None
+            and kwargs.get("heat_demand_Q_profile") is None
         ):
             raise GSyDeviceException(
-                {"misconfiguration": ["consumption_kWh_profile should be provided."]}
+                {
+                    "misconfiguration": [
+                        "consumption_kWh_profile or heat_demand_Q_profile should be provided."
+                    ]
+                }
             )
 
         if (
@@ -49,16 +53,6 @@ class HeatPumpValidator(BaseValidator):
             min_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.min,
             max_value=HeatPumpSettings.MAX_POWER_RATING_KW_LIMIT.max,
         )
-
-    @classmethod
-    def _validate_energy(cls, **kwargs):
-        if (
-            kwargs.get("consumption_kWh_profile") is None
-            and kwargs.get("consumption_kWh_profile_uuid") is None
-        ):
-            raise GSyDeviceException(
-                {"misconfiguration": ["consumption_kWh_profile should be provided."]}
-            )
 
     @classmethod
     def _validate_temp(cls, **kwargs):

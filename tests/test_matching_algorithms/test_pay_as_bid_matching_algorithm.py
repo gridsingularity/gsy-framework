@@ -1,6 +1,7 @@
 from gsy_framework.constants_limits import FLOATING_POINT_TOLERANCE
 from gsy_framework.matching_algorithms.pay_as_bid_matching_algorithm import (
-    PayAsBidMatchingAlgorithm)
+    PayAsBidMatchingAlgorithm,
+)
 
 
 class TestPayAsBidMatchingAlgorithm:
@@ -20,13 +21,16 @@ class TestPayAsBidMatchingAlgorithm:
                         {"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20},
                     ],
                     "offers": [
-                        {"id": 4, "seller": "A", "energy_rate": 1 + FLOATING_POINT_TOLERANCE,
-                         "energy": 25},
+                        {
+                            "id": 4,
+                            "seller": "A",
+                            "energy_rate": 1 + FLOATING_POINT_TOLERANCE,
+                            "energy": 25,
+                        },
                         {"id": 5, "seller": "B", "energy_rate": 5, "energy": 30},
                         {"id": 6, "seller": "C", "energy_rate": 2.4, "energy": 35},
                     ],
                 }
-
             },
             "market2": {
                 "2021-10-06T12:00": {
@@ -46,46 +50,64 @@ class TestPayAsBidMatchingAlgorithm:
                         {"id": 12, "seller": "C", "energy_rate": 1, "energy": 65},
                     ],
                 }
-            }
+            },
         }
         recommendations = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
         expected_recommendations = [
-            {"market_id": "market1",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20},
-             "offer": {"id": 4, "seller": "A", "energy_rate": 1.00001, "energy": 25},
-             "selected_energy": 20, "trade_rate": 3, "matching_requirements": None},
-
-            {"market_id": "market1",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 2, "buyer": "B", "energy_rate": 2, "energy": 15},
-             "offer": {"id": 4, "seller": "A", "energy_rate": 1.00001, "energy": 25},
-             "selected_energy": 5, "trade_rate": 2, "matching_requirements": None},
-
-            {"market_id": "market2",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45},
-             "offer": {"id": 12, "seller": "C", "energy_rate": 1, "energy": 65},
-             "selected_energy": 45, "trade_rate": 2, "matching_requirements": None},
-
-            {"market_id": "market2",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 7, "buyer": "A", "energy_rate": 1.5, "energy": 40},
-             "offer": {"id": 12, "seller": "C", "energy_rate": 1, "energy": 65},
-             "selected_energy": 20, "trade_rate": 1.5, "matching_requirements": None},
-
-            {"market_id": "market2",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 9, "buyer": "C", "energy_rate": 6, "energy": 50},
-             "offer": {"id": 11, "seller": "B", "energy_rate": 1, "energy": 60},
-             "selected_energy": 50, "trade_rate": 6, "matching_requirements": None},
-
-            {"market_id": "market2",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 7, "buyer": "A", "energy_rate": 1.5, "energy": 40},
-             "offer": {"id": 11, "seller": "B", "energy_rate": 1, "energy": 60},
-             "selected_energy": 10, "trade_rate": 1.5, "matching_requirements": None},
-
+            {
+                "market_id": "market1",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 3, "buyer": "C", "energy_rate": 3, "energy": 20},
+                "offer": {"id": 4, "seller": "A", "energy_rate": 1.00002, "energy": 25},
+                "selected_energy": 20,
+                "trade_rate": 3,
+                "matching_requirements": None,
+            },
+            {
+                "market_id": "market1",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 2, "buyer": "B", "energy_rate": 2, "energy": 15},
+                "offer": {"id": 4, "seller": "A", "energy_rate": 1.00002, "energy": 25},
+                "selected_energy": 5,
+                "trade_rate": 2,
+                "matching_requirements": None,
+            },
+            {
+                "market_id": "market2",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 8, "buyer": "B", "energy_rate": 2, "energy": 45},
+                "offer": {"id": 12, "seller": "C", "energy_rate": 1, "energy": 65},
+                "selected_energy": 45,
+                "trade_rate": 2,
+                "matching_requirements": None,
+            },
+            {
+                "market_id": "market2",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 7, "buyer": "A", "energy_rate": 1.5, "energy": 40},
+                "offer": {"id": 12, "seller": "C", "energy_rate": 1, "energy": 65},
+                "selected_energy": 20,
+                "trade_rate": 1.5,
+                "matching_requirements": None,
+            },
+            {
+                "market_id": "market2",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 9, "buyer": "C", "energy_rate": 6, "energy": 50},
+                "offer": {"id": 11, "seller": "B", "energy_rate": 1, "energy": 60},
+                "selected_energy": 50,
+                "trade_rate": 6,
+                "matching_requirements": None,
+            },
+            {
+                "market_id": "market2",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 7, "buyer": "A", "energy_rate": 1.5, "energy": 40},
+                "offer": {"id": 11, "seller": "B", "energy_rate": 1, "energy": 60},
+                "selected_energy": 10,
+                "trade_rate": 1.5,
+                "matching_requirements": None,
+            },
         ]
         assert recommendations == expected_recommendations
 
@@ -108,11 +130,15 @@ class TestPayAsBidMatchingAlgorithm:
         data["market1"]["2021-10-06T12:00"]["offers"][0]["energy_rate"] = 1
         recommendations = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
         expected_recommendations = [
-            {"market_id": "market1",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 1, "buyer": "B", "energy_rate": 3, "energy": 20},
-             "offer": {"id": 2, "seller": "A", "energy_rate": 1, "energy": 30},
-             "selected_energy": 20, "trade_rate": 3, "matching_requirements": None}
+            {
+                "market_id": "market1",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 1, "buyer": "B", "energy_rate": 3, "energy": 20},
+                "offer": {"id": 2, "seller": "A", "energy_rate": 1, "energy": 30},
+                "selected_energy": 20,
+                "trade_rate": 3,
+                "matching_requirements": None,
+            }
         ]
         assert recommendations == expected_recommendations
 
@@ -136,16 +162,24 @@ class TestPayAsBidMatchingAlgorithm:
         recommendations = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
         # The bid-id 3 will not match because it has the same buyer as the seller
         expected_recommendations = [
-            {"market_id": "market1",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 2, "buyer": "C", "energy_rate": 3, "energy": 20},
-             "offer": {"id": 4, "seller": "A", "energy_rate": 1, "energy": 70},
-             "selected_energy": 20, "trade_rate": 3, "matching_requirements": None},
-            {"market_id": "market1",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 1, "buyer": "B", "energy_rate": 3, "energy": 20},
-             "offer": {"id": 4, "seller": "A", "energy_rate": 1, "energy": 70},
-             "selected_energy": 20, "trade_rate": 3, "matching_requirements": None},
+            {
+                "market_id": "market1",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 2, "buyer": "C", "energy_rate": 3, "energy": 20},
+                "offer": {"id": 4, "seller": "A", "energy_rate": 1, "energy": 70},
+                "selected_energy": 20,
+                "trade_rate": 3,
+                "matching_requirements": None,
+            },
+            {
+                "market_id": "market1",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 1, "buyer": "B", "energy_rate": 3, "energy": 20},
+                "offer": {"id": 4, "seller": "A", "energy_rate": 1, "energy": 70},
+                "selected_energy": 20,
+                "trade_rate": 3,
+                "matching_requirements": None,
+            },
         ]
         assert recommendations == expected_recommendations
 
@@ -169,15 +203,23 @@ class TestPayAsBidMatchingAlgorithm:
         recommendations = PayAsBidMatchingAlgorithm.get_matches_recommendations(data)
         # The offer-id 11 will not match because it has the same seller as the bid buyer
         expected_recommendations = [
-            {"market_id": "market1",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 1, "buyer": "B", "energy_rate": 3, "energy": 70},
-             "offer": {"id": 12, "seller": "C", "energy_rate": 1, "energy": 10},
-             "selected_energy": 10, "trade_rate": 3, "matching_requirements": None},
-            {"market_id": "market1",
-             "time_slot": "2021-10-06T12:00",
-             "bid": {"id": 1, "buyer": "B", "energy_rate": 3, "energy": 70},
-             "offer": {"id": 10, "seller": "A", "energy_rate": 1, "energy": 20},
-             "selected_energy": 20, "trade_rate": 3, "matching_requirements": None},
+            {
+                "market_id": "market1",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 1, "buyer": "B", "energy_rate": 3, "energy": 70},
+                "offer": {"id": 12, "seller": "C", "energy_rate": 1, "energy": 10},
+                "selected_energy": 10,
+                "trade_rate": 3,
+                "matching_requirements": None,
+            },
+            {
+                "market_id": "market1",
+                "time_slot": "2021-10-06T12:00",
+                "bid": {"id": 1, "buyer": "B", "energy_rate": 3, "energy": 70},
+                "offer": {"id": 10, "seller": "A", "energy_rate": 1, "energy": 20},
+                "selected_energy": 20,
+                "trade_rate": 3,
+                "matching_requirements": None,
+            },
         ]
         assert recommendations == expected_recommendations

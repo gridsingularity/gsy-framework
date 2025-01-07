@@ -20,7 +20,9 @@ from gsy_framework.community_datasheet.sheet_headers import (
     LoadSheetHeader,
     PVSheetHeader,
     StorageSheetHeader,
+    HeatPumpSheetHeader,
     CommunityMembersSheetHeaderOptional,
+    CommunityMembersSheetHeader,
 )
 from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.utils import use_default_if_null, convert_string_to_boolean
@@ -40,6 +42,8 @@ ADVANCED_SETTINGS_FIELD_MAPPING = {
     "Enable grid export fee": "enable_grid_export_fee_const",
     "Enable taxes surcharges": "enable_taxes_surcharges",
     "Enable marketplace monthly fee": "enable_marketplace_monthly_fee",
+    "Enable electricity tax": "enable_electricity_tax",
+    "Enable fixed monthly fee": "enable_fixed_monthly_fee",
     "Enable assistance monthly fee": "enable_assistance_monthly_fee",
     "Enable service monthly fee": "enable_service_monthly_fee",
     "Enable contracted power monthly fee": "enable_contracted_power_monthly_fee",
@@ -149,13 +153,7 @@ class AdvancedSettingsRowConverter:
 class MembersRowConverter:
     """Convert from the excel row to a dictionary representing member information."""
 
-    OPTIONAL_FIELDS = (
-        "Location/Address (optional)",
-        CommunityMembersSheetHeaderOptional.CONTRACTED_POWER_FEE,
-        CommunityMembersSheetHeaderOptional.CONTRACTED_POWER_CARGO_FEE,
-        CommunityMembersSheetHeaderOptional.ENERGY_CARGO_FEE,
-        CommunityMembersSheetHeaderOptional.DATASTREAM_ID,
-    )
+    OPTIONAL_FIELDS = CommunityMembersSheetHeaderOptional.values()
 
     @classmethod
     def create_member_dict(
@@ -166,6 +164,7 @@ class MembersRowConverter:
         address: str,
         market_maker_rate: float,
         feed_in_tariff: float,
+        coefficient_percentage: float,
         grid_import_fee_const: float,
         grid_export_fee_const: float,
         taxes_surcharges: float,
@@ -173,14 +172,13 @@ class MembersRowConverter:
         fixed_monthly_fee: float,
         marketplace_monthly_fee: float,
         assistance_monthly_fee: float,
-        coefficient_percentage: float,
-        service_monthly_fee: float = 0.0,
+        service_monthly_fee: float,
+        contracted_power_monthly_fee: float,
+        contracted_power_cargo_monthly_fee: float,
+        energy_cargo_fee: float,
         geo_tag_location: List = None,
         asset_count: int = 0,
         member_name: str = None,
-        contracted_power_monthly_fee: float = 0.0,
-        contracted_power_cargo_monthly_fee: float = 0.0,
-        energy_cargo_fee: float = 0.0,
     ):
         # pylint: disable=too-many-arguments, too-many-locals
         """Create a community member dict from individual member information."""
@@ -189,6 +187,7 @@ class MembersRowConverter:
             geo_tag_location = AssetCoordinatesBuilder().get_member_coordinates(
                 {"address": address, "zip_code": zip_code}
             )
+
         return {
             "email": email,
             "uuid": member_uuid,
@@ -219,32 +218,43 @@ class MembersRowConverter:
 
         cls._validate_row(row)
 
-        electricity_tax = row["Electricity tax"] if "Electricity tax" in row else 0.0
-        fixed_fee = row["Fixed fee"] if "Fixed fee" in row else row["Fixed fee"]
-        assistance_fee = row["Assistance fee"] if "Assistance fee" in row else 0.0
-        service_fee = row["Service fee"] if "Service fee" in row else 0.0
-        contracted_power_fee = row.get("Contracted Power Fee", 0.0)
-        contracted_power_cargo_fee = row.get("Contracted Power Cargo Fee", 0.0)
-        energy_cargo_fee = row.get("Energy Cargo Fee", 0.0)
         return cls.create_member_dict(
-            row["Email"],
-            str(uuid.uuid4()),
-            cls._parse_zip_code(row["ZIP code"]),
-            row["Location/Address (optional)"],
-            row["Utility price"],
-            row["Feed-in Tariff"],
-            row["Grid import fee"],
-            row["Grid export fee"],
-            row["Taxes and surcharges"],
-            electricity_tax,
-            fixed_fee,
-            row["Marketplace fee"],
-            assistance_fee,
-            row["Coefficient"],
-            service_monthly_fee=service_fee,
-            contracted_power_monthly_fee=contracted_power_fee,
-            contracted_power_cargo_monthly_fee=contracted_power_cargo_fee,
-            energy_cargo_fee=energy_cargo_fee,
+            email=row[CommunityMembersSheetHeader.EMAIL.value],
+            member_uuid=str(uuid.uuid4()),
+            zip_code=cls._parse_zip_code(row[CommunityMembersSheetHeader.ZIP.value]),
+            address=row[CommunityMembersSheetHeaderOptional.LOCATION.value],
+            market_maker_rate=row[CommunityMembersSheetHeader.UTILITY_PRICE.value],
+            feed_in_tariff=row[CommunityMembersSheetHeader.FEED_IN_TARIFF.value],
+            coefficient_percentage=row[CommunityMembersSheetHeader.COEFFICIENT.value],
+            grid_import_fee_const=row.get(
+                CommunityMembersSheetHeaderOptional.GRID_IMPORT_FEE.value, 0.0
+            ),
+            grid_export_fee_const=row.get(
+                CommunityMembersSheetHeaderOptional.GRID_EXPORT_FEE.value, 0.0
+            ),
+            taxes_surcharges=row.get(CommunityMembersSheetHeaderOptional.TAXES.value, 0.0),
+            electricity_tax=row.get(
+                CommunityMembersSheetHeaderOptional.ELECTRICITY_TAX.value, 0.0
+            ),
+            fixed_monthly_fee=row.get(CommunityMembersSheetHeaderOptional.FIXED_FEE.value, 0.0),
+            marketplace_monthly_fee=row.get(
+                CommunityMembersSheetHeaderOptional.MARKETPLACE_FEE.value, 0.0
+            ),
+            assistance_monthly_fee=row.get(
+                CommunityMembersSheetHeaderOptional.ASSISTANCE_FEE.value, 0.0
+            ),
+            service_monthly_fee=row.get(
+                CommunityMembersSheetHeaderOptional.SERVICE_FEE.value, 0.0
+            ),
+            contracted_power_monthly_fee=row.get(
+                CommunityMembersSheetHeaderOptional.CONTRACTED_POWER_FEE.value, 0.0
+            ),
+            contracted_power_cargo_monthly_fee=row.get(
+                CommunityMembersSheetHeaderOptional.CONTRACTED_POWER_CARGO_FEE.value, 0.0
+            ),
+            energy_cargo_fee=row.get(
+                CommunityMembersSheetHeaderOptional.ENERGY_CARGO_FEE.value, 0.0
+            ),
         )
 
     @staticmethod
@@ -274,119 +284,105 @@ class MembersRowConverter:
             )
 
 
-class LoadRowConverter:
-    """Convert from the excel row to a grid representation of a Load asset."""
+class AssetsRowConverter:
+    """Base class for assets row converters with shared functionality."""
 
-    OPTIONAL_FIELDS = (LoadSheetHeader.DATASTREAM_ID,)
+    OPTIONAL_FIELDS: Tuple[str, ...] = ()
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
         """
         Convert the row parsed from the Excel file to the asset representation used in scenarios.
+        This method must be overridden by subclasses.
         """
-        cls._validate_row(row)
+        raise NotImplementedError("Subclasses must implement the convert method.")
 
+    @classmethod
+    def _validate_row(cls, row: Dict):
+        """Validate that required fields are present and not null."""
+        missing_fields = [
+            field
+            for field, value in row.items()
+            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES
+        ]
+
+        if missing_fields:
+            raise CommunityDatasheetException(
+                (
+                    "Missing values for required fields. "
+                    f"Row: {row}. Required fields: {missing_fields}."
+                )
+            )
+
+
+class LoadRowConverter(AssetsRowConverter):
+    """Convert from the excel row to a grid representation of a Load asset."""
+
+    OPTIONAL_FIELDS = (LoadSheetHeader.DATASTREAM_ID.value,)
+
+    @classmethod
+    def convert(cls, row: Dict) -> Dict:
+        cls._validate_row(row)
         return {
-            "name": row[LoadSheetHeader.LOAD_NAME],
+            "name": row[LoadSheetHeader.LOAD_NAME.value],
             "type": "Load",
             "uuid": str(uuid.uuid4()),
         }
 
-    @classmethod
-    def _validate_row(cls, row: Dict):
-        missing_fields = [
-            field
-            for field, value in row.items()
-            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES
-        ]
 
-        if missing_fields:
-            raise CommunityDatasheetException(
-                (
-                    "Missing values for required fields. "
-                    f"Row: {row}. Required fields: {missing_fields}."
-                )
-            )
-
-
-class PVRowConverter:
+class PVRowConverter(AssetsRowConverter):
     """Convert from the excel row to a grid representation of a PV asset."""
 
-    # These fields are optional because they can be ignored if a PV profile is explicitly provided
     OPTIONAL_FIELDS = (
-        PVSheetHeader.CAPACITY_KW,
-        PVSheetHeader.TILT,
-        PVSheetHeader.AZIMUTH,
-        PVSheetHeader.DATASTREAM_ID,
+        PVSheetHeader.CAPACITY_KW.value,
+        PVSheetHeader.TILT.value,
+        PVSheetHeader.AZIMUTH.value,
+        PVSheetHeader.DATASTREAM_ID.value,
     )
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
-        """
-        Convert the row parsed from the Excel file to the asset representation used in scenarios.
-        """
         cls._validate_row(row)
         return {
-            "name": row[PVSheetHeader.PV_NAME],
+            "name": row[PVSheetHeader.PV_NAME.value],
             "type": "PV",
             "uuid": str(uuid.uuid4()),
             "capacity_kW": use_default_if_null(
-                row[PVSheetHeader.CAPACITY_KW], ConstSettings.PVSettings.DEFAULT_CAPACITY_KW
+                row[PVSheetHeader.CAPACITY_KW.value], ConstSettings.PVSettings.DEFAULT_CAPACITY_KW
             ),
-            "tilt": row[PVSheetHeader.TILT],
-            "azimuth": row[PVSheetHeader.AZIMUTH],
+            "tilt": row[PVSheetHeader.TILT.value],
+            "azimuth": row[PVSheetHeader.AZIMUTH.value],
         }
 
-    @classmethod
-    def _validate_row(cls, row: Dict):
-        missing_fields = [
-            field
-            for field, value in row.items()
-            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES
-        ]
 
-        if missing_fields:
-            raise CommunityDatasheetException(
-                (
-                    "Missing values for required fields. "
-                    f"Row: {row}. Required fields: {missing_fields}."
-                )
-            )
-
-
-class StorageRowConverter:
+class StorageRowConverter(AssetsRowConverter):
     """Convert from the excel row to a grid representation of a Storage asset."""
 
-    OPTIONAL_FIELDS = (StorageSheetHeader.DATASTREAM_ID,)
+    OPTIONAL_FIELDS = (StorageSheetHeader.DATASTREAM_ID.value,)
 
     @classmethod
     def convert(cls, row: Dict) -> Dict:
-        """
-        Convert the row parsed from the Excel file to the asset representation used in scenarios.
-        """
         cls._validate_row(row)
-
         return {
-            "name": row[StorageSheetHeader.BATTERY_NAME],
+            "name": row[StorageSheetHeader.BATTERY_NAME.value],
             "type": "ScmStorage",
             "uuid": str(uuid.uuid4()),
         }
 
-    @classmethod
-    def _validate_row(cls, row: Dict):
-        missing_fields = [
-            field
-            for field, value in row.items()
-            if field not in cls.OPTIONAL_FIELDS and value in NULL_VALUES
-        ]
 
-        if missing_fields:
-            raise CommunityDatasheetException(
-                (
-                    "Missing values for required fields. "
-                    f"Row: {row}. Required fields: {missing_fields}."
-                )
-            )
+class HeatPumpRowConverter(AssetsRowConverter):
+    """Convert from the excel row to a grid representation of a HeatPump asset."""
+
+    OPTIONAL_FIELDS = (HeatPumpSheetHeader.DATASTREAM_ID.value,)
+
+    @classmethod
+    def convert(cls, row: Dict) -> Dict:
+        cls._validate_row(row)
+        return {
+            "name": row[HeatPumpSheetHeader.HEATPUMP_NAME.value],
+            "type": "ScmHeatPump",
+            "uuid": str(uuid.uuid4()),
+        }
 
 
 class AssetCoordinatesBuilder:
