@@ -15,6 +15,8 @@ ENERGY_STAT_FIELDS = {
 class ImportedExportedEnergyHandler(ResultsBaseClass):
     """Class that calculates imported and exported energy results"""
 
+    _market_slot: str
+
     def __init__(self, should_export_plots: bool):
         self._init_results_dict()
         self.should_export_plots = should_export_plots
@@ -22,6 +24,8 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
 
     # pylint: disable=arguments-renamed
     def update(self, area_dict: Dict, core_stats: Dict, _current_market_slot):
+        self._market_slot = _current_market_slot
+
         if not self.should_export_plots:
             # do not accumulate over timestamps for the gsy-web path
             self._init_results_dict()
@@ -29,7 +33,8 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
             # loop over all communities
             if not child_dict.get("children"):
                 continue
-            self._accumulate_imported_exported_energy(child_dict, core_stats)
+            if _current_market_slot != "":
+                self._accumulate_imported_exported_energy(child_dict, core_stats)
 
     def memory_allocation_size_kb(self):
         return self._calculate_memory_allocated_by_objects([self.imported_exported_energy])
@@ -38,7 +43,7 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
     def merge_results_to_global(market_device: Dict, global_device: Dict, *_):
         # pylint: disable=arguments-differ
         raise NotImplementedError(
-            "Cumulative grid trades endpoint supports only global results," " merge not supported."
+            "Cumulative grid trades endpoint supports only global results, merge not supported."
         )
 
     @property
@@ -58,9 +63,17 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
             else member_uuid_name_mapping.keys()
         )
         for member_key in members:
+            if member_key not in self.imported_exported_energy:
+                self.imported_exported_energy[member_key] = {}
+                self.imported_exported_energy[member_key]["accumulated"] = {}
+
+            if self._market_slot not in self.imported_exported_energy[member_key]:
+                self.imported_exported_energy[member_key][self._market_slot] = {}
+
             for stat_key in ENERGY_STAT_FIELDS:
-                if stat_key not in self.imported_exported_energy[member_key]:
-                    self.imported_exported_energy[member_key][stat_key] = 0
+                if stat_key not in self.imported_exported_energy[member_key][self._market_slot]:
+                    self.imported_exported_energy[member_key][self._market_slot][stat_key] = 0
+                    self.imported_exported_energy[member_key]["accumulated"][stat_key] = 0
 
     def _accumulate_imported_exported_energy(self, community_dict: Dict, core_stats: Dict):
         community_uuid = community_dict["uuid"]
@@ -70,37 +83,38 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
         )
         self._prepopulate_results_dict_with_zeros(member_uuid_name_mapping)
         community_member_uuids = member_uuid_name_mapping.keys()
-        key_str = "name" if self.should_export_plots else "uuid"
+        member_key = "name" if self.should_export_plots else "uuid"
         for trade in community_trades:
-            if (
-                trade["buyer"]["uuid"] in community_member_uuids
-                and trade["seller"]["uuid"] in community_member_uuids
-            ):
-                add_or_create_key(
-                    self.imported_exported_energy[trade["buyer"][key_str]],
-                    "imported_from_community",
-                    trade["energy"],
-                )
-                add_or_create_key(
-                    self.imported_exported_energy[trade["seller"][key_str]],
-                    "exported_to_community",
-                    trade["energy"],
-                )
-            elif (
-                trade["buyer"]["uuid"] in community_member_uuids
-                and trade["seller"]["uuid"] == community_uuid
-            ):
-                add_or_create_key(
-                    self.imported_exported_energy[trade["buyer"][key_str]],
-                    "imported_from_grid",
-                    trade["energy"],
-                )
-            elif (
-                trade["seller"]["uuid"] in community_member_uuids
-                and trade["buyer"]["uuid"] == community_uuid
-            ):
-                add_or_create_key(
-                    self.imported_exported_energy[trade["seller"][key_str]],
-                    "exported_to_grid",
-                    trade["energy"],
-                )
+            for key in ["accumulated", self._market_slot]:
+                if (
+                    trade["buyer"]["uuid"] in community_member_uuids
+                    and trade["seller"]["uuid"] in community_member_uuids
+                ):
+                    add_or_create_key(
+                        self.imported_exported_energy[trade["buyer"][member_key]][key],
+                        "imported_from_community",
+                        trade["energy"],
+                    )
+                    add_or_create_key(
+                        self.imported_exported_energy[trade["seller"][member_key]][key],
+                        "exported_to_community",
+                        trade["energy"],
+                    )
+                elif (
+                    trade["buyer"]["uuid"] in community_member_uuids
+                    and trade["seller"]["uuid"] == community_uuid
+                ):
+                    add_or_create_key(
+                        self.imported_exported_energy[trade["buyer"][member_key]][key],
+                        "imported_from_grid",
+                        trade["energy"],
+                    )
+                elif (
+                    trade["seller"]["uuid"] in community_member_uuids
+                    and trade["buyer"]["uuid"] == community_uuid
+                ):
+                    add_or_create_key(
+                        self.imported_exported_energy[trade["seller"][member_key]][key],
+                        "exported_to_grid",
+                        trade["energy"],
+                    )

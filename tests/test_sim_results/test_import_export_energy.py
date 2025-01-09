@@ -1,5 +1,6 @@
 import uuid
 
+import pytest
 from pendulum import now
 
 from gsy_framework.sim_results.imported_exported_energy import ImportedExportedEnergyHandler
@@ -73,40 +74,43 @@ class TestImportedExportedEnergyHandler:
             }
         }
 
-    def test_update_accumulates_trades_correctly_gsy_web(self):
-        energy_handler = ImportedExportedEnergyHandler(False)
-        energy_handler.update(self.area_dict, self.core_stats, now())
+    @pytest.mark.parametrize("should_export_plots", [False, True])
+    def test_update_accumulates_trades_correctly(self, should_export_plots):
+        # Given
+        energy_handler = ImportedExportedEnergyHandler(should_export_plots=should_export_plots)
+        current_market_slot = now()
 
-        assert energy_handler.imported_exported_energy == {
-            self.house2_uuid: {
-                "exported_to_community": 0.4,
-                "imported_from_community": 0.3,
-                "imported_from_grid": 0.5,
-                "exported_to_grid": 0,
-            },
-            self.house1_uuid: {
-                "exported_to_community": 0.3,
-                "exported_to_grid": 0.6,
-                "imported_from_community": 0.4,
-                "imported_from_grid": 0,
-            },
+        # When
+        energy_handler.update(self.area_dict, self.core_stats, current_market_slot)
+
+        # Then
+        member_1_key = self.house1_uuid if not should_export_plots else self.house1_name
+        member_2_key = self.house2_uuid if not should_export_plots else self.house2_name
+        member_1_accumulated_results = energy_handler.imported_exported_energy[member_1_key][
+            "accumulated"
+        ]
+        member_2_accumulated_results = energy_handler.imported_exported_energy[member_2_key][
+            "accumulated"
+        ]
+        member_1_slot_results = energy_handler.imported_exported_energy[member_1_key][
+            current_market_slot
+        ]
+        member_2_slot_results = energy_handler.imported_exported_energy[member_2_key][
+            current_market_slot
+        ]
+        member_1_expected_results = {
+            "exported_to_community": 0.3,
+            "exported_to_grid": 0.6,
+            "imported_from_community": 0.4,
+            "imported_from_grid": 0,
         }
-
-    def test_update_accumulates_trades_correctly_gsy_e(self):
-        energy_handler = ImportedExportedEnergyHandler(True)
-        energy_handler.update(self.area_dict, self.core_stats, now())
-
-        assert energy_handler.imported_exported_energy == {
-            self.house2_name: {
-                "exported_to_community": 0.4,
-                "imported_from_community": 0.3,
-                "imported_from_grid": 0.5,
-                "exported_to_grid": 0,
-            },
-            self.house1_name: {
-                "exported_to_community": 0.3,
-                "exported_to_grid": 0.6,
-                "imported_from_community": 0.4,
-                "imported_from_grid": 0,
-            },
+        member_2_expected_results = {
+            "exported_to_community": 0.4,
+            "imported_from_community": 0.3,
+            "imported_from_grid": 0.5,
+            "exported_to_grid": 0,
         }
+        assert member_1_accumulated_results == member_1_expected_results
+        assert member_2_accumulated_results == member_2_expected_results
+        assert member_1_slot_results == member_1_expected_results
+        assert member_2_slot_results == member_2_expected_results
