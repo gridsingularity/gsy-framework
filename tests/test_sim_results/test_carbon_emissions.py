@@ -19,7 +19,9 @@ class TestCarbonEmissionsHandler:
 
     @patch(
         "gsy_framework.sim_results.carbon_emissions.EntsoePandasClientAdapter._query_generation_per_plant",  # noqa: E501
-        lambda *args: pd.read_csv("tests/static/generation_per_plant_entsoe_BE_20210801.csv"),
+        lambda *args: pd.read_csv(
+            "tests/static/generation_per_plant_entsoe_BE_20210801.csv", header=[0, 1], index_col=0
+        ),
     )
     def test_carbon_emissions_from_gsy_trade_profile_calculates_correctly(
         self,
@@ -34,5 +36,5 @@ class TestCarbonEmissionsHandler:
 
         # Then
         assert isclose(
-            carbon_emissions["carbon_generated_g"], 3.42468, abs_tol=FLOATING_POINT_TOLERANCE
+            carbon_emissions["carbon_generated_g"], 3.41924, abs_tol=FLOATING_POINT_TOLERANCE
         )
