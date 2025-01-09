@@ -245,7 +245,7 @@ class CarbonEmissionsHandler:
             index=df_generation_per_plant.columns,  # Map emissions to columns
         )
 
-        df_numeric = df_generation_per_plant.iloc[2:].apply(pd.to_numeric, errors="coerce")
+        df_numeric = df_generation_per_plant.iloc[1:].apply(pd.to_numeric, errors="coerce")
         df_numeric.index = pd.to_datetime(df_numeric.index, utc=True)
         df_numeric["Total Energy (kWh)"] = df_numeric.sum(axis=1) * 1000  # convert MWh to kWh
         df_numeric["Total Carbon (gCO2eq)"] = df_numeric.mul(emissions_map, axis=1).sum(axis=1)
@@ -257,10 +257,11 @@ class CarbonEmissionsHandler:
         df_numeric.columns = ["_".join(filter(None, map(str, col))) for col in df_numeric.columns]
         return df_numeric[["Ratio (gCO2eq/kWh)"]]
 
-    def calculate_carbon_emissions_from_imported_energy(
+    def calculate_from_carbon_ratio_and_imported_energy(
         self, df_carbon_ratio: pd.DataFrame, df_imported_energy: pd.DataFrame
     ):
-        """Calculate the carbon emissions based on the imported/exported energy"""
+        """Calculate the carbon emissions from a dataframe with carbon ratios
+        and another with imported/exported energy."""
 
         df_carbon_ratio.index = pd.to_datetime(df_carbon_ratio.index)
         df_imported_energy["simulation_time"] = pd.to_datetime(
@@ -273,38 +274,36 @@ class CarbonEmissionsHandler:
             right_index=True,
             how="left",
         )
-        df_combined["carbon_generated_base_case"] = (
+        df_combined["carbon_generated_base_case_g"] = (
             df_combined["imported_from_community"] + df_combined["imported_from_grid"]
         ) * df_combined["Ratio (gCO2eq/kWh)"]
-        df_combined["carbon_generated_gsy"] = (
+        df_combined["carbon_generated_gsy_g"] = (
             df_combined["imported_from_grid"] * df_combined["Ratio (gCO2eq/kWh)"]
         )
-        df_combined["carbon_savings"] = (
-            df_combined["carbon_generated_base_case"] - df_combined["carbon_generated_gsy"]
+        df_combined["carbon_savings_g"] = (
+            df_combined["carbon_generated_base_case_g"] - df_combined["carbon_generated_gsy_g"]
         )
         df_combined = df_combined[
             [
                 "simulation_time",
                 "imported_from_community",
                 "imported_from_grid",
-                "carbon_generated_base_case",
-                "carbon_generated_gsy",
-                "carbon_savings",
+                "carbon_generated_base_case_g",
+                "carbon_generated_gsy_g",
+                "carbon_savings_g",
             ]
         ]
         return df_combined
 
-    def calculate_carbon_emissions_from_gsy_trade_profile(
-        self, country_code: str, trade_profile: Dict
-    ) -> Dict:
-        """Calculate the carbon emissions based on the gsy-e trade profile
-        (energy_bought, energy_sold)"""
+    def calculate_from_gsy_trade_profile(self, country_code: str, trade_profile: Dict) -> Dict:
+        """Calculate the carbon emissions from gsy-e trade profile
+        which includes energy bought and sold."""
 
         if "Grid" not in trade_profile:
             raise ValueError("Grid area not found")
         grid_area = trade_profile["Grid"]
 
-        # Find simulation days
+        # Find simulation start and end dates
         for area in grid_area["sold_energy"].values():
             trades = list(area.values())[0]
             dates = sorted(
@@ -346,3 +345,42 @@ class CarbonEmissionsHandler:
 
         emissions = {"carbon_generated_g": carbon_generated_g}
         return emissions
+
+    def calculate_from_gsy_imported_exported_energy(
+        self, country_code: str, imported_exported_energy: Dict
+    ):
+        """Calculate the carbon emissions from gsy-e imported exported energy
+        which includes imported energy from community and grid."""
+
+        # Find simulation start and end dates
+        for area in imported_exported_energy.values():
+            area.pop("accumulated")
+            dates_keys = list(area.keys())
+            dates = sorted(set(pd.to_datetime(list(dates_keys), format="%Y-%m-%dT%H:%M:%S").date))
+            start_date = pd.Timestamp(datetime.combine(dates[0], datetime.min.time())).round("H")
+            end_date = pd.Timestamp(datetime.combine(dates[-1], datetime.max.time())).round("H")
+
+        df_carbon_ratio = self.calculate_carbon_ratio(country_code, start_date, end_date)
+        df_total_accumulated = pd.DataFrame(
+            columns=["simulation_time", "imported_from_grid", "imported_from_community"]
+        )
+        for area in imported_exported_energy.values():
+            for timestamp, imported_energy in area.items():
+                df_imported_energy = pd.DataFrame(
+                    {
+                        "simulation_time": pd.to_datetime(timestamp).tz_localize("UTC"),
+                        "imported_from_grid": imported_energy["imported_from_grid"],
+                        "imported_from_community": imported_energy["imported_from_community"],
+                    },
+                    index=[0],
+                )
+                df_total_accumulated = (
+                    pd.concat([df_total_accumulated, df_imported_energy])
+                    .groupby("simulation_time", as_index=False)
+                    .sum()
+                )
+        df_carbon_emissions = self.calculate_from_carbon_ratio_and_imported_energy(
+            df_carbon_ratio, df_total_accumulated
+        )
+        total_emissions = df_carbon_emissions.drop(columns=["simulation_time"]).sum().to_dict()
+        return total_emissions

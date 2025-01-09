@@ -329,3 +329,34 @@ TEST_TRADE_PROFILE_RESULTS = {
         },
     }
 }
+
+TEST_IMPORTED_EXPORTED_ENERGY_RESULTS = {
+    "House 1": {
+        "accumulated": {
+            "exported_to_community": 0.3,
+            "exported_to_grid": 0.6,
+            "imported_from_community": 0.4,
+            "imported_from_grid": 0,
+        },
+        "2024-01-01T00:00:00": {
+            "exported_to_community": 0.3,
+            "exported_to_grid": 0.6,
+            "imported_from_community": 0.4,
+            "imported_from_grid": 0,
+        },
+    },
+    "House 2": {
+        "accumulated": {
+            "exported_to_community": 0.4,
+            "imported_from_community": 0.3,
+            "imported_from_grid": 0.5,
+            "exported_to_grid": 0,
+        },
+        "2024-01-01T00:00:00": {
+            "exported_to_community": 0.4,
+            "imported_from_community": 0.3,
+            "imported_from_grid": 0.5,
+            "exported_to_grid": 0,
+        },
+    },
+}
