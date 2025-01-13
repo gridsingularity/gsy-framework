@@ -354,10 +354,6 @@
                   "type": "float"
                 },
                 {
-                  "name": "self_consumed_savings",
-                  "type": "float"
-                },
-                {
                   "name": "sold_to_community",
                   "type": "float"
                 },
