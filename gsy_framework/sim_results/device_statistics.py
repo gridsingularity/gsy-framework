@@ -28,6 +28,8 @@ from gsy_framework.sim_results import (
     is_heatpump_node_type,
     is_prosumer_node_type,
     is_pv_node_type,
+    is_single_tank_heatpump_node_type,
+    is_multiple_tanks_heatpump_node_type,
 )
 from gsy_framework.sim_results.results_abc import ResultsBaseClass
 from gsy_framework.utils import create_or_update_subdict, limit_float_precision
@@ -161,8 +163,10 @@ class DeviceStatistics(ResultsBaseClass):
             return "soc_history_%"
         if is_load_node_type(area):
             return "load_profile_kWh"
-        if is_heatpump_node_type(area):
+        if is_single_tank_heatpump_node_type(area):
             return "storage_temp_C"
+        if is_multiple_tanks_heatpump_node_type(area):
+            return "condenser_temp_C"
         if area["type"] == "SmartMeterStrategy":
             return "smart_meter_profile_kWh"
         if area["type"] == "FinitePowerPlant":

@@ -33,14 +33,29 @@ def is_load_node_type(area):
     ]
 
 
-def is_heatpump_node_type(area):
-    """Check if the given asset is a heat pump."""
+def is_multiple_tanks_heatpump_node_type(area):
+    """Check if the given asset is a heat pump with multiple tanks."""
     return area["type"] in [
-        "HeatPumpStrategy",
-        "VirtualHeatpumpStrategy",
         "MultipleTankHeatPumpStrategy",
         "MultipleTankVirtualHeatpumpStrategy",
     ]
+
+
+def is_single_tank_heatpump_node_type(area):
+    """Check if the given asset is a heat pump with a single tank."""
+    return area["type"] in [
+        "HeatPumpStrategy",
+        "VirtualHeatpumpStrategy",
+    ]
+
+
+def is_heatpump_node_type(area):
+    """Check if the given asset is a heat pump."""
+    if is_multiple_tanks_heatpump_node_type(area):
+        return True
+    if is_single_tank_heatpump_node_type(area):
+        return True
+    return False
 
 
 def is_bulk_power_producer(area):
