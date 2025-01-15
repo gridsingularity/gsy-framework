@@ -296,43 +296,29 @@ class CarbonEmissionsHandler:
         return df_combined
 
     def calculate_from_gsy_trade_profile(self, country_code: str, trade_profile: Dict) -> Dict:
-        """Calculate the carbon emissions from gsy-e trade profile
-        which includes energy bought and sold."""
+        """Calculate the carbon emissions from gsy-e trade profile,
+        usually from InfiniteBus accummulated sold_energy"""
 
-        if "Grid" not in trade_profile:
-            raise ValueError("Grid area not found")
-        grid_area = trade_profile["Grid"]
+        if len(trade_profile.keys()) == 0:
+            raise ValueError("Invalid trade profile")
 
-        # Find simulation start and end dates
-        for area in grid_area["sold_energy"].values():
-            trades = list(area.values())[0]
-            dates = sorted(
-                set(pd.to_datetime(list(trades.keys()), format="%B %d %Y, %H:%M h").date)
-            )
+        # Find start and end dates
+        dates = sorted(
+            set(pd.to_datetime(list(trade_profile.keys()), format="%B %d %Y, %H:%M h").date)
+        )
         start_date = pd.Timestamp(datetime.combine(dates[0], datetime.min.time())).round("H")
         end_date = pd.Timestamp(datetime.combine(dates[-1], datetime.max.time())).round("H")
 
         # calculate carbon ratio
         df_carbon_ratio = self.calculate_carbon_ratio(country_code, start_date, end_date)
-        df_total_accumulated = pd.DataFrame()
-        for area in grid_area["sold_energy"].values():
-            # calculate carbon emissions
-            accummulated = area["accumulated"]
-            df_accumulated = pd.DataFrame(list(accummulated.items()), columns=["Time", "Value"])
-            df_accumulated["Time"] = pd.to_datetime(
-                df_accumulated["Time"], format="%B %d %Y, %H:%M h"
-            )
-            df_total_accumulated = (
-                pd.concat([df_total_accumulated, df_accumulated])
-                .groupby("Time", as_index=False)["Value"]
-                .sum()
-            )
-        df_total_accumulated = df_total_accumulated.sort_values(by="Time").reset_index(drop=True)
-        df_total_accumulated["Time"] = pd.to_datetime(
-            df_total_accumulated["Time"], format="%B %d %Y, %H:%M h", utc=True
+
+        df_accumulated = pd.DataFrame(list(trade_profile.items()), columns=["Time", "Value"])
+        df_accumulated = df_accumulated.sort_values(by="Time").reset_index(drop=True)
+        df_accumulated["Time"] = pd.to_datetime(
+            df_accumulated["Time"], format="%B %d %Y, %H:%M h", utc=True
         )
         df_carbon_emissions = pd.merge(
-            df_total_accumulated,
+            df_accumulated,
             df_carbon_ratio,
             left_on="Time",
             right_index=True,
