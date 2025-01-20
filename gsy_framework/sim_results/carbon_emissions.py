@@ -15,24 +15,32 @@ GENERATION_PLANT_TO_CARBON_EMISSIONS = {
     # source: https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf#page=7
     # keys match the generation plants in the entsoe API
     # values in gCO2eq/kWh
+    "Solar": {"min": 18, "median": 48, "max": 180},
+    "Wind Onshore": {"min": 7.0, "median": 11, "max": 56},
     "Fossil Gas": {"min": 410, "median": 490, "max": 650},
     "Wind Offshore": {"min": 8.0, "median": 12, "max": 35},
     "Hydro Pumped Storage": {"min": 1.0, "median": 24, "max": 2200},
     "Nuclear": {"min": 3.7, "median": 12, "max": 110},
     "Biomass": {"min": 620, "median": 740, "max": 890},
-    "Hydro Water Reservoir": {"min": 1.0, "median": 24, "max": 2200},  # (same as Hydro Pumped)
-    "Fossil Oil": {"min": 410, "median": 490, "max": 650},  # (same as Fossil Gas)
+    "Hydro Water Reservoir": {"min": 1.0, "median": 24, "max": 2200},  # same as Hydro Pumped
+    "Fossil Oil": {"min": 410, "median": 490, "max": 650},  # same as Fossil Gas
     "Hydro Run-of-river and poundage": {
         "min": 1.0,
         "median": 24,
         "max": 2200,
     },  # (same as Hydro Pumped),
     "Fossil Hard coal": {"min": 740, "median": 820, "max": 910},
+    "Fossil Coal-derived gas": {"min": 740, "median": 820, "max": 910},  # same as Fossil Gas
+    "Fossil Brown coal/Lignite": {
+        "min": 740,
+        "median": 820,
+        "max": 910,
+    },  # same as Fossil Hard coal
     "Other": {"min": 50, "median": 300, "max": 600},  # estimation
 }
 
 
-GEOPY_CONTRY_CODE_TO_ENTSOE_CODE = {
+GEOPY_TO_ENTSOE_COUNTRY_CODE = {
     "AL": "AL",
     "AD": "AD",
     "AT": "AT",
@@ -47,7 +55,7 @@ GEOPY_CONTRY_CODE_TO_ENTSOE_CODE = {
     "EE": "EE",
     "FI": "FI",
     "FR": "FR",
-    "DE": "DE",
+    "DE": "DE_AMPRION",
     "GR": "GR",
     "HU": "HU",
     "IS": "IS",
@@ -191,7 +199,10 @@ class EntsoePandasClientAdapter(EntsoePandasClient):
                 .set_index("newlevel", append=True)
                 .unstack("newlevel")
             )
-        df_generation = df_generation.truncate(before=start, after=end)
+
+        df_generation = df_generation.truncate(
+            before=start.tz_convert(area.tz), after=end.tz_convert(area.tz)
+        )
         return df_generation
 
 
@@ -210,7 +221,7 @@ class CarbonEmissionsHandler:
         location = geolocator.reverse((lat, lon), language="en")
         if location and "country" in location.raw["address"]:
             country_code = location.raw["address"]["country_code"].upper()
-            return GEOPY_CONTRY_CODE_TO_ENTSOE_CODE[country_code]
+            return country_code
         return "Country not found"
 
     def calculate_carbon_ratio(
@@ -222,9 +233,10 @@ class CarbonEmissionsHandler:
             raise ValueError("stat must be one of 'min', 'median', or 'max'")
 
         if (
-            country_code in GEOPY_CONTRY_CODE_TO_ENTSOE_CODE.values()
+            country_code in GEOPY_TO_ENTSOE_COUNTRY_CODE.keys()
         ):  # source: https://transparency.entsoe.eu/
             entsoe_client = EntsoePandasClientAdapter(api_key=self.entsoe_api_key)
+            country_code = GEOPY_TO_ENTSOE_COUNTRY_CODE[country_code]
             df_generation_per_plant = entsoe_client._query_generation_per_plant(
                 country_code, start, end
             )
@@ -263,9 +275,21 @@ class CarbonEmissionsHandler:
         """Calculate the carbon emissions from a dataframe with carbon ratios
         and another with imported/exported energy."""
 
+        if not {"Ratio (gCO2eq/kWh)"}.issubset(df_carbon_ratio.columns):
+            raise ValueError(
+                "df_carbon_ratio must contain columns: simulation_time, Ratio (gCO2eq/kWh)"
+            )
+        if not {"simulation_time", "imported_from_grid", "imported_from_community"}.issubset(
+            df_imported_energy.columns
+        ):
+            raise ValueError(
+                "df_imported_energy must contain columns: simulation_time, \
+                imported_from_grid, imported_from_community"
+            )
+
         df_carbon_ratio.index = pd.to_datetime(df_carbon_ratio.index)
         df_imported_energy["simulation_time"] = pd.to_datetime(
-            df_imported_energy["simulation_time"]
+            df_imported_energy["simulation_time"], utc=True
         )
         df_combined = pd.merge(
             df_imported_energy,
