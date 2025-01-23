@@ -336,7 +336,7 @@ class CarbonEmissionsHandler:
     ):
         """Calculate the carbon emissions from a dataframe with carbon ratios
         and another with imported/exported energy."""
-
+        print("df_imported_energy.columns", df_imported_energy.columns)
         if not {"Ratio (gCO2eq/kWh)"}.issubset(df_carbon_ratio.columns):
             raise ValueError(
                 "df_carbon_ratio must contain columns: simulation_time, Ratio (gCO2eq/kWh)"
@@ -440,7 +440,12 @@ class CarbonEmissionsHandler:
             country_code=country_code, start=pd.Timestamp(start_date), end=pd.Timestamp(end_date)
         )
         df_total_accumulated = pd.DataFrame(
-            columns=["simulation_time", "imported_from_grid", "imported_from_community"]
+            columns=[
+                "simulation_time",
+                "area_uuid",
+                "imported_from_grid",
+                "imported_from_community",
+            ]
         )
         for area_uuid, area in imported_exported_energy.items():
             for timestamp, imported_energy in area.items():
@@ -455,9 +460,10 @@ class CarbonEmissionsHandler:
                 )
                 df_total_accumulated = (
                     pd.concat([df_total_accumulated, df_imported_energy])
-                    .groupby("simulation_time", as_index=False)
+                    .groupby(["simulation_time", "area_uuid"], as_index=False)
                     .sum()
                 )
+
         df_carbon_emissions = self.calculate_from_carbon_ratio_and_imported_energy(
             df_carbon_ratio, df_total_accumulated
         )
