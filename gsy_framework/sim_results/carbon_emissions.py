@@ -292,9 +292,7 @@ class CarbonEmissionsHandler:
         if start.utcoffset() != pd.Timedelta(0) or end.utcoffset() != pd.Timedelta(0):
             raise ValueError("start and end must be in UTC+0")
 
-        if (
-            country_code in GEOPY_TO_ENTSOE_COUNTRY_CODE.keys()
-        ):  # source: https://transparency.entsoe.eu/
+        if country_code in GEOPY_TO_ENTSOE_COUNTRY_CODE:  # source: https://transparency.entsoe.eu/
             df_carbon_ratio = self._query_from_entsoe(country_code, start, end, stat)
         elif (
             country_code in MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES
