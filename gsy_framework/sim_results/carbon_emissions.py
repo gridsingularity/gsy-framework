@@ -1,6 +1,7 @@
 from typing import Union, Dict
 from datetime import datetime
 from enum import Enum
+import pytz
 
 import requests
 import pandas as pd
@@ -8,7 +9,6 @@ from entsoe import EntsoePandasClient
 from entsoe.mappings import lookup_area, Area
 from entsoe.parsers import parse_generation
 from geopy.geocoders import Nominatim
-
 
 ENTSOE_URL = "https://web-api.tp.entsoe.eu/api"
 
@@ -265,8 +265,7 @@ class CarbonEmissionsHandler:
             ],
             index=df_generation_per_plant.columns,  # Map emissions to columns
         )
-
-        df_numeric = df_generation_per_plant.iloc[0:].apply(pd.to_numeric, errors="coerce")
+        df_numeric = df_generation_per_plant.iloc[1:].apply(pd.to_numeric, errors="coerce")
 
         df_numeric.index = pd.to_datetime(df_numeric.index, utc=True)
         df_numeric["Total Energy (kWh)"] = df_numeric.sum(axis=1) * 1000  # convert MWh to kWh
@@ -363,14 +362,18 @@ class CarbonEmissionsHandler:
             raise ValueError("Invalid trade profile")
 
         # Find start and end dates
-        dates = sorted(
-            set(pd.to_datetime(list(trade_profile.keys()), format="%B %d %Y, %H:%M h").date)
-        )
-        start_date = pd.Timestamp(datetime.combine(dates[0], datetime.min.time())).round("H")
-        end_date = pd.Timestamp(datetime.combine(dates[-1], datetime.max.time())).round("H")
+        dates = [
+            datetime.strptime(timestr, "%B %d %Y, %H:%M h") for timestr in trade_profile.keys()
+        ]
+        start_date = min(dates).replace(tzinfo=pytz.UTC).replace(minute=0, second=0, microsecond=0)
+        end_date = max(dates).replace(tzinfo=pytz.UTC).replace(minute=0, second=0, microsecond=0)
 
         # calculate carbon ratio
-        df_carbon_ratio = self.calculate_carbon_ratio(country_code, start_date, end_date)
+        df_carbon_ratio = self.calculate_carbon_ratio(
+            country_code=country_code,
+            start=pd.Timestamp(start_date),
+            end=pd.Timestamp(end_date),
+        )
 
         df_accumulated = pd.DataFrame(list(trade_profile.items()), columns=["Time", "Value"])
         df_accumulated = df_accumulated.sort_values(by="Time").reset_index(drop=True)
@@ -398,23 +401,29 @@ class CarbonEmissionsHandler:
         """Calculate the carbon emissions from gsy-e imported exported energy
         which includes imported energy from community and grid."""
 
-        # Find simulation start and end dates
-        area = imported_exported_energy[0]
-        area.pop("accumulated")
-        dates_keys = list(area.keys())
-        dates = sorted(set(pd.to_datetime(list(dates_keys), format="%Y-%m-%dT%H:%M:%S").date))
-        start_date = pd.Timestamp(datetime.combine(dates[0], datetime.min.time())).round("H")
-        end_date = pd.Timestamp(datetime.combine(dates[-1], datetime.max.time())).round("H")
+        # remove accumulated key
+        for area in imported_exported_energy.values():
+            area.pop("accumulated", None)
 
-        df_carbon_ratio = self.calculate_carbon_ratio(country_code, start_date, end_date)
+        # Find simulation start and end dates
+        first_key = next(iter(imported_exported_energy))
+        area = imported_exported_energy[first_key]
+        dates = [datetime.strptime(timestr, "%Y-%m-%dT%H:%M:%S") for timestr in area.keys()]
+        start_date = min(dates).replace(tzinfo=pytz.UTC).replace(minute=0, second=0, microsecond=0)
+        end_date = max(dates).replace(tzinfo=pytz.UTC).replace(minute=0, second=0, microsecond=0)
+
+        df_carbon_ratio = self.calculate_carbon_ratio(
+            country_code=country_code, start=pd.Timestamp(start_date), end=pd.Timestamp(end_date)
+        )
         df_total_accumulated = pd.DataFrame(
             columns=["simulation_time", "imported_from_grid", "imported_from_community"]
         )
-        for area in imported_exported_energy.values():
+        for area_uuid, area in imported_exported_energy.items():
             for timestamp, imported_energy in area.items():
                 df_imported_energy = pd.DataFrame(
                     {
                         "simulation_time": pd.to_datetime(timestamp).tz_localize("UTC"),
+                        "area_uuid": area_uuid,
                         "imported_from_grid": imported_energy["imported_from_grid"],
                         "imported_from_community": imported_energy["imported_from_community"],
                     },
