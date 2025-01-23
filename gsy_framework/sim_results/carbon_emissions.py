@@ -9,6 +9,8 @@ from entsoe import EntsoePandasClient
 from entsoe.mappings import lookup_area, Area
 from entsoe.parsers import parse_generation
 from geopy.geocoders import Nominatim
+from iso3166 import countries
+
 
 ENTSOE_URL = "https://web-api.tp.entsoe.eu/api"
 
@@ -107,62 +109,61 @@ GEOPY_TO_ENTSOE_COUNTRY_CODE = (
 )
 
 MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES = [
-    "ES",
-    "FI",
+    "AT",
+    "IS",
+    "AU-NSW",
     "IT",
-    "GR",
-    "PA",
-    "BR",
-    "LT",
-    "SK",
-    "PE",
-    "CA",
-    "GB",
-    "CY",
-    "FR",
-    "GB",
-    "ID",
-    "RO",
-    "NZ",
-    "CR",
-    "HK",
-    "IN",
-    "SE",
-    "PT",
-    "LU",
+    "BA",
     "JP",
+    "BE",
+    "KR",
     "BG",
-    "CH",
-    "HU",
-    "NO",
-    "IE",
+    "LT",
+    "BR",
+    "LU",
+    "CA-ON",
     "LV",
-    "CL",
-    "HR",
-    "ZA",
+    "CH",
+    "NI",
+    "CL-SEN",
+    "NL",
+    "CR",
+    "NO",
+    "CY",
+    "NZ",
+    "CZ",
+    "PA",
+    "DE",
+    "PE",
+    "DK",
     "PH",
     "EE",
-    "NL",
     "PL",
-    "US",
-    "TW",
-    "DE",
-    "SI",
-    "AU",
-    "TR",
-    "BE",
-    "NI",
-    "DK",
-    "AT",
+    "ES",
+    "PT",
+    "FI",
+    "RO",
+    "FR",
+    "RS",
+    "GB-NIR",
+    "SE",
+    "GB",
     "SG",
-    "IS",
-    "KR",
-    "BA",
+    "GR",
+    "SI",
+    "HK",
+    "SK",
+    "HR",
+    "TR",
+    "HU",
+    "TW",
+    "ID",
+    "US",
+    "IE",
     "UY",
     "IL",
-    "CA",
-    "RS",
-    "CZ",
+    "ZA",
+    "IN-EA",
 ]
 
 
@@ -296,9 +297,32 @@ class CarbonEmissionsHandler:
         elif (
             country_code in MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES
         ):  # source: https://www.electricitymaps.com/data-portal
-            df_carbon_ratio = ...
+            file_path = (
+                f"gsy_framework/resources/carbon_ratio_per_country/{country_code}_2023_monthly.csv"
+            )
+            df_file = pd.read_csv(file_path, index_col=0, parse_dates=True).tz_localize("UTC")
+            full_range = pd.date_range(start=start, end=end, freq="H", tz="UTC")
+            df_carbon_ratio = df_file[["Carbon Intensity gCO₂eq/kWh (direct)"]].reindex(
+                full_range, method="ffill"
+            )
+            df_carbon_ratio.rename(
+                columns={"Carbon Intensity gCO₂eq/kWh (direct)": "Ratio (gCO2eq/kWh)"},
+                inplace=True,
+            )
         else:  # source: https://ourworldindata.org/grapher/carbon-intensity-electricity
-            df_carbon_ratio = ...
+            country_code_alpha3 = countries.get(country_code).alpha3
+            file_path = (
+                "gsy_framework/resources/carbon_ratio_per_country"
+                "/carbon-intensity-electricity_yearly.csv"
+            )
+            df_file = pd.read_csv(file_path, index_col=2)
+            df_file = df_file[df_file["Code"] == country_code_alpha3]
+            df_file = df_file.loc[df_file.index.get_level_values(0).max()]  # filter fix max year
+            full_range = pd.date_range(start=start, end=end, freq="H", tz="UTC")
+            df_carbon_ratio = pd.DataFrame(index=full_range)
+            df_carbon_ratio["Ratio (gCO2eq/kWh)"] = df_file[
+                "Carbon intensity of electricity - gCO2/kWh"
+            ]
 
         # fill df_carbon_ratio in case of missing hours using the last value
         df_carbon_ratio = df_carbon_ratio[["Ratio (gCO2eq/kWh)"]]
