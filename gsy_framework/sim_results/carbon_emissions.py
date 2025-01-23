@@ -1,5 +1,6 @@
 from typing import Union, Dict
 from datetime import datetime
+from enum import Enum
 
 import requests
 import pandas as pd
@@ -11,32 +12,47 @@ from geopy.geocoders import Nominatim
 
 ENTSOE_URL = "https://web-api.tp.entsoe.eu/api"
 
+
+class Stat(Enum):
+    MIN = "min"
+    MEDIAN = "median"
+    MAX = "max"
+
+
 GENERATION_PLANT_TO_CARBON_EMISSIONS = {
     # source: https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf#page=7
     # keys match the generation plants in the entsoe API
     # values in gCO2eq/kWh
-    "Solar": {"min": 18, "median": 48, "max": 180},
-    "Wind Onshore": {"min": 7.0, "median": 11, "max": 56},
-    "Fossil Gas": {"min": 410, "median": 490, "max": 650},
-    "Wind Offshore": {"min": 8.0, "median": 12, "max": 35},
-    "Hydro Pumped Storage": {"min": 1.0, "median": 24, "max": 2200},
-    "Nuclear": {"min": 3.7, "median": 12, "max": 110},
-    "Biomass": {"min": 620, "median": 740, "max": 890},
-    "Hydro Water Reservoir": {"min": 1.0, "median": 24, "max": 2200},  # same as Hydro Pumped
-    "Fossil Oil": {"min": 410, "median": 490, "max": 650},  # same as Fossil Gas
+    "Solar": {Stat.MIN: 18, Stat.MEDIAN: 48, Stat.MAX: 180},
+    "Wind Onshore": {Stat.MIN: 7.0, Stat.MEDIAN: 11, Stat.MAX: 56},
+    "Fossil Gas": {Stat.MIN: 410, Stat.MEDIAN: 490, Stat.MAX: 650},
+    "Wind Offshore": {Stat.MIN: 8.0, Stat.MEDIAN: 12, Stat.MAX: 35},
+    "Hydro Pumped Storage": {Stat.MIN: 1.0, Stat.MEDIAN: 24, Stat.MAX: 2200},
+    "Nuclear": {Stat.MIN: 3.7, Stat.MEDIAN: 12, Stat.MAX: 110},
+    "Biomass": {Stat.MIN: 620, Stat.MEDIAN: 740, Stat.MAX: 890},
+    "Hydro Water Reservoir": {
+        Stat.MIN: 1.0,
+        Stat.MEDIAN: 24,
+        Stat.MAX: 2200,
+    },  # same as Hydro Pumped
+    "Fossil Oil": {Stat.MIN: 410, Stat.MEDIAN: 490, Stat.MAX: 650},  # same as Fossil Gas
     "Hydro Run-of-river and poundage": {
-        "min": 1.0,
-        "median": 24,
-        "max": 2200,
+        Stat.MIN: 1.0,
+        Stat.MEDIAN: 24,
+        Stat.MAX: 2200,
     },  # (same as Hydro Pumped),
-    "Fossil Hard coal": {"min": 740, "median": 820, "max": 910},
-    "Fossil Coal-derived gas": {"min": 740, "median": 820, "max": 910},  # same as Fossil Gas
+    "Fossil Hard coal": {Stat.MIN: 740, Stat.MEDIAN: 820, Stat.MAX: 910},
+    "Fossil Coal-derived gas": {
+        Stat.MIN: 740,
+        Stat.MEDIAN: 820,
+        Stat.MAX: 910,
+    },  # same as Fossil Gas
     "Fossil Brown coal/Lignite": {
-        "min": 740,
-        "median": 820,
-        "max": 910,
+        Stat.MIN: 740,
+        Stat.MEDIAN: 820,
+        Stat.MAX: 910,
     },  # same as Fossil Hard coal
-    "Other": {"min": 50, "median": 300, "max": 600},  # estimation
+    "Other": {Stat.MIN: 50, Stat.MEDIAN: 300, Stat.MAX: 600},  # estimation
 }
 
 
@@ -230,32 +246,15 @@ class CarbonEmissionsHandler:
             return country_code
         return "Country not found"
 
-    def calculate_carbon_ratio(
-        self, country_code: str, start: pd.Timestamp, end: pd.Timestamp, stat: str = "median"
-    ) -> pd.DataFrame:
-        """Calculate the total carbon generated based on the specified statistic
-        (min, median, max)"""
-        if stat not in ["min", "median", "max"]:
-            raise ValueError("stat must be one of 'min', 'median', or 'max'")
-        if start.tzinfo is None or end.tzinfo is None:
-            raise ValueError("start and end must have timezone")
-        if start.utcoffset() != pd.Timedelta(0) or end.utcoffset() != pd.Timedelta(0):
-            raise ValueError("start and end must be in UTC+0")
-
-        if (
-            country_code in GEOPY_TO_ENTSOE_COUNTRY_CODE.keys()
-        ):  # source: https://transparency.entsoe.eu/
-            entsoe_client = EntsoePandasClientAdapter(api_key=self.entsoe_api_key)
-            country_code = GEOPY_TO_ENTSOE_COUNTRY_CODE[country_code]
-            df_generation_per_plant = entsoe_client._query_generation_per_plant(
-                country_code, start, end
-            )
-        elif (
-            country_code in MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES
-        ):  # source: https://www.electricitymaps.com/data-portal
-            df_generation_per_plant = ...
-        else:  # source: https://ourworldindata.org/
-            df_generation_per_plant = ...
+    def _query_from_entsoe(
+        self, country_code: str, start: pd.Timestamp, end: pd.Timestamp, stat: Stat = Stat.MEDIAN
+    ):
+        """Query generation per plant from the Entsoe API"""
+        entsoe_client = EntsoePandasClientAdapter(api_key=self.entsoe_api_key)
+        country_code = GEOPY_TO_ENTSOE_COUNTRY_CODE[country_code]
+        df_generation_per_plant = entsoe_client._query_generation_per_plant(
+            country_code, start, end
+        )
 
         # df_generation_per_plant is a MultiIndex DataFrame
         generation_types = df_generation_per_plant.columns.get_level_values(1)
@@ -279,8 +278,33 @@ class CarbonEmissionsHandler:
         # format columns to be only one level
         df_numeric.columns = ["_".join(filter(None, map(str, col))) for col in df_numeric.columns]
 
+        return df_numeric
+
+    def calculate_carbon_ratio(
+        self, country_code: str, start: pd.Timestamp, end: pd.Timestamp, stat: Stat = Stat.MEDIAN
+    ) -> pd.DataFrame:
+        """Calculate the total carbon generated based on the specified statistic
+        (min, median, max)"""
+        if stat not in [Stat.MIN, Stat.MEDIAN, Stat.MAX]:
+            raise ValueError("stat must be one of 'min', 'median', or 'max'")
+        if start.tzinfo is None or end.tzinfo is None:
+            raise ValueError("start and end must have timezone")
+        if start.utcoffset() != pd.Timedelta(0) or end.utcoffset() != pd.Timedelta(0):
+            raise ValueError("start and end must be in UTC+0")
+
+        if (
+            country_code in GEOPY_TO_ENTSOE_COUNTRY_CODE.keys()
+        ):  # source: https://transparency.entsoe.eu/
+            df_carbon_ratio = self._query_from_entsoe(country_code, start, end, stat)
+        elif (
+            country_code in MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES
+        ):  # source: https://www.electricitymaps.com/data-portal
+            df_carbon_ratio = ...
+        else:  # source: https://ourworldindata.org/grapher/carbon-intensity-electricity
+            df_carbon_ratio = ...
+
         # fill df_carbon_ratio in case of missing hours using the last value
-        df_carbon_ratio = df_numeric[["Ratio (gCO2eq/kWh)"]]
+        df_carbon_ratio = df_carbon_ratio[["Ratio (gCO2eq/kWh)"]]
         df_carbon_ratio = df_carbon_ratio.reindex(
             pd.date_range(start=start, end=end, freq="H", tz="UTC"), method="pad"
         )
@@ -298,9 +322,9 @@ class CarbonEmissionsHandler:
             )
         if not {
             "simulation_time",
+            "area_uuid",
             "imported_from_grid",
             "imported_from_community",
-            "area_uuid",
         }.issubset(df_imported_energy.columns):
             raise ValueError(
                 "df_imported_energy must contain columns: simulation_time, \
@@ -311,52 +335,27 @@ class CarbonEmissionsHandler:
         df_imported_energy["simulation_time"] = pd.to_datetime(
             df_imported_energy["simulation_time"], utc=True
         )
-        # Resample df_carbon_ratio to the frequency of df_imported_energy
-        freq = pd.infer_freq(
-            df_imported_energy["simulation_time"].dt.tz_localize(None).drop_duplicates()
-        )
-        if freq not in ["15T", "30T", "H"]:
-            raise ValueError(
-                "df_imported_energy must have a frequency of 15 minutes, 30 minutes, or 1 hour"
-            )
-        df_carbon_ratio = df_carbon_ratio.resample(freq).ffill()
-        full_range = pd.date_range(
-            start=df_carbon_ratio.index.min().floor("D"),
-            end=df_carbon_ratio.index.max().ceil("D") - pd.Timedelta(minutes=1),
-            freq=freq,
-            tz="UTC",
-        )
-        df_carbon_ratio = df_carbon_ratio.reindex(full_range, method="ffill")
-        df_carbon_ratio.bfill(inplace=True)
 
-        df_combined = pd.merge(
-            df_imported_energy,
-            df_carbon_ratio,
-            left_on="simulation_time",
-            right_index=True,
-            how="left",
-        )
-        df_combined["carbon_generated_base_case_g"] = (
-            df_combined["imported_from_community"] + df_combined["imported_from_grid"]
-        ) * df_combined["Ratio (gCO2eq/kWh)"]
-        df_combined["carbon_generated_gsy_g"] = (
-            df_combined["imported_from_grid"] * df_combined["Ratio (gCO2eq/kWh)"]
-        )
-        df_combined["carbon_savings_g"] = (
-            df_combined["carbon_generated_base_case_g"] - df_combined["carbon_generated_gsy_g"]
-        )
-        df_combined = df_combined[
-            [
-                "simulation_time",
-                "area_uuid",
-                "imported_from_community",
-                "imported_from_grid",
-                "carbon_generated_base_case_g",
-                "carbon_generated_gsy_g",
-                "carbon_savings_g",
+        # Find the nearest ratio for each df_imported_energy timestamp
+        df_imported_energy["carbon_ratio"] = df_imported_energy["simulation_time"].apply(
+            lambda ts: df_carbon_ratio.iloc[
+                df_carbon_ratio.index.get_indexer([ts], method="nearest")[0]
             ]
-        ]
-        return df_combined
+        )
+        df_imported_energy["carbon_generated_base_case_g"] = (
+            df_imported_energy["imported_from_community"]
+            + df_imported_energy["imported_from_grid"]
+        ) * df_imported_energy["carbon_ratio"]
+
+        df_imported_energy["carbon_generated_gsy_g"] = (
+            df_imported_energy["imported_from_grid"] * df_imported_energy["carbon_ratio"]
+        )
+
+        df_imported_energy["carbon_savings_g"] = (
+            df_imported_energy["carbon_generated_base_case_g"]
+            - df_imported_energy["carbon_generated_gsy_g"]
+        )
+        return df_imported_energy
 
     def calculate_from_gsy_trade_profile(self, country_code: str, trade_profile: Dict) -> Dict:
         """Calculate the carbon emissions from gsy-e trade profile,
@@ -402,12 +401,12 @@ class CarbonEmissionsHandler:
         which includes imported energy from community and grid."""
 
         # Find simulation start and end dates
-        for area in imported_exported_energy.values():
-            area.pop("accumulated")
-            dates_keys = list(area.keys())
-            dates = sorted(set(pd.to_datetime(list(dates_keys), format="%Y-%m-%dT%H:%M:%S").date))
-            start_date = pd.Timestamp(datetime.combine(dates[0], datetime.min.time())).round("H")
-            end_date = pd.Timestamp(datetime.combine(dates[-1], datetime.max.time())).round("H")
+        area = imported_exported_energy[0]
+        area.pop("accumulated")
+        dates_keys = list(area.keys())
+        dates = sorted(set(pd.to_datetime(list(dates_keys), format="%Y-%m-%dT%H:%M:%S").date))
+        start_date = pd.Timestamp(datetime.combine(dates[0], datetime.min.time())).round("H")
+        end_date = pd.Timestamp(datetime.combine(dates[-1], datetime.max.time())).round("H")
 
         df_carbon_ratio = self.calculate_carbon_ratio(country_code, start_date, end_date)
         df_total_accumulated = pd.DataFrame(
