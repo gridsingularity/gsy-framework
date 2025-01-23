@@ -102,6 +102,8 @@ idna==3.7
     #   requests
 iniconfig==2.0.0
     # via pytest
+iso3166==2.1.1
+    # via -r requirements/base.txt
 isort==5.13.2
     # via
     #   -r requirements/tests.ini
