@@ -41,8 +41,6 @@ ADVANCED_SETTINGS_FIELD_MAPPING = {
     "Enable grid import fee": "enable_grid_import_fee_const",
     "Enable grid export fee": "enable_grid_export_fee_const",
     "Enable taxes surcharges": "enable_taxes_surcharges",
-    "Enable electricity tax": "enable_electricity_tax",
-    "Enable fixed monthly fee": "enable_fixed_monthly_fee",
     "Enable marketplace monthly fee": "enable_marketplace_monthly_fee",
     "Enable electricity tax": "enable_electricity_tax",
     "Enable fixed monthly fee": "enable_fixed_monthly_fee",
