@@ -15,6 +15,12 @@ from iso3166 import countries
 ENTSOE_URL = "https://web-api.tp.entsoe.eu/api"
 
 
+class EntsoeDataLimitExceededError(ValueError):
+    """Exception raised when the amount of requested data exceeds the allowed limit."""
+
+    pass
+
+
 class Stat(Enum):
     MIN = "min"
     MEDIAN = "median"
@@ -198,8 +204,13 @@ class EntsoePandasClientAdapter(EntsoePandasClient):
         }
         response = self._base_request(params=params, start=start, end=end)
         text = response.text
+
         if "Unauthorized" in text:
             raise ValueError("Invalid API key")
+        if "The amount of requested data exceeds allowed limit." in text:
+            raise EntsoeDataLimitExceededError(
+                "The amount of requested data exceeds allowed limit."
+            )
 
         df_generation = parse_generation(text, per_plant=True, include_eic=False)
 
@@ -255,7 +266,7 @@ class CarbonEmissionsHandler:
         country_code = GEOPY_TO_ENTSOE_COUNTRY_CODE[country_code]
         df_generation_per_plant = entsoe_client._query_generation_per_plant(
             country_code, start, end
-        )
+        )  # example: https://transparency.entsoe.eu/generation/r2/actualGenerationPerGenerationUnit/show?name=&defaultValue=true&viewType=TABLE&areaType=BZN&atch=false&dateTime.dateTime=01.01.2024+00:00|UTC|DAYTIMERANGE&dateTime.endDateTime=01.01.2024+00:00|UTC|DAYTIMERANGE&area.values=CTY|10YSE-1--------K!BZN|10Y1001A1001A44P&masterDataFilterName=&masterDataFilterCode=&productionType.values=B01&productionType.values=B25&productionType.values=B02&productionType.values=B03&productionType.values=B04&productionType.values=B05&productionType.values=B06&productionType.values=B07&productionType.values=B08&productionType.values=B09&productionType.values=B10&productionType.values=B11&productionType.values=B12&productionType.values=B13&productionType.values=B14&productionType.values=B20&productionType.values=B15&productionType.values=B16&productionType.values=B17&productionType.values=B18&productionType.values=B19&dateTime.timezone=UTC&dateTime.timezone_input=UTC&dv-datatable_length=50  # noqa
 
         # df_generation_per_plant is a MultiIndex DataFrame
         generation_types = df_generation_per_plant.columns.get_level_values(1)
@@ -267,9 +278,10 @@ class CarbonEmissionsHandler:
             index=df_generation_per_plant.columns,  # Map emissions to columns
         )
         df_numeric = df_generation_per_plant.iloc[1:].apply(pd.to_numeric, errors="coerce")
-
         df_numeric.index = pd.to_datetime(df_numeric.index, utc=True)
-        df_numeric["Total Energy (kWh)"] = df_numeric.sum(axis=1) * 1000  # convert MWh to kWh
+
+        df_numeric["Total Energy (kWh)"] = df_numeric.sum(axis=1)  # convert from MW to kWh
+        # TODO: check if sum of carbon match exactly
         df_numeric["Total Carbon (gCO2eq)"] = df_numeric.mul(emissions_map, axis=1).sum(axis=1)
         df_numeric["Ratio (gCO2eq/kWh)"] = (
             df_numeric["Total Carbon (gCO2eq)"] / df_numeric["Total Energy (kWh)"]
@@ -293,7 +305,16 @@ class CarbonEmissionsHandler:
             raise ValueError("start and end must be in UTC+0")
 
         if country_code in GEOPY_TO_ENTSOE_COUNTRY_CODE:  # source: https://transparency.entsoe.eu/
-            df_carbon_ratio = self._query_from_entsoe(country_code, start, end, stat)
+            try:
+                df_carbon_ratio = self._query_from_entsoe(country_code, start, end, stat)
+            except EntsoeDataLimitExceededError:
+                df_carbon_ratio = pd.DataFrame()
+                days_range = pd.date_range(start, end, freq="H")
+                for day in days_range.to_period("D").unique():
+                    df_daily = self._query_from_entsoe(
+                        country_code, day.start_time, day.end_time, stat
+                    )
+                    df_carbon_ratio = pd.concat([df_carbon_ratio, df_daily])
         elif (
             country_code in MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES
         ):  # source: https://www.electricitymaps.com/data-portal
@@ -336,7 +357,6 @@ class CarbonEmissionsHandler:
     ):
         """Calculate the carbon emissions from a dataframe with carbon ratios
         and another with imported/exported energy."""
-        print("df_imported_energy.columns", df_imported_energy.columns)
         if not {"Ratio (gCO2eq/kWh)"}.issubset(df_carbon_ratio.columns):
             raise ValueError(
                 "df_carbon_ratio must contain columns: simulation_time, Ratio (gCO2eq/kWh)"
