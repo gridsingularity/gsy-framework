@@ -41,7 +41,7 @@ class TestCarbonEmissionsHandler:
 
         # Then
         assert isclose(
-            carbon_emissions["carbon_generated_g"], 0.08750675, abs_tol=FLOATING_POINT_TOLERANCE
+            carbon_emissions["carbon_generated_g"], 87.50675385, abs_tol=FLOATING_POINT_TOLERANCE
         )
 
     @patch(
@@ -64,17 +64,17 @@ class TestCarbonEmissionsHandler:
         # Then
         assert isclose(
             carbon_emissions["carbon_generated_base_case_g"],
-            0.032603,
+            32.60368649,
             abs_tol=FLOATING_POINT_TOLERANCE,
         )
         assert isclose(
             carbon_emissions["carbon_generated_gsy_g"],
-            0.013584,
+            13.58486937,
             abs_tol=FLOATING_POINT_TOLERANCE,
         )
         assert isclose(
             carbon_emissions["carbon_savings_g"],
-            0.019018,
+            19.01881711,
             abs_tol=FLOATING_POINT_TOLERANCE,
         )
 
