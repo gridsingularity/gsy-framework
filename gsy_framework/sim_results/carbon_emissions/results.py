@@ -301,10 +301,6 @@ class CarbonEmissionsHandler:
         """Calculate the carbon emissions from gsy-e imported exported energy
         which includes imported energy from community and grid."""
 
-        # remove accumulated key
-        for area in imported_exported_energy.values():
-            area.pop("accumulated", None)
-
         first_key = next(iter(imported_exported_energy))
         area = imported_exported_energy[first_key]
         start_date, end_date = self._find_start_and_end_dates(area.keys(), "%Y-%m-%dT%H:%M:%S")

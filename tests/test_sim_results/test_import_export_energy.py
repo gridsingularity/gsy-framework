@@ -86,12 +86,6 @@ class TestImportedExportedEnergyHandler:
         # Then
         member_1_key = self.house1_uuid if not should_export_plots else self.house1_name
         member_2_key = self.house2_uuid if not should_export_plots else self.house2_name
-        member_1_accumulated_results = energy_handler.imported_exported_energy[member_1_key][
-            "accumulated"
-        ]
-        member_2_accumulated_results = energy_handler.imported_exported_energy[member_2_key][
-            "accumulated"
-        ]
         member_1_slot_results = energy_handler.imported_exported_energy[member_1_key][
             current_market_slot
         ]
@@ -110,7 +104,5 @@ class TestImportedExportedEnergyHandler:
             "imported_from_grid": 0.5,
             "exported_to_grid": 0,
         }
-        assert member_1_accumulated_results == member_1_expected_results
-        assert member_2_accumulated_results == member_2_expected_results
         assert member_1_slot_results == member_1_expected_results
         assert member_2_slot_results == member_2_expected_results
