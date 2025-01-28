@@ -264,6 +264,7 @@ class CarbonEmissionsHandler:
         if len(trade_profile.keys()) == 0:
             raise ValueError("Invalid trade profile")
 
+        # TODO: why trade_profile has "January 01 2024, 00:00 h" instead of "2024-01-01T00:00:00"
         start_date, end_date = self._find_start_and_end_dates(
             trade_profile.keys(), "%B %d %Y, %H:%M h"
         )
