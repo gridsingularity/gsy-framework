@@ -306,8 +306,6 @@
                 {"name": "name", "type": "string"},
                 {"name": "type", "type": "string"},
                 {"name": "uuid", "type": "string"},
-                {"name": "libraryUUID", "type": ["null", "string"]},
-                {"name": "address", "type": ["null", "string"]},
                 {"name": "geo_tag_location", "type": [
                   "null", {
                     "type": "array",
@@ -317,8 +315,8 @@
                 {"name": "prosumption_kWh_profile", "type": ["null", "string"]},
                 {"name": "prosumption_kWh_profile_uuid", "type": ["null", "string"]},
                 {"name": "prosumption_kWh_measurement_uuid", "type": ["null", "string"]},
-                {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
+                {"name": "forecast_stream_enabled", "type": ["null", "boolean"]},
                 {"name":  "display_type", "type":  "string"}
               ]
             },
@@ -329,8 +327,6 @@
                 {"name": "name", "type": "string"},
                 {"name": "type", "type": "string"},
                 {"name": "uuid", "type": "string"},
-                {"name": "libraryUUID", "type": ["null", "string"]},
-                {"name": "address", "type": ["null", "string"]},
                 {"name": "geo_tag_location", "type": [
                   "null", {
                     "type": "array",
@@ -340,7 +336,7 @@
                 {"name": "consumption_kWh_profile", "type": ["null", "string"]},
                 {"name": "consumption_kWh_profile_uuid", "type": ["null", "string"]},
                 {"name": "consumption_kWh_measurement_uuid", "type": ["null", "string"]},
-                {"name": "use_market_maker_rate", "type": ["null", "boolean"]},
+                {"name": "forecast_stream_enabled", "type": ["null", "boolean"]},
                 {"name": "allow_external_connection", "type": ["null", "boolean"]},
                 {"name":  "display_type", "type":  "string"}
               ]
