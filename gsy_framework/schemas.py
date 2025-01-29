@@ -305,9 +305,8 @@ class ScenarioSchemas:
                     "name": {"type": "string"},
                     "type": {"enum": ["ScmHeatPump"]},
                     "uuid": {"type": "string"},
-                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-                    "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
+                    "forecast_stream_enabled": {"type": ["boolean", "null"]},
                     "geo_tag_location": {},
                     "consumption_kW": {
                         "anyOf": [
@@ -318,10 +317,6 @@ class ScenarioSchemas:
                         ]
                     },
                     "consumption_profile_uuid": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-                    "initial_buying_rate": {"type": "number"},
-                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "preferred_buying_rate": {"type": "number"},
-                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
                 },
             },
             "scm_storage": {
@@ -330,20 +325,13 @@ class ScenarioSchemas:
                     "name": {"type": "string"},
                     "type": {"enum": ["ScmStorage"]},
                     "uuid": {"type": "string"},
-                    "libraryUUID": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-                    "address": {"type": ["string", "null"]},
                     "allow_external_connection": {"type": ["null", "boolean"]},
                     "geo_tag_location": {},
-                    "initial_buying_rate": {"type": "number"},
-                    "final_buying_rate": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "fit_to_limit": {"type": "boolean"},
-                    "update_interval": {"anyOf": [{"type": "number"}, {"type": "null"}]},
-                    "energy_rate_increase_per_update": {
-                        "anyOf": [{"type": "number"}, {"type": "null"}]
-                    },
-                    "use_market_maker_rate": {"type": "boolean"},
                     "forecast_stream_enabled": {"type": ["boolean", "null"]},
                     "prosumption_kWh_profile_uuid": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}]
+                    },
+                    "prosumption_kWh_measurement_uuid": {
                         "anyOf": [{"type": "string"}, {"type": "null"}]
                     },
                     "prosumption_kWh_profile": {
