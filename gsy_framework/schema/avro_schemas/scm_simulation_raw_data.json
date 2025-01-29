@@ -370,6 +370,20 @@
                   "type": "float"
                 },
                 {
+                  "name": "savings_from_buy_from_community",
+                  "type": [
+                    "float",
+                    "null"
+                  ]
+                },
+                {
+                  "name": "savings_from_sell_to_community",
+                  "type": [
+                    "float",
+                    "null"
+                  ]
+                },
+                {
                   "name": "export_grid_fees",
                   "type": "float"
                 },
