@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Serbia,Serbia,RS,441.18,490.26,40.71,37.53,entsoe.eu
+2023-02-01 00:00:00,Serbia,Serbia,RS,479.40,529.38,36.33,33.86,entsoe.eu
+2023-03-01 00:00:00,Serbia,Serbia,RS,438.08,484.54,42.95,41.38,entsoe.eu; Electricity Maps Estimation
+2023-04-01 00:00:00,Serbia,Serbia,RS,417.77,462.62,46.31,43.41,entsoe.eu
+2023-05-01 00:00:00,Serbia,Serbia,RS,362.77,405.52,53.06,51.52,entsoe.eu
+2023-06-01 00:00:00,Serbia,Serbia,RS,354.92,397.34,54.18,51.60,entsoe.eu
+2023-07-01 00:00:00,Serbia,Serbia,RS,493.41,542.49,35.61,31.85,entsoe.eu
+2023-08-01 00:00:00,Serbia,Serbia,RS,513.27,563.29,33.68,31.23,entsoe.eu
+2023-09-01 00:00:00,Serbia,Serbia,RS,522.55,572.42,32.18,27.78,entsoe.eu
+2023-10-01 00:00:00,Serbia,Serbia,RS,560.10,612.84,27.76,24.33,entsoe.eu; Electricity Maps Estimation
+2023-11-01 00:00:00,Serbia,Serbia,RS,453.61,502.36,39.89,38.67,entsoe.eu
+2023-12-01 00:00:00,Serbia,Serbia,RS,406.65,451.73,46.19,43.68,entsoe.eu; Electricity Maps Estimation

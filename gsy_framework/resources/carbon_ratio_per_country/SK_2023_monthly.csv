@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Slovakia,Slovakia,SK,291.95,326.58,68.14,19.63,Electricity Maps Estimation; entsoe.eu
+2023-02-01 00:00:00,Slovakia,Slovakia,SK,276.26,315.68,67.34,21.58,Electricity Maps Estimation; entsoe.eu
+2023-03-01 00:00:00,Slovakia,Slovakia,SK,218.82,254.26,73.85,22.74,Electricity Maps Estimation; entsoe.eu
+2023-04-01 00:00:00,Slovakia,Slovakia,SK,190.11,223.33,76.23,24.81,Electricity Maps Estimation; entsoe.eu
+2023-05-01 00:00:00,Slovakia,Slovakia,SK,165.78,197.84,79.48,28.39,Electricity Maps Estimation; entsoe.eu
+2023-06-01 00:00:00,Slovakia,Slovakia,SK,154.17,184.68,79.12,22.67,Electricity Maps Estimation; entsoe.eu
+2023-07-01 00:00:00,Slovakia,Slovakia,SK,199.53,233.59,75.96,20.88,Electricity Maps Estimation; entsoe.eu
+2023-08-01 00:00:00,Slovakia,Slovakia,SK,157.03,187.51,79.54,19.97,Electricity Maps Estimation; entsoe.eu
+2023-09-01 00:00:00,Slovakia,Slovakia,SK,183.06,212.39,77.29,18.25,Electricity Maps Estimation; entsoe.eu
+2023-10-01 00:00:00,Slovakia,Slovakia,SK,239.89,271.47,73.56,16.56,Electricity Maps Estimation; entsoe.eu
+2023-11-01 00:00:00,Slovakia,Slovakia,SK,215.17,244.48,75.90,21.06,entsoe.eu
+2023-12-01 00:00:00,Slovakia,Slovakia,SK,233.60,263.88,73.64,23.86,entsoe.eu

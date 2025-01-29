@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Norway,Norway,NO,14.18,39.24,97.65,95.81,entsoe.eu
+2023-02-01 00:00:00,Norway,Norway,NO,7.52,31.68,98.46,97.30,entsoe.eu
+2023-03-01 00:00:00,Norway,Norway,NO,10.83,35.83,98.05,96.43,entsoe.eu
+2023-04-01 00:00:00,Norway,Norway,NO,10.85,36.02,97.85,95.21,entsoe.eu
+2023-05-01 00:00:00,Norway,Norway,NO,5.29,29.34,99.02,97.05,entsoe.eu
+2023-06-01 00:00:00,Norway,Norway,NO,3.89,28.29,99.30,98.59,entsoe.eu
+2023-07-01 00:00:00,Norway,Norway,NO,7.99,33.40,98.52,97.76,entsoe.eu
+2023-08-01 00:00:00,Norway,Norway,NO,8.45,33.88,98.08,97.53,entsoe.eu
+2023-09-01 00:00:00,Norway,Norway,NO,7.83,32.54,98.17,97.76,entsoe.eu
+2023-10-01 00:00:00,Norway,Norway,NO,7.81,31.91,98.29,97.03,entsoe.eu
+2023-11-01 00:00:00,Norway,Norway,NO,10.62,35.44,98.01,96.48,entsoe.eu
+2023-12-01 00:00:00,Norway,Norway,NO,16.34,42.02,97.18,94.88,entsoe.eu

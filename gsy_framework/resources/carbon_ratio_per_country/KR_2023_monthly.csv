@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,South Korea,South Korea,KR,397.29,462.27,31.24,2.01,new.kpx.or.kr
+2023-02-01 00:00:00,South Korea,South Korea,KR,394.56,459.66,31.57,2.43,new.kpx.or.kr
+2023-03-01 00:00:00,South Korea,South Korea,KR,356.25,420.24,35.85,3.13,new.kpx.or.kr
+2023-04-01 00:00:00,South Korea,South Korea,KR,373.28,435.90,35.17,3.26,new.kpx.or.kr
+2023-05-01 00:00:00,South Korea,South Korea,KR,369.80,431.03,36.41,3.50,new.kpx.or.kr
+2023-06-01 00:00:00,South Korea,South Korea,KR,385.40,447.23,34.44,3.30,new.kpx.or.kr
+2023-07-01 00:00:00,South Korea,South Korea,KR,391.31,453.64,33.43,3.11,new.kpx.or.kr
+2023-08-01 00:00:00,South Korea,South Korea,KR,398.00,461.11,32.33,2.87,new.kpx.or.kr
+2023-09-01 00:00:00,South Korea,South Korea,KR,374.49,436.45,35.33,3.28,new.kpx.or.kr
+2023-10-01 00:00:00,South Korea,South Korea,KR,359.48,419.13,38.25,3.53,new.kpx.or.kr
+2023-11-01 00:00:00,South Korea,South Korea,KR,371.68,432.32,36.20,2.51,new.kpx.or.kr
+2023-12-01 00:00:00,South Korea,South Korea,KR,390.10,452.20,33.39,1.82,new.kpx.or.kr

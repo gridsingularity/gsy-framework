@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Poland,Poland,PL,768.53,848.64,26.84,25.89,entsoe.eu
+2023-02-01 00:00:00,Poland,Poland,PL,755.19,834.76,28.12,27.12,entsoe.eu
+2023-03-01 00:00:00,Poland,Poland,PL,717.88,796.43,30.89,29.86,Electricity Maps Estimation; entsoe.eu
+2023-04-01 00:00:00,Poland,Poland,PL,716.33,795.08,31.43,29.97,entsoe.eu
+2023-05-01 00:00:00,Poland,Poland,PL,684.97,759.04,35.44,33.57,entsoe.eu
+2023-06-01 00:00:00,Poland,Poland,PL,699.56,777.12,33.42,30.86,entsoe.eu
+2023-07-01 00:00:00,Poland,Poland,PL,679.05,756.03,35.36,33.46,entsoe.eu
+2023-08-01 00:00:00,Poland,Poland,PL,718.74,797.55,31.93,30.17,entsoe.eu
+2023-09-01 00:00:00,Poland,Poland,PL,744.75,822.84,30.99,29.61,entsoe.eu
+2023-10-01 00:00:00,Poland,Poland,PL,724.15,801.95,31.20,30.43,entsoe.eu
+2023-11-01 00:00:00,Poland,Poland,PL,768.37,849.84,26.09,25.12,entsoe.eu
+2023-12-01 00:00:00,Poland,Poland,PL,722.79,801.68,29.27,28.47,entsoe.eu

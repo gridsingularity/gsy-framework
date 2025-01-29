@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,434.38,478.65,45.37,44.21,entsoe.eu
+2023-02-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,410.89,454.58,48.02,47.56,entsoe.eu
+2023-03-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,385.78,427.89,51.63,51.50,Electricity Maps Estimation; entsoe.eu
+2023-04-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,452.56,498.18,40.80,40.19,Electricity Maps Estimation; entsoe.eu
+2023-05-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,353.63,393.86,55.21,54.57,Electricity Maps Estimation; entsoe.eu
+2023-06-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,402.92,446.31,47.17,46.57,Electricity Maps Estimation; entsoe.eu
+2023-07-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,479.43,526.69,38.82,37.44,Electricity Maps Estimation; entsoe.eu
+2023-08-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,531.06,580.70,30.12,29.03,Electricity Maps Estimation; entsoe.eu
+2023-09-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,566.23,617.70,25.92,24.95,Electricity Maps Estimation; entsoe.eu
+2023-10-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,541.23,591.43,29.56,27.87,Electricity Maps Estimation; entsoe.eu
+2023-11-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,406.97,450.16,47.35,46.50,Electricity Maps Estimation; entsoe.eu
+2023-12-01 00:00:00,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,371.34,413.00,51.30,50.67,Electricity Maps Estimation; entsoe.eu

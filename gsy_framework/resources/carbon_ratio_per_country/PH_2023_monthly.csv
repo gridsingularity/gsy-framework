@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Philippines,Philippines,PH,546.87,617.11,18.85,18.85,
+2023-02-01 00:00:00,Philippines,Philippines,PH,546.87,617.11,18.85,18.85,
+2023-03-01 00:00:00,Philippines,Philippines,PH,546.86,617.10,18.85,18.85,
+2023-04-01 00:00:00,Philippines,Philippines,PH,546.86,617.10,18.85,18.85,
+2023-05-01 00:00:00,Philippines,Philippines,PH,577.82,650.01,14.97,14.97,
+2023-06-01 00:00:00,Philippines,Philippines,PH,578.40,649.50,15.27,15.27,
+2023-07-01 00:00:00,Philippines,Philippines,PH,554.69,625.50,17.74,17.74,
+2023-08-01 00:00:00,Philippines,Philippines,PH,538.64,607.74,20.10,20.10,
+2023-09-01 00:00:00,Philippines,Philippines,PH,522.10,591.55,21.80,21.80,
+2023-10-01 00:00:00,Philippines,Philippines,PH,539.93,609.74,19.93,19.93,
+2023-11-01 00:00:00,Philippines,Philippines,PH,538.36,608.39,19.97,19.97,
+2023-12-01 00:00:00,Philippines,Philippines,PH,537.27,608.62,19.80,19.80,

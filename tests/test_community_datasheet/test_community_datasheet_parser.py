@@ -522,7 +522,6 @@ class TestCommunityDatasheetParser:
             "slot_length": timedelta(seconds=900),
             "currency": "EUR",
         }
-
         assert datasheet.advanced_settings == {
             "coefficient_algorithm": 1,
             "grid_fees_reduction": 0,

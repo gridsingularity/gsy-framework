@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Romania,Romania,RO,272.43,317.95,64.38,44.43,entsoe.eu
+2023-02-01 00:00:00,Romania,Romania,RO,276.95,322.97,63.83,44.07,entsoe.eu
+2023-03-01 00:00:00,Romania,Romania,RO,244.59,282.80,70.66,48.80,Electricity Maps Estimation; entsoe.eu
+2023-04-01 00:00:00,Romania,Romania,RO,210.18,242.59,76.39,56.16,Electricity Maps Estimation; entsoe.eu
+2023-05-01 00:00:00,Romania,Romania,RO,217.34,250.44,75.64,61.12,Electricity Maps Estimation; entsoe.eu
+2023-06-01 00:00:00,Romania,Romania,RO,183.92,212.70,79.91,61.69,Electricity Maps Estimation; entsoe.eu
+2023-07-01 00:00:00,Romania,Romania,RO,244.79,283.61,69.51,45.65,entsoe.eu
+2023-08-01 00:00:00,Romania,Romania,RO,282.45,325.11,65.20,40.59,entsoe.eu
+2023-09-01 00:00:00,Romania,Romania,RO,274.89,317.61,65.57,40.03,entsoe.eu
+2023-10-01 00:00:00,Romania,Romania,RO,282.12,327.87,63.38,37.59,Electricity Maps Estimation; entsoe.eu
+2023-11-01 00:00:00,Romania,Romania,RO,292.39,338.76,62.02,41.84,Electricity Maps Estimation; entsoe.eu
+2023-12-01 00:00:00,Romania,Romania,RO,288.19,335.34,61.94,41.52,Electricity Maps Estimation; entsoe.eu

@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Italy,Italy,IT,331.86,409.97,42.55,34.09,
+2023-02-01 00:00:00,Italy,Italy,IT,334.27,415.28,41.08,33.31,
+2023-03-01 00:00:00,Italy,Italy,IT,306.09,381.72,45.92,38.81,
+2023-04-01 00:00:00,Italy,Italy,IT,228.68,297.04,53.56,43.58,
+2023-05-01 00:00:00,Italy,Italy,IT,210.14,273.15,59.44,52.31,
+2023-06-01 00:00:00,Italy,Italy,IT,247.49,314.29,54.84,49.58,
+2023-07-01 00:00:00,Italy,Italy,IT,256.27,329.15,50.28,44.34,
+2023-08-01 00:00:00,Italy,Italy,IT,239.22,309.12,53.89,49.06,
+2023-09-01 00:00:00,Italy,Italy,IT,260.31,333.34,49.52,42.33,
+2023-10-01 00:00:00,Italy,Italy,IT,247.09,316.97,50.91,41.46,
+2023-11-01 00:00:00,Italy,Italy,IT,226.28,289.32,56.53,48.49,
+2023-12-01 00:00:00,Italy,Italy,IT,250.38,320.77,49.65,41.81,

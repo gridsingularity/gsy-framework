@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Peru,Peru,PE,124.13,181.07,66.55,66.55,coes.org.pe
+2023-02-01 00:00:00,Peru,Peru,PE,98.93,149.16,73.36,73.36,coes.org.pe
+2023-03-01 00:00:00,Peru,Peru,PE,130.92,189.60,64.71,64.71,coes.org.pe
+2023-04-01 00:00:00,Peru,Peru,PE,114.15,168.43,69.18,69.18,coes.org.pe
+2023-05-01 00:00:00,Peru,Peru,PE,149.13,212.73,59.82,59.82,coes.org.pe
+2023-06-01 00:00:00,Peru,Peru,PE,195.80,273.70,47.38,47.38,coes.org.pe; Electricity Maps Estimation
+2023-07-01 00:00:00,Peru,Peru,PE,202.31,288.19,46.10,46.10,coes.org.pe
+2023-08-01 00:00:00,Peru,Peru,PE,203.63,287.85,45.53,45.53,coes.org.pe
+2023-09-01 00:00:00,Peru,Peru,PE,204.71,287.72,45.11,45.11,coes.org.pe
+2023-10-01 00:00:00,Peru,Peru,PE,171.24,241.01,53.81,53.81,coes.org.pe; Electricity Maps Estimation
+2023-11-01 00:00:00,Peru,Peru,PE,149.15,213.00,59.77,59.77,coes.org.pe; Electricity Maps Estimation
+2023-12-01 00:00:00,Peru,Peru,PE,102.16,153.43,72.48,72.48,coes.org.pe

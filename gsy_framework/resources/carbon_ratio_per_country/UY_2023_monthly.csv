@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Uruguay,Uruguay,UY,114.47,211.28,71.83,71.82,pronos.adme.com.uy
+2023-02-01 00:00:00,Uruguay,Uruguay,UY,86.59,163.52,79.36,79.02,pronos.adme.com.uy
+2023-03-01 00:00:00,Uruguay,Uruguay,UY,89.77,168.96,78.78,78.44,pronos.adme.com.uy
+2023-04-01 00:00:00,Uruguay,Uruguay,UY,69.38,131.58,84.16,83.60,pronos.adme.com.uy
+2023-05-01 00:00:00,Uruguay,Uruguay,UY,29.06,69.44,93.90,93.48,pronos.adme.com.uy
+2023-06-01 00:00:00,Uruguay,Uruguay,UY,56.74,125.67,87.28,86.88,pronos.adme.com.uy
+2023-07-01 00:00:00,Uruguay,Uruguay,UY,4.43,47.39,99.12,99.07,Electricity Maps Estimation; pronos.adme.com.uy
+2023-08-01 00:00:00,Uruguay,Uruguay,UY,0.45,44.24,99.89,99.89,Electricity Maps Estimation; pronos.adme.com.uy
+2023-09-01 00:00:00,Uruguay,Uruguay,UY,0.52,42.33,99.88,99.87,pronos.adme.com.uy
+2023-10-01 00:00:00,Uruguay,Uruguay,UY,0.66,46.15,99.86,99.85,pronos.adme.com.uy
+2023-11-01 00:00:00,Uruguay,Uruguay,UY,2.98,48.03,99.28,99.28,pronos.adme.com.uy
+2023-12-01 00:00:00,Uruguay,Uruguay,UY,0.71,47.03,99.84,99.83,pronos.adme.com.uy

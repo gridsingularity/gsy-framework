@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,208.94,279.79,54.85,54.85,Electricity Maps Estimation
+2023-02-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,208.95,279.80,54.85,54.85,Electricity Maps Estimation
+2023-03-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,237.81,318.03,48.14,45.46,Electricity Maps Estimation
+2023-04-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,211.15,286.34,52.71,47.33,Electricity Maps Estimation
+2023-05-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,218.24,295.04,50.36,40.12,Electricity Maps Estimation
+2023-06-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,216.17,292.82,50.24,40.46,Electricity Maps Estimation
+2023-07-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,202.03,275.64,54.34,47.09,Electricity Maps Estimation
+2023-08-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,197.50,268.96,55.21,48.58,Electricity Maps Estimation
+2023-09-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,195.82,266.66,55.38,46.57,Electricity Maps Estimation
+2023-10-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,153.26,213.27,65.36,57.20,Electricity Maps Estimation
+2023-11-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,205.60,279.27,54.35,48.92,Electricity Maps Estimation
+2023-12-01 00:00:00,Northern Ireland,Northern Ireland,GB-NIR,169.73,232.51,62.17,57.96,Electricity Maps Estimation

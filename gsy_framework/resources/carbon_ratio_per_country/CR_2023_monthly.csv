@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Costa Rica,Costa Rica,CR,44.31,80.76,90.42,90.42,Electricity Maps Estimation
+2023-02-01 00:00:00,Costa Rica,Costa Rica,CR,13.93,41.70,97.32,97.32,Electricity Maps Estimation; grupoice.com
+2023-03-01 00:00:00,Costa Rica,Costa Rica,CR,29.38,65.03,93.78,93.78,Electricity Maps Estimation; grupoice.com
+2023-04-01 00:00:00,Costa Rica,Costa Rica,CR,36.36,77.56,91.72,91.72,grupoice.com
+2023-05-01 00:00:00,Costa Rica,Costa Rica,CR,68.92,130.26,83.24,83.24,Electricity Maps Estimation; grupoice.com
+2023-06-01 00:00:00,Costa Rica,Costa Rica,CR,28.95,69.80,92.91,92.91,Electricity Maps Estimation; grupoice.com
+2023-07-01 00:00:00,Costa Rica,Costa Rica,CR,16.59,49.55,95.95,95.95,Electricity Maps Estimation; grupoice.com
+2023-08-01 00:00:00,Costa Rica,Costa Rica,CR,57.45,113.02,85.91,85.91,Electricity Maps Estimation; grupoice.com
+2023-09-01 00:00:00,Costa Rica,Costa Rica,CR,30.95,71.36,92.49,92.49,Electricity Maps Estimation; grupoice.com
+2023-10-01 00:00:00,Costa Rica,Costa Rica,CR,21.49,58.18,94.76,94.76,grupoice.com
+2023-11-01 00:00:00,Costa Rica,Costa Rica,CR,5.03,31.79,98.78,98.78,grupoice.com
+2023-12-01 00:00:00,Costa Rica,Costa Rica,CR,20.38,56.67,94.97,94.97,grupoice.com

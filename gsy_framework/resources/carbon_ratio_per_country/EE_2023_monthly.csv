@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Estonia,Estonia,EE,352.75,409.16,60.51,44.87,entsoe.eu
+2023-02-01 00:00:00,Estonia,Estonia,EE,317.53,373.54,63.07,47.05,entsoe.eu
+2023-03-01 00:00:00,Estonia,Estonia,EE,298.14,352.10,64.76,45.39,entsoe.eu
+2023-04-01 00:00:00,Estonia,Estonia,EE,202.44,251.87,74.43,52.87,Electricity Maps Estimation; entsoe.eu
+2023-05-01 00:00:00,Estonia,Estonia,EE,156.29,198.18,80.58,54.72,entsoe.eu
+2023-06-01 00:00:00,Estonia,Estonia,EE,205.09,250.19,76.17,48.49,entsoe.eu
+2023-07-01 00:00:00,Estonia,Estonia,EE,83.45,121.72,88.32,49.84,entsoe.eu
+2023-08-01 00:00:00,Estonia,Estonia,EE,174.13,217.22,76.85,48.95,Electricity Maps Estimation; entsoe.eu
+2023-09-01 00:00:00,Estonia,Estonia,EE,131.24,174.03,83.15,56.61,entsoe.eu
+2023-10-01 00:00:00,Estonia,Estonia,EE,123.35,167.36,83.68,54.86,entsoe.eu
+2023-11-01 00:00:00,Estonia,Estonia,EE,257.42,313.18,69.64,45.64,entsoe.eu
+2023-12-01 00:00:00,Estonia,Estonia,EE,339.23,394.49,60.49,42.48,Electricity Maps Estimation; entsoe.eu

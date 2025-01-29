@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Slovenia,Slovenia,SI,221.92,245.94,74.10,41.14,entsoe.eu
+2023-02-01 00:00:00,Slovenia,Slovenia,SI,267.63,296.09,68.09,35.14,entsoe.eu
+2023-03-01 00:00:00,Slovenia,Slovenia,SI,249.79,275.67,70.69,40.27,Electricity Maps Estimation; entsoe.eu
+2023-04-01 00:00:00,Slovenia,Slovenia,SI,204.46,227.51,76.12,41.20,entsoe.eu
+2023-05-01 00:00:00,Slovenia,Slovenia,SI,93.19,109.92,89.63,59.16,entsoe.eu
+2023-06-01 00:00:00,Slovenia,Slovenia,SI,227.83,244.99,76.11,43.93,entsoe.eu
+2023-07-01 00:00:00,Slovenia,Slovenia,SI,201.23,218.50,79.32,48.44,Electricity Maps Estimation; entsoe.eu
+2023-08-01 00:00:00,Slovenia,Slovenia,SI,207.58,222.83,79.22,47.80,entsoe.eu
+2023-09-01 00:00:00,Slovenia,Slovenia,SI,219.01,239.44,76.05,41.28,Electricity Maps Estimation; entsoe.eu
+2023-10-01 00:00:00,Slovenia,Slovenia,SI,310.80,338.22,66.03,51.95,Electricity Maps Estimation; entsoe.eu
+2023-11-01 00:00:00,Slovenia,Slovenia,SI,244.11,267.01,72.75,58.22,entsoe.eu
+2023-12-01 00:00:00,Slovenia,Slovenia,SI,198.03,218.90,77.63,48.90,Electricity Maps Estimation; entsoe.eu

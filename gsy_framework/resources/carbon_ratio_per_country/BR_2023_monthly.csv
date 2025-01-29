@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Brazil,Brazil,BR,34.67,63.37,93.97,91.15,
+2023-02-01 00:00:00,Brazil,Brazil,BR,28.58,56.14,95.03,92.71,
+2023-03-01 00:00:00,Brazil,Brazil,BR,30.78,58.99,94.65,92.38,
+2023-04-01 00:00:00,Brazil,Brazil,BR,45.14,76.08,92.15,89.41,
+2023-05-01 00:00:00,Brazil,Brazil,BR,51.41,83.72,91.06,88.24,
+2023-06-01 00:00:00,Brazil,Brazil,BR,65.53,99.86,88.60,85.71,
+2023-07-01 00:00:00,Brazil,Brazil,BR,62.34,96.00,89.16,86.30,
+2023-08-01 00:00:00,Brazil,Brazil,BR,59.53,93.17,89.65,86.87,
+2023-09-01 00:00:00,Brazil,Brazil,BR,54.69,87.70,90.49,88.23,
+2023-10-01 00:00:00,Brazil,Brazil,BR,53.19,86.13,90.75,90.11,
+2023-11-01 00:00:00,Brazil,Brazil,BR,63.05,98.27,89.03,88.27,
+2023-12-01 00:00:00,Brazil,Brazil,BR,54.59,88.19,90.51,88.44,

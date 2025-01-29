@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Panama,Panama,PA,255.27,328.42,51.49,51.49,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-02-01 00:00:00,Panama,Panama,PA,227.03,293.36,55.99,55.99,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-03-01 00:00:00,Panama,Panama,PA,234.78,314.63,52.55,52.55,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-04-01 00:00:00,Panama,Panama,PA,261.45,346.55,48.48,48.48,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-05-01 00:00:00,Panama,Panama,PA,282.26,377.99,42.67,42.67,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-06-01 00:00:00,Panama,Panama,PA,229.09,296.52,55.95,55.95,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-07-01 00:00:00,Panama,Panama,PA,227.24,288.42,57.32,57.32,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-08-01 00:00:00,Panama,Panama,PA,235.91,303.29,55.00,55.00,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-09-01 00:00:00,Panama,Panama,PA,277.24,367.88,45.15,45.15,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-10-01 00:00:00,Panama,Panama,PA,219.10,288.24,59.60,59.60,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-11-01 00:00:00,Panama,Panama,PA,158.22,214.05,67.34,67.34,Electricity Maps Estimation; https://www.cnd.com.pa/
+2023-12-01 00:00:00,Panama,Panama,PA,107.55,169.99,71.79,71.79,Electricity Maps Estimation; https://www.cnd.com.pa/

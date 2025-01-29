@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Ireland,Ireland,IE,301.47,369.23,47.25,46.65,Electricity Maps Estimation
+2023-02-01 00:00:00,Ireland,Ireland,IE,276.96,341.55,49.86,49.42,Electricity Maps Estimation
+2023-03-01 00:00:00,Ireland,Ireland,IE,305.14,377.26,45.60,44.90,Electricity Maps Estimation
+2023-04-01 00:00:00,Ireland,Ireland,IE,317.50,393.80,40.76,40.02,Electricity Maps Estimation
+2023-05-01 00:00:00,Ireland,Ireland,IE,366.46,455.34,30.57,28.63,Electricity Maps Estimation
+2023-06-01 00:00:00,Ireland,Ireland,IE,379.22,467.77,28.37,26.73,Electricity Maps Estimation
+2023-07-01 00:00:00,Ireland,Ireland,IE,307.00,384.03,41.56,40.28,Electricity Maps Estimation
+2023-08-01 00:00:00,Ireland,Ireland,IE,310.60,386.55,41.09,39.73,Electricity Maps Estimation
+2023-09-01 00:00:00,Ireland,Ireland,IE,333.47,410.33,40.45,38.82,Electricity Maps Estimation
+2023-10-01 00:00:00,Ireland,Ireland,IE,327.53,404.41,42.16,40.31,Electricity Maps Estimation
+2023-11-01 00:00:00,Ireland,Ireland,IE,293.88,361.74,48.50,47.46,Electricity Maps Estimation
+2023-12-01 00:00:00,Ireland,Ireland,IE,240.91,299.31,57.29,56.58,Electricity Maps Estimation
