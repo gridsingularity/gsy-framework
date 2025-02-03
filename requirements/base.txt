@@ -10,8 +10,6 @@ attrs==23.2.0
     #   referencing
 avro==1.11.3
     # via -r requirements/base.ini
-beautifulsoup4==4.12.3
-    # via entsoe-py
 cachetools==5.3.3
     # via tox
 certifi==2024.2.2
@@ -30,8 +28,6 @@ decorator==5.1.1
     # via ratelim
 distlib==0.3.8
     # via virtualenv
-entsoe-py==0.6.2
-    # via -r requirements/base.ini
 et-xmlfile==1.1.0
     # via openpyxl
 filelock==3.14.0
@@ -58,20 +54,12 @@ kafka-python==2.0.2
     # via -r requirements/base.ini
 nodeenv==1.8.0
     # via pre-commit
-numpy==1.24.4
-    # via
-    #   -r requirements/base.ini
-    #   pandas
 openpyxl==3.0.10
     # via -r requirements/base.ini
 packaging==24.0
     # via
     #   pyproject-api
     #   tox
-pandas==1.4.2
-    # via
-    #   -r requirements/base.ini
-    #   entsoe-py
 pendulum==2.1.2
     # via -r requirements/base.ini
 platformdirs==4.2.2
@@ -85,13 +73,7 @@ pre-commit==3.5.0
 pyproject-api==1.6.1
     # via tox
 python-dateutil==2.9.0.post0
-    # via
-    #   pandas
-    #   pendulum
-pytz==2024.2
-    # via
-    #   entsoe-py
-    #   pandas
+    # via pendulum
 pytzdata==2020.1
     # via pendulum
 pyyaml==6.0.1
@@ -107,7 +89,6 @@ referencing==0.35.1
 requests==2.31.0
     # via
     #   -r requirements/base.ini
-    #   entsoe-py
     #   geocoder
 rpds-py==0.18.1
     # via
@@ -117,8 +98,6 @@ six==1.16.0
     # via
     #   geocoder
     #   python-dateutil
-soupsieve==2.6
-    # via beautifulsoup4
 tabulate==0.9.0
     # via -r requirements/base.ini
 tox==4.15.0
