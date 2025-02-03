@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple
 from datetime import datetime, timedelta
 import csv
 
-import pytz
+from pendulum import UTC
 from geopy.geocoders import Nominatim
 from iso3166 import countries
 
@@ -36,8 +36,8 @@ class CarbonEmissionsHandler:
         """Find the start and end dates from a list of string timestamps"""
 
         dates = [datetime.strptime(timestr, datetime_format) for timestr in dates]
-        start_date = min(dates).replace(tzinfo=pytz.UTC).replace(minute=0, second=0, microsecond=0)
-        end_date = max(dates).replace(tzinfo=pytz.UTC).replace(minute=0, second=0, microsecond=0)
+        start_date = min(dates).replace(tzinfo=UTC).replace(minute=0, second=0, microsecond=0)
+        end_date = max(dates).replace(tzinfo=UTC).replace(minute=0, second=0, microsecond=0)
         return start_date, end_date
 
     def _full_range(self, start: datetime, end: datetime) -> List[datetime]:
@@ -66,7 +66,7 @@ class CarbonEmissionsHandler:
             )
             data = {
                 datetime.strptime(row["Datetime (UTC)"], "%Y-%m-%d %H:%M:%S").replace(
-                    tzinfo=pytz.UTC
+                    tzinfo=UTC
                 ): float(row["Carbon Intensity gCO₂eq/kWh (direct)"])
                 for row in csv.DictReader(open(file_path, mode="r"))
             }
@@ -175,7 +175,7 @@ class CarbonEmissionsHandler:
 
         carbon_generated_g = 0
         for time, value in trade_profile.items():
-            time = datetime.strptime(time, "%B %d %Y, %H:%M h").replace(tzinfo=pytz.UTC)
+            time = datetime.strptime(time, "%B %d %Y, %H:%M h").replace(tzinfo=UTC)
             ratio = min(carbon_ratio, key=lambda x: abs(x["time"] - time))["Ratio (gCO2eq/kWh)"]
             if ratio is not None:
                 carbon_generated_g += value * ratio
@@ -200,7 +200,7 @@ class CarbonEmissionsHandler:
         imported_energy = [
             {
                 "simulation_time": datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S").replace(
-                    tzinfo=pytz.UTC
+                    tzinfo=UTC
                 ),
                 "area_uuid": area_uuid,
                 "imported_from_grid": data["imported_from_grid"],
