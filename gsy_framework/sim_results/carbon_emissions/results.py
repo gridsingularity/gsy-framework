@@ -1,9 +1,8 @@
 from typing import Dict, List, Tuple
-from datetime import datetime
+from datetime import datetime, timedelta
+import csv
 
 import pytz
-
-import pandas as pd
 from geopy.geocoders import Nominatim
 from iso3166 import countries
 
@@ -41,53 +40,78 @@ class CarbonEmissionsHandler:
         end_date = max(dates).replace(tzinfo=pytz.UTC).replace(minute=0, second=0, microsecond=0)
         return start_date, end_date
 
-    def calculate_carbon_ratio(
+    def _full_range(self, start: datetime, end: datetime) -> List[datetime]:
+        """Generate a list of datetime objects for each hour between start and end"""
+        return [
+            start + timedelta(hours=x)
+            for x in range(int((end - start).total_seconds() // 3600) + 1)
+        ]
+
+    def query_carbon_ratio_from_static_source(
         self, country_code: str, start: datetime, end: datetime
-    ) -> pd.DataFrame:
+    ) -> List[Dict]:
         """Calculate the total carbon generated based on the specified statistic"""
 
         if start.tzinfo is None or end.tzinfo is None:
             raise ValueError("start and end must have timezone")
-        if start.utcoffset() != pd.Timedelta(0) or end.utcoffset() != pd.Timedelta(0):
+        if start.utcoffset() != timedelta(0) or end.utcoffset() != timedelta(0):
             raise ValueError("start and end must be in UTC+0")
 
         if (
             country_code in MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES
         ):  # source: https://www.electricitymaps.com/data-portal
+
             file_path = (
                 f"gsy_framework/resources/carbon_ratio_per_country/{country_code}_2023_monthly.csv"
             )
-            df_file = pd.read_csv(file_path, index_col=0, parse_dates=True).tz_localize("UTC")
-            full_range = pd.date_range(start=start, end=end, freq="H", tz="UTC")
-            df_carbon_ratio = df_file[["Carbon Intensity gCO₂eq/kWh (direct)"]].reindex(
-                full_range, method="ffill"
-            )
-            df_carbon_ratio.rename(
-                columns={"Carbon Intensity gCO₂eq/kWh (direct)": "Ratio (gCO2eq/kWh)"},
-                inplace=True,
-            )
+            data = {
+                datetime.strptime(row["Datetime (UTC)"], "%Y-%m-%d %H:%M:%S").replace(
+                    tzinfo=pytz.UTC
+                ): float(row["Carbon Intensity gCO₂eq/kWh (direct)"])
+                for row in csv.DictReader(open(file_path, mode="r"))
+            }
+
+            full_range = self._full_range(start, end)
+            carbon_ratio = [
+                {
+                    "time": time,
+                    "Ratio (gCO2eq/kWh)": data.get(
+                        time, data[max(k for k in data if k.month == time.month)]
+                    ),
+                    "country_code": country_code,
+                }
+                for time in full_range
+            ]
+
         else:  # source: https://ourworldindata.org/grapher/carbon-intensity-electricity
             country_code_alpha3 = countries.get(country_code).alpha3
             file_path = (
                 "gsy_framework/resources/carbon_ratio_per_country"
                 "/carbon-intensity-electricity_yearly.csv"
             )
-            df_file = pd.read_csv(file_path, index_col=2)
-            df_file = df_file[df_file["Code"] == country_code_alpha3]
 
-            df_file = df_file.loc[df_file.index.get_level_values(0).max()]  # filter fix max year
-            full_range = pd.date_range(start=start, end=end, freq="H", tz="UTC")
-            df_carbon_ratio = pd.DataFrame(index=full_range)
-            df_carbon_ratio["Ratio (gCO2eq/kWh)"] = df_file[
-                "Carbon intensity of electricity - gCO2/kWh"
+            # Find the carbon ratio for the most recent year
+            with open(file_path, mode="r") as f:
+                data = [
+                    (int(row["Year"]), float(row["Carbon intensity of electricity - gCO2/kWh"]))
+                    for row in csv.DictReader(f)
+                    if row["Code"] == country_code_alpha3
+                ]
+            max_year = max(year for year, _ in data)
+            carbon_ratio = next(value for year, value in data if year == max_year)
+
+            # Assign carbon ratio values for each hour
+            full_range = self._full_range(start, end)
+            carbon_ratio = [
+                {
+                    "time": time,
+                    "Ratio (gCO2eq/kWh)": carbon_ratio,
+                    "country_code": country_code,
+                }
+                for time in full_range
             ]
 
-        # fill df_carbon_ratio in case of missing hours using the last value
-        df_carbon_ratio = df_carbon_ratio[["Ratio (gCO2eq/kWh)"]]
-        df_carbon_ratio = df_carbon_ratio.reindex(
-            pd.date_range(start=start, end=end, freq="H", tz="UTC"), method="pad"
-        )
-        return df_carbon_ratio
+        return carbon_ratio
 
     def calculate_from_carbon_ratio_and_imported_energy(
         self, carbon_ratio: Dict, imported_energy: Dict
@@ -142,36 +166,22 @@ class CarbonEmissionsHandler:
             raise ValueError("Invalid trade profile")
 
         # TODO: why trade_profile has "January 01 2024, 00:00 h" instead of "2024-01-01T00:00:00"
-        start_date, end_date = self._find_start_and_end_dates(
-            trade_profile.keys(), "%B %d %Y, %H:%M h"
-        )
-
-        # calculate carbon ratio
-        df_carbon_ratio = self.calculate_carbon_ratio(
+        start, end = self._find_start_and_end_dates(trade_profile.keys(), "%B %d %Y, %H:%M h")
+        carbon_ratio = self.query_carbon_ratio_from_static_source(
             country_code=country_code,
-            start=pd.Timestamp(start_date),
-            end=pd.Timestamp(end_date),
+            start=start,
+            end=end,
         )
 
-        df_accumulated = pd.DataFrame(list(trade_profile.items()), columns=["Time", "Value"])
-        df_accumulated = df_accumulated.sort_values(by="Time").reset_index(drop=True)
-        df_accumulated["Time"] = pd.to_datetime(
-            df_accumulated["Time"], format="%B %d %Y, %H:%M h", utc=True
-        )
-        df_carbon_emissions = pd.merge(
-            df_accumulated,
-            df_carbon_ratio,
-            left_on="Time",
-            right_index=True,
-            how="inner",
-        )
-        df_carbon_emissions["Carbon Generated (gCO2eq)"] = (
-            df_carbon_emissions["Value"] * df_carbon_emissions["Ratio (gCO2eq/kWh)"]
-        )
-        carbon_generated_g = df_carbon_emissions["Carbon Generated (gCO2eq)"].sum()
+        carbon_generated_g = 0
+        for time, value in trade_profile.items():
+            time = datetime.strptime(time, "%B %d %Y, %H:%M h").replace(tzinfo=pytz.UTC)
+            ratio = min(carbon_ratio, key=lambda x: abs(x["time"] - time))["Ratio (gCO2eq/kWh)"]
+            if ratio is not None:
+                carbon_generated_g += value * ratio
+        carbon_emissions = {"carbon_generated_g": carbon_generated_g}
 
-        emissions = {"carbon_generated_g": carbon_generated_g}
-        return emissions
+        return carbon_emissions
 
     def calculate_from_gsy_imported_exported_energy(
         self, country_code: str, imported_exported_energy: Dict
@@ -183,38 +193,34 @@ class CarbonEmissionsHandler:
         area = imported_exported_energy[first_key]
         start_date, end_date = self._find_start_and_end_dates(area.keys(), "%Y-%m-%dT%H:%M:%S")
 
-        df_carbon_ratio = self.calculate_carbon_ratio(
-            country_code=country_code, start=pd.Timestamp(start_date), end=pd.Timestamp(end_date)
+        carbon_ratio = self.query_carbon_ratio_from_static_source(
+            country_code=country_code, start=start_date, end=end_date
         )
 
-        # populate df_total_accumualted with child areas imported energy
-        df_total_accumulated = pd.DataFrame(
-            columns=[
-                "simulation_time",
-                "area_uuid",
-                "imported_from_grid",
-                "imported_from_community",
+        imported_energy = [
+            {
+                "simulation_time": datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S").replace(
+                    tzinfo=pytz.UTC
+                ),
+                "area_uuid": area_uuid,
+                "imported_from_grid": data["imported_from_grid"],
+                "imported_from_community": data["imported_from_community"],
+            }
+            for area_uuid, area in imported_exported_energy.items()
+            for timestamp, data in area.items()
+        ]
+
+        print("imported_energy", imported_energy)
+        print("carbon_ratio", carbon_ratio)
+        carbon_emissions = self.calculate_from_carbon_ratio_and_imported_energy(
+            carbon_ratio, imported_energy
+        )
+        total_emissions = {
+            key: sum(obj[key] for obj in carbon_emissions)
+            for key in [
+                "carbon_generated_base_case_g",
+                "carbon_generated_gsy_g",
+                "carbon_savings_g",
             ]
-        )
-        for area_uuid, area in imported_exported_energy.items():
-            for timestamp, imported_energy in area.items():
-                df_imported_energy = pd.DataFrame(
-                    {
-                        "simulation_time": pd.to_datetime(timestamp).tz_localize("UTC"),
-                        "area_uuid": area_uuid,
-                        "imported_from_grid": imported_energy["imported_from_grid"],
-                        "imported_from_community": imported_energy["imported_from_community"],
-                    },
-                    index=[0],
-                )
-                df_total_accumulated = (
-                    pd.concat([df_total_accumulated, df_imported_energy])
-                    .groupby(["simulation_time", "area_uuid"], as_index=False)
-                    .sum()
-                )
-
-        df_carbon_emissions = self.calculate_from_carbon_ratio_and_imported_energy(
-            df_carbon_ratio, df_total_accumulated
-        )
-        total_emissions = df_carbon_emissions.drop(columns=["simulation_time"]).sum().to_dict()
+        }
         return total_emissions

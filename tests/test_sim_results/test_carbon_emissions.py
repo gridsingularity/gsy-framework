@@ -1,8 +1,6 @@
 from math import isclose
-from unittest.mock import patch
 
 import pytest
-import pandas as pd
 
 from gsy_framework.constants_limits import (
     FLOATING_POINT_TOLERANCE,
@@ -27,17 +25,11 @@ class TestCarbonEmissionsHandler:
         self.trade_profile = TEST_TRADE_PROFILE_RESULTS
         self.imported_exported_energy = TEST_IMPORTED_EXPORTED_ENERGY_RESULTS
 
-    @patch(
-        "gsy_framework.sim_results.carbon_emissions.results.EntsoePandasClientAdapter._query_generation_per_plant",  # noqa: E501
-        lambda *args: pd.read_csv(
-            "tests/static/generation_per_plant_entsoe_BE_20240101.csv", header=[0, 1], index_col=0
-        ),
-    )
     def test_carbon_emissions_from_gsy_trade_profile_calculates_correctly(
         self,
     ):
         # Given
-        energy_handler = CarbonEmissionsHandler(entsoe_api_key="false_key")
+        energy_handler = CarbonEmissionsHandler()
 
         # When
         carbon_emissions = energy_handler.calculate_from_gsy_trade_profile(
@@ -46,20 +38,14 @@ class TestCarbonEmissionsHandler:
 
         # Then
         assert isclose(
-            carbon_emissions["carbon_generated_g"], 87.50675385, abs_tol=FLOATING_POINT_TOLERANCE
+            carbon_emissions["carbon_generated_g"], 417.004, abs_tol=FLOATING_POINT_TOLERANCE
         )
 
-    @patch(
-        "gsy_framework.sim_results.carbon_emissions.results.EntsoePandasClientAdapter._query_generation_per_plant",  # noqa: E501
-        lambda *args: pd.read_csv(
-            "tests/static/generation_per_plant_entsoe_BE_20240101.csv", header=[0, 1], index_col=0
-        ),
-    )
     def test_carbon_emissions_from_gsy_imported_exported_energy_calculates_correctly(
         self,
     ):
         # Given
-        energy_handler = CarbonEmissionsHandler(entsoe_api_key="false_key")
+        energy_handler = CarbonEmissionsHandler()
 
         # When
         carbon_emissions = energy_handler.calculate_from_gsy_imported_exported_energy(
@@ -69,139 +55,133 @@ class TestCarbonEmissionsHandler:
         # Then
         assert isclose(
             carbon_emissions["carbon_generated_base_case_g"],
-            32.60368649,
+            178.716,
             abs_tol=FLOATING_POINT_TOLERANCE,
         )
         assert isclose(
             carbon_emissions["carbon_generated_gsy_g"],
-            13.58486937,
+            74.465,
             abs_tol=FLOATING_POINT_TOLERANCE,
         )
         assert isclose(
             carbon_emissions["carbon_savings_g"],
-            19.01881711,
+            104.251,
             abs_tol=FLOATING_POINT_TOLERANCE,
         )
 
-    @patch(
-        "gsy_framework.sim_results.carbon_emissions.results.EntsoePandasClientAdapter._query_generation_per_plant",  # noqa: E501
-        lambda *args: pd.read_csv(
-            "tests/static/generation_per_plant_entsoe_BE_20240101.csv", header=[0, 1], index_col=0
-        ),
-    )
     @pytest.mark.parametrize(
         ("country_code", "expected_carbon_generated_g"),
         list(
             zip(
                 MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES + YEARLY_CARBON_EMISSIONS_COUNTRY_CODES,
                 [
-                    1275.092000,
-                    152.852000,
-                    170.632000,
-                    301.420000,
-                    57.064000,
-                    475.244000,
-                    1008.000000,
-                    1624.504000,
-                    1296.568000,
-                    2050.300000,
-                    1148.252000,
-                    1092.280000,
-                    294.084000,
-                    216.160000,
-                    301.140000,
-                    286.048000,
-                    1504.356000,
-                    1031.828000,
-                    991.956000,
-                    1180.704000,
-                    958.132000,
-                    1.988000,
-                    1784.272000,
-                    371.084336,
-                    1776.910800,
-                    1711.111080,
-                    489.256208,
-                    1711.111080,
-                    991.488036,
-                    740.706820,
-                    1571.428600,
-                    1536.338328,
-                    1879.889312,
-                    1848.276080,
-                    2532.920600,
-                    1935.951360,
-                    1695.412880,
+                    611.044,
+                    1339.716,
+                    1216.264,
+                    417.004,
+                    1338.0080000000003,
+                    97.07599999999998,
+                    108.35999999999999,
+                    280.36400000000003,
+                    404.45999999999987,
+                    124.06799999999997,
+                    2219.1400000000003,
+                    1416.2680000000003,
+                    1149.2040000000002,
+                    357.952,
+                    987.6999999999997,
+                    262.6120000000001,
+                    238.44800000000006,
+                    174.804,
+                    585.032,
+                    369.7679999999999,
+                    1083.46,
+                    1008.0,
+                    661.3320000000001,
+                    709.5200000000002,
+                    1624.5040000000006,
+                    844.1159999999999,
+                    1299.8160000000005,
+                    2023.28,
+                    0.0,
+                    929.2079999999997,
+                    1183.3080000000002,
+                    1112.412,
+                    316.7919999999999,
+                    781.3399999999999,
+                    370.4119999999999,
+                    378.952,
+                    702.7719999999999,
+                    39.70399999999999,
+                    132.46800000000002,
+                    714.7559999999999,
+                    347.564,
+                    1531.236,
+                    2151.884000000001,
+                    177.35200000000006,
+                    762.804,
+                    1235.3040000000003,
+                    11.508,
+                    1042.888,
+                    621.3760000000001,
+                    817.4599999999999,
+                    1211.5320000000002,
+                    1199.1839999999997,
+                    962.6120000000004,
+                    320.516,
+                    1752.4919999999993,
+                    371.0843360000001,
+                    1776.9107999999999,
+                    1711.1110800000006,
+                    489.25620799999996,
+                    1711.1110800000006,
+                    991.4880359999999,
+                    740.7068200000001,
+                    1571.4285999999997,
+                    1536.3383280000005,
+                    1879.8893120000005,
+                    1848.27608,
+                    2532.9206000000004,
+                    1935.95136,
+                    1695.4128800000003,
                     632.258088,
-                    1635.398240,
-                    1822.222192,
-                    65.333335,
+                    1635.3982399999995,
+                    1822.2221919999993,
+                    65.33333520000001,
                     1488.724328,
-                    2374.144360,
-                    152.852000,
-                    1811.764640,
-                    2502.956400,
-                    1309.091000,
+                    2374.1443600000002,
+                    97.07599999999998,
+                    1811.7646399999996,
+                    2502.9564,
+                    1309.091,
                     700.000056,
                     1169.579936,
-                    855.172360,
-                    476.119028,
-                    1562.790600,
-                    1799.999880,
-                    0.000000,
-                    1759.999920,
-                    815.117800,
-                    1630.487488,
-                    726.631276,
-                    1800.000160,
-                    1960.000000,
-                    700.000000,
-                    57.064000,
-                    1102.877720,
-                    1785.306880,
-                    68.478267,
-                    1938.461840,
-                    1482.353040,
-                    1626.183720,
-                    1866.666760,
-                    420.625912,
-                    1596.855512,
+                    855.1723600000004,
+                    476.1190280000001,
+                    1562.7905999999996,
+                    1799.9998799999998,
+                    0.0,
+                    1759.9999199999997,
+                    815.1178000000003,
+                    1630.4874880000007,
+                    726.6312760000002,
+                    1800.0001599999998,
+                    1960.0,
+                    700.0,
+                    124.06799999999997,
+                    1102.87772,
+                    1785.3068799999996,
+                    68.4782672,
+                    1938.4618399999997,
+                    1482.3530400000006,
+                    1626.18372,
+                    1866.6667599999994,
+                    420.62591200000014,
+                    1596.8555119999992,
                     760.110876,
                     1657.142844,
-                    1768.420920,
-                    482.758612,
-                    69.001290,
-                    1400.000000,
-                    1133.333404,
-                    807.692424,
-                    609.900984,
-                    1240.000020,
-                    1376.470536,
-                    1866.666760,
-                    469.262892,
-                    1355.200084,
-                    1680.000168,
-                    500.000004,
-                    1792.000000,
-                    1400.000000,
-                    1744.000160,
-                    919.149056,
-                    663.157936,
-                    1750.000000,
-                    1792.982520,
-                    1588.461560,
-                    790.341356,
-                    1008.000000,
-                    1997.633960,
-                    1624.504000,
-                    1834.349832,
-                    1928.679088,
-                    1555.555512,
-                    1148.252000,
-                    1514.586220,
-                    2299.894520,
-                    197.377057,
-                    1866.666760,
+                    1768.4209199999996,
+                    482.7586119999999,
                 ],
             )
         ),
@@ -210,7 +190,7 @@ class TestCarbonEmissionsHandler:
         self, country_code, expected_carbon_generated_g
     ):
         # Given
-        energy_handler = CarbonEmissionsHandler(entsoe_api_key="false_key")
+        energy_handler = CarbonEmissionsHandler()
 
         # When
         carbon_emissions = energy_handler.calculate_from_gsy_trade_profile(
