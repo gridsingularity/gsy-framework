@@ -2,7 +2,6 @@
 
 import logging
 import uuid
-from enum import Enum
 from itertools import chain
 from typing import Dict, List
 
@@ -11,6 +10,7 @@ from gsy_framework.community_datasheet.community_datasheet_reader import Communi
 from gsy_framework.community_datasheet.community_datasheet_validator import (
     CommunityDatasheetValidator,
 )
+from gsy_framework.community_datasheet.enums import DefaultCommunityAreaNames
 from gsy_framework.community_datasheet.exceptions import CommunityDatasheetException
 from gsy_framework.constants_limits import ConstSettings, FIELDS_REQUIRED_FOR_REBASE
 from gsy_framework.enums import CloudCoverage
@@ -24,14 +24,6 @@ PROFILE_KEYS_BY_TYPE = {
     "ScmStorage": "prosumption_kWh_profile",
     "ScmHeatPump": "consumption_kWh_profile",
 }
-
-
-class DefaultCommunityAreaNames(Enum):
-    """Enum for Community names that are always part of a SCM representation."""
-
-    GRID = "Grid"
-    COMMUNITY = "Community"
-    INFINITE_BUS = "InfiniteBus"
 
 
 class CommunityDatasheetParser:
