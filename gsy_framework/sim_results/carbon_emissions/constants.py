@@ -9,6 +9,8 @@ class Stat(Enum):
 
 ENTSOE_URL = "https://web-api.tp.entsoe.eu/api"
 
+CARBON_RATIO_G_KWH = "Ratio (gCO2eq/kWh)"
+
 GENERATION_PLANT_TO_CARBON_EMISSIONS = {
     # source: https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf#page=7
     # keys match the generation plants in the entsoe API

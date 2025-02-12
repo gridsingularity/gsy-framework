@@ -10,6 +10,7 @@ from gsy_framework.constants_limits import TIME_ZONE
 from gsy_framework.utils import str_to_pendulum_datetime
 from gsy_framework.sim_results.carbon_emissions.constants import (
     MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES,
+    CARBON_RATIO_G_KWH,
 )
 
 
@@ -71,7 +72,7 @@ class CarbonEmissionsHandler:
             carbon_ratio = [
                 {
                     "time": time,
-                    "Ratio (gCO2eq/kWh)": data.get(
+                    CARBON_RATIO_G_KWH: data.get(
                         time, data.get(pendulum.datetime(2023, time.month, 1, tz=TIME_ZONE))
                     ),
                     "country_code": country_code,
@@ -101,7 +102,7 @@ class CarbonEmissionsHandler:
             carbon_ratio = [
                 {
                     "time": time,
-                    "Ratio (gCO2eq/kWh)": carbon_ratio,
+                    CARBON_RATIO_G_KWH: carbon_ratio,
                     "country_code": country_code,
                 }
                 for time in full_range
@@ -115,9 +116,9 @@ class CarbonEmissionsHandler:
         """Calculate the carbon emissions from a dict with carbon ratios
         and another with imported/exported energy."""
 
-        if not all({"Ratio (gCO2eq/kWh)", "time"}.issubset(obj) for obj in carbon_ratio):
+        if not all({CARBON_RATIO_G_KWH, "time"}.issubset(obj) for obj in carbon_ratio):
             raise ValueError(
-                "Each entry in carbon_ratio must contain keys: ", "Ratio (gCO2eq/kWh), time"
+                "Each entry in carbon_ratio must contain keys: ", f"{CARBON_RATIO_G_KWH}, time"
             )
 
         if not all(
@@ -140,7 +141,7 @@ class CarbonEmissionsHandler:
             simluation_time = obj["simulation_time"]
             nearest_carbon_ratio = min(
                 carbon_ratio_sorted, key=lambda x: abs(x["time"] - simluation_time)
-            )["Ratio (gCO2eq/kWh)"]
+            )[CARBON_RATIO_G_KWH]
             obj["carbon_ratio"] = nearest_carbon_ratio
 
         # Calculate carbon emissions
@@ -174,7 +175,7 @@ class CarbonEmissionsHandler:
         carbon_generated_g = 0
         for time, value in trade_profile.items():
             time = str_to_pendulum_datetime(time)
-            ratio = min(carbon_ratio, key=lambda x: abs(x["time"] - time))["Ratio (gCO2eq/kWh)"]
+            ratio = min(carbon_ratio, key=lambda x: abs(x["time"] - time))[CARBON_RATIO_G_KWH]
             if ratio is not None:
                 carbon_generated_g += value * ratio
         carbon_emissions = {"carbon_generated_g": carbon_generated_g}

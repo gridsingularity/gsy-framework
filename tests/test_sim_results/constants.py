@@ -1,5 +1,7 @@
 from pendulum import datetime
 
+from gsy_framework.sim_results.carbon_emissions.constants import CARBON_RATIO_G_KWH
+
 current_market_slot = datetime(2023, 1, 23, 15)
 
 TEST_AREA_RESULTS_DICT = {
@@ -241,4 +243,4 @@ TEST_IMPORTED_EXPORTED_ENERGY_RESULTS = {
     },
 }
 
-TEST_CARBON_RATIO = [{"time": datetime(2024, 1, 1, 0, 0), "Ratio (gCO2eq/kWh)": 148.93}]
+TEST_CARBON_RATIO = [{"time": datetime(2024, 1, 1, 0, 0), CARBON_RATIO_G_KWH: 148.93}]
