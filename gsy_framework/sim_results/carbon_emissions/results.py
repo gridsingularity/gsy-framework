@@ -115,8 +115,10 @@ class CarbonEmissionsHandler:
         """Calculate the carbon emissions from a dict with carbon ratios
         and another with imported/exported energy."""
 
-        if not all("Ratio (gCO2eq/kWh)" in obj for obj in carbon_ratio):
-            raise ValueError("carbon_ratio must contain 'Ratio (gCO2eq/kWh)' in each entry")
+        if not all({"Ratio (gCO2eq/kWh)", "time"}.issubset(obj) for obj in carbon_ratio):
+            raise ValueError(
+                "Each entry in carbon_ratio must contain keys: ", "Ratio (gCO2eq/kWh), time"
+            )
 
         if not all(
             {
@@ -136,9 +138,10 @@ class CarbonEmissionsHandler:
         carbon_ratio_sorted = sorted(carbon_ratio, key=lambda x: x["time"])
         for obj in imported_energy:
             simluation_time = obj["simulation_time"]
-            obj["carbon_ratio"] = min(
+            nearest_carbon_ratio = min(
                 carbon_ratio_sorted, key=lambda x: abs(x["time"] - simluation_time)
             )["Ratio (gCO2eq/kWh)"]
+            obj["carbon_ratio"] = nearest_carbon_ratio
 
         # Calculate carbon emissions
         for obj in imported_energy:
@@ -178,20 +181,11 @@ class CarbonEmissionsHandler:
 
         return carbon_emissions
 
-    def calculate_from_gsy_imported_exported_energy(
-        self, country_code: str, imported_exported_energy: Dict
+    def calculate_from_gsy_imported_exported_energy_with_carbon_ratio(
+        self, carbon_ratio: List, imported_exported_energy: Dict
     ):
         """Calculate the carbon emissions from gsy-e imported exported energy
         which includes imported energy from community and grid."""
-
-        first_key = next(iter(imported_exported_energy))
-        area = imported_exported_energy[first_key]
-        start_date, end_date = self._find_start_and_end_dates(area.keys())
-
-        carbon_ratio = self.query_carbon_ratio_from_static_source(
-            country_code=country_code, start=start_date, end=end_date
-        )
-
         imported_energy = [
             {
                 "simulation_time": pendulum.parse(timestamp, tz=TIME_ZONE),
@@ -202,7 +196,6 @@ class CarbonEmissionsHandler:
             for area_uuid, area in imported_exported_energy.items()
             for timestamp, data in area.items()
         ]
-
         carbon_emissions = self.calculate_from_carbon_ratio_and_imported_energy(
             carbon_ratio, imported_energy
         )
