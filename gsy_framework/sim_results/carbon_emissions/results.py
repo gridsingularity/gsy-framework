@@ -48,7 +48,6 @@ class CarbonEmissionsHandler:
     ) -> List[Dict]:
         """Calculate the total carbon generated based on the specified statistic"""
 
-        print("start.timezone_name", start.timezone_name)
         if start.tzinfo is None or end.tzinfo is None:
             raise ValueError("start and end must have timezone")
         if start.timezone_name != TIME_ZONE or end.timezone_name != TIME_ZONE:
@@ -135,7 +134,6 @@ class CarbonEmissionsHandler:
 
         # Find the carbon ratio closest to the simulation time
         carbon_ratio_sorted = sorted(carbon_ratio, key=lambda x: x["time"])
-        print("carbon_ratio_sorted", carbon_ratio_sorted)
         for obj in imported_energy:
             simluation_time = obj["simulation_time"]
             obj["carbon_ratio"] = min(
@@ -188,12 +186,8 @@ class CarbonEmissionsHandler:
 
         first_key = next(iter(imported_exported_energy))
         area = imported_exported_energy[first_key]
-        print("area.keys()", area.keys())
         start_date, end_date = self._find_start_and_end_dates(area.keys())
 
-        print("country_code", country_code)
-        print("start", start_date)
-        print("end", end_date)
         carbon_ratio = self.query_carbon_ratio_from_static_source(
             country_code=country_code, start=start_date, end=end_date
         )
