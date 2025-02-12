@@ -1,12 +1,13 @@
 from typing import Dict, List, Tuple
-from datetime import datetime, timedelta
 import csv
 
-from pendulum import UTC
+import pendulum
+from pendulum import DateTime
 from geopy.geocoders import Nominatim
 from iso3166 import countries
 
-from gsy_framework.constants_limits import DATE_TIME_FORMAT
+from gsy_framework.constants_limits import TIME_ZONE
+from gsy_framework.utils import str_to_pendulum_datetime
 from gsy_framework.sim_results.carbon_emissions.constants import (
     MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES,
 )
@@ -30,31 +31,27 @@ class CarbonEmissionsHandler:
             return country_code
         return "Country not found"
 
-    def _find_start_and_end_dates(
-        self, dates: List, datetime_format: str = DATE_TIME_FORMAT
-    ) -> Tuple[datetime, datetime]:
+    def _find_start_and_end_dates(self, dates: List) -> Tuple[DateTime, DateTime]:
         """Find the start and end dates from a list of string timestamps"""
 
-        dates = [datetime.strptime(timestr, datetime_format) for timestr in dates]
-        start_date = min(dates).replace(tzinfo=UTC).replace(minute=0, second=0, microsecond=0)
-        end_date = max(dates).replace(tzinfo=UTC).replace(minute=0, second=0, microsecond=0)
+        dates = [str_to_pendulum_datetime(timestr) for timestr in list(dates)]
+        start_date = min(dates).start_of("hour")
+        end_date = max(dates).start_of("hour")
         return start_date, end_date
 
-    def _full_range(self, start: datetime, end: datetime) -> List[datetime]:
+    def _create_hourly_timestamps(self, start: DateTime, end: DateTime) -> List[DateTime]:
         """Generate a list of datetime objects for each hour between start and end"""
-        return [
-            start + timedelta(hours=x)
-            for x in range(int((end - start).total_seconds() // 3600) + 1)
-        ]
+        return [start.add(hours=hour) for hour in range(int((end - start).total_hours()) + 1)]
 
     def query_carbon_ratio_from_static_source(
-        self, country_code: str, start: datetime, end: datetime
+        self, country_code: str, start: DateTime, end: DateTime
     ) -> List[Dict]:
         """Calculate the total carbon generated based on the specified statistic"""
 
+        print("start.timezone_name", start.timezone_name)
         if start.tzinfo is None or end.tzinfo is None:
             raise ValueError("start and end must have timezone")
-        if start.utcoffset() != timedelta(0) or end.utcoffset() != timedelta(0):
+        if start.timezone_name != TIME_ZONE or end.timezone_name != TIME_ZONE:
             raise ValueError("start and end must be in UTC+0")
 
         if (
@@ -65,18 +62,18 @@ class CarbonEmissionsHandler:
                 f"gsy_framework/resources/carbon_ratio_per_country/{country_code}_2023_monthly.csv"
             )
             data = {
-                datetime.strptime(row["Datetime (UTC)"], "%Y-%m-%d %H:%M:%S").replace(
-                    tzinfo=UTC
-                ): float(row["Carbon Intensity gCO₂eq/kWh (direct)"])
-                for row in csv.DictReader(open(file_path, mode="r"))
+                pendulum.parse(row["Datetime (UTC)"], tz=TIME_ZONE): float(
+                    row["Carbon Intensity gCO₂eq/kWh (direct)"]
+                )
+                for row in csv.DictReader(open(file_path, mode="r", encoding="utf-8"))
             }
 
-            full_range = self._full_range(start, end)
+            full_range = self._create_hourly_timestamps(start, end)
             carbon_ratio = [
                 {
                     "time": time,
                     "Ratio (gCO2eq/kWh)": data.get(
-                        time, data[max(k for k in data if k.month == time.month)]
+                        time, data.get(pendulum.datetime(2023, time.month, 1, tz=TIME_ZONE))
                     ),
                     "country_code": country_code,
                 }
@@ -91,17 +88,17 @@ class CarbonEmissionsHandler:
             )
 
             # Find the carbon ratio for the most recent year
-            with open(file_path, mode="r") as f:
-                data = [
-                    (int(row["Year"]), float(row["Carbon intensity of electricity - gCO2/kWh"]))
+            with open(file_path, mode="r", encoding="utf-8") as f:
+                data = {
+                    int(row["Year"]): float(row["Carbon intensity of electricity - gCO2/kWh"])
                     for row in csv.DictReader(f)
                     if row["Code"] == country_code_alpha3
-                ]
-            max_year = max(year for year, _ in data)
-            carbon_ratio = next(value for year, value in data if year == max_year)
+                }
+            max_year = max(data.keys())
+            carbon_ratio = next(value for year, value in data.items() if year == max_year)
 
             # Assign carbon ratio values for each hour
-            full_range = self._full_range(start, end)
+            full_range = self._create_hourly_timestamps(start, end)
             carbon_ratio = [
                 {
                     "time": time,
@@ -138,6 +135,7 @@ class CarbonEmissionsHandler:
 
         # Find the carbon ratio closest to the simulation time
         carbon_ratio_sorted = sorted(carbon_ratio, key=lambda x: x["time"])
+        print("carbon_ratio_sorted", carbon_ratio_sorted)
         for obj in imported_energy:
             simluation_time = obj["simulation_time"]
             obj["carbon_ratio"] = min(
@@ -165,8 +163,7 @@ class CarbonEmissionsHandler:
         if len(trade_profile.keys()) == 0:
             raise ValueError("Invalid trade profile")
 
-        # TODO: why trade_profile has "January 01 2024, 00:00 h" instead of "2024-01-01T00:00:00"
-        start, end = self._find_start_and_end_dates(trade_profile.keys(), "%B %d %Y, %H:%M h")
+        start, end = self._find_start_and_end_dates(trade_profile.keys())
         carbon_ratio = self.query_carbon_ratio_from_static_source(
             country_code=country_code,
             start=start,
@@ -175,7 +172,7 @@ class CarbonEmissionsHandler:
 
         carbon_generated_g = 0
         for time, value in trade_profile.items():
-            time = datetime.strptime(time, "%B %d %Y, %H:%M h").replace(tzinfo=UTC)
+            time = str_to_pendulum_datetime(time)
             ratio = min(carbon_ratio, key=lambda x: abs(x["time"] - time))["Ratio (gCO2eq/kWh)"]
             if ratio is not None:
                 carbon_generated_g += value * ratio
@@ -191,17 +188,19 @@ class CarbonEmissionsHandler:
 
         first_key = next(iter(imported_exported_energy))
         area = imported_exported_energy[first_key]
-        start_date, end_date = self._find_start_and_end_dates(area.keys(), "%Y-%m-%dT%H:%M:%S")
+        print("area.keys()", area.keys())
+        start_date, end_date = self._find_start_and_end_dates(area.keys())
 
+        print("country_code", country_code)
+        print("start", start_date)
+        print("end", end_date)
         carbon_ratio = self.query_carbon_ratio_from_static_source(
             country_code=country_code, start=start_date, end=end_date
         )
 
         imported_energy = [
             {
-                "simulation_time": datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S").replace(
-                    tzinfo=UTC
-                ),
+                "simulation_time": pendulum.parse(timestamp, tz=TIME_ZONE),
                 "area_uuid": area_uuid,
                 "imported_from_grid": data["imported_from_grid"],
                 "imported_from_community": data["imported_from_community"],
@@ -210,8 +209,6 @@ class CarbonEmissionsHandler:
             for timestamp, data in area.items()
         ]
 
-        print("imported_energy", imported_energy)
-        print("carbon_ratio", carbon_ratio)
         carbon_emissions = self.calculate_from_carbon_ratio_and_imported_energy(
             carbon_ratio, imported_energy
         )
