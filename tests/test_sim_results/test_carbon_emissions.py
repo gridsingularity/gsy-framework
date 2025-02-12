@@ -15,6 +15,7 @@ from gsy_framework.sim_results.carbon_emissions.constants import (
 from tests.test_sim_results.constants import (
     TEST_TRADE_PROFILE_RESULTS,
     TEST_IMPORTED_EXPORTED_ENERGY_RESULTS,
+    TEST_CARBON_RATIO,
 )
 
 
@@ -24,6 +25,7 @@ class TestCarbonEmissionsHandler:
     def setup_method(self):
         self.trade_profile = TEST_TRADE_PROFILE_RESULTS
         self.imported_exported_energy = TEST_IMPORTED_EXPORTED_ENERGY_RESULTS
+        self.carbon_ratio = TEST_CARBON_RATIO
 
     def test_carbon_emissions_from_gsy_trade_profile_calculates_correctly(
         self,
@@ -41,15 +43,18 @@ class TestCarbonEmissionsHandler:
             carbon_emissions["carbon_generated_g"], 417.004, abs_tol=FLOATING_POINT_TOLERANCE
         )
 
-    def test_carbon_emissions_from_gsy_imported_exported_energy_calculates_correctly(
+    def test_carbon_emissions_from_gsy_imported_exported_energy_with_carbon_ratio_calculates_correctly(  # noqa: E501
         self,
     ):
         # Given
         energy_handler = CarbonEmissionsHandler()
 
         # When
-        carbon_emissions = energy_handler.calculate_from_gsy_imported_exported_energy(
-            country_code="BE", imported_exported_energy=self.imported_exported_energy
+        carbon_emissions = (
+            energy_handler.calculate_from_gsy_imported_exported_energy_with_carbon_ratio(
+                carbon_ratio=self.carbon_ratio,
+                imported_exported_energy=self.imported_exported_energy,
+            )
         )
 
         # Then

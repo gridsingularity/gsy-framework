@@ -240,3 +240,5 @@ TEST_IMPORTED_EXPORTED_ENERGY_RESULTS = {
         },
     },
 }
+
+TEST_CARBON_RATIO = [{"time": datetime(2024, 1, 1, 0, 0), "Ratio (gCO2eq/kWh)": 148.93}]
