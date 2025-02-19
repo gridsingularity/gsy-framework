@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Great Britain,Great Britain,GB,132.06,188.00,68.01,50.69,bmreports.com
+2023-02-01 00:00:00,Great Britain,Great Britain,GB,152.44,217.59,62.16,47.81,bmreports.com
+2023-03-01 00:00:00,Great Britain,Great Britain,GB,146.28,209.81,62.87,46.31,Electricity Maps Estimation; bmreports.com
+2023-04-01 00:00:00,Great Britain,Great Britain,GB,144.65,210.85,62.62,44.54,bmreports.com
+2023-05-01 00:00:00,Great Britain,Great Britain,GB,138.97,198.98,63.74,41.07,bmreports.com
+2023-06-01 00:00:00,Great Britain,Great Britain,GB,149.91,212.72,60.83,39.38,Electricity Maps Estimation; bmreports.com
+2023-07-01 00:00:00,Great Britain,Great Britain,GB,125.42,185.28,67.55,48.88,bmreports.com
+2023-08-01 00:00:00,Great Britain,Great Britain,GB,145.32,208.84,62.23,43.52,bmreports.com
+2023-09-01 00:00:00,Great Britain,Great Britain,GB,142.50,203.22,64.03,43.08,Electricity Maps Estimation; bmreports.com
+2023-10-01 00:00:00,Great Britain,Great Britain,GB,123.61,181.70,69.60,51.11,Electricity Maps Estimation; bmreports.com
+2023-11-01 00:00:00,Great Britain,Great Britain,GB,146.77,211.91,64.32,48.58,bmreports.com
+2023-12-01 00:00:00,Great Britain,Great Britain,GB,118.76,174.86,70.56,53.62,bmreports.com

@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Czechia,Czechia,CZ,505.81,534.73,48.60,13.56,entsoe.eu
+2023-02-01 00:00:00,Czechia,Czechia,CZ,509.10,538.27,47.33,12.82,entsoe.eu
+2023-03-01 00:00:00,Czechia,Czechia,CZ,432.07,460.18,54.72,16.31,Electricity Maps Estimation; entsoe.eu
+2023-04-01 00:00:00,Czechia,Czechia,CZ,483.60,512.26,51.25,18.00,ceps.cz; Electricity Maps Estimation; entsoe.eu
+2023-05-01 00:00:00,Czechia,Czechia,CZ,415.68,437.90,60.49,21.98,ceps.cz
+2023-06-01 00:00:00,Czechia,Czechia,CZ,385.42,409.58,61.04,18.91,ceps.cz
+2023-07-01 00:00:00,Czechia,Czechia,CZ,429.34,453.61,57.28,18.54,ceps.cz
+2023-08-01 00:00:00,Czechia,Czechia,CZ,462.46,483.55,54.93,15.18,ceps.cz
+2023-09-01 00:00:00,Czechia,Czechia,CZ,510.24,532.36,50.44,16.30,ceps.cz
+2023-10-01 00:00:00,Czechia,Czechia,CZ,518.12,540.24,49.99,15.15,ceps.cz
+2023-11-01 00:00:00,Czechia,Czechia,CZ,533.66,554.29,48.72,12.97,ceps.cz
+2023-12-01 00:00:00,Czechia,Czechia,CZ,517.45,539.91,49.54,15.61,ceps.cz

@@ -78,6 +78,12 @@ flake8-tuple==0.4.1
     # via -r requirements/tests.ini
 geocoder==1.17.5
     # via -r requirements/base.txt
+geographiclib==2.0
+    # via
+    #   -r requirements/base.txt
+    #   geopy
+geopy==2.4.1
+    # via -r requirements/base.txt
 hypothesis==6.102.4
     # via -r requirements/tests.ini
 identify==2.5.36
@@ -90,6 +96,8 @@ idna==3.7
     #   requests
 iniconfig==2.0.0
     # via pytest
+iso3166==2.1.1
+    # via -r requirements/base.txt
 isort==5.13.2
     # via
     #   -r requirements/tests.ini

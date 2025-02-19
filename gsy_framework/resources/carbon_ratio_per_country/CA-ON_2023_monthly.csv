@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Canada,Ontario,CA-ON,38.70,62.46,89.54,37.33,Electricity Maps Estimation; ieso.ca
+2023-02-01 00:00:00,Canada,Ontario,CA-ON,30.86,52.08,91.66,39.71,Electricity Maps Estimation; ieso.ca
+2023-03-01 00:00:00,Canada,Ontario,CA-ON,29.60,51.13,92.02,43.18,ieso.ca
+2023-04-01 00:00:00,Canada,Ontario,CA-ON,20.18,38.09,94.55,41.86,Electricity Maps Estimation; ieso.ca
+2023-05-01 00:00:00,Canada,Ontario,CA-ON,24.14,43.50,93.48,39.83,ieso.ca
+2023-06-01 00:00:00,Canada,Ontario,CA-ON,65.83,97.62,82.27,30.11,ieso.ca
+2023-07-01 00:00:00,Canada,Ontario,CA-ON,85.94,124.22,76.90,27.45,Electricity Maps Estimation; ieso.ca
+2023-08-01 00:00:00,Canada,Ontario,CA-ON,66.96,98.83,81.91,28.31,Electricity Maps Estimation; ieso.ca
+2023-09-01 00:00:00,Canada,Ontario,CA-ON,63.42,94.06,82.97,28.80,ieso.ca
+2023-10-01 00:00:00,Canada,Ontario,CA-ON,42.36,66.37,88.56,34.27,ieso.ca
+2023-11-01 00:00:00,Canada,Ontario,CA-ON,58.03,86.80,84.33,34.19,ieso.ca
+2023-12-01 00:00:00,Canada,Ontario,CA-ON,60.94,90.98,83.56,32.65,ieso.ca

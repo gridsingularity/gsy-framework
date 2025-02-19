@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Hungary,Hungary,HU,253.40,292.85,65.46,18.21,entsoe.eu
+2023-02-01 00:00:00,Hungary,Hungary,HU,264.24,307.79,62.77,20.16,entsoe.eu
+2023-03-01 00:00:00,Hungary,Hungary,HU,245.74,285.21,66.64,23.42,entsoe.eu
+2023-04-01 00:00:00,Hungary,Hungary,HU,212.78,246.85,72.17,25.16,entsoe.eu
+2023-05-01 00:00:00,Hungary,Hungary,HU,187.92,223.56,74.53,36.48,entsoe.eu
+2023-06-01 00:00:00,Hungary,Hungary,HU,191.94,227.94,73.59,33.29,entsoe.eu
+2023-07-01 00:00:00,Hungary,Hungary,HU,201.88,238.49,71.86,26.45,entsoe.eu
+2023-08-01 00:00:00,Hungary,Hungary,HU,182.67,217.85,73.98,26.80,entsoe.eu
+2023-09-01 00:00:00,Hungary,Hungary,HU,201.14,234.69,72.20,23.40,entsoe.eu
+2023-10-01 00:00:00,Hungary,Hungary,HU,216.45,253.06,71.12,20.10,entsoe.eu
+2023-11-01 00:00:00,Hungary,Hungary,HU,238.25,278.28,67.02,23.27,entsoe.eu
+2023-12-01 00:00:00,Hungary,Hungary,HU,249.69,290.41,66.01,24.57,entsoe.eu

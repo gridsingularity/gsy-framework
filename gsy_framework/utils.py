@@ -219,7 +219,12 @@ def str_to_pendulum_datetime(input_str: str, date: Optional[DateTime] = None) ->
     if input_str is None:
         return None
 
-    date_formats = [DATE_TIME_FORMAT, DATE_TIME_FORMAT_SECONDS, DATE_TIME_FORMAT_HOURS]
+    date_formats = [
+        DATE_TIME_FORMAT,
+        DATE_TIME_FORMAT_SECONDS,
+        DATE_TIME_FORMAT_HOURS,
+        DATE_TIME_UI_FORMAT,
+    ]
     time_formats = [TIME_FORMAT, TIME_FORMAT_HOURS, TIME_FORMAT_SECONDS]
     supported_formats = [*date_formats, *time_formats]
     for datetime_format in supported_formats:

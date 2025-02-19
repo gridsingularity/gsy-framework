@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Lithuania,Lithuania,LT,113.14,167.49,77.54,70.24,Electricity Maps Estimation; entsoe.eu
+2023-02-01 00:00:00,Lithuania,Lithuania,LT,130.53,191.22,73.08,64.26,entsoe.eu
+2023-03-01 00:00:00,Lithuania,Lithuania,LT,107.07,158.82,79.84,73.04,Electricity Maps Estimation; entsoe.eu
+2023-04-01 00:00:00,Lithuania,Lithuania,LT,58.07,100.30,88.61,81.38,Electricity Maps Estimation; entsoe.eu
+2023-05-01 00:00:00,Lithuania,Lithuania,LT,93.27,147.88,81.17,69.46,Electricity Maps Estimation; entsoe.eu
+2023-06-01 00:00:00,Lithuania,Lithuania,LT,148.36,206.54,73.86,58.25,entsoe.eu
+2023-07-01 00:00:00,Lithuania,Lithuania,LT,80.76,127.04,85.77,68.79,Electricity Maps Estimation; entsoe.eu
+2023-08-01 00:00:00,Lithuania,Lithuania,LT,136.27,186.78,80.71,66.14,Electricity Maps Estimation; entsoe.eu
+2023-09-01 00:00:00,Lithuania,Lithuania,LT,256.11,323.50,61.21,55.39,Electricity Maps Estimation; entsoe.eu
+2023-10-01 00:00:00,Lithuania,Lithuania,LT,144.68,197.57,75.95,66.98,entsoe.eu
+2023-11-01 00:00:00,Lithuania,Lithuania,LT,165.60,223.41,75.82,64.57,entsoe.eu
+2023-12-01 00:00:00,Lithuania,Lithuania,LT,208.95,274.98,68.35,61.08,Electricity Maps Estimation; entsoe.eu

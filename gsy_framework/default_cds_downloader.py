@@ -21,7 +21,7 @@ class DefaultCDSDownloader:
         }
         url = (
             f"https://api.github.com/repos/gridsingularity/gsy-web/contents/config/static/"
-            f"CommunityDataSheet.xlsx?ref={os.environ.get('TARGET_BRANCH', 'master')}"
+            f"CommunityDataSheet.xlsx?ref={os.environ.get('TARGET_BRANCH', 'master').strip()}"
         )
         response = requests.get(url, headers=header)
         if response.status_code == 200:

@@ -36,10 +36,16 @@ filelock==3.14.0
     #   virtualenv
 geocoder==1.17.5
     # via -r requirements/base.ini
+geographiclib==2.0
+    # via geopy
+geopy==2.4.1
+    # via -r requirements/base.ini
 identify==2.5.36
     # via pre-commit
 idna==3.7
     # via requests
+iso3166==2.1.1
+    # via -r requirements/base.ini
 jsonschema==4.22.0
     # via -r requirements/base.ini
 jsonschema-specifications==2023.12.1

@@ -1,0 +1,13 @@
+Datetime (UTC),Country,Zone Name,Zone Id,Carbon Intensity gCO₂eq/kWh (direct),Carbon Intensity gCO₂eq/kWh (LCA),Low Carbon Percentage,Renewable Percentage,Data Source
+2023-01-01 00:00:00,Greece,Greece,GR,386.95,438.60,47.24,43.96,Electricity Maps Estimation; entsoe.eu
+2023-02-01 00:00:00,Greece,Greece,GR,438.01,487.13,45.71,43.21,Electricity Maps Estimation; entsoe.eu
+2023-03-01 00:00:00,Greece,Greece,GR,370.28,422.10,48.93,46.01,Electricity Maps Estimation; entsoe.eu
+2023-04-01 00:00:00,Greece,Greece,GR,330.04,388.87,47.14,44.03,Electricity Maps Estimation; entsoe.eu
+2023-05-01 00:00:00,Greece,Greece,GR,294.14,347.57,53.21,51.12,Electricity Maps Estimation; entsoe.eu
+2023-06-01 00:00:00,Greece,Greece,GR,298.66,360.84,47.32,44.98,Electricity Maps Estimation; entsoe.eu
+2023-07-01 00:00:00,Greece,Greece,GR,367.40,427.26,44.32,41.18,entsoe.eu
+2023-08-01 00:00:00,Greece,Greece,GR,285.71,340.73,53.31,50.97,Electricity Maps Estimation; entsoe.eu
+2023-09-01 00:00:00,Greece,Greece,GR,250.74,308.41,53.56,51.29,entsoe.eu
+2023-10-01 00:00:00,Greece,Greece,GR,319.62,375.76,50.04,48.47,Electricity Maps Estimation; entsoe.eu
+2023-11-01 00:00:00,Greece,Greece,GR,330.66,380.13,53.27,51.45,Electricity Maps Estimation; entsoe.eu
+2023-12-01 00:00:00,Greece,Greece,GR,355.43,405.87,50.57,47.24,Electricity Maps Estimation; entsoe.eu
