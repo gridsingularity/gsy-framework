@@ -46,13 +46,16 @@ class CarbonEmissionsHandler:
         return [start.add(hours=hour) for hour in range(int((end - start).total_hours()) + 1)]
 
     def query_carbon_ratio_from_static_source(
-        self, country_code: str, start: DateTime, end: DateTime
+        self, country_code: str, start_time: DateTime, end_time: DateTime
     ) -> List[Dict]:
         """Calculate the total carbon generated based on the specified statistic"""
 
-        if start.tzinfo is None or end.tzinfo is None:
+        if start_time.tzinfo is None or end_time.tzinfo is None:
             raise ValueError("start and end must have timezone")
-        if start.astimezone().tzname() != TIME_ZONE or end.astimezone().tzname() != TIME_ZONE:
+        if (
+            start_time.astimezone().tzname() != TIME_ZONE
+            or end_time.astimezone().tzname() != TIME_ZONE
+        ):
             raise ValueError("start and end must be in UTC+0")
 
         if (
@@ -71,7 +74,7 @@ class CarbonEmissionsHandler:
                     for row in csv.DictReader(carbon_file)
                 }
 
-            full_range = self._create_hourly_timestamps(start, end)
+            full_range = self._create_hourly_timestamps(start_time, end_time)
             carbon_ratio = [
                 {
                     "time": time,
@@ -101,7 +104,7 @@ class CarbonEmissionsHandler:
             carbon_ratio = next(value for year, value in data.items() if year == max_year)
 
             # Assign carbon ratio values for each hour
-            full_range = self._create_hourly_timestamps(start, end)
+            full_range = self._create_hourly_timestamps(start_time, end_time)
             carbon_ratio = [
                 {
                     "time": time,
@@ -172,8 +175,8 @@ class CarbonEmissionsHandler:
         start, end = self._find_start_and_end_dates(trade_profile.keys())
         carbon_ratio = self.query_carbon_ratio_from_static_source(
             country_code=country_code,
-            start=start,
-            end=end,
+            start_time=start,
+            end_time=end,
         )
 
         carbon_generated_g = 0
