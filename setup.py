@@ -28,6 +28,7 @@ setup(
         "gsy_framework": [
             "resources/*.csv",
             "resources/aggregated_ssp/*.csv",
+            "resources/carbon_ratio_per_country/*.csv",
             "schema/avro_schemas/*.json",
         ]
     },
