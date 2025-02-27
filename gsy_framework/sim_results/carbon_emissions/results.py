@@ -1,5 +1,6 @@
 from typing import Dict, List, Tuple
 import csv
+import os
 
 import pendulum
 from pendulum import DateTime
@@ -42,19 +43,12 @@ class CarbonEmissionsHandler:
 
     def _create_hourly_timestamps(self, start: DateTime, end: DateTime) -> List[DateTime]:
         """Generate a list of datetime objects for each hour between start and end"""
-        if not isinstance(start, pendulum.DateTime):
-            start = pendulum.instance(start)
-        if not isinstance(end, pendulum.DateTime):
-            end = pendulum.instance(end)
         return [start.add(hours=hour) for hour in range(int((end - start).total_hours()) + 1)]
 
     def query_carbon_ratio_from_static_source(
-        self, country_code: str, start: DateTime, end: DateTime, file_prefix=""
+        self, country_code: str, start: DateTime, end: DateTime
     ) -> List[Dict]:
         """Calculate the total carbon generated based on the specified statistic"""
-
-        if not file_prefix:
-            file_prefix = "gsy_framework"
 
         if start.tzinfo is None or end.tzinfo is None:
             raise ValueError("start and end must have timezone")
@@ -65,7 +59,7 @@ class CarbonEmissionsHandler:
             country_code in MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES
         ):  # source: https://www.electricitymaps.com/data-portal
             file_path = (
-                f"{file_prefix}/resources/"
+                f"{os.path.dirname(os.path.abspath(__file__))}/../../resources/"
                 f"carbon_ratio_per_country/{country_code}_2023_monthly.csv"
             )
 
