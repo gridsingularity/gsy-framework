@@ -1,6 +1,5 @@
 from typing import Dict, List, Tuple
 import csv
-import os
 
 import pendulum
 from pendulum import DateTime
@@ -8,6 +7,7 @@ from geopy.geocoders import Nominatim
 from iso3166 import countries
 
 from gsy_framework.constants_limits import TIME_ZONE
+from gsy_framework.resources import STATIC_FILES_DIR
 from gsy_framework.utils import str_to_pendulum_datetime
 from gsy_framework.sim_results.carbon_emissions.constants import (
     MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES,
@@ -62,8 +62,7 @@ class CarbonEmissionsHandler:
             country_code in MONTHLY_CARBON_EMISSIONS_COUNTRY_CODES
         ):  # source: https://www.electricitymaps.com/data-portal
             file_path = (
-                f"{os.path.dirname(os.path.abspath(__file__))}/../../resources/"
-                f"carbon_ratio_per_country/{country_code}_2023_monthly.csv"
+                f"{STATIC_FILES_DIR}/carbon_ratio_per_country/{country_code}_2023_monthly.csv"
             )
 
             with open(file_path, mode="r", encoding="utf-8") as carbon_file:
