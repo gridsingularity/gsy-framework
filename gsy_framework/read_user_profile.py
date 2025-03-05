@@ -18,10 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import ast
 import csv
+import logging
 import os
+from datetime import timedelta, datetime
 from enum import Enum
 from typing import Any, Dict, Optional, Generator
-from datetime import timedelta, datetime
+
 from pendulum import DateTime, duration, from_format, from_timestamp, today
 
 from gsy_framework.constants_limits import (
@@ -39,6 +41,9 @@ from gsy_framework.utils import (
     return_ordered_dict,
     convert_kWh_to_W,
 )
+
+logger = logging.getLogger(__name__)
+
 
 DATE_TIME_FORMAT_SPACED = "YYYY-MM-DD HH:mm:ss"
 
@@ -239,10 +244,17 @@ def _fill_gaps_in_profile(input_profile: Dict = None, out_profile: Dict = None) 
     :return: continuous profile Dict[Datetime: float, int, tuple]
     """
 
-    if isinstance(list(input_profile.values())[0], tuple):
-        current_val = (0, 0)
-    else:
-        current_val = 0
+    try:
+        if isinstance(list(input_profile.values())[0], tuple):
+            current_val = (0, 0)
+        else:
+            current_val = 0
+    except IndexError:
+        logger.warning(
+            "Failed to parse input profile, skipping profile gap filling. Profile: %s",
+            input_profile,
+        )
+        return input_profile
 
     for time in out_profile.keys():
         if time not in input_profile:
@@ -333,7 +345,7 @@ def _copy_profile_to_multiple_days(
     )
     out_profile = {}
     for slot_time in generate_market_slot_list(start_timestamp=current_timestamp):
-        if slot_time not in out_profile.keys():
+        if slot_time not in out_profile:
             time_key = _hour_time_str(slot_time.hour, slot_time.minute)
             if time_key in daytime_dict:
                 out_profile[slot_time] = in_profile[daytime_dict[time_key]]
