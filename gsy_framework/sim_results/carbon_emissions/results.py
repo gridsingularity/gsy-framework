@@ -147,20 +147,20 @@ class CarbonEmissionsHandler:
         }
         for obj in imported_energy:
             try:
-                query_time: DateTime = deepcopy(obj["simulation_time"])
-                # Carbon footprint is reported in 30 min intervals, therefore between 00 and 30
-                # the 00:00 interval should be picked, 00:30 otherwise
-                if query_time.minute < 30:
-                    query_time = query_time.set(minute=0)
-                else:
-                    query_time = query_time.set(minute=30)
-                obj["carbon_ratio"] = carbon_ratio_dict[query_time]
+                obj["carbon_ratio"] = carbon_ratio_dict[obj["simulation_time"]]
             except KeyError:
-                logger.info(
-                    "Carbon footprint data not available for time %s. Setting 0.",
-                    obj["simulation_time"],
-                )
-                obj["carbon_ratio"] = 0.0
+                # No carbon footprint data from this timestamp, trying the data from the start of
+                # the hour at the same date.
+                query_time: DateTime = deepcopy(obj["simulation_time"])
+                query_time = query_time.set(minute=0, second=0)
+                try:
+                    obj["carbon_ratio"] = carbon_ratio_dict[query_time]
+                except KeyError:
+                    logger.info(
+                        "Carbon footprint data not available for time %s. Setting 0.",
+                        obj["simulation_time"],
+                    )
+                    obj["carbon_ratio"] = 0.0
 
         # Calculate carbon emissions
         for obj in imported_energy:
