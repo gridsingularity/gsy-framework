@@ -1,4 +1,5 @@
 from copy import deepcopy
+import functools
 from typing import Dict, List, Tuple
 import csv
 import logging
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class CarbonEmissionsHandler:
-    """The most recent Enstsoe-y version (v0.6.16) is only compatible with python 3.9.
+    """The most recent Entsoe-y version (v0.6.16) is only compatible with python 3.9.
     Therefore, I am using v0.4.4 whose URL does not work. So, I am overwriting some methods
     from https://github.com/EnergieID/entsoe-py (branch v0.4.4) to make this work.
     """
@@ -28,6 +29,7 @@ class CarbonEmissionsHandler:
     def __init__(self):
         pass
 
+    @functools.lru_cache(maxsize=50, typed=False)
     def coordinates_to_country_code(self, lat: float, lon: float) -> str:
         """Get the country code based on the coordinates"""
         geolocator = Nominatim(user_agent="location_app")
