@@ -1,5 +1,8 @@
+from copy import deepcopy
+import functools
 from typing import Dict, List, Tuple
 import csv
+import logging
 
 import pendulum
 from pendulum import DateTime
@@ -14,9 +17,11 @@ from gsy_framework.sim_results.carbon_emissions.constants import (
     CARBON_RATIO_G_KWH,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class CarbonEmissionsHandler:
-    """The most recent Enstsoe-y version (v0.6.16) is only compatible with python 3.9.
+    """The most recent Entsoe-y version (v0.6.16) is only compatible with python 3.9.
     Therefore, I am using v0.4.4 whose URL does not work. So, I am overwriting some methods
     from https://github.com/EnergieID/entsoe-py (branch v0.4.4) to make this work.
     """
@@ -24,6 +29,7 @@ class CarbonEmissionsHandler:
     def __init__(self):
         pass
 
+    @functools.lru_cache(maxsize=50, typed=False)
     def coordinates_to_country_code(self, lat: float, lon: float) -> str:
         """Get the country code based on the coordinates"""
         geolocator = Nominatim(user_agent="location_app")
@@ -37,8 +43,9 @@ class CarbonEmissionsHandler:
         """Find the start and end dates from a list of string timestamps"""
 
         dates = [str_to_pendulum_datetime(timestr) for timestr in list(dates)]
-        start_date = min(dates).start_of("hour")
-        end_date = max(dates).start_of("hour")
+        dates = [date.set(tz=TIME_ZONE) for date in dates]
+        start_date = min(dates).start_of("hour").in_tz(TIME_ZONE)
+        end_date = max(dates).start_of("hour").in_tz(TIME_ZONE)
         return start_date, end_date
 
     def _create_hourly_timestamps(self, start: DateTime, end: DateTime) -> List[DateTime]:
@@ -52,10 +59,7 @@ class CarbonEmissionsHandler:
 
         if start_time.tzinfo is None or end_time.tzinfo is None:
             raise ValueError("start and end must have timezone")
-        if (
-            start_time.astimezone().tzname() != TIME_ZONE
-            or end_time.astimezone().tzname() != TIME_ZONE
-        ):
+        if start_time.tzname() != TIME_ZONE or end_time.tzname() != TIME_ZONE:
             raise ValueError("start and end must be in UTC+0")
 
         if (
@@ -88,7 +92,7 @@ class CarbonEmissionsHandler:
         else:  # source: https://ourworldindata.org/grapher/carbon-intensity-electricity
             country_code_alpha3 = countries.get(country_code).alpha3
             file_path = (
-                "gsy_framework/resources/carbon_ratio_per_country"
+                f"{STATIC_FILES_DIR}/carbon_ratio_per_country"
                 "/carbon-intensity-electricity_yearly.csv"
             )
 
@@ -140,15 +144,25 @@ class CarbonEmissionsHandler:
                 "simulation_time, area_uuid, imported_from_grid, imported_from_community",
             )
 
-        # Find the carbon ratio closest to the simulation time
-        carbon_ratio_sorted = sorted(carbon_ratio, key=lambda x: x["time"])
+        carbon_ratio_dict = {
+            carbon_obj["time"]: carbon_obj[CARBON_RATIO_G_KWH] for carbon_obj in carbon_ratio
+        }
         for obj in imported_energy:
-            simulation_time = obj["simulation_time"]
-            nearest_carbon_ratio = min(
-                carbon_ratio_sorted,
-                key=lambda x, sim_time=simulation_time: abs(x["time"] - sim_time),
-            )[CARBON_RATIO_G_KWH]
-            obj["carbon_ratio"] = nearest_carbon_ratio
+            try:
+                obj["carbon_ratio"] = carbon_ratio_dict[obj["simulation_time"]]
+            except KeyError:
+                # No carbon footprint data from this timestamp, trying the data from the start of
+                # the hour at the same date.
+                query_time: DateTime = deepcopy(obj["simulation_time"])
+                query_time = query_time.set(minute=0, second=0)
+                try:
+                    obj["carbon_ratio"] = carbon_ratio_dict[query_time]
+                except KeyError:
+                    logger.info(
+                        "Carbon footprint data not available for time %s. Setting 0.",
+                        obj["simulation_time"],
+                    )
+                    obj["carbon_ratio"] = 0.0
 
         # Calculate carbon emissions
         for obj in imported_energy:
@@ -166,7 +180,7 @@ class CarbonEmissionsHandler:
 
     def calculate_from_gsy_trade_profile(self, country_code: str, trade_profile: Dict) -> Dict:
         """Calculate the carbon emissions from gsy-e trade profile,
-        usually from InfiniteBus accummulated sold_energy"""
+        usually from InfiniteBus accumulated sold_energy"""
 
         if len(trade_profile.keys()) == 0:
             raise ValueError("Invalid trade profile")
