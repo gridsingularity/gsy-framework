@@ -117,7 +117,7 @@ def generate_market_slot_list(start_timestamp=None):
     """
     time_span = (
         GlobalConfig.slot_length
-        if GlobalConfig.is_canary_network()
+        if GlobalConfig.is_canary_network() and GlobalConfig.RUN_IN_REALTIME
         else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
     )
     time_span += duration(hours=ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS)

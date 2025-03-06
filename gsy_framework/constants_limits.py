@@ -297,6 +297,7 @@ class GlobalConfig:
     POWER_FLOW = False
     FEED_IN_TARIFF = 0
     CONFIG_TYPE = ConfigurationType.SIMULATION.value
+    RUN_IN_REALTIME = False
 
     # Default simulation settings gsy-e side:
     start_date = instance((datetime.combine(START_DATE, datetime.min.time())))

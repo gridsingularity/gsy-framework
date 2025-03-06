@@ -386,32 +386,30 @@ def read_arbitrary_profile(
         profile = _copy_profile_to_multiple_days(profile, current_timestamp=current_timestamp)
 
     logger.error(f"After _copy_profile_to_multiple_days {profile}")
-    if profile is not None:
-        try:
-            if profile_type is InputProfileTypes.ENERGY_KWH:
-                profile = {
-                    ts: convert_kWh_to_W(energy, GlobalConfig.slot_length)
-                    for ts, energy in profile.items()
-                }
-            if profile_type is InputProfileTypes.CARBON_RATIO_G_KWH:
-                return profile
-            zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
-            filled_profile = _fill_gaps_in_profile(profile, zero_value_slot_profile)
-            if profile_type in [
-                InputProfileTypes.POWER_W,
-                InputProfileTypes.REBASE_W,
-                InputProfileTypes.ENERGY_KWH,
-            ]:
-                return _calculate_energy_from_power_profile(
-                    filled_profile, GlobalConfig.slot_length
-                )
-            return filled_profile
-        except IndexError as exc:
-            logger.error("Profile failed: %s", profile)
-            raise GSyReadProfileException(
-                "Filling gaps and converting profile failed: %s", input_profile
-            ) from exc
-    return None
+    if not profile:
+        return None
+    try:
+        if profile_type is InputProfileTypes.ENERGY_KWH:
+            profile = {
+                ts: convert_kWh_to_W(energy, GlobalConfig.slot_length)
+                for ts, energy in profile.items()
+            }
+        if profile_type is InputProfileTypes.CARBON_RATIO_G_KWH:
+            return profile
+        zero_value_slot_profile = default_profile_dict(current_timestamp=current_timestamp)
+        filled_profile = _fill_gaps_in_profile(profile, zero_value_slot_profile)
+        if profile_type in [
+            InputProfileTypes.POWER_W,
+            InputProfileTypes.REBASE_W,
+            InputProfileTypes.ENERGY_KWH,
+        ]:
+            return _calculate_energy_from_power_profile(filled_profile, GlobalConfig.slot_length)
+        return filled_profile
+    except IndexError as exc:
+        logger.error("Profile failed: %s", profile)
+        raise GSyReadProfileException(
+            "Filling gaps and converting profile failed: %s", input_profile
+        ) from exc
 
 
 def _generate_slot_based_zero_values_dict_from_profile(profile, slot_length_mins=15):
