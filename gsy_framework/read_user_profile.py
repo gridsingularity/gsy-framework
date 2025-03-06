@@ -370,16 +370,22 @@ def read_arbitrary_profile(
     """
     if input_profile in [{}, None]:
         return {}
+    logger.error(f"Input profile {input_profile}")
     profile = _read_from_different_sources_todict(
         input_profile, current_timestamp=current_timestamp
     )
+    logger.error(f"After _read_from_different_sources_todict {profile}")
     profile_time_list = list(profile.keys())
     profile_duration = profile_time_list[-1] - profile_time_list[0]
+    logger.error(f"Profile duration: {profile_duration}")
+    logger.error(f"Current Timestamp: {current_timestamp}")
+    logger.error(f"Is Canary Network: {GlobalConfig.is_canary_network()}")
     if (
         GlobalConfig.sim_duration > duration(days=1) >= profile_duration
     ) or GlobalConfig.is_canary_network():
         profile = _copy_profile_to_multiple_days(profile, current_timestamp=current_timestamp)
 
+    logger.error(f"After _copy_profile_to_multiple_days {profile}")
     if profile is not None:
         if profile_type is InputProfileTypes.ENERGY_KWH:
             profile = {
