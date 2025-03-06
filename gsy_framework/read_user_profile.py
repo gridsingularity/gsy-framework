@@ -355,7 +355,7 @@ def _copy_profile_to_multiple_days(
 @return_ordered_dict
 def read_arbitrary_profile(
     profile_type: InputProfileTypes, input_profile, current_timestamp: DateTime = None
-) -> Optional[Dict[DateTime, float]]:
+) -> Dict[DateTime, float]:
     """
     Reads arbitrary profile.
     Handles csv, dict and string input.
@@ -387,7 +387,7 @@ def read_arbitrary_profile(
 
     logger.error(f"After _copy_profile_to_multiple_days {profile}")
     if not profile:
-        return None
+        return {}
     try:
         if profile_type is InputProfileTypes.ENERGY_KWH:
             profile = {
