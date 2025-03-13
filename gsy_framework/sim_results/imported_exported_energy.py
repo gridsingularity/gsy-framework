@@ -81,10 +81,12 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
         )
         # Adding community name and uuid to the member uuid name mapping to include it in the
         # imported exported results
-        member_uuid_name_mapping[community_dict["uuid"]] = community_dict["name"]
-        self._prepopulate_results_dict_with_zeros(member_uuid_name_mapping)
+        self._prepopulate_results_dict_with_zeros(
+            {**member_uuid_name_mapping, community_uuid: community_dict["name"]}
+        )
         community_member_uuids = member_uuid_name_mapping.keys()
         member_key = "name" if self.should_export_plots else "uuid"
+        community_key = community_dict["name"] if self.should_export_plots else community_uuid
         for trade in community_trades:
             if (
                 trade["buyer"]["uuid"] in community_member_uuids
@@ -100,6 +102,7 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
                     "exported_to_community",
                     trade["energy"],
                 )
+
             elif (
                 trade["buyer"]["uuid"] in community_member_uuids
                 and trade["seller"]["uuid"] == community_uuid
@@ -109,12 +112,24 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
                     "imported_from_grid",
                     trade["energy"],
                 )
+                # Track community imported energy from grid
+                add_or_create_key(
+                    self.imported_exported_energy[community_key][self._market_slot],
+                    "imported_from_grid",
+                    trade["energy"],
+                )
             elif (
                 trade["seller"]["uuid"] in community_member_uuids
                 and trade["buyer"]["uuid"] == community_uuid
             ):
                 add_or_create_key(
                     self.imported_exported_energy[trade["seller"][member_key]][self._market_slot],
+                    "exported_to_grid",
+                    trade["energy"],
+                )
+                # Track community exported energy to grid
+                add_or_create_key(
+                    self.imported_exported_energy[community_key][self._market_slot],
                     "exported_to_grid",
                     trade["energy"],
                 )
