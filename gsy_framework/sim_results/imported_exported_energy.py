@@ -79,6 +79,9 @@ class ImportedExportedEnergyHandler(ResultsBaseClass):
         member_uuid_name_mapping = HomeRepresentationUtils.get_member_uuid_name_mapping(
             community_dict
         )
+        # Adding community name and uuid to the member uuid name mapping to include it in the
+        # imported exported results
+        member_uuid_name_mapping[community_dict["uuid"]] = community_dict["name"]
         self._prepopulate_results_dict_with_zeros(member_uuid_name_mapping)
         community_member_uuids = member_uuid_name_mapping.keys()
         member_key = "name" if self.should_export_plots else "uuid"
