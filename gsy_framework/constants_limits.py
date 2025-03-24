@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 from collections import namedtuple
 from datetime import date, datetime
+from typing import Final
 
 from pendulum import duration, instance
 
@@ -352,3 +353,47 @@ ALL_FORWARD_MARKET_TYPES = [
     AvailableMarketTypes.MONTH_FORWARD,
     AvailableMarketTypes.YEAR_FORWARD,
 ]
+
+
+class ProfileScenarioKeyNames:
+    """Class that contains profile key names for oll assets."""
+
+    PV_PRODUCTION: Final[str] = "power_profile"
+    WIND_PRODUCTION: Final[str] = "power_profile"
+    LOAD_CONSUMPTION: Final[str] = "daily_load_profile"
+    SMART_METER_PROSUMPTION: Final[str] = "smart_meter_profile"
+    MARKET_MAKER_SELL_RATE: Final[str] = "energy_rate_profile"
+    INFINITE_BUS_SELL_RATE: Final[str] = "energy_rate_profile"
+    INFINITE_BUS_BUY_RATE: Final[str] = "buying_rate_profile"
+    HEATPUMP_SOURCE_TEMP: Final[str] = "source_temp_C_profile"
+    HEATPUMP_CONSUMPTION: Final[str] = "consumption_kWh_profile"
+    SCM_HEATPUMP_CONSUMPTION: Final[str] = "consumption_kWh_profile"
+    SCM_STORAGE_PROSUMPTION: Final[str] = "prosumption_kWh_profile"
+
+
+class ProfileUuidScenarioKeyNames:
+    """Class that contains key names for profile uuids of oll assets."""
+
+    PV_PRODUCTION: Final[str] = "power_profile_uuid"
+    WIND_PRODUCTION: Final[str] = "power_profile_uuid"
+    LOAD_CONSUMPTION: Final[str] = "daily_load_profile_uuid"
+    SMART_METER_PROSUMPTION: Final[str] = "smart_meter_profile_uuid"
+    MARKET_MAKER_SELL_RATE: Final[str] = "energy_rate_profile_uuid"
+    INFINITE_BUS_SELL_RATE: Final[str] = "energy_rate_profile_uuid"
+    INFINITE_BUS_BUY_RATE: Final[str] = "buying_rate_profile_uuid"
+    HEATPUMP_SOURCE_TEMP: Final[str] = "source_temp_C_profile_uuid"
+    HEATPUMP_CONSUMPTION: Final[str] = "consumption_kWh_profile_uuid"
+    SCM_HEATPUMP_CONSUMPTION: Final[str] = "consumption_kWh_profile_uuid"
+    SCM_STORAGE_PROSUMPTION: Final[str] = "prosumption_kWh_profile_uuid"
+
+
+class MeasurementProfileUuidScenarioKeyNames:
+    """Class that contains key names for measurement profile uuids of oll assets."""
+
+    PV_PRODUCTION: Final[str] = "power_measurement_uuid"
+    LOAD_CONSUMPTION: Final[str] = "daily_load_measurement_uuid"
+    SMART_METER_PROSUMPTION: Final[str] = "smart_meter_measurement_uuid"
+    HEATPUMP_SOURCE_TEMP: Final[str] = "source_temp_C_measurement_uuid"
+    HEATPUMP_CONSUMPTION: Final[str] = "consumption_kWh_measurement_uuid"
+    SCM_HEATPUMP_CONSUMPTION: Final[str] = "consumption_kWh_measurement_uuid"
+    SCM_STORAGE_PROSUMPTION: Final[str] = "prosumption_kWh_measurement_uuid"
