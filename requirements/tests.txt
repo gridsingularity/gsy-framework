@@ -10,48 +10,48 @@ astroid==3.2.1
     # via pylint
 attrs==23.2.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   hypothesis
     #   jsonschema
     #   referencing
 avro==1.11.3
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 black==24.4.2
     # via -r requirements/tests.ini
 cachetools==5.3.3
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   tox
 certifi==2024.2.2
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   requests
 cfgv==3.4.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   pre-commit
 chardet==5.2.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   tox
 charset-normalizer==3.3.2
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   requests
 click==8.1.7
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   black
     #   geocoder
 colorama==0.4.6
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   tox
 coverage==7.5.1
     # via -r requirements/tests.ini
 decorator==5.1.1
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   ratelim
 deepdiff==7.0.1
     # via -r requirements/tests.ini
@@ -59,15 +59,15 @@ dill==0.3.8
     # via pylint
 distlib==0.3.8
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   virtualenv
 et-xmlfile==1.1.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   openpyxl
 filelock==3.14.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   tox
     #   virtualenv
 flake8==4.0.1
@@ -77,27 +77,27 @@ flake8==4.0.1
 flake8-tuple==0.4.1
     # via -r requirements/tests.ini
 geocoder==1.17.5
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 geographiclib==2.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   geopy
 geopy==2.4.1
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 hypothesis==6.102.4
     # via -r requirements/tests.ini
 identify==2.5.36
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   pre-commit
 idna==3.7
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   requests
 iniconfig==2.0.0
     # via pytest
 iso3166==2.1.1
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 isort==5.13.2
     # via
     #   -r requirements/tests.ini
@@ -105,13 +105,13 @@ isort==5.13.2
 jedi==0.19.1
     # via ptpython
 jsonschema==4.22.0
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 jsonschema-specifications==2023.12.1
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   jsonschema
 kafka-python==2.0.2
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 mccabe==0.6.1
     # via
     #   flake8
@@ -120,15 +120,15 @@ mypy-extensions==1.0.0
     # via black
 nodeenv==1.8.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   pre-commit
 openpyxl==3.0.10
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 ordered-set==4.1.0
     # via deepdiff
 packaging==24.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   black
     #   pyproject-api
     #   pytest
@@ -139,22 +139,22 @@ parso==0.8.4
     # via jedi
 pathspec==0.12.1
     # via black
-pendulum==2.1.2
-    # via -r requirements/base.txt
+pendulum==3.0.0
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 platformdirs==4.2.2
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   black
     #   pylint
     #   tox
     #   virtualenv
 pluggy==1.5.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   pytest
     #   tox
 pre-commit==3.5.0
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 prompt-toolkit==3.0.43
     # via ptpython
 ptpython==3.0.26
@@ -169,72 +169,77 @@ pylint==3.2.0
     # via -r requirements/tests.ini
 pyproject-api==1.6.1
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   tox
 pytest==8.2.0
     # via -r requirements/tests.ini
 python-dateutil==2.9.0.post0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   pendulum
-pytzdata==2020.1
-    # via
-    #   -r requirements/base.txt
-    #   pendulum
+    #   time-machine
 pyyaml==6.0.1
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   pre-commit
 ratelim==0.1.6
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   geocoder
 redis==5.0.4
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 referencing==0.35.1
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   jsonschema
     #   jsonschema-specifications
 requests==2.31.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   geocoder
     #   requests-mock
 requests-mock==1.12.1
     # via -r requirements/tests.ini
 rpds-py==0.18.1
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   jsonschema
     #   referencing
 six==1.16.0
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   flake8-tuple
     #   geocoder
     #   python-dateutil
 sortedcontainers==2.4.0
     # via hypothesis
 tabulate==0.9.0
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
+time-machine==2.16.0
+    # via
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
+    #   pendulum
 tomlkit==0.12.5
     # via pylint
 tox==4.15.0
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
+tzdata==2025.2
+    # via
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
+    #   pendulum
 urllib3==1.26.18
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   requests
 virtualenv==20.26.2
     # via
-    #   -r requirements/base.txt
+    #   -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
     #   pre-commit
     #   tox
 wcwidth==0.2.13
     # via prompt-toolkit
 websockets==12.0
-    # via -r requirements/base.txt
+    # via -r /Users/hannesd/gsy/gsy-framework/requirements/base.txt
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
