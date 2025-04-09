@@ -1,23 +1,29 @@
 from math import isclose
 
-from pendulum import DateTime, duration, period
+from pendulum import DateTime, duration
 
 from gsy_framework.enums import AggregationResolution
 from gsy_framework.forward_markets.aggregated_ssp import (
-    HourlyAggregatedSSPProfile, MonthlyAggregatedSSPProfile,
-    QuarterHourAggregatedSSPProfile, WeeklyAggregatedSSPProfile,
-    YearlyAggregatedSSPProfile, get_aggregated_SSP)
-from gsy_framework.forward_markets.forward_profile import (
-    ProfileScaler, StandardProfileParser)
+    HourlyAggregatedSSPProfile,
+    MonthlyAggregatedSSPProfile,
+    QuarterHourAggregatedSSPProfile,
+    WeeklyAggregatedSSPProfile,
+    YearlyAggregatedSSPProfile,
+    get_aggregated_SSP,
+)
+from gsy_framework.forward_markets.forward_profile import ProfileScaler, StandardProfileParser
+from gsy_framework.forward_markets.utils import create_market_slots
 
 
 def get_sum_of_ssp_profile_range_values(
-        start_time: DateTime, end_time: DateTime, capacity_kWh: float):
+    start_time: DateTime, end_time: DateTime, capacity_kWh: float
+):
     """Return sum of scaled ssp generated energy from start_time to end_time."""
     result = 0
     profile = ProfileScaler(StandardProfileParser().parse()).scale_by_peak(peak_kWh=1)
-    for time_slot in period(
-            start_time, end_time - duration(minutes=15)).range("minutes", 15):
+    for time_slot in create_market_slots(
+        start_time, end_time - duration(minutes=15), duration(minutes=15)
+    ):
         result += profile[time_slot.month][time_slot.time()] * capacity_kWh
     return result
 
@@ -102,11 +108,12 @@ def test_quarter_hour_aggregated_ssp_profile_values():
         capacity_kWh=2,
         start_time=DateTime(2022, 9, 26, 7, 15),
         end_time=DateTime(2022, 9, 27, 8, 45),
-        resolution=AggregationResolution.RES_15_MINUTES
+        resolution=AggregationResolution.RES_15_MINUTES,
     )
     for time_slot, energy in profile:
         expected_energy = get_sum_of_ssp_profile_range_values(
-            time_slot, time_slot + duration(minutes=15), 2)
+            time_slot, time_slot + duration(minutes=15), 2
+        )
         assert isclose(energy, expected_energy)
 
 
@@ -115,11 +122,12 @@ def test_hourly_aggregated_ssp_profile_values():
         capacity_kWh=2,
         start_time=DateTime(2022, 8, 26, 7, 0),
         end_time=DateTime(2022, 9, 26, 22, 0),
-        resolution=AggregationResolution.RES_1_HOUR
+        resolution=AggregationResolution.RES_1_HOUR,
     )
     for time_slot, energy in profile:
         expected_energy = get_sum_of_ssp_profile_range_values(
-            time_slot, time_slot + duration(hours=1), 2)
+            time_slot, time_slot + duration(hours=1), 2
+        )
         assert isclose(energy, expected_energy)
 
 
@@ -128,11 +136,12 @@ def test_weekly_aggregated_ssp_profile_values():
         capacity_kWh=2,
         start_time=DateTime(2021, 1, 1, 9, 0),
         end_time=DateTime(2021, 2, 16, 23, 0),
-        resolution=AggregationResolution.RES_1_WEEK
+        resolution=AggregationResolution.RES_1_WEEK,
     )
     for time_slot, energy in profile:
         expected_energy = get_sum_of_ssp_profile_range_values(
-            time_slot, time_slot + duration(weeks=1), 2)
+            time_slot, time_slot + duration(weeks=1), 2
+        )
         assert isclose(energy, expected_energy)
 
 
@@ -141,11 +150,12 @@ def test_monthly_aggregated_ssp_profile_values():
         capacity_kWh=2,
         start_time=DateTime(2021, 1, 1, 9, 0),
         end_time=DateTime(2021, 3, 16, 23, 0),
-        resolution=AggregationResolution.RES_1_MONTH
+        resolution=AggregationResolution.RES_1_MONTH,
     )
     for time_slot, energy in profile:
         expected_energy = get_sum_of_ssp_profile_range_values(
-            time_slot, time_slot + duration(months=1), 2)
+            time_slot, time_slot + duration(months=1), 2
+        )
         assert isclose(energy, expected_energy)
 
 
@@ -154,9 +164,10 @@ def test_yearly_aggregated_ssp_profile_values():
         capacity_kWh=2,
         start_time=DateTime(2021, 1, 1, 9, 0),
         end_time=DateTime(2025, 3, 16, 23, 0),
-        resolution=AggregationResolution.RES_1_YEAR
+        resolution=AggregationResolution.RES_1_YEAR,
     )
     for time_slot, energy in profile:
         expected_energy = get_sum_of_ssp_profile_range_values(
-            time_slot, time_slot + duration(years=1), 2)
+            time_slot, time_slot + duration(years=1), 2
+        )
         assert isclose(energy, expected_energy)
