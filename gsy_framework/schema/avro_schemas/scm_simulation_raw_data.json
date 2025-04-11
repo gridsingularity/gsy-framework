@@ -81,122 +81,6 @@
                       "values": "float"
                     }
                   }
-                },
-                {
-                  "name": "trades",
-                  "type": {
-                    "name": "Trades",
-                    "type": "array",
-                    "items": {
-                      "name": "Trade",
-                      "type": "record",
-                      "fields": [
-                        {
-                          "name": "creation_time",
-                          "type": "string"
-                        },
-                        {
-                          "name": "energy",
-                          "type": "float"
-                        },
-                        {
-                          "name": "energy_rate",
-                          "type": "float"
-                        },
-                        {
-                          "name": "fee_price",
-                          "type": "float"
-                        },
-                        {
-                          "name": "id",
-                          "type": "string"
-                        },
-                        {
-                          "name": "match_type",
-                          "type": {
-                            "type": "enum",
-                            "name": "TradeMatchType",
-                            "symbols": [
-                              "Bid",
-                              "Offer"
-                            ]
-                          }
-                        },
-                        {
-                          "name": "offer",
-                          "type": "null"
-                        },
-                        {
-                          "name": "bid",
-                          "type": "null"
-                        },
-                        {
-                          "name": "offer_bid_trade_info",
-                          "type": "null"
-                        },
-                        {
-                          "name": "price",
-                          "type": "float"
-                        },
-                        {
-                          "name": "residual",
-                          "type": "null"
-                        },
-                        {
-                          "name": "time_slot",
-                          "type": "string"
-                        },
-                        {
-                          "name": "type",
-                          "type": {
-                            "name": "TradeType",
-                            "type": "enum",
-                            "symbols": [
-                              "Trade"
-                            ]
-                          }
-                        },
-                        {
-                          "name": "buyer",
-                          "type": {
-                            "name": "TraderInfo",
-                            "type": "record",
-                            "fields": [
-                              {
-                                "name": "name",
-                                "type": "string"
-                              },
-                              {
-                                "name": "origin",
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              {
-                                "name": "origin_uuid",
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              },
-                              {
-                                "name": "uuid",
-                                "type": [
-                                  "string",
-                                  "null"
-                                ]
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "name": "seller",
-                          "type": "TraderInfo"
-                        }
-                      ]
-                    }
-                  }
                 }
               ]
             },
@@ -235,24 +119,11 @@
                 {
                   "name": "self_consumed_energy_kWh",
                   "type": "float"
-                },
-                {
-                  "name": "trades",
-                  "type": {
-                    "type": "array",
-                    "items": "Trade"
-                  }
                 }
+
               ]
             }
           ]
-        },
-        {
-          "name": "trades",
-          "type": {
-            "type": "array",
-            "items": "Trade"
-          }
         },
         {
           "name": "bills",
