@@ -3,11 +3,15 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, Iterable
 
-from pendulum import DateTime, duration, period
+from pendulum import DateTime, duration
 
 from gsy_framework.enums import AggregationResolution
 from gsy_framework.forward_markets.forward_profile import (
-    ProfileScaler, StandardProfileParser, gsy_framework_path)
+    ProfileScaler,
+    StandardProfileParser,
+    gsy_framework_path,
+)
+from gsy_framework.forward_markets.utils import create_market_slots
 
 RESOURCES_PATH = Path(gsy_framework_path) / "resources"
 
@@ -57,32 +61,38 @@ class AggregatedSSPProfileBase(ABC):
 
 class QuarterHourAggregatedSSPProfile(AggregatedSSPProfileBase):
     """Return 15-minute-aggregated profile of the SSP."""
+
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
-        assert end_time - start_time >= duration(minutes=15), \
-            "Time period should be >= 15 minutes."
-        return period(
-            start=start_time.set(minute=(start_time.minute // 15) * 15),
-            end=end_time.set(minute=(end_time.minute // 15) * 15) - duration(minutes=15)
-        ).range("minutes", 15)
+        assert end_time - start_time >= duration(
+            minutes=15
+        ), "Time period should be >= 15 minutes."
+        return create_market_slots(
+            start_time=start_time.set(minute=(start_time.minute // 15) * 15),
+            end_time=end_time.set(minute=(end_time.minute // 15) * 15) - duration(minutes=15),
+            slot_length=duration(minutes=15),
+        )
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
         return float(self._SSP_AGGREGATED_PROFILE[timeslot.month][timeslot.time()])
 
     def _load_aggregated_profiles(self) -> None:
         self._SSP_AGGREGATED_PROFILE = ProfileScaler(
-            StandardProfileParser().parse()).scale_by_peak(peak_kWh=1)
+            StandardProfileParser().parse()
+        ).scale_by_peak(peak_kWh=1)
 
 
 class HourlyAggregatedSSPProfile(AggregatedSSPProfileBase):
     """Return hourly-aggregated profile of the SSP."""
+
     SSP_AGGREGATED_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/hourly.csv"
 
-    def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
+    def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> list:
         assert end_time - start_time >= duration(hours=1), "Time period should be >= 1 hour."
-        return period(
-            start=start_time.start_of("hour"),
-            end=end_time.start_of("hour") - duration(minutes=1)
-        ).range("hours", 1)
+        return create_market_slots(
+            start_time=start_time.start_of("hour"),
+            end_time=end_time.start_of("hour") - duration(minutes=1),
+            slot_length=duration(hours=1),
+        )
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
         return float(self._SSP_AGGREGATED_PROFILE[timeslot.format("M-H")])
@@ -95,29 +105,34 @@ class WeeklyAggregatedSSPProfile(AggregatedSSPProfileBase):
 
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
         assert end_time - start_time >= duration(weeks=1), "Time period should be >= 1 week."
-        return period(
-            start_time.start_of("week"),
-            end_time.start_of("week") - duration(weeks=1)
-        ).range("weeks", 1)
+        return create_market_slots(
+            start_time=start_time.start_of("week"),
+            end_time=end_time.start_of("week") - duration(weeks=1),
+            slot_length=duration(weeks=1),
+        )
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
-        return sum([
-            float(self._SSP_AGGREGATED_PROFILE[str(t.month)])
-            for t in period(timeslot, timeslot.add(days=6)).range("days", 1)
-        ])
+        return sum(
+            [
+                float(self._SSP_AGGREGATED_PROFILE[str(t.month)])
+                for t in create_market_slots(timeslot, timeslot.add(days=6), duration(days=1))
+            ]
+        )
 
 
 class MonthlyAggregatedSSPProfile(AggregatedSSPProfileBase):
     """Return monthly-aggregated profile of the SSP."""
+
     SSP_AGGREGATED_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/non_leap_monthly.csv"
     LEAP_YEAR_SSP_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/leap_monthly.csv"
 
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
         assert end_time - start_time >= duration(months=1), "Time period should be >= 1 month."
-        return period(
-            start=start_time.start_of("month"),
-            end=end_time.start_of("month") - duration(days=1)
-        ).range("months", 1)
+        return create_market_slots(
+            start_time=start_time.start_of("month"),
+            end_time=end_time.start_of("month") - duration(days=1),
+            slot_length=duration(months=1),
+        )
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
         if timeslot.is_leap_year():
@@ -127,15 +142,17 @@ class MonthlyAggregatedSSPProfile(AggregatedSSPProfileBase):
 
 class YearlyAggregatedSSPProfile(AggregatedSSPProfileBase):
     """Return yearly-aggregated profile of the SSP."""
+
     SSP_AGGREGATED_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/non_leap_yearly.csv"
     LEAP_YEAR_SSP_AGGREGATED_PROFILE_PATH = RESOURCES_PATH / "aggregated_ssp/leap_yearly.csv"
 
     def _get_timeslots(self, start_time: DateTime, end_time: DateTime) -> Iterable:
         assert end_time - start_time >= duration(years=1), "Time period should be >= 1 year."
-        return period(
-            start=start_time.start_of("year"),
-            end=end_time.start_of("year") - duration(days=1),
-        ).range("years", 1)
+        return create_market_slots(
+            start_time=start_time.start_of("year"),
+            end_time=end_time.start_of("year") - duration(days=1),
+            slot_length=duration(years=1),
+        )
 
     def _get_timeslot_energy_kWh(self, timeslot: DateTime) -> float:
         if timeslot.is_leap_year():
@@ -144,8 +161,11 @@ class YearlyAggregatedSSPProfile(AggregatedSSPProfileBase):
 
 
 def get_aggregated_SSP(
-        capacity_kWh: float, start_time: DateTime,
-        end_time: DateTime, resolution: AggregationResolution):
+    capacity_kWh: float,
+    start_time: DateTime,
+    end_time: DateTime,
+    resolution: AggregationResolution,
+):
     """Return aggregated SSP profile with the specified resolution and with respect to
     start_time, end_time and asset capacity."""
     resolution_mapping = {
@@ -153,7 +173,7 @@ def get_aggregated_SSP(
         AggregationResolution.RES_1_HOUR: HourlyAggregatedSSPProfile,
         AggregationResolution.RES_1_WEEK: WeeklyAggregatedSSPProfile,
         AggregationResolution.RES_1_MONTH: MonthlyAggregatedSSPProfile,
-        AggregationResolution.RES_1_YEAR: YearlyAggregatedSSPProfile
+        AggregationResolution.RES_1_YEAR: YearlyAggregatedSSPProfile,
     }
 
     try:
