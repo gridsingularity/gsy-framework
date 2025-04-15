@@ -444,34 +444,38 @@
               "name": "tanks",
               "type": {
                 "name": "TanksStats",
-                "type": "record",
-                "fields": [
-                  {
-                    "name": "min_storage_temp_C",
-                    "type": "float"
-                  },
-                  {
-                    "name": "temp_decrease_K",
-                    "type": {
-                      "type": "map",
-                      "values": "float"
+                "type": "array",
+                "items": {
+                  "name": "Tank",
+                  "type": "record",
+                  "fields": [
+                    {
+                      "name": "min_storage_temp_C",
+                      "type": "float"
+                    },
+                    {
+                      "name": "temp_decrease_K",
+                      "type": {
+                        "type": "map",
+                        "values": "float"
+                      }
+                    },
+                    {
+                      "name": "temp_increase_K",
+                      "type": {
+                        "type": "map",
+                        "values": "float"
+                      }
+                    },
+                    {
+                      "name": "storage_temp_C",
+                      "type": {
+                        "type": "map",
+                        "values": "float"
+                      }
                     }
-                  },
-                  {
-                    "name": "temp_increase_K",
-                    "type": {
-                      "type": "map",
-                      "values": "float"
-                    }
-                  },
-                  {
-                    "name": "storage_temp_C",
-                    "type": {
-                      "type": "map",
-                      "values": "float"
-                    }
-                  }
-                ]
+                  ]
+                }
               }
             }
           ]

@@ -435,8 +435,6 @@
       "type": "record",
       "fields": [
         {"name": "storage_temp_C", "type": "float"},
-        {"name": "temp_decrease_K", "type": "float"},
-        {"name": "temp_increase_K", "type": "float"},
         {"name": "energy_consumption_kWh", "type": "float"},
         {"name": "max_energy_demand_kWh", "type": "float"},
         {"name": "min_energy_demand_kWh", "type": "float"},
@@ -446,6 +444,22 @@
         {"name": "heat_demand_J", "type": "float"},
         {"name": "unmatched_demand_kWh", "type": "float"},
         {"name": "market_fee", "type": "float"},
+        {
+          "name": "tanks",
+          "type": {
+            "name": "Tanks",
+            "type": "array",
+            "items": {
+              "name": "Tank",
+              "type": "record",
+              "fields": [
+                {"name": "storage_temp_C", "type": "float"},
+                {"name": "temp_decrease_K", "type": "float"},
+                {"name": "temp_increase_K", "type": "float"}
+              ]
+            }
+          }
+        },
         {
           "name": "bids",
           "type": {

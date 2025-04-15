@@ -271,18 +271,20 @@
         "2023-05-23T23:00": 0.6
       },
       "total_traded_energy_kWh": 0.1,
-      "tanks": {
-        "min_storage_temp_C": 20,
-        "temp_decrease_K": {
-          "2023-05-23T22:00": 0.0,
-          "2023-05-23T23:00": 0.0
-        },
-        "temp_increase_K": {},
-        "storage_temp_C": {
-          "2023-05-23T22:00": 5.0,
-          "2023-05-23T23:00": 5.0
+      "tanks": [
+        {
+          "min_storage_temp_C": 20,
+          "temp_decrease_K": {
+            "2023-05-23T22:00": 0.0,
+            "2023-05-23T23:00": 0.0
+          },
+          "temp_increase_K": {},
+          "storage_temp_C": {
+            "2023-05-23T22:00": 5.0,
+            "2023-05-23T23:00": 5.0
+          }
         }
-      }
+      ]
     },
     "3941b529-9ce6-4b83-bcf6-d4c192f58244": {
       "max_available_power_kW": {
