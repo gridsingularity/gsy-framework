@@ -14,8 +14,8 @@ def get_request(endpoint, data, jwt_token):
     resp = requests.get(
         endpoint,
         data=json.dumps(data),
-        headers={"Content-Type": "application/json",
-                 "Authorization": f"JWT {jwt_token}"})
+        headers={"Content-Type": "application/json", "Authorization": f"JWT {jwt_token}"},
+    )
     return resp.json() if request_response_returns_http_2xx(endpoint, resp) else None
 
 
@@ -23,8 +23,8 @@ def post_request(endpoint, data, jwt_token):
     resp = requests.post(
         endpoint,
         data=json.dumps(data),
-        headers={"Content-Type": "application/json",
-                 "Authorization": f"JWT {jwt_token}"})
+        headers={"Content-Type": "application/json", "Authorization": f"JWT {jwt_token}"},
+    )
     return resp.json() if request_response_returns_http_2xx(endpoint, resp) else None
 
 
@@ -33,8 +33,8 @@ def blocking_get_request(endpoint, data, jwt_token):
     resp = requests.get(
         endpoint,
         data=json.dumps(data),
-        headers={"Content-Type": "application/json",
-                 "Authorization": f"JWT {jwt_token}"})
+        headers={"Content-Type": "application/json", "Authorization": f"JWT {jwt_token}"},
+    )
 
     return resp.json() if request_response_returns_http_2xx(endpoint, resp) else None
 
@@ -44,33 +44,43 @@ def blocking_post_request(endpoint, data, jwt_token):
     resp = requests.post(
         endpoint,
         data=json.dumps(data),
-        headers={"Content-Type": "application/json",
-                 "Authorization": f"JWT {jwt_token}"})
+        headers={"Content-Type": "application/json", "Authorization": f"JWT {jwt_token}"},
+    )
     return json.loads(resp.text) if request_response_returns_http_2xx(endpoint, resp) else None
 
 
 def request_response_returns_http_2xx(endpoint, resp):
     if 200 <= resp.status_code <= 299:
         return True
-    else:
-        logging.error(f"Request to {endpoint} failed with status code {resp.status_code}. "
-                      f"Response body: {resp.text}")
-        return False
+    logging.error(
+        "Request to %s failed with status code %s. Response body: %s",
+        endpoint,
+        resp.status_code,
+        resp.text,
+    )
+    return False
 
 
 def retrieve_jwt_key_from_server(domain_name):
     resp = requests.post(
         f"{domain_name}/api-token-auth/",
-        data=json.dumps({"username": os.environ["API_CLIENT_USERNAME"],
-                         "password": os.environ["API_CLIENT_PASSWORD"]}),
-        headers={"Content-Type": "application/json"})
+        data=json.dumps(
+            {
+                "username": os.environ["API_CLIENT_USERNAME"],
+                "password": os.environ["API_CLIENT_PASSWORD"],
+            }
+        ),
+        headers={"Content-Type": "application/json"},
+    )
     if resp.status_code != 200:
-        logging.error(f"Request for token authentication failed with status "
-                      f"code {resp.status_code}."
-                      f"Response body: {resp.text}")
-        return
+        logging.error(
+            "Request for token authentication failed with status code %s. Response body: %s",
+            resp.status_code,
+            resp.text,
+        )
+        return ""
 
-    return resp.json()["token"]
+    return resp.json()["access"]
 
 
 class RestCommunicationMixin:
@@ -79,7 +89,9 @@ class RestCommunicationMixin:
         self.jwt_refresh_timer = RepeatingTimer(
             # By refreshing 3 times during the lifetime of a token,
             # we assure that we always have a working JWT token.
-            JWT_TOKEN_EXPIRY_IN_SECS / 4, self._refresh_jwt_token, [sim_api_domain_name]
+            JWT_TOKEN_EXPIRY_IN_SECS / 4,
+            self._refresh_jwt_token,
+            [sim_api_domain_name],
         )
         self.jwt_refresh_timer.daemon = True
         self.jwt_refresh_timer.start()
@@ -103,6 +115,7 @@ def get_slot_completion_percentage_int_from_message(message):
 
     if "slot_completion" in message:
         return int(message["slot_completion"].split("%")[0])
+    return ""
 
 
 def log_market_progression(message: dict) -> None:
@@ -112,14 +125,23 @@ def log_market_progression(message: dict) -> None:
         event = message.get("event", None)
         if event not in ["tick", "market", "market_cycle"]:
             return
-        headers = ["event", ]
-        table_data = [event, ]
+        headers = [
+            "event",
+        ]
+        table_data = [
+            event,
+        ]
         data_dict = message.get("content") if "content" in message.keys() else message
 
         # TODO: "start_time" key will be deprecated
         #  once the non-aggregator connection is deprecated
         if "start_time" in data_dict:
-            headers.extend(["start_time", "duration_min", ])
+            headers.extend(
+                [
+                    "start_time",
+                    "duration_min",
+                ]
+            )
             table_data.extend([data_dict.get("start_time"), data_dict.get("duration_min")])
 
         if "slot_completion" in data_dict:
