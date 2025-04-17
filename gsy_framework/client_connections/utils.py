@@ -115,7 +115,7 @@ def get_slot_completion_percentage_int_from_message(message):
 
     if "slot_completion" in message:
         return int(message["slot_completion"].split("%")[0])
-    return ""
+    return None
 
 
 def log_market_progression(message: dict) -> None:
