@@ -529,6 +529,11 @@ def convert_kWh_to_kJ(heat_energy_kWh: float) -> float:
     return heat_energy_kWh * 3600
 
 
+def convert_kJ_to_kW(heat_energy_kJ: float, slot_length: duration) -> float:
+    """Return kW value for the provided kJ value and the slot length."""
+    return convert_kWh_to_W(convert_kJ_to_kWh(heat_energy_kJ), slot_length) / 1000.0
+
+
 def return_ordered_dict(function):
     """Decorator to convert the dictionary returned by the wrapped function into an OrderedDict."""
 
