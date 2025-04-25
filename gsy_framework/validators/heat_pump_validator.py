@@ -86,6 +86,11 @@ class HeatPumpValidator(BaseValidator):
                 }
             )
 
+        if min_temp_c == max_temp_c:
+            raise GSyDeviceException(
+                {"misconfiguration": ["min_temp_C should not be equal to max_temp_C"]}
+            )
+
     @classmethod
     def validate_rate(cls, **kwargs):
         """Validate energy rate related arguments."""
