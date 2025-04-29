@@ -59,7 +59,10 @@ class TestHeatpumpValidator:
             hp_validator_class().validate(**{**hp_params, "max_temp_C": -10})
         with pytest.raises(GSyDeviceException):
             hp_validator_class().validate(**{**hp_params, "initial_temp_C": -10})
-
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "initial_temp_C": 80})
+        with pytest.raises(GSyDeviceException):
+            hp_validator_class().validate(**{**hp_params, "min_temp_C": 50, "max_temp_C": 50})
         with pytest.raises(GSyDeviceException):
             hp_validator_class().validate(**{**hp_params, "min_temp_C": 80})
         with pytest.raises(GSyDeviceException):
