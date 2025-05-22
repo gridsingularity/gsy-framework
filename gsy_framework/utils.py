@@ -161,8 +161,9 @@ def get_from_profile_same_weekday_and_time(
         return indict[time_slot]
 
     first_full_day = _find_first_full_day_in_profile(indict)
-    if first_full_day is None and not ignore_not_found:
+    if first_full_day is None:
         logging.error("Could not find the first full day in profile %s", indict)
+        return None
     add_days = time_slot.weekday() - first_full_day.weekday()
     if add_days < 0:
         add_days += 7
