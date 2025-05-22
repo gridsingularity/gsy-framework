@@ -132,6 +132,13 @@ def generate_market_slot_list(start_timestamp=None):
     return market_slot_list
 
 
+def _find_first_full_day_in_profile(indict: Dict) -> Optional[DateTime]:
+    for time_slot in indict.keys():
+        if time_slot.hour == 0 and time_slot.minute == 0:
+            return time_slot
+    return None
+
+
 def get_from_profile_same_weekday_and_time(
     indict: Dict, time_slot: DateTime, ignore_not_found: bool = False
 ):
@@ -150,14 +157,19 @@ def get_from_profile_same_weekday_and_time(
                              if the time_slot cannot be found in the original dict
     @return: Profile value for the requested time slot
     """
-    start_time = list(indict.keys())[0]
-    add_days = time_slot.weekday() - start_time.weekday()
+    if time_slot in indict:
+        return indict[time_slot]
+
+    first_full_day = _find_first_full_day_in_profile(indict)
+    if first_full_day is None and not ignore_not_found:
+        logging.error("Could not find the first full day in profile %s", indict)
+    add_days = time_slot.weekday() - first_full_day.weekday()
     if add_days < 0:
         add_days += 7
     timestamp_key = datetime(
-        year=start_time.year,
-        month=start_time.month,
-        day=start_time.day,
+        year=first_full_day.year,
+        month=first_full_day.month,
+        day=first_full_day.day,
         hour=time_slot.hour,
         minute=time_slot.minute,
         tz=TIME_ZONE,
@@ -167,7 +179,9 @@ def get_from_profile_same_weekday_and_time(
         return indict[timestamp_key]
 
     if not ignore_not_found:
-        logging.error("Weekday and time not found in dict for %s", time_slot)
+        logging.error(
+            "Weekday and time not found in dict for %s (looking for %s)", time_slot, timestamp_key
+        )
 
     return None
 
