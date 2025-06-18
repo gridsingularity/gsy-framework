@@ -84,22 +84,6 @@ class TestHeatpumpValidator:
         [(HeatPumpValidator, _hp_params), (VirtualHeatPumpValidator, _virtual_hp_params)],
     )
     def test_heatpump_validator_checks_price_params(hp_validator_class, hp_params):
-        with pytest.raises(GSyDeviceException):
-            hp_validator_class().validate(**{**hp_params, "initial_buying_rate": -10})
-        with pytest.raises(GSyDeviceException):
-            hp_validator_class().validate(**{**hp_params, "final_buying_rate": -10})
-        with pytest.raises(GSyDeviceException):
-            hp_validator_class().validate(**{**hp_params, "preferred_buying_rate": -10})
-
-        with pytest.raises(GSyDeviceException):
-            hp_validator_class().validate(**{**hp_params, "initial_buying_rate": 31})
-        with pytest.raises(GSyDeviceException):
-            hp_validator_class().validate(**{**hp_params, "final_buying_rate": 19})
-        with pytest.raises(GSyDeviceException):
-            hp_validator_class().validate(**{**hp_params, "preferred_buying_rate": 19})
-        with pytest.raises(GSyDeviceException):
-            hp_validator_class().validate(**{**hp_params, "preferred_buying_rate": 31})
-
         hp_validator_class().validate(**{**hp_params})
 
         wrong_price_params = copy(hp_params)

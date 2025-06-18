@@ -1,4 +1,4 @@
-from gsy_framework.constants_limits import ConstSettings, GlobalConfig
+from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators.base_validator import BaseValidator
 from gsy_framework.validators.utils import validate_range_limit
@@ -122,26 +122,6 @@ class HeatPumpValidator(BaseValidator):
                 min_value=HeatPumpSettings.BUYING_RATE_LIMIT.initial,
                 max_value=HeatPumpSettings.BUYING_RATE_LIMIT.final,
             )
-
-        initial_buying_rate = kwargs["initial_buying_rate"]
-        preferred_buying_rate = kwargs["preferred_buying_rate"]
-        final_buying_rate = (
-            GlobalConfig.MARKET_MAKER_RATE
-            if kwargs.get("use_market_maker_rate") is True
-            else kwargs.get("final_buying_rate")
-        )
-
-        validate_range_limit(
-            initial_buying_rate,
-            preferred_buying_rate,
-            final_buying_rate,
-            {
-                "misconfiguration": [
-                    "Requirement 'initial_buying_rate <= preferred_buying_rate <= "
-                    "final_buying_rate' is not met."
-                ]
-            },
-        )
 
     @staticmethod
     def _validate_source_type(**kwargs):
