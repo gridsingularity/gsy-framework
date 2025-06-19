@@ -320,7 +320,8 @@ def _read_from_different_sources_todict(
 
         else:
             raise GSyReadProfileException(
-                "Unsupported input type : " + str(list(input_profile.keys())[0])
+                f"Unsupported input type of {str(list(input_profile.keys())[0])} "
+                f"(type: {type(list(input_profile.keys())[0])})"
             )
 
     elif isinstance(input_profile, (float, int, tuple)):
