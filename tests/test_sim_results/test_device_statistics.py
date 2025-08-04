@@ -43,10 +43,10 @@ class TestDeviceStatistics:
                     "trade_energy_kWh": {current_market_slot: 0},
                     "min_trade_energy_kWh": {current_market_slot: 0},
                     "max_trade_energy_kWh": {current_market_slot: 0},
-                    "storage_temp_C": {current_market_slot: 65},
                     "energy_consumption_kWh": {current_market_slot: 10},
-                    "min_storage_temp_C": {current_market_slot: 65},
-                    "max_storage_temp_C": {current_market_slot: 65},
+                    "average_soc": {current_market_slot: 50},
+                    "min_average_soc": {current_market_slot: 50},
+                    "max_average_soc": {current_market_slot: 50},
                 },
             }
         }
