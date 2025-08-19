@@ -1,4 +1,4 @@
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, asdict
 
 from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.enums import HeatPumpSourceType
@@ -35,7 +35,7 @@ class HeatPumpValidator(BaseValidator):
     def _validate_pcm_related_parameters(cls, **kwargs):
         if "min_temp_pcm_C" not in kwargs:
             return
-        assert kwargs.get("mass_flow_rate") > 0
+        assert kwargs.get("volume_flow_rate_l_min") > 0
         assert kwargs.get("number_of_plates") > 0
 
     @classmethod
@@ -96,7 +96,7 @@ class HeatPumpValidator(BaseValidator):
 
     @classmethod
     def _validate_temperature_ranges(cls, temp_arg_names: TempArgNames, **kwargs):
-        for temp_arg_name in [f.name for f in fields(temp_arg_names)]:
+        for temp_arg_name in asdict(temp_arg_names).values():
             if kwargs.get(temp_arg_name):
                 cls._check_range(
                     name=temp_arg_name,
