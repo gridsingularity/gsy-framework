@@ -434,15 +434,16 @@
       "name": "HeatPump",
       "type": "record",
       "fields": [
-        {"name": "storage_temp_C", "type": "float"},
+        {"name": "average_tank_temp_C", "type": ["float"]},
+        {"name": "average_inlet_temperature_C", "type": "float"},
+        {"name": "net_heat_consumed_kJ", "type": "float"},
         {"name": "energy_consumption_kWh", "type": "float"},
         {"name": "max_energy_demand_kWh", "type": "float"},
         {"name": "min_energy_demand_kWh", "type": "float"},
         {"name": "total_traded_energy_kWh", "type":  "float"},
         {"name": "cop", "type": "float"},
-        {"name": "condenser_temp_C", "type": "float"},
-        {"name": "heat_demand_J", "type": "float"},
-        {"name": "unmatched_demand_kWh", "type": "float"},
+        {"name": "average_soc", "type": "float"},
+        {"name": "heat_demand_kJ", "type": "float"},
         {"name": "market_fee", "type": "float"},
         {
           "name": "tanks",
@@ -454,8 +455,12 @@
               "type": "record",
               "fields": [
                 {"name": "storage_temp_C", "type": "float"},
-                {"name": "temp_decrease_K", "type": "float"},
-                {"name": "temp_increase_K", "type": "float"}
+                {"name": "soc", "type": ["null", "float"], "default": null},
+                {"name": "htf_temp_C", "type": ["null", "float"], "default": null},
+                {"name": "pcm_temp_C", "type": ["null", "float"], "default": null},
+                {"name": "condenser_temp_C", "type": ["null", "float"], "default": null},
+                {"name": "type", "type": "string"},
+                {"name": "name", "type": "string"}
               ]
             }
           }
