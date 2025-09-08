@@ -1,10 +1,21 @@
+from dataclasses import dataclass, asdict
+
 from gsy_framework.constants_limits import ConstSettings
+from gsy_framework.enums import HeatPumpSourceType
 from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators.base_validator import BaseValidator
 from gsy_framework.validators.utils import validate_range_limit
-from gsy_framework.enums import HeatPumpSourceType
 
 HeatPumpSettings = ConstSettings.HeatPumpSettings
+
+
+@dataclass
+class TempArgNames:
+    """Class for passing argument names for the temperature validation"""
+
+    minimal: str = "min_temp_C"
+    maximal: str = "max_temp_C"
+    initial: str = "initial_temp_C"
 
 
 class HeatPumpValidator(BaseValidator):
@@ -18,6 +29,14 @@ class HeatPumpValidator(BaseValidator):
         cls._validate_tank_volume(**kwargs)
         cls._validate_profiles(**kwargs)
         cls._validate_max_power(**kwargs)
+        cls._validate_pcm_related_parameters(**kwargs)
+
+    @classmethod
+    def _validate_pcm_related_parameters(cls, **kwargs):
+        if "min_temp_pcm_C" not in kwargs:
+            return
+        assert kwargs.get("volume_flow_rate_l_min") > 0
+        assert kwargs.get("number_of_plates") > 0
 
     @classmethod
     def _validate_profiles(cls, **kwargs):
@@ -57,19 +76,38 @@ class HeatPumpValidator(BaseValidator):
     @classmethod
     def _validate_temp(cls, **kwargs):
         """Validate temperature related arguments."""
-        temperature_arg_names = ["min_temp_C", "max_temp_C", "initial_temp_C"]
-        for temperature_arg_name in temperature_arg_names:
-            if kwargs.get(temperature_arg_name):
+        if "min_temp_pcm_C" in kwargs:
+            cls._validate_pcm_tank_temps(**kwargs)
+        else:
+            cls._validate_water_tank_temps(**kwargs)
+
+    @classmethod
+    def _validate_water_tank_temps(cls, **kwargs):
+        cls._validate_temperature_ranges(TempArgNames(), **kwargs)
+
+    @classmethod
+    def _validate_pcm_tank_temps(cls, **kwargs):
+        cls._validate_temperature_ranges(
+            TempArgNames("min_temp_pcm_C", "max_temp_pcm_C"), **kwargs
+        )
+        cls._validate_temperature_ranges(
+            TempArgNames("min_temp_htf_C", "max_temp_htf_C"), **kwargs
+        )
+
+    @classmethod
+    def _validate_temperature_ranges(cls, temp_arg_names: TempArgNames, **kwargs):
+        for temp_arg_name in asdict(temp_arg_names).values():
+            if kwargs.get(temp_arg_name):
                 cls._check_range(
-                    name=temperature_arg_name,
-                    value=kwargs[temperature_arg_name],
+                    name=temp_arg_name,
+                    value=kwargs[temp_arg_name],
                     min_value=HeatPumpSettings.TEMP_C_LIMIT.min,
                     max_value=HeatPumpSettings.TEMP_C_LIMIT.max,
                 )
 
-        min_temp_c = kwargs.get("min_temp_C")
-        max_temp_c = kwargs.get("max_temp_C")
-        initial_temp_c = kwargs.get("initial_temp_C")
+        min_temp_c = kwargs.get(temp_arg_names.minimal)
+        max_temp_c = kwargs.get(temp_arg_names.maximal)
+        initial_temp_c = kwargs.get(temp_arg_names.initial)
         if min_temp_c is None:
             min_temp_c = HeatPumpSettings.MIN_TEMP_C
         if max_temp_c is None:
@@ -81,14 +119,15 @@ class HeatPumpValidator(BaseValidator):
             raise GSyDeviceException(
                 {
                     "misconfiguration": [
-                        "Requirement 'min_temp_C <= initial_temp_C <= max_temp_C' is not met."
+                        f"Requirement 'min_temp <= initial_temp <= max_temp' is not met. "
+                        f"({temp_arg_names})"
                     ]
                 }
             )
 
         if min_temp_c == max_temp_c:
             raise GSyDeviceException(
-                {"misconfiguration": ["min_temp_C should not be equal to max_temp_C"]}
+                {"misconfiguration": ["min_temp should not be equal to max_temp_C"]}
             )
 
     @classmethod

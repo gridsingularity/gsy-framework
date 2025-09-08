@@ -196,7 +196,7 @@ class ConstSettings:
 
         # range limits
         MAX_POWER_RATING_KW_LIMIT = RangeLimit(0, sys.maxsize)
-        TEMP_C_LIMIT = RangeLimit(0.0, 200.0)
+        TEMP_C_LIMIT = RangeLimit(0.0, 100.0)
         TANK_VOLUME_L_LIMIT = RangeLimit(0, sys.maxsize)
         BUYING_RATE_LIMIT = RateRange(0, 10000)
 
