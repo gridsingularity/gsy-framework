@@ -4,6 +4,40 @@ from gsy_framework.sim_results.carbon_emissions.constants import CARBON_RATIO_G_
 
 current_market_slot = datetime(2023, 1, 23, 15)
 
+TEST_AREA_SETUP_PV_ONLY = {
+    "name": "Grid",
+    "children": [
+        {
+            "name": "House 2",
+            "children": [
+                {
+                    "name": "H2 PV",
+                    "uuid": "83c25853-4bdc-486d-9549-68178d6b7546",
+                    "strategy": {
+                        "type": "PVStrategy",
+                        "kwargs": {
+                            "panel_count": 1,
+                            "capacity_kW": 1,
+                            "fit_to_limit": True,
+                            "update_interval": 60,
+                            "initial_selling_rate": 80,
+                            "final_selling_rate": 0,
+                            "energy_rate_decrease_per_update": None,
+                            "use_market_maker_rate": False,
+                            "price_installation_per_kW": 100,
+                        },
+                    },
+                    "display_type": "PVStrategy",
+                },
+            ],
+            "uuid": "a8ff7ec0-3d15-4139-8801-ccea3cc3dd3f",
+            "display_type": "Area",
+        },
+    ],
+    "uuid": "5a53cc1d-121b-4ce1-8c09-ac8a689843b6",
+    "display_type": "Area",
+}
+
 TEST_AREA_RESULTS_DICT = {
     "name": "Grid",
     "uuid": "70b818d1-491f-49ca-8566-1334eec06f15",
