@@ -16,10 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import pathlib
 import pytest
 from pendulum import datetime, duration, today
 
-from gsy_framework.constants_limits import TIME_ZONE, GlobalConfig
+from gsy_framework.constants_limits import (
+    GlobalConfig,
+    PROFILE_EXPANSION_DAYS,
+    ConstSettings,
+    TIME_ZONE,
+)
 from gsy_framework.enums import ConfigurationType
 from gsy_framework.read_user_profile import InputProfileTypes, UserProfileReader
 from gsy_framework.unit_test_utils import assert_dicts_identical
@@ -49,6 +55,12 @@ class TestReadUserProfile:
     def setup_method(self):
         # pylint: disable=attribute-defined-outside-init
         self._profile = UserProfileReader()
+        self.original_config_type = GlobalConfig.CONFIG_TYPE
+        self.original_sim_duration = GlobalConfig.sim_duration
+
+    def teardown_method(self):
+        GlobalConfig.CONFIG_TYPE = self.original_config_type
+        GlobalConfig.sim_duration = self.original_sim_duration
 
     @staticmethod
     def _validate_timedeltas_are_followed(profile):
@@ -222,3 +234,45 @@ class TestReadUserProfile:
         ) == {0}
         GlobalConfig.slot_length = original_slot_length
         GlobalConfig.sim_duration = original_sim_duration
+
+    @staticmethod
+    def test_copy_profile_to_multiple_days_correctly_expands_for_non_CNs():
+        # GlobalConfig.CONFIG_TYPE = ConfigurationType.CANARY_NETWORK.value
+        GlobalConfig.sim_duration = duration(days=10)
+        profile_path = pathlib.Path("tests/static/Solar_Curve_W_cloudy.csv")
+        in_profile = UserProfileReader()._read_from_different_sources_todict(profile_path)
+        out_profile = UserProfileReader()._copy_profile_to_multiple_days(in_profile)
+        daytime_dict = dict(
+            (UserProfileReader()._hour_time_str(time.hour, time.minute), time)
+            for time in in_profile.keys()
+        )
+        assert (
+            len(in_profile) * PROFILE_EXPANSION_DAYS
+            + ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS * 4
+        ) == len(out_profile)
+        for time, out_value in out_profile.items():
+            assert (
+                out_value
+                == in_profile[
+                    daytime_dict[UserProfileReader()._hour_time_str(time.hour, time.minute)]
+                ]
+            )
+
+    @staticmethod
+    def test_copy_profile_to_multiple_days_correctly_expands_for_CNs():
+        GlobalConfig.CONFIG_TYPE = ConfigurationType.CANARY_NETWORK.value
+        profile_path = pathlib.Path("tests/static/Solar_Curve_W_cloudy.csv")
+        in_profile = UserProfileReader()._read_from_different_sources_todict(profile_path)
+        out_profile = UserProfileReader()._copy_profile_to_multiple_days(in_profile)
+        daytime_dict = dict(
+            (UserProfileReader()._hour_time_str(time.hour, time.minute), time)
+            for time in in_profile.keys()
+        )
+        assert len(out_profile) == 1
+        for time, out_value in out_profile.items():
+            assert (
+                out_value
+                == in_profile[
+                    daytime_dict[UserProfileReader()._hour_time_str(time.hour, time.minute)]
+                ]
+            )
