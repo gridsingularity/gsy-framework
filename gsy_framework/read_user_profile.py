@@ -75,9 +75,9 @@ class LiveProfileTypes(Enum):
 
 class UserProfileReader:
 
-    def __init__(self, profile_length_days: int = None):
+    def __init__(self, read_full_profile: bool = False):
         self._profile_length_days = (
-            PROFILE_EXPANSION_DAYS if not profile_length_days else profile_length_days
+            PROFILE_EXPANSION_DAYS if not read_full_profile else GlobalConfig.sim_duration.days
         )
 
     def _str_to_datetime(self, time_string, time_format) -> DateTime:
