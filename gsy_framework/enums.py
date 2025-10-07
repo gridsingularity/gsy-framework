@@ -95,12 +95,21 @@ class HeatPumpSourceType(Enum):
 class GridIntegrationType(Enum):
     """Selection of grid integration types for EV chargers.
 
-    - Unidirectional: The charger can only charge EVs, even if the connected EV supports bidirectional charging.
-    - Bidirectional: The charger can both charge and discharge, provided the connected EV supports bidirectional charging.
+    - Unidirectional: The charger can only charge EVs, even if the connected EV
+      supports bidirectional charging.
+    - Bidirectional: The charger can both charge and discharge, provided the
+      connected EV supports bidirectional charging.
     """
 
     UNIDIRECTIONAL = 0
     BIDIRECTIONAL = 1
+
+
+class EVChargerStatus(Enum):
+    """Status of the EV charger."""
+
+    IDLE = 0
+    ACTIVE = 1
 
 
 class SCMPropertyType(Enum):
