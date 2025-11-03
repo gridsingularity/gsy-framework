@@ -214,6 +214,15 @@ class ConstSettings:
         CALIBRATION_COEFFICIENT = 0.6
         CALIBRATION_COEFFICIENT_RANGE = RangeLimit(0, 1)
 
+    class EVChargerSettings:
+        """Default settings for EV charger assets."""
+
+        # Range limits
+        MAX_POWER_RATING_KW_LIMIT = RangeLimit(0, sys.maxsize)
+
+        # default values
+        MAX_POWER_RATING_KW = 10
+
     class MASettings:
         """Default settings for Market Agents."""
 

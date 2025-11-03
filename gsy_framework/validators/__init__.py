@@ -13,6 +13,7 @@ the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this program. If
 not, see <http://www.gnu.org/licenses/>.
 """
+
 # Explicitly declare the names of the module's public API
 __all__ = [
     "CommercialProducerValidator",
@@ -24,12 +25,14 @@ __all__ = [
     "PVValidator",
     "StorageValidator",
     "WindTurbineValidator",
-    "HeatPumpValidator"
+    "HeatPumpValidator",
+    "EVChargerValidator",
 ]
 
 from gsy_framework.validators.cep_validator import CommercialProducerValidator
 from gsy_framework.validators.finite_diesel_generator_validator import (
-    FiniteDieselGeneratorValidator)
+    FiniteDieselGeneratorValidator,
+)
 from gsy_framework.validators.smart_meter_validator import SmartMeterValidator
 from gsy_framework.validators.infinite_bus_validator import InfiniteBusValidator
 from gsy_framework.validators.load_validator import LoadValidator
@@ -38,3 +41,4 @@ from gsy_framework.validators.pv_validator import PVValidator
 from gsy_framework.validators.storage_validator import StorageValidator
 from gsy_framework.validators.wind_turbine_validator import WindTurbineValidator
 from gsy_framework.validators.heat_pump_validator import HeatPumpValidator
+from gsy_framework.validators.ev_charger_validator import EVChargerValidator
