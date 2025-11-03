@@ -3,7 +3,7 @@ from gsy_framework.exceptions import GSyDeviceException
 from gsy_framework.validators.base_validator import BaseValidator
 from gsy_framework.enums import GridIntegrationType
 from gsy_framework.validators.utils import validate_range_limit
-from gsy_framework.read_user_profile import read_arbitrary_profile, InputProfileTypes
+from gsy_framework.read_user_profile import UserProfileReader, InputProfileTypes
 
 EVChargerSettings = ConstSettings.EVChargerSettings
 
@@ -62,7 +62,7 @@ class EVChargerValidator(BaseValidator):
             return
 
         # Convert to profile if needed
-        preferred_power_profile = read_arbitrary_profile(
+        preferred_power_profile = UserProfileReader().read_arbitrary_profile(
             InputProfileTypes.IDENTITY, preferred_charging_power
         )
 
