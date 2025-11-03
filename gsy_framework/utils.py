@@ -109,16 +109,19 @@ def generate_market_slot_list_from_config(
     ]
 
 
-def generate_market_slot_list(start_timestamp=None):
+def generate_market_slot_list(start_timestamp=None, profile_length_days=None):
     """
     Creates a list with datetimes that correspond to market slots of the simulation.
     No input arguments, required input is only handled by a preconfigured GlobalConfig
     @return: List with market slot datetimes
     """
+    if not profile_length_days:
+        profile_length_days = PROFILE_EXPANSION_DAYS
+
     time_span = (
         GlobalConfig.slot_length
         if GlobalConfig.is_canary_network()
-        else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
+        else min(GlobalConfig.sim_duration, duration(days=profile_length_days))
     )
     time_span += duration(hours=ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS)
     market_slot_list = generate_market_slot_list_from_config(
@@ -693,3 +696,12 @@ def convert_string_to_boolean(input_object: Union[str, bool]) -> bool:
     if "false" in input_object.lower():
         return False
     return True
+
+
+def is_number(number):
+    """Return True if number is float"""
+    try:
+        float(number)
+        return True
+    except ValueError:
+        return False

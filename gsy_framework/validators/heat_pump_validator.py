@@ -153,7 +153,9 @@ class HeatPumpValidator(BaseValidator):
         if kwargs.get("update_interval") == 0:
             raise GSyDeviceException({"misconfiguration": ["update_interval should not be zero"]})
 
-        buying_rate_arg_names = ["initial_buying_rate", "preferred_buying_rate"]
+        buying_rate_arg_names = ["initial_buying_rate"]
+        if kwargs.get("preferred_buying_rate"):
+            buying_rate_arg_names.append("preferred_buying_rate")
         for buying_rate_arg_name in buying_rate_arg_names:
             cls._check_range(
                 name=buying_rate_arg_name,
