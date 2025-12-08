@@ -213,6 +213,7 @@ class ConstSettings:
         PREFERRED_BUYING_RATE = 30
         CALIBRATION_COEFFICIENT = 0.6
         CALIBRATION_COEFFICIENT_RANGE = RangeLimit(0, 1)
+        TANK_LOSS_PERCENT_DAY = 0
 
     class EVChargerSettings:
         """Default settings for EV charger assets."""
