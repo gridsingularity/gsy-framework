@@ -531,6 +531,12 @@ def convert_kW_to_kWh(power_W: float, slot_length: duration) -> float:
 
 
 # pylint: disable=invalid-name
+def convert_kWh_to_kW(energy_kWh: float, slot_length: duration) -> float:
+    """Convert kWh energy into power in kW (based on the duration of the market slot)."""
+    return energy_kWh / (slot_length / duration(hours=1))
+
+
+# pylint: disable=invalid-name
 def convert_kWh_to_W(energy_kWh: float, slot_length: duration) -> float:
     """Convert W power into energy in Wh (based on the duration of the market slot)."""
     energy_Wh = energy_kWh * 1000.0
