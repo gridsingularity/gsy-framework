@@ -28,7 +28,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field, asdict
 from math import isclose
 from typing import Dict, Optional, Tuple, Union
-
+from decimal import Decimal
 from pendulum import DateTime
 
 from gsy_framework.constants_limits import (
@@ -641,7 +641,7 @@ class BidOfferMatch:
     market_id: str
     time_slot: str
     bid: Bid.serializable_dict
-    selected_energy: float
+    selected_energy: Decimal
     offer: Offer.serializable_dict
     trade_rate: float
     matching_requirements: Optional[Dict] = None
@@ -657,7 +657,7 @@ class BidOfferMatch:
             "time_slot": self.time_slot,
             "bid": self.bid,
             "offer": self.offer,
-            "selected_energy": self.selected_energy,
+            "selected_energy": float(self.selected_energy),
             "trade_rate": self.trade_rate,
             "matching_requirements": self.matching_requirements,
         }
@@ -685,7 +685,7 @@ class BidOfferMatch:
             is_valid = False
         elif not isinstance(bid_offer_match["market_id"], str):
             is_valid = False
-        elif not isinstance(bid_offer_match["selected_energy"], (int, float)):
+        elif not isinstance(bid_offer_match["selected_energy"], (int, float, Decimal)):
             is_valid = False
         elif not isinstance(bid_offer_match["trade_rate"], (int, float)):
             is_valid = False
