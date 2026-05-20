@@ -41,6 +41,7 @@ def is_heatpump_node_type(area):
         "MultipleTankHeatPumpStrategy",
         "MultipleTankVirtualHeatpumpStrategy",
         "HeatPumpStrategyWithoutTanks",
+        "HeatPumpWithSorTesTankStrategy",
     ]
 
 
