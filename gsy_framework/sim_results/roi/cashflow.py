@@ -9,6 +9,7 @@ from gsy_framework.sim_results.roi.data_classes import (
 )
 
 DAYS_PER_YEAR = 365
+DAYS_PER_LEAP_YEAR = 366
 
 
 def annualisation_factor(
@@ -21,7 +22,9 @@ def annualisation_factor(
     A record spanning a full year needs no extrapolation. Without a modelled annual
     generation the factor falls back to the ratio of days, which ignores the season.
     """
-    if window_days >= DAYS_PER_YEAR:
+    if DAYS_PER_YEAR <= window_days <= DAYS_PER_LEAP_YEAR:
+        return 1.0, False
+    if window_days > DAYS_PER_LEAP_YEAR:
         return DAYS_PER_YEAR / window_days, False
     if annual_generation_kwh is not None and annual_generation_kwh > 0:
         return annual_generation_kwh / window_generation_kwh, False

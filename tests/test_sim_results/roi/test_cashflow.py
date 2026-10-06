@@ -24,7 +24,7 @@ def fixture_series(reference_inputs, reference_parameters):
 class TestAnnualisationFactor:
 
     def test_annualisation_factor_matches_workbook(self, workbook, reference_inputs):
-        # When
+        # Given / When
         annualisation, seasonally_unadjusted = annualisation_factor(
             reference_inputs.window_generation_kwh,
             reference_inputs.window_days,
@@ -36,18 +36,26 @@ class TestAnnualisationFactor:
         assert seasonally_unadjusted is False
 
     def test_annualisation_falls_back_to_ratio_of_days(self):
-        # When
+        # Given / When
         factor = annualisation_factor(177.0, 7, None)
 
         # Then
         assert factor == (pytest.approx(365 / 7), True)
 
-    def test_full_year_record_gives_unity(self):
-        # When
-        factor = annualisation_factor(4800.0, 365, 4900.0)
+    @pytest.mark.parametrize("window_days", [365, 366])
+    def test_full_year_record_gives_unity(self, window_days):
+        # Given / When
+        factor = annualisation_factor(4800.0, window_days, 4900.0)
 
         # Then
         assert factor == (1.0, False)
+
+    def test_multi_year_record_scales_down_to_one_year(self):
+        # Given / When
+        factor = annualisation_factor(9600.0, 730, 4900.0)
+
+        # Then
+        assert factor == (pytest.approx(0.5), False)
 
 
 class TestBuildCashFlowSeries:

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from math import isfinite
 from typing import Optional, Tuple
 
 
@@ -41,8 +42,9 @@ class RoiParameterSet:
     def __post_init__(self):
         if not 0 <= self.degradation_rate < 1:
             raise ValueError(f"Degradation rate must be in [0, 1), got {self.degradation_rate}.")
-        if self.discount_rate <= -1:
-            raise ValueError(f"Discount rate must exceed -1, got {self.discount_rate}.")
+        for name in ("discount_rate", "retail_escalation_rate", "export_escalation_rate"):
+            if getattr(self, name) <= -1:
+                raise ValueError(f"{name} must exceed -1, got {getattr(self, name)}.")
         if not 1 <= self.replacement_year <= self.horizon_years:
             raise ValueError(
                 f"Replacement year must lie within the horizon, got {self.replacement_year}."
@@ -66,6 +68,24 @@ class RoiInputs:
     window_days: float
     annual_generation_kwh: Optional[float] = None
     replacement_treatment: ReplacementTreatment = ReplacementTreatment.DISCRETE
+
+    def __post_init__(self):
+        quantities = (
+            self.capacity_kwp,
+            self.capital_cost_per_kwp,
+            self.ownership_share,
+            self.avoided_purchase,
+            self.sales_revenue,
+            self.window_generation_kwh,
+            self.window_days,
+            0.0 if self.annual_generation_kwh is None else self.annual_generation_kwh,
+        )
+        if not all(isfinite(quantity) for quantity in quantities):
+            raise ValueError(f"Every quantity must be finite, got {quantities}.")
+        if self.capital_cost_per_kwp <= 0:
+            raise ValueError(f"Capital cost must be positive, got {self.capital_cost_per_kwp}.")
+        if not 0 <= self.ownership_share <= 1:
+            raise ValueError(f"Ownership share must be in [0, 1], got {self.ownership_share}.")
 
 
 @dataclass(frozen=True)

@@ -16,7 +16,7 @@ def fixture_result(request, reference_inputs, reference_parameters):
 class TestRoiInvariants:
 
     def test_final_balance_equals_sum_of_cash_flows(self, result):
-        # When
+        # Given / When
         total_cash_flow = sum(result.series.cash_flow)
 
         # Then
@@ -43,7 +43,7 @@ class TestRoiInvariants:
         assert balance[crossing_year - 1] < 0 <= balance[crossing_year]
 
     def test_every_missing_indicator_has_a_cause(self, result):
-        # When
+        # Given / When
         indicators = [
             getattr(result, field.name)
             for field in fields(result)

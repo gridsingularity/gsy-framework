@@ -111,7 +111,7 @@ class TestCalculateRoiAgainstWorkbook:
         assert annualisation == pytest.approx(expected)
 
     def test_reserve_replacement_reports_irr(self, reserve_inputs, reference_parameters):
-        # When
+        # Given / When
         result = calculate_roi(reserve_inputs, reference_parameters)
 
         # Then
@@ -171,21 +171,21 @@ class TestIndicatorFunctions:
         assert crossing == pytest.approx(2.0)
 
     def test_sign_changes_ignore_zero_flows(self):
-        # When
+        # Given / When
         changes = sign_changes([-10, 0, 5, 0, 5])
 
         # Then
         assert changes == 1
 
     def test_irr_skips_a_leading_zero_flow(self):
-        # When
+        # Given / When
         irr = internal_rate_of_return([0, -100, 0, 150])
 
         # Then
         assert irr.value == pytest.approx(sqrt(1.5) - 1)
 
     def test_irr_of_single_period_project(self):
-        # When
+        # Given / When
         irr = internal_rate_of_return([-100, 110])
 
         # Then
@@ -214,7 +214,6 @@ class TestCalculateRoiGuards:
         [
             {"avoided_purchase": 0.0, "sales_revenue": 0.0},
             {"ownership_share": 0.0},
-            {"ownership_share": -0.5},
         ],
     )
     def test_non_positive_benefit_keeps_series(

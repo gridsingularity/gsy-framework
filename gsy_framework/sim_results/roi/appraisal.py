@@ -60,10 +60,7 @@ def calculate_roi(inputs: RoiInputs, parameters: RoiParameterSet) -> RoiResult:
     )
     series = build_cash_flow_series(inputs, parameters, annualisation)
 
-    first_year_benefit = (
-        annualisation * inputs.ownership_share * (inputs.avoided_purchase + inputs.sales_revenue)
-    )
-    if first_year_benefit <= 0:
+    if inputs.ownership_share * (inputs.avoided_purchase + inputs.sales_revenue) <= 0:
         no_benefit = Indicator(None, SuppressionCause.NON_POSITIVE_BENEFIT)
         payback_years = discounted_payback_years = irr = no_benefit
     else:
