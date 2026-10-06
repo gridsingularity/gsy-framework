@@ -52,11 +52,29 @@ class RoiParameterSet:
 
 
 @dataclass(frozen=True)
+class RangeLevers:
+    """Low and high values of the four levers D7.3 names for the reported range.
+
+    Each pair is (low case, high case), so the low case is the pessimistic one.
+    """
+
+    self_consumption_multiplier: Tuple[float, float]
+    retail_escalation_rate: Tuple[float, float]
+    capital_cost_factor: Tuple[float, float]
+    degradation_rate: Tuple[float, float]
+
+
+@dataclass(frozen=True)
 class RoiInputs:
     """Observed and user-supplied quantities for one participant over one assessment window.
 
     The avoided purchase and sales revenue are the window totals of equations (4a) and (4b).
     Without an annual generation figure, annualisation falls back to the ratio of days.
+
+    A member of a shared installation who reports their own bill difference has already taken
+    their part of the benefit, so benefit_is_apportioned stops equation (6) applying the share
+    to it again, as the Shared sheet of the reference model does. The share still apportions the
+    capital and operating cost.
     """
 
     capacity_kwp: float
@@ -68,6 +86,7 @@ class RoiInputs:
     window_days: float
     annual_generation_kwh: Optional[float] = None
     replacement_treatment: ReplacementTreatment = ReplacementTreatment.DISCRETE
+    benefit_is_apportioned: bool = False
 
     def __post_init__(self):
         quantities = (

@@ -53,8 +53,9 @@ def build_cash_flow_series(
 ) -> CashFlowSeries:
     """Build the yearly series of equations (6) to (10) and (16)."""
     share = inputs.ownership_share
-    avoided_first_year = annualisation * share * inputs.avoided_purchase
-    sales_first_year = annualisation * share * inputs.sales_revenue
+    benefit_share = 1.0 if inputs.benefit_is_apportioned else share
+    avoided_first_year = annualisation * benefit_share * inputs.avoided_purchase
+    sales_first_year = annualisation * benefit_share * inputs.sales_revenue
     operating_first_year = parameters.operating_cost_per_kwp * inputs.capacity_kwp
 
     cash_flow = [-share * inputs.capital_cost_per_kwp * inputs.capacity_kwp]

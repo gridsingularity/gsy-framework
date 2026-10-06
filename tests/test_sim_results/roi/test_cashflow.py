@@ -103,3 +103,19 @@ class TestCashFlowSeries:
         assert half.series.asset_operating_cost == whole.series.asset_operating_cost
         assert half.series.asset_replacement_cost == whole.series.asset_replacement_cost
         assert half.lcoe_per_kwh.value == pytest.approx(whole.lcoe_per_kwh.value)
+
+    def test_apportioned_benefit_is_not_scaled_by_the_share_again(
+        self, reference_inputs, reference_parameters
+    ):
+        # Given
+        member_inputs = replace(reference_inputs, ownership_share=0.5, benefit_is_apportioned=True)
+
+        # When
+        whole = calculate_roi(reference_inputs, reference_parameters).series
+        member = calculate_roi(member_inputs, reference_parameters).series
+
+        # Then
+        assert member.cash_flow[0] == pytest.approx(whole.cash_flow[0] / 2)
+        for year in range(1, len(whole.cash_flow)):
+            asset_cost = whole.asset_operating_cost[year] + whole.asset_replacement_cost[year]
+            assert member.cash_flow[year] == pytest.approx(whole.cash_flow[year] + asset_cost / 2)
