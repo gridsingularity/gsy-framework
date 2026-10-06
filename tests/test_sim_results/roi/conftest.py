@@ -14,13 +14,14 @@ REFERENCE_WORKBOOK = Path(__file__).parents[2] / "static" / "roi" / "PV_RoI_Refe
 MONEY_PER_YEAR_TOLERANCE = 0.01
 MONEY_CUMULATIVE_TOLERANCE = 0.10
 YEARS_TOLERANCE = 0.01
+IRR_TOLERANCE = 0.0001
 LCOE_TOLERANCE = 0.0001
 FIRST_YEAR_ROW = 4
 LAST_YEAR_ROW = 29
 
 
-@pytest.fixture(scope="session")
-def workbook():
+@pytest.fixture(name="workbook", scope="session")
+def fixture_workbook():
     return openpyxl.load_workbook(REFERENCE_WORKBOOK, data_only=True)
 
 

@@ -23,7 +23,7 @@ def annualisation_factor(
     """
     if window_days >= DAYS_PER_YEAR:
         return DAYS_PER_YEAR / window_days, False
-    if annual_generation_kwh:
+    if annual_generation_kwh is not None and annual_generation_kwh > 0:
         return annual_generation_kwh / window_generation_kwh, False
     return DAYS_PER_YEAR / window_days, True
 

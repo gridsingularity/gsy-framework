@@ -38,6 +38,16 @@ class RoiParameterSet:
     replacement_year: int
     replacement_cost_per_kwp: float
 
+    def __post_init__(self):
+        if not 0 <= self.degradation_rate < 1:
+            raise ValueError(f"Degradation rate must be in [0, 1), got {self.degradation_rate}.")
+        if self.discount_rate <= -1:
+            raise ValueError(f"Discount rate must exceed -1, got {self.discount_rate}.")
+        if not 1 <= self.replacement_year <= self.horizon_years:
+            raise ValueError(
+                f"Replacement year must lie within the horizon, got {self.replacement_year}."
+            )
+
 
 @dataclass(frozen=True)
 class RoiInputs:

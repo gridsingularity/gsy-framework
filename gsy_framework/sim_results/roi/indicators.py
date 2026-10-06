@@ -26,8 +26,6 @@ def interpolated_crossing(balance: Sequence[float], cash_flow: Sequence[float]) 
     Only the first crossing counts. A balance that falls back below zero later, for example
     in the replacement year, does not move it.
     """
-    if balance[0] >= 0:
-        return 0.0
     for year in range(1, len(balance)):
         if balance[year] >= 0:
             return (year - 1) + abs(balance[year - 1]) / cash_flow[year]
@@ -72,8 +70,6 @@ def levelised_cost(inputs: RoiInputs, series: CashFlowSeries) -> Indicator:
     discounted_generation = sum(
         energy * factor for energy, factor in zip(series.generation_kwh, series.discount_factor)
     )
-    if discounted_generation <= 0:
-        return Indicator(None, SuppressionCause.NO_GENERATION)
     discounted_cost = sum(
         (operating + replacement) * factor
         for operating, replacement, factor in zip(
