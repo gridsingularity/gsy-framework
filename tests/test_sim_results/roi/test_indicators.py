@@ -17,17 +17,20 @@ from tests.test_sim_results.roi.conftest import (
     YEARS_TOLERANCE,
 )
 
-DISCRETE_INDICATOR_CELLS = {
-    "payback_years": ("B5", YEARS_TOLERANCE),
-    "discounted_payback_years": ("B7", YEARS_TOLERANCE),
-    "npv": ("B8", MONEY_CUMULATIVE_TOLERANCE),
-    "lcoe_per_kwh": ("B11", LCOE_TOLERANCE),
-    "lifetime_net_benefit": ("B12", MONEY_CUMULATIVE_TOLERANCE),
+# Expected values come from the InterPED D7.3 PV RoI reference model, which caches only its
+# discrete results. The reserve values come from recalculating it with the formulas package, and
+# the reserve IRR from numpy_financial, because formulas evaluates its sign count as 0.
+REFERENCE_ANNUALISATION_FACTOR = 27.6633918479936
+REFERENCE_DISCRETE_SIGN_CHANGES = 3
+
+DISCRETE_INDICATORS = {
+    "payback_years": (9.73203842368585, YEARS_TOLERANCE),
+    "discounted_payback_years": (13.7445480713146, YEARS_TOLERANCE),
+    "npv": (3919.36324457061, MONEY_CUMULATIVE_TOLERANCE),
+    "lcoe_per_kwh": (0.11471197626551, LCOE_TOLERANCE),
+    "lifetime_net_benefit": (10442.1613576658, MONEY_CUMULATIVE_TOLERANCE),
 }
 
-# The workbook caches only its discrete results. These are its Indicators sheet recalculated
-# by the formulas package with Inputs!B42 set to "reserve". The IRR comes from numpy_financial
-# on the recalculated CashFlow column I, because formulas evaluates the sign count B9 as 0.
 RESERVE_INDICATORS = {
     "payback_years": (10.8025107057, YEARS_TOLERANCE),
     "discounted_payback_years": (14.1115228187, YEARS_TOLERANCE),
@@ -38,23 +41,17 @@ RESERVE_INDICATORS = {
 }
 
 
-@pytest.fixture(name="indicators_sheet")
-def fixture_indicators_sheet(workbook):
-    return workbook["Indicators"]
-
-
 @pytest.fixture(name="result")
 def fixture_result(reference_inputs, reference_parameters):
     return calculate_roi(reference_inputs, reference_parameters)
 
 
-class TestCalculateRoiAgainstWorkbook:
+class TestCalculateRoiAgainstReference:
 
-    @pytest.mark.parametrize("indicator_name", list(DISCRETE_INDICATOR_CELLS))
-    def test_discrete_matches_workbook(self, result, indicators_sheet, indicator_name):
+    @pytest.mark.parametrize("indicator_name", list(DISCRETE_INDICATORS))
+    def test_discrete_matches_reference(self, result, indicator_name):
         # Given
-        cell, tolerance = DISCRETE_INDICATOR_CELLS[indicator_name]
-        expected = indicators_sheet[cell].value
+        expected, tolerance = DISCRETE_INDICATORS[indicator_name]
 
         # When
         actual = getattr(result, indicator_name).value
@@ -63,7 +60,7 @@ class TestCalculateRoiAgainstWorkbook:
         assert actual == pytest.approx(expected, abs=tolerance)
 
     @pytest.mark.parametrize("indicator_name", list(RESERVE_INDICATORS))
-    def test_reserve_matches_recalculated_workbook(
+    def test_reserve_matches_recalculated_reference(
         self, reference_inputs, reference_parameters, indicator_name
     ):
         # Given
@@ -76,26 +73,20 @@ class TestCalculateRoiAgainstWorkbook:
         # Then
         assert getattr(result, indicator_name).value == pytest.approx(expected, abs=tolerance)
 
-    def test_discrete_replacement_suppresses_irr(self, result, indicators_sheet):
-        # Given
-        expected_sign_changes = indicators_sheet["B9"].value
-
-        # When
+    def test_discrete_replacement_suppresses_irr(self, result):
+        # Given / When
         changes = sign_changes(result.series.cash_flow)
 
         # Then
-        assert changes == expected_sign_changes
+        assert changes == REFERENCE_DISCRETE_SIGN_CHANGES
         assert result.irr.suppressed is SuppressionCause.IRR_NOT_UNIQUE
 
-    def test_annualisation_factor_matches_workbook(self, result, indicators_sheet):
-        # Given
-        expected = indicators_sheet["B14"].value
-
-        # When
+    def test_annualisation_factor_matches_reference(self, result):
+        # Given / When
         annualisation = result.annualisation_factor
 
         # Then
-        assert annualisation == pytest.approx(expected)
+        assert annualisation == pytest.approx(REFERENCE_ANNUALISATION_FACTOR)
         assert result.seasonally_unadjusted is False
 
 

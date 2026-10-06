@@ -8,7 +8,6 @@ from gsy_framework.sim_results.roi.data_classes import ReplacementTreatment
 from tests.test_sim_results.roi.conftest import (
     MONEY_CUMULATIVE_TOLERANCE,
     MONEY_PER_YEAR_TOLERANCE,
-    cash_flow_column,
 )
 
 
@@ -38,19 +37,19 @@ class TestAnnualisationFactor:
 class TestCashFlowSeries:
 
     @pytest.mark.parametrize(
-        "attribute, column, tolerance",
+        "attribute, tolerance",
         [
-            ("cash_flow", "I", MONEY_PER_YEAR_TOLERANCE),
-            ("discounted_cash_flow", "L", MONEY_PER_YEAR_TOLERANCE),
-            ("asset_operating_cost", "G", MONEY_PER_YEAR_TOLERANCE),
-            ("asset_replacement_cost", "H", MONEY_PER_YEAR_TOLERANCE),
-            ("balance", "J", MONEY_CUMULATIVE_TOLERANCE),
-            ("discounted_balance", "M", MONEY_CUMULATIVE_TOLERANCE),
+            ("cash_flow", MONEY_PER_YEAR_TOLERANCE),
+            ("discounted_cash_flow", MONEY_PER_YEAR_TOLERANCE),
+            ("asset_operating_cost", MONEY_PER_YEAR_TOLERANCE),
+            ("asset_replacement_cost", MONEY_PER_YEAR_TOLERANCE),
+            ("balance", MONEY_CUMULATIVE_TOLERANCE),
+            ("discounted_balance", MONEY_CUMULATIVE_TOLERANCE),
         ],
     )
-    def test_money_series_match_workbook(self, workbook, series, attribute, column, tolerance):
+    def test_money_series_match_reference(self, reference_cash_flow, series, attribute, tolerance):
         # Given
-        expected = cash_flow_column(workbook, column)
+        expected = reference_cash_flow[attribute]
 
         # When
         actual = getattr(series, attribute)
@@ -58,9 +57,9 @@ class TestCashFlowSeries:
         # Then
         assert actual == pytest.approx(expected, abs=tolerance)
 
-    def test_generation_matches_workbook(self, workbook, series):
+    def test_generation_matches_reference(self, reference_cash_flow, series):
         # Given
-        expected = cash_flow_column(workbook, "N")
+        expected = reference_cash_flow["generation_kwh"]
 
         # When
         actual = series.generation_kwh

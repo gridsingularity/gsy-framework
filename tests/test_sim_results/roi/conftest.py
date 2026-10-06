@@ -1,6 +1,6 @@
+import csv
 from pathlib import Path
 
-import openpyxl
 import pytest
 
 from gsy_framework.sim_results.roi.data_classes import (
@@ -9,54 +9,49 @@ from gsy_framework.sim_results.roi.data_classes import (
     RoiParameterSet,
 )
 
-REFERENCE_WORKBOOK = Path(__file__).parents[2] / "static" / "roi" / "PV_RoI_Reference_Model.xlsx"
+REFERENCE_CASH_FLOW = (
+    Path(__file__).parents[2] / "static" / "roi" / "pv_roi_reference_cash_flow.csv"
+)
 
 MONEY_PER_YEAR_TOLERANCE = 0.01
 MONEY_CUMULATIVE_TOLERANCE = 0.10
 YEARS_TOLERANCE = 0.01
 IRR_TOLERANCE = 0.0001
 LCOE_TOLERANCE = 0.0001
-FIRST_YEAR_ROW = 4
-LAST_YEAR_ROW = 29
-
-
-@pytest.fixture(name="workbook", scope="session")
-def fixture_workbook():
-    return openpyxl.load_workbook(REFERENCE_WORKBOOK, data_only=True)
 
 
 @pytest.fixture(scope="session")
-def reference_inputs(workbook):
-    sheet = workbook["Inputs"]
+def reference_inputs():
     return RoiInputs(
-        capacity_kwp=sheet["B6"].value,
-        capital_cost_per_kwp=sheet["B7"].value,
-        ownership_share=sheet["B9"].value,
-        avoided_purchase=sheet["B46"].value,
-        sales_revenue=sheet["B47"].value,
-        window_generation_kwh=sheet["B37"].value,
-        window_days=sheet["B35"].value,
-        annual_generation_kwh=sheet["B36"].value,
-        replacement_treatment=ReplacementTreatment(sheet["B42"].value),
+        capacity_kwp=5,
+        capital_cost_per_kwp=1300,
+        ownership_share=1,
+        avoided_purchase=11.4653723,
+        sales_revenue=13.9595022,
+        window_generation_kwh=177.1294,
+        window_days=7,
+        annual_generation_kwh=4900,
+        replacement_treatment=ReplacementTreatment.DISCRETE,
     )
 
 
 @pytest.fixture(scope="session")
-def reference_parameters(workbook):
-    sheet = workbook["Inputs"]
+def reference_parameters():
     return RoiParameterSet(
-        version_id=sheet["B13"].value,
-        horizon_years=sheet["B14"].value,
-        degradation_rate=sheet["B15"].value,
-        operating_cost_per_kwp=sheet["B16"].value,
-        retail_escalation_rate=sheet["B17"].value,
-        export_escalation_rate=sheet["B18"].value,
-        discount_rate=sheet["B19"].value,
-        replacement_year=sheet["B20"].value,
-        replacement_cost_per_kwp=sheet["B21"].value,
+        version_id="EU-2026.1",
+        horizon_years=25,
+        degradation_rate=0.005,
+        operating_cost_per_kwp=13,
+        retail_escalation_rate=0.02,
+        export_escalation_rate=0.01,
+        discount_rate=0.04,
+        replacement_year=13,
+        replacement_cost_per_kwp=180,
     )
 
 
-def cash_flow_column(workbook, column: str):
-    sheet = workbook["CashFlow"]
-    return [sheet[f"{column}{row}"].value for row in range(FIRST_YEAR_ROW, LAST_YEAR_ROW + 1)]
+@pytest.fixture(scope="session")
+def reference_cash_flow():
+    with open(REFERENCE_CASH_FLOW, newline="", encoding="utf-8") as reference_file:
+        rows = list(csv.DictReader(reference_file))
+    return {column: [float(row[column]) for row in rows] for column in rows[0]}
