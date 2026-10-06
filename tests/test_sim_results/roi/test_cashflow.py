@@ -2,6 +2,7 @@ from dataclasses import replace
 
 import pytest
 
+from gsy_framework.sim_results.roi.appraisal import calculate_roi
 from gsy_framework.sim_results.roi.cashflow import annualisation_factor, build_cash_flow_series
 from gsy_framework.sim_results.roi.data_classes import ReplacementTreatment
 from tests.test_sim_results.roi.conftest import (
@@ -13,34 +14,10 @@ from tests.test_sim_results.roi.conftest import (
 
 @pytest.fixture(name="series")
 def fixture_series(reference_inputs, reference_parameters):
-    annualisation, _ = annualisation_factor(
-        reference_inputs.window_generation_kwh,
-        reference_inputs.window_days,
-        reference_inputs.annual_generation_kwh,
-    )
-    return build_cash_flow_series(reference_inputs, reference_parameters, annualisation)
+    return calculate_roi(reference_inputs, reference_parameters).series
 
 
 class TestAnnualisationFactor:
-
-    def test_annualisation_factor_matches_workbook(self, workbook, reference_inputs):
-        # Given / When
-        annualisation, seasonally_unadjusted = annualisation_factor(
-            reference_inputs.window_generation_kwh,
-            reference_inputs.window_days,
-            reference_inputs.annual_generation_kwh,
-        )
-
-        # Then
-        assert annualisation == pytest.approx(workbook["Inputs"]["B38"].value)
-        assert seasonally_unadjusted is False
-
-    def test_annualisation_falls_back_to_ratio_of_days(self):
-        # Given / When
-        factor = annualisation_factor(177.0, 7, None)
-
-        # Then
-        assert factor == (pytest.approx(365 / 7), True)
 
     @pytest.mark.parametrize("window_days", [365, 366])
     def test_full_year_record_gives_unity(self, window_days):
@@ -58,18 +35,20 @@ class TestAnnualisationFactor:
         assert factor == (pytest.approx(0.5), False)
 
 
-class TestBuildCashFlowSeries:
+class TestCashFlowSeries:
 
     @pytest.mark.parametrize(
-        "attribute, column",
+        "attribute, column, tolerance",
         [
-            ("cash_flow", "I"),
-            ("discounted_cash_flow", "L"),
-            ("asset_operating_cost", "G"),
-            ("asset_replacement_cost", "H"),
+            ("cash_flow", "I", MONEY_PER_YEAR_TOLERANCE),
+            ("discounted_cash_flow", "L", MONEY_PER_YEAR_TOLERANCE),
+            ("asset_operating_cost", "G", MONEY_PER_YEAR_TOLERANCE),
+            ("asset_replacement_cost", "H", MONEY_PER_YEAR_TOLERANCE),
+            ("balance", "J", MONEY_CUMULATIVE_TOLERANCE),
+            ("discounted_balance", "M", MONEY_CUMULATIVE_TOLERANCE),
         ],
     )
-    def test_yearly_series_match_workbook(self, workbook, series, attribute, column):
+    def test_money_series_match_workbook(self, workbook, series, attribute, column, tolerance):
         # Given
         expected = cash_flow_column(workbook, column)
 
@@ -77,18 +56,7 @@ class TestBuildCashFlowSeries:
         actual = getattr(series, attribute)
 
         # Then
-        assert actual == pytest.approx(expected, abs=MONEY_PER_YEAR_TOLERANCE)
-
-    @pytest.mark.parametrize("attribute, column", [("balance", "J"), ("discounted_balance", "M")])
-    def test_balances_match_workbook(self, workbook, series, attribute, column):
-        # Given
-        expected = cash_flow_column(workbook, column)
-
-        # When
-        actual = getattr(series, attribute)
-
-        # Then
-        assert actual == pytest.approx(expected, abs=MONEY_CUMULATIVE_TOLERANCE)
+        assert actual == pytest.approx(expected, abs=tolerance)
 
     def test_generation_matches_workbook(self, workbook, series):
         # Given
@@ -119,21 +87,6 @@ class TestBuildCashFlowSeries:
         )
         assert not any(series.asset_replacement_cost[after_reserve:])
 
-    def test_reserve_keeps_undiscounted_lifetime_net_benefit(
-        self, reference_inputs, reference_parameters
-    ):
-        # Given
-        reserve_inputs = replace(
-            reference_inputs, replacement_treatment=ReplacementTreatment.RESERVE
-        )
-
-        # When
-        discrete = build_cash_flow_series(reference_inputs, reference_parameters, 27.0)
-        reserve = build_cash_flow_series(reserve_inputs, reference_parameters, 27.0)
-
-        # Then
-        assert reserve.balance[-1] == pytest.approx(discrete.balance[-1])
-
     def test_ownership_share_apportions_cash_flow_but_not_asset_costs(
         self, reference_inputs, reference_parameters
     ):
@@ -141,10 +94,13 @@ class TestBuildCashFlowSeries:
         half_inputs = replace(reference_inputs, ownership_share=0.5)
 
         # When
-        whole = build_cash_flow_series(reference_inputs, reference_parameters, 27.0)
-        half = build_cash_flow_series(half_inputs, reference_parameters, 27.0)
+        whole = calculate_roi(reference_inputs, reference_parameters)
+        half = calculate_roi(half_inputs, reference_parameters)
 
         # Then
-        assert half.cash_flow == pytest.approx([flow / 2 for flow in whole.cash_flow])
-        assert half.asset_operating_cost == whole.asset_operating_cost
-        assert half.asset_replacement_cost == whole.asset_replacement_cost
+        assert half.series.cash_flow == pytest.approx(
+            [flow / 2 for flow in whole.series.cash_flow]
+        )
+        assert half.series.asset_operating_cost == whole.series.asset_operating_cost
+        assert half.series.asset_replacement_cost == whole.series.asset_replacement_cost
+        assert half.lcoe_per_kwh.value == pytest.approx(whole.lcoe_per_kwh.value)

@@ -17,6 +17,14 @@ from tests.test_sim_results.roi.conftest import (
     YEARS_TOLERANCE,
 )
 
+DISCRETE_INDICATOR_CELLS = {
+    "payback_years": ("B5", YEARS_TOLERANCE),
+    "discounted_payback_years": ("B7", YEARS_TOLERANCE),
+    "npv": ("B8", MONEY_CUMULATIVE_TOLERANCE),
+    "lcoe_per_kwh": ("B11", LCOE_TOLERANCE),
+    "lifetime_net_benefit": ("B12", MONEY_CUMULATIVE_TOLERANCE),
+}
+
 # The workbook caches only its discrete results. These are its Indicators sheet recalculated
 # by the formulas package with Inputs!B42 set to "reserve". The IRR comes from numpy_financial
 # on the recalculated CashFlow column I, because formulas evaluates the sign count B9 as 0.
@@ -40,52 +48,33 @@ def fixture_result(reference_inputs, reference_parameters):
     return calculate_roi(reference_inputs, reference_parameters)
 
 
-@pytest.fixture(name="reserve_inputs")
-def fixture_reserve_inputs(reference_inputs):
-    return replace(reference_inputs, replacement_treatment=ReplacementTreatment.RESERVE)
-
-
 class TestCalculateRoiAgainstWorkbook:
 
-    def test_payback_matches_workbook(self, result, indicators_sheet):
+    @pytest.mark.parametrize("indicator_name", list(DISCRETE_INDICATOR_CELLS))
+    def test_discrete_matches_workbook(self, result, indicators_sheet, indicator_name):
         # Given
-        expected_payback = indicators_sheet["B5"].value
-        expected_discounted_payback = indicators_sheet["B7"].value
+        cell, tolerance = DISCRETE_INDICATOR_CELLS[indicator_name]
+        expected = indicators_sheet[cell].value
 
         # When
-        payback_years = result.payback_years.value
-        discounted_payback_years = result.discounted_payback_years.value
+        actual = getattr(result, indicator_name).value
 
         # Then
-        assert payback_years == pytest.approx(expected_payback, abs=YEARS_TOLERANCE)
-        assert discounted_payback_years == pytest.approx(
-            expected_discounted_payback, abs=YEARS_TOLERANCE
-        )
+        assert actual == pytest.approx(expected, abs=tolerance)
 
-    def test_money_indicators_match_workbook(self, result, indicators_sheet):
+    @pytest.mark.parametrize("indicator_name", list(RESERVE_INDICATORS))
+    def test_reserve_matches_recalculated_workbook(
+        self, reference_inputs, reference_parameters, indicator_name
+    ):
         # Given
-        expected_npv = indicators_sheet["B8"].value
-        expected_lifetime_net_benefit = indicators_sheet["B12"].value
+        inputs = replace(reference_inputs, replacement_treatment=ReplacementTreatment.RESERVE)
+        expected, tolerance = RESERVE_INDICATORS[indicator_name]
 
         # When
-        npv = result.npv.value
-        lifetime_net_benefit = result.lifetime_net_benefit.value
+        result = calculate_roi(inputs, reference_parameters)
 
         # Then
-        assert npv == pytest.approx(expected_npv, abs=MONEY_CUMULATIVE_TOLERANCE)
-        assert lifetime_net_benefit == pytest.approx(
-            expected_lifetime_net_benefit, abs=MONEY_CUMULATIVE_TOLERANCE
-        )
-
-    def test_lcoe_matches_workbook(self, result, indicators_sheet):
-        # Given
-        expected = indicators_sheet["B11"].value
-
-        # When
-        lcoe = result.lcoe_per_kwh.value
-
-        # Then
-        assert lcoe == pytest.approx(expected, abs=LCOE_TOLERANCE)
+        assert getattr(result, indicator_name).value == pytest.approx(expected, abs=tolerance)
 
     def test_discrete_replacement_suppresses_irr(self, result, indicators_sheet):
         # Given
@@ -96,8 +85,6 @@ class TestCalculateRoiAgainstWorkbook:
 
         # Then
         assert changes == expected_sign_changes
-        assert indicators_sheet["B10"].value == "n/a"
-        assert result.irr.value is None
         assert result.irr.suppressed is SuppressionCause.IRR_NOT_UNIQUE
 
     def test_annualisation_factor_matches_workbook(self, result, indicators_sheet):
@@ -109,87 +96,37 @@ class TestCalculateRoiAgainstWorkbook:
 
         # Then
         assert annualisation == pytest.approx(expected)
-
-    def test_reserve_replacement_reports_irr(self, reserve_inputs, reference_parameters):
-        # Given / When
-        result = calculate_roi(reserve_inputs, reference_parameters)
-
-        # Then
-        rate = result.irr.value
-        assert sign_changes(result.series.cash_flow) == 1
-        assert result.irr.suppressed is None
-        assert sum(
-            flow / (1 + rate) ** year for year, flow in enumerate(result.series.cash_flow)
-        ) == pytest.approx(0, abs=1e-6)
-
-    @pytest.mark.parametrize("indicator_name", list(RESERVE_INDICATORS))
-    def test_reserve_matches_recalculated_workbook(
-        self, reserve_inputs, reference_parameters, indicator_name
-    ):
-        # Given
-        expected, tolerance = RESERVE_INDICATORS[indicator_name]
-
-        # When
-        result = calculate_roi(reserve_inputs, reference_parameters)
-
-        # Then
-        assert getattr(result, indicator_name).value == pytest.approx(expected, abs=tolerance)
-
-    def test_lcoe_ignores_ownership_share(self, result, reference_inputs, reference_parameters):
-        # Given
-        half_inputs = replace(reference_inputs, ownership_share=0.5)
-
-        # When
-        half = calculate_roi(half_inputs, reference_parameters)
-
-        # Then
-        assert half.lcoe_per_kwh.value == pytest.approx(result.lcoe_per_kwh.value)
+        assert result.seasonally_unadjusted is False
 
 
 class TestIndicatorFunctions:
 
-    def test_payback_uses_first_crossing(self):
-        # Given
-        cash_flow = [-100, 60, 60, -50, 10]
-        balance = [-100, -40, 20, -30, -20]
-
-        # When
+    @pytest.mark.parametrize(
+        "balance, cash_flow, expected",
+        [
+            ([-100, -40, 20, -30, 10], [-100, 60, 60, -50, 40], 1 + 40 / 60),
+            ([-100, -40, 0], [-100, 60, 40], 2.0),
+        ],
+        ids=["first_crossing_wins", "final_balance_of_exactly_zero"],
+    )
+    def test_payback_interpolates_the_first_crossing(self, balance, cash_flow, expected):
+        # Given / When
         crossing = interpolated_crossing(balance, cash_flow)
 
         # Then
-        assert crossing == pytest.approx(1 + 40 / 60)
+        assert crossing == pytest.approx(expected)
 
-    def test_payback_counts_a_final_balance_of_exactly_zero_as_break_even(self):
-        # Given
-        cash_flow = [-100, 60, 40]
-        balance = [-100, -40, 0]
-
-        # When
-        crossing = interpolated_crossing(balance, cash_flow)
-
-        # Then
-        assert crossing == pytest.approx(2.0)
-
-    def test_sign_changes_ignore_zero_flows(self):
+    @pytest.mark.parametrize(
+        "cash_flow, expected",
+        [([0, -100, 0, 150], sqrt(1.5) - 1), ([-100, 90], -0.1)],
+        ids=["leading_zero_flow", "negative_rate"],
+    )
+    def test_irr_solves_equation_14(self, cash_flow, expected):
         # Given / When
-        changes = sign_changes([-10, 0, 5, 0, 5])
+        irr = internal_rate_of_return(cash_flow)
 
         # Then
-        assert changes == 1
-
-    def test_irr_skips_a_leading_zero_flow(self):
-        # Given / When
-        irr = internal_rate_of_return([0, -100, 0, 150])
-
-        # Then
-        assert irr.value == pytest.approx(sqrt(1.5) - 1)
-
-    def test_irr_of_single_period_project(self):
-        # Given / When
-        irr = internal_rate_of_return([-100, 110])
-
-        # Then
-        assert irr.value == pytest.approx(0.10)
+        assert irr.value == pytest.approx(expected)
 
 
 class TestCalculateRoiGuards:

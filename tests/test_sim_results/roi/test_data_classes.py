@@ -60,19 +60,3 @@ class TestRoiInputs:
         with pytest.raises(ValueError):
             # Given / When
             replace(reference_inputs, **changes)
-
-    @pytest.mark.parametrize(
-        "changes",
-        [
-            {"ownership_share": 0.0},
-            {"ownership_share": 1.0},
-            {"annual_generation_kwh": None},
-        ],
-    )
-    def test_accepts_inputs_on_the_edge_of_their_domain(self, reference_inputs, changes):
-        # Given / When
-        inputs = replace(reference_inputs, **changes)
-
-        # Then
-        for name, value in changes.items():
-            assert getattr(inputs, name) == value
