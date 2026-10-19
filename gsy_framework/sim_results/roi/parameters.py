@@ -14,6 +14,17 @@ EU_2026_1 = RoiParameterSet(
 
 DEFAULT_PARAMETER_SET = EU_2026_1
 
+ASSUMED_INPUTS = (
+    "operating_cost",
+    "degradation",
+    "retail_escalation",
+    "export_escalation",
+    "discount_rate",
+    "replacement_year",
+    "replacement_cost",
+)
+OBSERVED_INPUTS = ("ledger_flows", "generation", "self_consumption_ratio")
+
 # D7.3 Table 1 elicits capital cost per jurisdiction rather than in the parameter set. This is
 # the EU-2026.1 default the reference model uses when the user gives none.
 DEFAULT_CAPITAL_COST_PER_KWP = 1300
