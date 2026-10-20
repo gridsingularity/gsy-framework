@@ -1,0 +1,185 @@
+from dataclasses import dataclass
+from enum import Enum
+from math import isfinite
+from typing import Optional, Tuple
+
+
+class ReplacementTreatment(Enum):
+    """How the inverter replacement cost enters the cash flow."""
+
+    DISCRETE = "discrete"
+    RESERVE = "reserve"
+
+
+class SuppressionCause(Enum):
+    """Why an indicator or a whole result carries no value."""
+
+    NEVER_BREAKS_EVEN = "never_breaks_even"
+    IRR_NOT_UNIQUE = "irr_not_unique"
+    NON_POSITIVE_BENEFIT = "non_positive_benefit"
+    NO_GENERATION = "no_generation"
+    WINDOW_TOO_SHORT = "window_too_short"
+    CALCULATION_FAILED = "calculation_failed"
+
+
+class RoiFlag(Enum):
+    """Why a result is less certain than its inputs suggest."""
+
+    STORAGE_CAPEX_EXCLUDED = "storage_capex_excluded"
+    NOT_SEPARABLE = "not_separable"
+    PERCENTAGE_GRID_FEES_EXCLUDED = "percentage_grid_fees_excluded"
+    SHARED_ASSET_ESTIMATE = "shared_asset_estimate"
+    MEMBER_RESULTS_WITHHELD = "member_results_withheld"
+
+
+class BaselineMethod(Enum):
+    """What the bill without the asset is taken from."""
+
+    ANALYTICAL = "analytical"
+    SIMULATION = "simulation"
+
+
+class PriceBasis(Enum):
+    """Whether the supplier rate varied over the window or stayed at one value."""
+
+    PROFILE = "profile"
+    SCALAR = "scalar"
+
+
+class AllocationBasis(Enum):
+    """How the energy of the asset is split between own use and sales."""
+
+    MARKET_CLEARING = "market_clearing"
+
+
+@dataclass(frozen=True)
+class RoiParameterSet:
+    """Assumed appraisal parameters, published under a version id and never edited after.
+
+    Rates are fractions per year. Costs are in currency per kWp, and currency per kWp per year
+    for operating cost.
+    """
+
+    version_id: str
+    horizon_years: int
+    degradation_rate: float
+    operating_cost_per_kWp: float
+    retail_escalation_rate: float
+    export_escalation_rate: float
+    discount_rate: float
+    replacement_year: int
+    replacement_cost_per_kWp: float
+
+    def __post_init__(self):
+        if not 0 <= self.degradation_rate < 1:
+            raise ValueError(f"Degradation rate must be in [0, 1), got {self.degradation_rate}.")
+        for name in ("discount_rate", "retail_escalation_rate", "export_escalation_rate"):
+            if getattr(self, name) <= -1:
+                raise ValueError(f"{name} must exceed -1, got {getattr(self, name)}.")
+        if not 1 <= self.replacement_year <= self.horizon_years:
+            raise ValueError(
+                f"Replacement year must lie within the horizon, got {self.replacement_year}."
+            )
+
+
+@dataclass(frozen=True)
+class RangeLevers:
+    """Low and high values of the four levers D7.3 names for the reported range.
+
+    Each pair is (low case, high case), so the low case is the pessimistic one.
+    """
+
+    self_consumption_multiplier: Tuple[float, float]
+    retail_escalation_rate: Tuple[float, float]
+    capital_cost_factor: Tuple[float, float]
+    degradation_rate: Tuple[float, float]
+
+
+@dataclass(frozen=True)
+class RoiInputs:
+    """Observed and user-supplied quantities for one participant over one assessment window.
+
+    The avoided purchase and sales revenue are the window totals of equations (4a) and (4b).
+    Without an annual generation figure, annualisation falls back to the ratio of days.
+
+    A member of a shared installation who reports their own bill difference has already taken
+    their part of the benefit, so benefit_is_apportioned stops equation (6) applying the share
+    to it again, as the Shared sheet of the reference model does. The share still apportions the
+    capital and operating cost.
+    """
+
+    capacity_kWp: float
+    capital_cost_per_kWp: float
+    ownership_share: float
+    avoided_purchase: float
+    sales_revenue: float
+    window_generation_kWh: float
+    window_days: float
+    annual_generation_kWh: Optional[float] = None
+    replacement_treatment: ReplacementTreatment = ReplacementTreatment.DISCRETE
+    benefit_is_apportioned: bool = False
+
+    def __post_init__(self):
+        quantities = (
+            self.capacity_kWp,
+            self.capital_cost_per_kWp,
+            self.ownership_share,
+            self.avoided_purchase,
+            self.sales_revenue,
+            self.window_generation_kWh,
+            self.window_days,
+            0.0 if self.annual_generation_kWh is None else self.annual_generation_kWh,
+        )
+        if not all(isfinite(quantity) for quantity in quantities):
+            raise ValueError(f"Every quantity must be finite, got {quantities}.")
+        if self.capital_cost_per_kWp <= 0:
+            raise ValueError(f"Capital cost must be positive, got {self.capital_cost_per_kWp}.")
+        if not 0 <= self.ownership_share <= 1:
+            raise ValueError(f"Ownership share must be in [0, 1], got {self.ownership_share}.")
+
+
+@dataclass(frozen=True)
+class Indicator:
+    """A computed value, or None together with the cause that suppressed it."""
+
+    value: Optional[float]
+    suppressed: Optional[SuppressionCause] = None
+
+
+@dataclass(frozen=True)
+class CashFlowSeries:
+    """Yearly series indexed by year, from 0 to the horizon.
+
+    Cash flows and balances are apportioned by ownership share. Operating cost, replacement
+    cost and generation are for the whole asset, since the levelised cost is asset-level.
+    """
+
+    cash_flow: Tuple[float, ...]
+    balance: Tuple[float, ...]
+    discounted_cash_flow: Tuple[float, ...]
+    discounted_balance: Tuple[float, ...]
+    asset_operating_cost: Tuple[float, ...]
+    asset_replacement_cost: Tuple[float, ...]
+    generation_kWh: Tuple[float, ...]
+    discount_factor: Tuple[float, ...]
+
+
+@dataclass(frozen=True)
+class RoiResult:
+    """Appraisal of one participant.
+
+    When unavailable is set, series is None and every indicator carries that cause.
+    """
+
+    parameter_set_version: str
+    replacement_treatment: ReplacementTreatment
+    annualisation_factor: Optional[float]
+    seasonally_unadjusted: bool
+    series: Optional[CashFlowSeries]
+    payback_years: Indicator
+    discounted_payback_years: Indicator
+    npv: Indicator
+    irr: Indicator
+    lcoe_per_kWh: Indicator
+    lifetime_net_benefit: Indicator
+    unavailable: Optional[SuppressionCause] = None

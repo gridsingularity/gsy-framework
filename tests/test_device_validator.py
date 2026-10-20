@@ -98,6 +98,9 @@ class TestValidateDeviceSettings:
             {"capacity_kW": 0},
             {"max_panel_power_W": 0},
             {"cloud_coverage": 4, "power_profile": ""},
+            {"capital_cost_per_kWp": 1300, "annual_generation_kWh": 4900},
+            {"ownership_shares": {"House 1": 0.5, "House 2": 0.5}},
+            {"ownership_shares": {"House 1": 0.333333, "House 2": 0.333333, "House 3": 0.333334}},
         ],
     )
     def test_pv_device_setting_succeeds(valid_arguments):
@@ -119,6 +122,10 @@ class TestValidateDeviceSettings:
             {"max_panel_power_W": -5},
             {"cloud_coverage": 3, "power_profile": ""},
             {"cloud_coverage": 2, "power_profile": ""},
+            {"capital_cost_per_kWp": 0},
+            {"annual_generation_kWh": -1},
+            {"ownership_shares": {"House 1": 0.5, "House 2": 0.4}},
+            {"ownership_shares": {"House 1": 1.5, "House 2": -0.5}},
         ],
     )
     def test_pv_device_setting_fails(failing_arguments):
