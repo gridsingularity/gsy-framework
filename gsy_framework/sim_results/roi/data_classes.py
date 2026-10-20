@@ -19,6 +19,37 @@ class SuppressionCause(Enum):
     NON_POSITIVE_BENEFIT = "non_positive_benefit"
     NO_GENERATION = "no_generation"
     WINDOW_TOO_SHORT = "window_too_short"
+    CALCULATION_FAILED = "calculation_failed"
+
+
+class RoiFlag(Enum):
+    """Why a result is less certain than its inputs suggest."""
+
+    STORAGE_CAPEX_EXCLUDED = "storage_capex_excluded"
+    NOT_SEPARABLE = "not_separable"
+    PERCENTAGE_GRID_FEES_EXCLUDED = "percentage_grid_fees_excluded"
+    SHARED_ASSET_ESTIMATE = "shared_asset_estimate"
+    MEMBER_RESULTS_WITHHELD = "member_results_withheld"
+
+
+class BaselineMethod(Enum):
+    """What the bill without the asset is taken from."""
+
+    ANALYTICAL = "analytical"
+    SIMULATION = "simulation"
+
+
+class PriceBasis(Enum):
+    """Whether the supplier rate varied over the window or stayed at one value."""
+
+    PROFILE = "profile"
+    SCALAR = "scalar"
+
+
+class AllocationBasis(Enum):
+    """How the energy of the asset is split between own use and sales."""
+
+    MARKET_CLEARING = "market_clearing"
 
 
 @dataclass(frozen=True)
