@@ -18,7 +18,7 @@ MINIMUM_WINDOW_DAYS = 1
 
 
 def _unavailable_cause(inputs: RoiInputs) -> Optional[SuppressionCause]:
-    if inputs.capacity_kwp <= 0 or inputs.window_generation_kwh <= 0:
+    if inputs.capacity_kWp <= 0 or inputs.window_generation_kWh <= 0:
         return SuppressionCause.NO_GENERATION
     if inputs.window_days < MINIMUM_WINDOW_DAYS:
         return SuppressionCause.WINDOW_TOO_SHORT
@@ -39,7 +39,7 @@ def _unavailable_result(
         discounted_payback_years=suppressed,
         npv=suppressed,
         irr=suppressed,
-        lcoe_per_kwh=suppressed,
+        lcoe_per_kWh=suppressed,
         lifetime_net_benefit=suppressed,
         unavailable=cause,
     )
@@ -56,7 +56,7 @@ def calculate_roi(inputs: RoiInputs, parameters: RoiParameterSet) -> RoiResult:
         return _unavailable_result(inputs, parameters, cause)
 
     annualisation, seasonally_unadjusted = annualisation_factor(
-        inputs.window_generation_kwh, inputs.window_days, inputs.annual_generation_kwh
+        inputs.window_generation_kWh, inputs.window_days, inputs.annual_generation_kWh
     )
     series = build_cash_flow_series(inputs, parameters, annualisation)
 
@@ -78,6 +78,6 @@ def calculate_roi(inputs: RoiInputs, parameters: RoiParameterSet) -> RoiResult:
         discounted_payback_years=discounted_payback_years,
         npv=Indicator(sum(series.discounted_cash_flow)),
         irr=irr,
-        lcoe_per_kwh=levelised_cost(inputs, series),
+        lcoe_per_kWh=levelised_cost(inputs, series),
         lifetime_net_benefit=Indicator(series.balance[-1]),
     )

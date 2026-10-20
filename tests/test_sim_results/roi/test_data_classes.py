@@ -46,13 +46,13 @@ class TestRoiInputs:
     @pytest.mark.parametrize(
         "changes",
         [
-            {"capital_cost_per_kwp": 0.0},
-            {"capital_cost_per_kwp": -1300.0},
+            {"capital_cost_per_kWp": 0.0},
+            {"capital_cost_per_kWp": -1300.0},
             {"ownership_share": -0.5},
             {"ownership_share": 1.5},
-            {"window_generation_kwh": nan},
+            {"window_generation_kWh": nan},
             {"avoided_purchase": inf},
-            {"annual_generation_kwh": nan},
+            {"annual_generation_kWh": nan},
         ],
     )
     def test_rejects_inputs_outside_their_domain(self, reference_inputs, changes):

@@ -59,10 +59,10 @@ class TestCashFlowSeries:
 
     def test_generation_matches_reference(self, reference_cash_flow, series):
         # Given
-        expected = reference_cash_flow["generation_kwh"]
+        expected = reference_cash_flow["generation_kWh"]
 
         # When
-        actual = series.generation_kwh
+        actual = series.generation_kWh
 
         # Then
         assert actual == pytest.approx(expected)
@@ -72,7 +72,7 @@ class TestCashFlowSeries:
     ):
         # Given
         inputs = replace(reference_inputs, replacement_treatment=ReplacementTreatment.RESERVE)
-        total = reference_parameters.replacement_cost_per_kwp * inputs.capacity_kwp
+        total = reference_parameters.replacement_cost_per_kWp * inputs.capacity_kWp
         last_reserve_year = reference_parameters.replacement_year
         after_reserve = last_reserve_year + 1
 
@@ -102,7 +102,7 @@ class TestCashFlowSeries:
         )
         assert half.series.asset_operating_cost == whole.series.asset_operating_cost
         assert half.series.asset_replacement_cost == whole.series.asset_replacement_cost
-        assert half.lcoe_per_kwh.value == pytest.approx(whole.lcoe_per_kwh.value)
+        assert half.lcoe_per_kWh.value == pytest.approx(whole.lcoe_per_kWh.value)
 
     def test_apportioned_benefit_is_not_scaled_by_the_share_again(
         self, reference_inputs, reference_parameters

@@ -32,12 +32,12 @@ class RoiParameterSet:
     version_id: str
     horizon_years: int
     degradation_rate: float
-    operating_cost_per_kwp: float
+    operating_cost_per_kWp: float
     retail_escalation_rate: float
     export_escalation_rate: float
     discount_rate: float
     replacement_year: int
-    replacement_cost_per_kwp: float
+    replacement_cost_per_kWp: float
 
     def __post_init__(self):
         if not 0 <= self.degradation_rate < 1:
@@ -77,32 +77,32 @@ class RoiInputs:
     capital and operating cost.
     """
 
-    capacity_kwp: float
-    capital_cost_per_kwp: float
+    capacity_kWp: float
+    capital_cost_per_kWp: float
     ownership_share: float
     avoided_purchase: float
     sales_revenue: float
-    window_generation_kwh: float
+    window_generation_kWh: float
     window_days: float
-    annual_generation_kwh: Optional[float] = None
+    annual_generation_kWh: Optional[float] = None
     replacement_treatment: ReplacementTreatment = ReplacementTreatment.DISCRETE
     benefit_is_apportioned: bool = False
 
     def __post_init__(self):
         quantities = (
-            self.capacity_kwp,
-            self.capital_cost_per_kwp,
+            self.capacity_kWp,
+            self.capital_cost_per_kWp,
             self.ownership_share,
             self.avoided_purchase,
             self.sales_revenue,
-            self.window_generation_kwh,
+            self.window_generation_kWh,
             self.window_days,
-            0.0 if self.annual_generation_kwh is None else self.annual_generation_kwh,
+            0.0 if self.annual_generation_kWh is None else self.annual_generation_kWh,
         )
         if not all(isfinite(quantity) for quantity in quantities):
             raise ValueError(f"Every quantity must be finite, got {quantities}.")
-        if self.capital_cost_per_kwp <= 0:
-            raise ValueError(f"Capital cost must be positive, got {self.capital_cost_per_kwp}.")
+        if self.capital_cost_per_kWp <= 0:
+            raise ValueError(f"Capital cost must be positive, got {self.capital_cost_per_kWp}.")
         if not 0 <= self.ownership_share <= 1:
             raise ValueError(f"Ownership share must be in [0, 1], got {self.ownership_share}.")
 
@@ -129,7 +129,7 @@ class CashFlowSeries:
     discounted_balance: Tuple[float, ...]
     asset_operating_cost: Tuple[float, ...]
     asset_replacement_cost: Tuple[float, ...]
-    generation_kwh: Tuple[float, ...]
+    generation_kWh: Tuple[float, ...]
     discount_factor: Tuple[float, ...]
 
 
@@ -149,6 +149,6 @@ class RoiResult:
     discounted_payback_years: Indicator
     npv: Indicator
     irr: Indicator
-    lcoe_per_kwh: Indicator
+    lcoe_per_kWh: Indicator
     lifetime_net_benefit: Indicator
     unavailable: Optional[SuppressionCause] = None

@@ -4,12 +4,12 @@ EU_2026_1 = RoiParameterSet(
     version_id="EU-2026.1",
     horizon_years=25,
     degradation_rate=0.005,
-    operating_cost_per_kwp=13,
+    operating_cost_per_kWp=13,
     retail_escalation_rate=0.02,
     export_escalation_rate=0.01,
     discount_rate=0.04,
     replacement_year=13,
-    replacement_cost_per_kwp=180,
+    replacement_cost_per_kWp=180,
 )
 
 DEFAULT_PARAMETER_SET = EU_2026_1

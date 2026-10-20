@@ -1,4 +1,4 @@
-year,asset_operating_cost,asset_replacement_cost,cash_flow,balance,discounted_cash_flow,discounted_balance,generation_kwh
+year,asset_operating_cost,asset_replacement_cost,cash_flow,balance,discounted_cash_flow,discounted_balance,generation_kWh
 0,0.0,0.0,-6500.0,-6500.0,-6500.0,-6500.0,0.0
 1,66.3,0.0,643.675642708009,-5856.32435729199,618.918887219239,-5881.08111278076,4875.5
 2,67.626,0.0,649.06689665071,-5207.25746064128,600.098831962564,-5280.9822808182,4851.1225

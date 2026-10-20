@@ -27,7 +27,7 @@ DISCRETE_INDICATORS = {
     "payback_years": (9.73203842368585, YEARS_TOLERANCE),
     "discounted_payback_years": (13.7445480713146, YEARS_TOLERANCE),
     "npv": (3919.36324457061, MONEY_CUMULATIVE_TOLERANCE),
-    "lcoe_per_kwh": (0.11471197626551, LCOE_TOLERANCE),
+    "lcoe_per_kWh": (0.11471197626551, LCOE_TOLERANCE),
     "lifetime_net_benefit": (10442.1613576658, MONEY_CUMULATIVE_TOLERANCE),
 }
 
@@ -36,7 +36,7 @@ RESERVE_INDICATORS = {
     "discounted_payback_years": (14.1115228187, YEARS_TOLERANCE),
     "npv": (3768.5658404018, MONEY_CUMULATIVE_TOLERANCE),
     "irr": (0.0854646921, IRR_TOLERANCE),
-    "lcoe_per_kwh": (0.1167922444, LCOE_TOLERANCE),
+    "lcoe_per_kWh": (0.1167922444, LCOE_TOLERANCE),
     "lifetime_net_benefit": (10442.1613576658, MONEY_CUMULATIVE_TOLERANCE),
 }
 
@@ -163,8 +163,8 @@ class TestCalculateRoiGuards:
     @pytest.mark.parametrize(
         "changes, cause",
         [
-            ({"capacity_kwp": 0}, SuppressionCause.NO_GENERATION),
-            ({"window_generation_kwh": 0}, SuppressionCause.NO_GENERATION),
+            ({"capacity_kWp": 0}, SuppressionCause.NO_GENERATION),
+            ({"window_generation_kWh": 0}, SuppressionCause.NO_GENERATION),
             ({"window_days": 0.5}, SuppressionCause.WINDOW_TOO_SHORT),
         ],
     )
@@ -193,12 +193,12 @@ class TestCalculateRoiGuards:
         assert result.unavailable is None
         assert result.series is not None
 
-    @pytest.mark.parametrize("annual_generation_kwh", [None, 0.0, -4900.0])
+    @pytest.mark.parametrize("annual_generation_kWh", [None, 0.0, -4900.0])
     def test_seasonally_unadjusted_without_usable_annual_generation(
-        self, reference_inputs, reference_parameters, annual_generation_kwh
+        self, reference_inputs, reference_parameters, annual_generation_kWh
     ):
         # Given
-        inputs = replace(reference_inputs, annual_generation_kwh=annual_generation_kwh)
+        inputs = replace(reference_inputs, annual_generation_kWh=annual_generation_kWh)
 
         # When
         result = calculate_roi(inputs, reference_parameters)

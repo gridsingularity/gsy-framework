@@ -23,14 +23,14 @@ LCOE_TOLERANCE = 0.0001
 @pytest.fixture(scope="session")
 def reference_inputs():
     return RoiInputs(
-        capacity_kwp=5,
-        capital_cost_per_kwp=1300,
+        capacity_kWp=5,
+        capital_cost_per_kWp=1300,
         ownership_share=1,
         avoided_purchase=11.4653723,
         sales_revenue=13.9595022,
-        window_generation_kwh=177.1294,
+        window_generation_kWh=177.1294,
         window_days=7,
-        annual_generation_kwh=4900,
+        annual_generation_kWh=4900,
         replacement_treatment=ReplacementTreatment.DISCRETE,
     )
 
@@ -41,12 +41,12 @@ def reference_parameters():
         version_id="EU-2026.1",
         horizon_years=25,
         degradation_rate=0.005,
-        operating_cost_per_kwp=13,
+        operating_cost_per_kWp=13,
         retail_escalation_rate=0.02,
         export_escalation_rate=0.01,
         discount_rate=0.04,
         replacement_year=13,
-        replacement_cost_per_kwp=180,
+        replacement_cost_per_kWp=180,
     )
 
 

@@ -31,7 +31,7 @@ class TestCalculateRange:
         self, reference_inputs, reference_parameters
     ):
         # Given
-        sold_kwh = 1.0
+        sold_kWh = 1.0
 
         # When
         high_inputs, _ = _case_inputs(
@@ -39,13 +39,13 @@ class TestCalculateRange:
             reference_parameters,
             EU_2026_1_RANGE,
             OWN_CONSUMPTION_KWH,
-            sold_kwh,
+            sold_kWh,
             index=1,
         )
 
         # Then
         avoided_rate = reference_inputs.avoided_purchase / OWN_CONSUMPTION_KWH
         assert high_inputs.avoided_purchase == pytest.approx(
-            reference_inputs.avoided_purchase + sold_kwh * avoided_rate
+            reference_inputs.avoided_purchase + sold_kWh * avoided_rate
         )
         assert high_inputs.sales_revenue == pytest.approx(0.0, abs=1e-12)

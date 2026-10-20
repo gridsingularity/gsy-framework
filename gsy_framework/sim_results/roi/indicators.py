@@ -68,7 +68,7 @@ def internal_rate_of_return(cash_flow: Sequence[float]) -> Indicator:
 def levelised_cost(inputs: RoiInputs, series: CashFlowSeries) -> Indicator:
     """Return the asset-level cost per kWh of equations (15) and (16)."""
     discounted_generation = sum(
-        energy * factor for energy, factor in zip(series.generation_kwh, series.discount_factor)
+        energy * factor for energy, factor in zip(series.generation_kWh, series.discount_factor)
     )
     discounted_cost = sum(
         (operating + replacement) * factor
@@ -76,5 +76,5 @@ def levelised_cost(inputs: RoiInputs, series: CashFlowSeries) -> Indicator:
             series.asset_operating_cost, series.asset_replacement_cost, series.discount_factor
         )
     )
-    capital_cost = inputs.capital_cost_per_kwp * inputs.capacity_kwp
+    capital_cost = inputs.capital_cost_per_kWp * inputs.capacity_kWp
     return Indicator((capital_cost + discounted_cost) / discounted_generation)

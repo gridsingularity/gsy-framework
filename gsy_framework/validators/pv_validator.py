@@ -147,7 +147,7 @@ class PVValidator(BaseValidator):
         """Validate the inputs that only the return-on-investment results use."""
         problems = [
             f"{name} must be positive, got {kwargs[name]}"
-            for name in ("capital_cost_per_kwp", "annual_generation_kWh")
+            for name in ("capital_cost_per_kWp", "annual_generation_kWh")
             if kwargs.get(name) is not None and not kwargs[name] > 0
         ]
         shares = kwargs.get("ownership_shares")

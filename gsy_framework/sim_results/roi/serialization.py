@@ -7,7 +7,7 @@ INDICATOR_NAMES = (
     "discounted_payback_years",
     "npv",
     "irr",
-    "lcoe_per_kwh",
+    "lcoe_per_kWh",
     "lifetime_net_benefit",
 )
 
