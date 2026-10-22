@@ -104,11 +104,19 @@ class DeviceStatistics(ResultsBaseClass):
                 area_dict, subdict, core_stats, current_market_slot
             )
             return
-        if is_heatpump_node_type(area_dict):
+        if (
+            is_heatpump_node_type(area_dict)
+            and "energy_consumption_kWh" in core_stats[area_dict["uuid"]]
+        ):
             create_or_update_subdict(
                 subdict,
                 "energy_consumption_kWh",
                 {current_market_slot: core_stats[area_dict["uuid"]]["energy_consumption_kWh"]},
+            )
+            create_or_update_subdict(
+                subdict,
+                "average_soc",
+                {current_market_slot: core_stats[area_dict["uuid"]]["average_soc"]},
             )
         cls._calculate_stats_for_device(area_dict, subdict, core_stats, current_market_slot)
 
@@ -162,7 +170,7 @@ class DeviceStatistics(ResultsBaseClass):
         if is_load_node_type(area):
             return "load_profile_kWh"
         if is_heatpump_node_type(area):
-            return "storage_temp_C"
+            return "average_soc"
         if area["type"] == "SmartMeterStrategy":
             return "smart_meter_profile_kWh"
         if area["type"] == "FinitePowerPlant":
@@ -181,6 +189,8 @@ class DeviceStatistics(ResultsBaseClass):
         if core_stats is None:
             core_stats = {}
         if core_stats[area_dict["uuid"]] == {}:
+            return
+        if key_name not in core_stats[area_dict["uuid"]]:
             return
 
         create_or_update_subdict(

@@ -109,16 +109,19 @@ def generate_market_slot_list_from_config(
     ]
 
 
-def generate_market_slot_list(start_timestamp=None):
+def generate_market_slot_list(start_timestamp=None, profile_length_days=None):
     """
     Creates a list with datetimes that correspond to market slots of the simulation.
     No input arguments, required input is only handled by a preconfigured GlobalConfig
     @return: List with market slot datetimes
     """
+    if not profile_length_days:
+        profile_length_days = PROFILE_EXPANSION_DAYS
+
     time_span = (
         GlobalConfig.slot_length
         if GlobalConfig.is_canary_network()
-        else min(GlobalConfig.sim_duration, duration(days=PROFILE_EXPANSION_DAYS))
+        else min(GlobalConfig.sim_duration, duration(days=profile_length_days))
     )
     time_span += duration(hours=ConstSettings.FutureMarketSettings.FUTURE_MARKET_DURATION_HOURS)
     market_slot_list = generate_market_slot_list_from_config(
@@ -130,6 +133,13 @@ def generate_market_slot_list(start_timestamp=None):
     if not getattr(GlobalConfig, "market_slot_list", []):
         GlobalConfig.market_slot_list = market_slot_list
     return market_slot_list
+
+
+def _find_first_full_day_in_profile(indict: Dict) -> Optional[DateTime]:
+    for time_slot in indict.keys():
+        if time_slot.hour == 0 and time_slot.minute == 0:
+            return time_slot
+    return None
 
 
 def get_from_profile_same_weekday_and_time(
@@ -150,14 +160,20 @@ def get_from_profile_same_weekday_and_time(
                              if the time_slot cannot be found in the original dict
     @return: Profile value for the requested time slot
     """
-    start_time = list(indict.keys())[0]
-    add_days = time_slot.weekday() - start_time.weekday()
+    if time_slot in indict:
+        return indict[time_slot]
+
+    first_full_day = _find_first_full_day_in_profile(indict)
+    if first_full_day is None:
+        logging.error("Could not find the first full day in profile %s", indict)
+        return None
+    add_days = time_slot.weekday() - first_full_day.weekday()
     if add_days < 0:
         add_days += 7
     timestamp_key = datetime(
-        year=start_time.year,
-        month=start_time.month,
-        day=start_time.day,
+        year=first_full_day.year,
+        month=first_full_day.month,
+        day=first_full_day.day,
         hour=time_slot.hour,
         minute=time_slot.minute,
         tz=TIME_ZONE,
@@ -167,7 +183,9 @@ def get_from_profile_same_weekday_and_time(
         return indict[timestamp_key]
 
     if not ignore_not_found:
-        logging.error("Weekday and time not found in dict for %s", time_slot)
+        logging.error(
+            "Weekday and time not found in dict for %s (looking for %s)", time_slot, timestamp_key
+        )
 
     return None
 
@@ -513,6 +531,12 @@ def convert_kW_to_kWh(power_W: float, slot_length: duration) -> float:
 
 
 # pylint: disable=invalid-name
+def convert_kWh_to_kW(energy_kWh: float, slot_length: duration) -> float:
+    """Convert kWh energy into power in kW (based on the duration of the market slot)."""
+    return energy_kWh / (slot_length / duration(hours=1))
+
+
+# pylint: disable=invalid-name
 def convert_kWh_to_W(energy_kWh: float, slot_length: duration) -> float:
     """Convert W power into energy in Wh (based on the duration of the market slot)."""
     energy_Wh = energy_kWh * 1000.0
@@ -527,6 +551,11 @@ def convert_kJ_to_kWh(heat_energy_kJ: float) -> float:
 def convert_kWh_to_kJ(heat_energy_kWh: float) -> float:
     """Return kJ value for provided kWh value."""
     return heat_energy_kWh * 3600
+
+
+def convert_kJ_to_kW(heat_energy_kJ: float, slot_length: duration) -> float:
+    """Return kW value for the provided kJ value and the slot length."""
+    return convert_kWh_to_W(convert_kJ_to_kWh(heat_energy_kJ), slot_length) / 1000.0
 
 
 def return_ordered_dict(function):
@@ -673,3 +702,12 @@ def convert_string_to_boolean(input_object: Union[str, bool]) -> bool:
     if "false" in input_object.lower():
         return False
     return True
+
+
+def is_number(number):
+    """Return True if number is float"""
+    try:
+        float(number)
+        return True
+    except ValueError:
+        return False
