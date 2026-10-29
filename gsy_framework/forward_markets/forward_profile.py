@@ -9,6 +9,7 @@ import pendulum
 
 import gsy_framework
 from gsy_framework.enums import AvailableMarketTypes
+from gsy_framework.forward_markets.utils import create_market_slots
 
 gsy_framework_path = os.path.dirname(inspect.getsourcefile(gsy_framework))
 
@@ -18,7 +19,8 @@ ALLOWED_MARKET_TYPES = [
     AvailableMarketTypes.DAY_FORWARD,
     AvailableMarketTypes.WEEK_FORWARD,
     AvailableMarketTypes.MONTH_FORWARD,
-    AvailableMarketTypes.YEAR_FORWARD]
+    AvailableMarketTypes.YEAR_FORWARD,
+]
 
 
 class StandardProfileException(Exception):
@@ -73,8 +75,8 @@ class ForwardTradeProfileGenerator:
         self._scaled_capacity_profile = self._scaler.scale_by_peak(peak_kWh=peak_kWh)
 
     def generate_trade_profile(
-            self, energy_kWh: float, market_slot: pendulum.DateTime,
-            product_type: AvailableMarketTypes):
+        self, energy_kWh: float, market_slot: pendulum.DateTime, product_type: AvailableMarketTypes
+    ):
         """Generate a profile based on the market slot and the product type."""
         assert energy_kWh > 0, f"The traded energy must be positive. energy_kWh: {energy_kWh}"
 
@@ -92,8 +94,10 @@ class ForwardTradeProfileGenerator:
 
     @staticmethod
     def _expand_profile_slots(
-            profile: Dict[int, Dict[pendulum.Time, float]], market_slot: pendulum.DateTime,
-            product_type: AvailableMarketTypes):
+        profile: Dict[int, Dict[pendulum.Time, float]],
+        market_slot: pendulum.DateTime,
+        product_type: AvailableMarketTypes,
+    ):
         """
         Create all the profile slots targeting a specific period of time.
 
@@ -108,39 +112,37 @@ class ForwardTradeProfileGenerator:
         """
         assert product_type in ALLOWED_MARKET_TYPES
 
-        period = None
-        if product_type == AvailableMarketTypes.YEAR_FORWARD:
-            period = pendulum.period(
-                start=market_slot.start_of("year"), end=market_slot.end_of("year"))
-        elif product_type == AvailableMarketTypes.MONTH_FORWARD:
-            period = pendulum.period(
-                start=market_slot.start_of("month"), end=market_slot.end_of("month"))
-        elif product_type == AvailableMarketTypes.WEEK_FORWARD:
-            # Following ISO8601, the start of the week is always Monday
-            period = pendulum.period(
-                start=market_slot.start_of("week"), end=market_slot.end_of("week"))
-        elif product_type == AvailableMarketTypes.DAY_FORWARD:
-            period = pendulum.period(
-                start=market_slot.start_of("day"), end=market_slot.end_of("day"))
+        period_string_mapping = {
+            AvailableMarketTypes.YEAR_FORWARD: "year",
+            AvailableMarketTypes.MONTH_FORWARD: "month",
+            AvailableMarketTypes.WEEK_FORWARD: "week",
+            AvailableMarketTypes.DAY_FORWARD: "day",
+        }
 
-        assert period
+        time_slots = create_market_slots(
+            start_time=market_slot.start_of(period_string_mapping[product_type]),
+            end_time=market_slot.end_of(period_string_mapping[product_type]),
+            slot_length=pendulum.duration(minutes=15),
+        )
+        assert time_slots
         new_profile = {}
         # Create all 15-minutes slots required by the product
-        for slot in period.range("minutes", 15):
+        for slot in time_slots:
             try:
                 new_profile[slot] = profile[slot.month][slot.time()]
             except KeyError as ex:
                 raise StandardProfileException(
                     "There is no slot in the Standard Profile for the requested time. "
-                    f"Month: {slot.month}, time: {slot.time()}") from ex
+                    f"Month: {slot.month}, time: {slot.time()}"
+                ) from ex
 
         return new_profile
 
     @staticmethod
     def _subtract_profiles(
-            profile_A: Dict[int, Dict[pendulum.Time, float]],
-            profile_B: Dict[int, Dict[pendulum.Time, float]]
-            ):
+        profile_A: Dict[int, Dict[pendulum.Time, float]],
+        profile_B: Dict[int, Dict[pendulum.Time, float]],
+    ):
         """Subtract the values in the profile dictionaries.
 
         Each dictionary has the following structure:
