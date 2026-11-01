@@ -1,4 +1,4 @@
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from math import isfinite
 from typing import Any, Dict, List, Optional, Tuple
@@ -185,6 +185,32 @@ class RoiResult:
     lcoe_per_kWh: Indicator
     lifetime_net_benefit: Indicator
     unavailable: Optional[SuppressionCause] = None
+
+
+@dataclass(frozen=True)
+class PVRoiParameters:
+    """Inputs of a PV that only the RoI results use.
+
+    annual_generation_kWh is the modelled generation over a full year, which lets a short run be
+    annualised by season rather than by days. ownership_shares holds the share of each co-owning
+    member area, keyed by its name.
+    """
+
+    capital_cost_per_kWp: Optional[float] = None
+    annual_generation_kWh: Optional[float] = None
+    ownership_shares: Dict[str, float] = field(default_factory=dict)
+
+    @classmethod
+    def from_dict(cls, parameters: Dict) -> "PVRoiParameters":
+        """Build the parameters from their serializable dict, in which every key is optional.
+
+        Raises a TypeError for a key that is not a parameter.
+        """
+        return cls(**{**parameters, "ownership_shares": parameters.get("ownership_shares") or {}})
+
+    def serializable_dict(self) -> Dict:
+        """Return a json serializable representation of the class."""
+        return asdict(self)
 
 
 @dataclass(frozen=True)

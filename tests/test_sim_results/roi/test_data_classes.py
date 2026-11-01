@@ -6,7 +6,7 @@ from math import inf, nan
 import pytest
 
 from gsy_framework.enums import RandomOrder
-from gsy_framework.sim_results.roi.data_classes import RoiBaseline
+from gsy_framework.sim_results.roi.data_classes import PVRoiParameters, RoiBaseline
 
 BASELINE = {
     "fingerprint": {
@@ -137,3 +137,24 @@ class TestRoiBaseline:
         with pytest.raises(ValueError, match="fingerprint.random_order must be one of"):
             # When
             RoiBaseline.from_dict(baseline)
+
+
+class TestPVRoiParameters:
+
+    def test_round_trips_through_json(self):
+        # Given
+        parameters = PVRoiParameters(1300, 4900, {"House 1": 0.6, "House 2": 0.4})
+
+        # When
+        serialized = json.dumps(parameters.serializable_dict())
+        restored = PVRoiParameters.from_dict(json.loads(serialized))
+
+        # Then
+        assert restored == parameters
+
+    def test_missing_shares_mean_a_single_owner(self):
+        # When
+        parameters = PVRoiParameters.from_dict({"capital_cost_per_kWp": 1300})
+
+        # Then
+        assert parameters.ownership_shares == {}
