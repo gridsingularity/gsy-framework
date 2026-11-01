@@ -13,8 +13,11 @@ the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this program. If
 not, see <http://www.gnu.org/licenses/>.
 """
+from math import isclose
+
 from gsy_framework.constants_limits import ConstSettings
 from gsy_framework.exceptions import GSyDeviceException
+from gsy_framework.sim_results.roi.data_classes import PVRoiParameters
 from gsy_framework.validators.base_validator import BaseValidator
 from gsy_framework.validators.utils import validate_range_limit
 
@@ -31,6 +34,7 @@ class PVValidator(BaseValidator):
         cls.validate_energy(**kwargs)
         cls.validate_rate(**kwargs)
         cls.validate_settings(**kwargs)
+        cls.validate_roi(**kwargs)
 
     @classmethod
     def validate_energy(cls, **kwargs):
@@ -138,3 +142,29 @@ class PVValidator(BaseValidator):
                                                   "0 and 90 degrees."]}
             validate_range_limit(PvSettings.TILT_LIMIT.min, kwargs["tilt"],
                                  PvSettings.TILT_LIMIT.max, error_message)
+
+    @classmethod
+    def validate_roi(cls, **kwargs):
+        """Validate the inputs that only the return-on-investment results use."""
+        parameters = kwargs.get("roi_parameters")
+        if parameters is None:
+            return
+        if isinstance(parameters, dict):
+            try:
+                parameters = PVRoiParameters.from_dict(parameters)
+            except TypeError as ex:
+                raise GSyDeviceException({"misconfiguration": [f"roi_parameters: {ex}"]}) from ex
+        problems = [
+            f"{name} must be positive, got {getattr(parameters, name)}"
+            for name in ("capital_cost_per_kWp", "annual_generation_kWh")
+            if getattr(parameters, name) is not None and not getattr(parameters, name) > 0
+        ]
+        shares = parameters.ownership_shares
+        if shares:
+            if not all(0 < share <= 1 for share in shares.values()):
+                problems.append(f"each ownership share must be in (0, 1], got {shares}")
+            # Shares such as three thirds typed as 0.333333 must still add up to 1.
+            if not isclose(sum(shares.values()), 1, abs_tol=1e-6):
+                problems.append(f"ownership shares must add up to 1, got {shares}")
+        if problems:
+            raise GSyDeviceException({"misconfiguration": problems})

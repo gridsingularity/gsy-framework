@@ -151,3 +151,14 @@ class SCMSelfConsumptionType(Enum):
     SIMPLIFIED_COLLECTIVE_SELF_CONSUMPTION_41 = 0
     COLLECTIVE_SELF_CONSUMPTION_SURPLUS_42 = 1
     NO_SELF_CONSUMPTION = 2
+
+
+class RandomOrder(Enum):
+    """How events, market notifications and offer choices are shuffled.
+
+    SHARED draws from the one numpy sequence, as gsy-e always has. HASH ranks each item by a hash
+    of the seed and its own name, so a run without one area stays comparable with the full run.
+    """
+
+    SHARED = "shared"
+    HASH = "hash"
