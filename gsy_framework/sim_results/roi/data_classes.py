@@ -1,7 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from enum import Enum
 from math import isfinite
-from typing import Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+from gsy_framework.enums import RandomOrder
 
 
 class ReplacementTreatment(Enum):
@@ -183,3 +185,164 @@ class RoiResult:
     lcoe_per_kWh: Indicator
     lifetime_net_benefit: Indicator
     unavailable: Optional[SuppressionCause] = None
+
+
+@dataclass(frozen=True)
+class AreaFingerprint:
+    """Settings of one area that must match for its bill to be comparable across two runs.
+
+    settings is a sha256 of the remaining settings of the area, or None when it has none.
+    """
+
+    type: str
+    grid_fee_constant: Optional[float]
+    grid_fee_percentage: Optional[float]
+    settings: Optional[str]
+
+
+@dataclass(frozen=True)
+class SimulationFingerprint:
+    """Settings that two runs must share for their bills to be comparable.
+
+    areas is keyed by the path of area names from the root, as in "Community/House 1".
+    """
+
+    seed: Optional[int]
+    start_date: str
+    sim_duration_seconds: float
+    slot_length_seconds: float
+    tick_length_seconds: float
+    market_type: int
+    bid_offer_match_type: int
+    grid_fee_type: int
+    random_order: RandomOrder
+    areas: Dict[str, AreaFingerprint]
+
+
+@dataclass(frozen=True)
+class RoiBaseline:
+    """Bills from a run without the asset, which a run with the asset compares its bills to.
+
+    area_bills is keyed by area name path and supplier_rates by time slot.
+    """
+
+    fingerprint: SimulationFingerprint
+    area_bills: Dict[str, float]
+    supplier_rates: Dict[str, float]
+
+    @classmethod
+    def from_dict(cls, baseline: Dict) -> "RoiBaseline":
+        """Build a baseline from its serializable dict.
+
+        Raises a ValueError naming every missing or wrongly typed key by its path.
+        """
+        reader = _BaselineReader()
+        result = reader.baseline(baseline)
+        if reader.errors:
+            raise ValueError("Invalid RoI baseline: " + ", ".join(reader.errors) + ".")
+        return result
+
+    def serializable_dict(self) -> Dict:
+        """Return a json serializable representation of the class."""
+        fingerprint = asdict(self.fingerprint)
+        fingerprint["random_order"] = self.fingerprint.random_order.value
+        return {
+            "fingerprint": fingerprint,
+            "area_bills": dict(self.area_bills),
+            "supplier_rates": dict(self.supplier_rates),
+        }
+
+
+_NUMBER = (int, float)
+_NONE = type(None)
+
+
+class _BaselineReader:
+    """Reads a baseline dict and collects every error, so one ValueError names them all."""
+
+    def __init__(self):
+        self.errors: List[str] = []
+
+    def baseline(self, source: Any) -> Optional[RoiBaseline]:
+        if not self._is_dict(source, "baseline"):
+            return None
+        fingerprint = self._fingerprint(self.read(source, "", "fingerprint", (dict,)))
+        area_bills = self._rates(source, "area_bills")
+        supplier_rates = self._rates(source, "supplier_rates")
+        if self.errors:
+            return None
+        return RoiBaseline(fingerprint, area_bills, supplier_rates)
+
+    def read(self, source: Dict, path: str, key: str, kinds: Tuple[type, ...]) -> Any:
+        """Return source[key], or None after recording why it is missing or of the wrong type."""
+        name = f"{path}.{key}" if path else key
+        if key not in source:
+            self.errors.append(f"{name} is missing")
+            return None
+        value = source[key]
+        if isinstance(value, bool) or not isinstance(value, kinds):
+            expected = " or ".join("None" if kind is _NONE else kind.__name__ for kind in kinds)
+            self.errors.append(f"{name} must be {expected}, got {type(value).__name__}")
+            return None
+        return float(value) if float in kinds and value is not None else value
+
+    def _is_dict(self, value: Any, name: str) -> bool:
+        if isinstance(value, dict):
+            return True
+        self.errors.append(f"{name} must be dict, got {type(value).__name__}")
+        return False
+
+    def _fingerprint(self, source: Optional[Dict]) -> Optional[SimulationFingerprint]:
+        if source is None:
+            return None
+        path = "fingerprint"
+        seed = self.read(source, path, "seed", (int, _NONE))
+        start_date = self.read(source, path, "start_date", (str,))
+        durations = [
+            self.read(source, path, key, _NUMBER)
+            for key in ("sim_duration_seconds", "slot_length_seconds", "tick_length_seconds")
+        ]
+        types = [
+            self.read(source, path, key, (int,))
+            for key in ("market_type", "bid_offer_match_type", "grid_fee_type")
+        ]
+        random_order = self._random_order(self.read(source, path, "random_order", (str,)))
+        areas = self._areas(self.read(source, path, "areas", (dict,)))
+        if self.errors:
+            return None
+        return SimulationFingerprint(seed, start_date, *durations, *types, random_order, areas)
+
+    def _random_order(self, value: Optional[str]) -> Optional[RandomOrder]:
+        if value is None:
+            return None
+        try:
+            return RandomOrder(value)
+        except ValueError:
+            allowed = ", ".join(order.value for order in RandomOrder)
+            self.errors.append(f"fingerprint.random_order must be one of {allowed}, got {value!r}")
+            return None
+
+    def _areas(self, source: Optional[Dict]) -> Dict[str, AreaFingerprint]:
+        areas = {}
+        for name, area in (source or {}).items():
+            path = f"fingerprint.areas.{name}"
+            if not self._is_dict(area, path):
+                continue
+            areas[name] = AreaFingerprint(
+                type=self.read(area, path, "type", (str,)),
+                grid_fee_constant=self.read(area, path, "grid_fee_constant", (*_NUMBER, _NONE)),
+                grid_fee_percentage=self.read(
+                    area, path, "grid_fee_percentage", (*_NUMBER, _NONE)
+                ),
+                settings=self.read(area, path, "settings", (str, _NONE)),
+            )
+        return areas
+
+    def _rates(self, source: Dict, key: str) -> Dict[str, float]:
+        rates = {}
+        for name, rate in (self.read(source, "", key, (dict,)) or {}).items():
+            if isinstance(rate, bool) or not isinstance(rate, _NUMBER):
+                self.errors.append(f"{key}.{name} must be float, got {type(rate).__name__}")
+                continue
+            rates[name] = float(rate)
+        return rates
