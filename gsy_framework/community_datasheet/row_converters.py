@@ -179,9 +179,15 @@ class MembersRowConverter:
         geo_tag_location: List = None,
         asset_count: int = 0,
         member_name: str = None,
+        did: str = None,
     ):
         # pylint: disable=too-many-arguments, too-many-locals
-        """Create a community member dict from individual member information."""
+        """
+        Create a community member dict from individual member information.
+
+        `did` is the member's Energy Web DID (did:ethr:volta:0x...), assigned by gsy-web via
+        gsy-ew-identity-server. None when unknown, e.g. for members read from a datasheet.
+        """
         zip_code = cls._parse_zip_code(zip_code)
         if not geo_tag_location:
             geo_tag_location = AssetCoordinatesBuilder().get_member_coordinates(
@@ -210,6 +216,7 @@ class MembersRowConverter:
             "contracted_power_monthly_fee": contracted_power_monthly_fee,
             "contracted_power_cargo_monthly_fee": contracted_power_cargo_monthly_fee,
             "energy_cargo_fee": energy_cargo_fee,
+            "did": did,
         }
 
     @classmethod

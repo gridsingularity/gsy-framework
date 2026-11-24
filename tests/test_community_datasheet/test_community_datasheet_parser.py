@@ -136,6 +136,8 @@ class TestCommunityDatasheetParser:
             expected_member_dict[member_name]["contracted_power_monthly_fee"] = 0.0
             expected_member_dict[member_name]["contracted_power_cargo_monthly_fee"] = 0.0
             expected_member_dict[member_name]["energy_cargo_fee"] = 0.0
+            # Members read from a datasheet have no DID yet (gsy-web assigns it later).
+            expected_member_dict[member_name]["did"] = None
 
         assert datasheet.members == expected_member_dict
         assert datasheet.grid == {
